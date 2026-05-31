@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Directorio de Pacientes — OnDental</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/pacientes.js"></script>
+  <style>
+    /* Estilos específicos complementarios */
+    .active-row {
+      background: rgba(43, 138, 247, 0.08) !important;
+      border-left: 3px solid var(--color-blue-mid);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo">OD</div>
+        <div class="brand-name">On<span class="acc">Dental</span></div>
+      </div>
+
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="dashboard.html">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="agenda.html">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <span>Agenda Citas</span>
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a href="pacientes.html">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span>Pacientes</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="odontograma.html">
+              <svg viewBox="0 0 24 24"><path d="M12 2C10.5 2 9 3 8 4.5 7 6 6 8.5 6 10c0 4 2 6 2 9 0 2.5 1 3 2 3s1.5-1 2-2c0.5 1 1 2 2 2s2-0.5 2-3c0-3 2-5 2-9 0-1.5-1-4-2-5.5C15 3 13.5 2 12 2z"></path></svg>
+              <span>Odontograma</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="presupuestos.html">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              <span>Presupuestos</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Perfil de usuario en el Sidebar -->
+      <div class="user-profile">
+        <div class="user-avatar" id="sidebar-user-avatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-role" id="sidebar-user-role">Clínico</div>
+        </div>
+      </div>
+
+      <button class="logout-btn" id="sidebar-logout-btn">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+      
+      <!-- Encabezado de Página -->
+      <header class="page-header">
+        <div class="page-title-area">
+          <h1 class="page-title">Fichas Clínicas e Historias</h1>
+          <p class="page-subtitle">Examine el expediente de los pacientes, registre nuevos ingresos y acceda a su odontograma.</p>
+        </div>
+        <div class="header-actions">
+          <button id="add-patient-btn" class="btn btn-primary">
+            <svg style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5;" viewBox="0 0 24 24">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Ingresar Paciente
+          </button>
+        </div>
+      </header>
+
+      <!-- PANEL DIVIDIDO PRINCIPAL -->
+      <div class="dashboard-layout" style="grid-template-columns: 1.3fr 1fr;">
+        
+        <!-- Panel Izquierdo: Directorio de Pacientes -->
+        <div class="card">
+          <div class="card-title-area">
+            <h2 class="card-title">Directorio de la Clínica</h2>
+            <!-- Barra de búsqueda predictiva -->
+            <input type="text" id="patient-search" class="form-control" placeholder="Buscar por Nombre, RUT o Teléfono..." style="max-width: 280px; padding: 8px 14px;">
+          </div>
+
+          <div class="custom-table-container">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Nombre Paciente</th>
+                  <th>RUT / ID</th>
+                  <th>Teléfono</th>
+                  <th style="text-align: right;">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="patient-list-body">
+                <!-- Se poblará dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Panel Derecho: Expediente Clínico Seleccionado -->
+        <div class="clinical-sidebar">
+          
+          <!-- Ficha de Expediente Activo -->
+          <div class="card" id="patient-details-card" style="display: none; flex-direction: column; gap: 20px;">
+            
+            <div class="patient-quick-card">
+              <span id="card-patient-age" style="float: right; font-size: 0.85rem; font-weight: 700; color: var(--color-teal);">34 años</span>
+              <h2 class="patient-quick-name" id="card-patient-name">Gabriel Mendoza Rojas</h2>
+              
+              <!-- Etiquetas Clínicas -->
+              <div class="patient-tag-list" id="card-patient-tags" style="margin-top: 8px;">
+                <!-- Poblado dinámicamente -->
+              </div>
+            </div>
+
+            <!-- Datos de contacto -->
+            <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px;">
+              <div><strong>RUT:</strong> <span id="card-patient-rut" style="color: var(--color-gray);">17.342.915-K</span></div>
+              <div><strong>Correo:</strong> <span id="card-patient-email" style="color: var(--color-gray);">gabriel@gmail.com</span></div>
+              <div><strong>Teléfono:</strong> <span id="card-patient-phone" style="color: var(--color-gray);">+56 9 8472 1928</span></div>
+            </div>
+
+            <!-- Alergias y Advertencias -->
+            <div style="background: rgba(255, 74, 90, 0.05); border: 1px solid rgba(255, 74, 90, 0.2); border-radius: 10px; padding: 12px 16px;">
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--state-caries); text-transform: uppercase;">⚠️ Alergias Registradas</span>
+              <p id="card-patient-allergies" style="font-size: 0.85rem; font-weight: 500; margin-top: 4px; color: var(--color-white);">-</p>
+            </div>
+
+            <!-- Antecedentes Médicos -->
+            <div>
+              <h3 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--color-teal); margin-bottom: 6px;">Historial Médico General</h3>
+              <p id="card-patient-history" style="font-size: 0.82rem; color: var(--color-gray); line-height: 1.6; background: rgba(255,255,255,0.01); border: 1px solid var(--border-glow); padding: 12px; border-radius: 8px;">-</p>
+            </div>
+
+            <!-- Herramientas Clínicas del Paciente (Redirecciones) -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px;">
+              <a href="#" id="card-link-odontograma" class="btn btn-success" style="padding: 12px; font-size: 0.82rem;">
+                🦷 Ver Odontograma
+              </a>
+              <a href="#" id="card-link-presupuesto" class="btn btn-primary" style="padding: 12px; font-size: 0.82rem;">
+                📄 Generar Presupuesto
+              </a>
+            </div>
+
+            <!-- Historial de Visitas / Citas -->
+            <div>
+              <h3 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--color-teal); margin-bottom: 12px;">Historial Clínico Citas</h3>
+              <div class="findings-timeline" id="card-patient-timeline">
+                <!-- Timeline de visitas se dibuja aquí -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Tarjeta Vacía (Cuando no hay selección) -->
+          <div class="card" id="patient-details-empty" style="min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--color-gray); gap: 15px;">
+            <span style="font-size: 3rem;">📁</span>
+            <p style="font-size: 0.95rem; font-weight: 500; max-width: 250px;">
+              Seleccione un paciente de la lista de la izquierda para examinar su ficha clínica y odontograma.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: REGISTRAR / MODIFICAR PACIENTE
+       ========================================================================== */ -->
+  <div class="modal-overlay" id="patient-modal">
+    <div class="modal-container" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title-text">Registrar Nuevo Paciente</h3>
+        <button class="modal-close-btn" id="patient-modal-close">✕</button>
+      </div>
+      <form id="patient-form">
+        <div class="modal-body">
+          <input type="hidden" id="patient-id"> <!-- Id oculto para edición -->
+
+          <div class="form-group">
+            <label class="form-label" for="patient-name">Nombre Completo</label>
+            <input type="text" id="patient-name" class="form-control" placeholder="Ej: Valentina Silva Contreras" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="patient-rut">RUT o Documento</label>
+              <input type="text" id="patient-rut" class="form-control" placeholder="Ej: 19.821.554-3" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="patient-age">Edad</label>
+              <input type="number" id="patient-age" class="form-control" placeholder="Ej: 26" required min="1" max="120">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="patient-email">Correo Electrónico</label>
+              <input type="email" id="patient-email" class="form-control" placeholder="Ej: vale@outlook.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="patient-phone">Número de Teléfono</label>
+              <input type="tel" id="patient-phone" class="form-control" placeholder="Ej: +56 9 7384 1029" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="patient-allergies">Alergias o Contraindicaciones Clínicas</label>
+            <input type="text" id="patient-allergies" class="form-control" placeholder="Ej: Penicilina, Látex, Antiinflamatorios (o dejar en blanco)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="patient-history">Antecedentes Médicos (Diagnósticos, Fármacos)</label>
+            <textarea id="patient-history" class="form-control" rows="3" placeholder="Ej: Hipertensión en tratamiento, diabetes tipo 2 con metformina..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="patient-tags">Etiquetas del Paciente (Separadas por comas)</label>
+            <input type="text" id="patient-tags" class="form-control" placeholder="Ej: Ortodoncia, Control Trimestral, Paciente Crítico">
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('patient-modal').classList.remove('active')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Expediente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>
