@@ -12,16 +12,35 @@
   <style>
     /* Estilos locales complementarios para ocultar elementos en impresión */
     @media print {
-      .no-print, .sidebar, .main-content > header, .budget-layout > div:first-child, .app-container {
+      /* Ocultar elementos no deseados */
+      .sidebar,
+      .no-print,
+      .page-header,
+      .budget-layout > div:first-child {
         display: none !important;
       }
+      /* Ajustar contenedores principales para abarcar toda la página */
       body {
         background: #ffffff !important;
         color: #000000 !important;
       }
+      .app-container {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+      }
       .main-content {
         margin-left: 0 !important;
         padding: 0 !important;
+        width: 100% !important;
+      }
+      .budget-layout {
+        display: block !important;
+        width: 100% !important;
       }
       .invoice-container {
         box-shadow: none !important;
@@ -29,6 +48,9 @@
         padding: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
       }
     }
   </style>

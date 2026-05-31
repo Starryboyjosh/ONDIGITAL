@@ -1,6 +1,7 @@
 /* ==========================================================================
    AGENDA.JS - LÓGICA DEL CALENDARIO CLÍNICO INTERACTIVO
    Controla la visualización del mes, creación, edición y cancelación de citas
+   con soporte para buscadores autocompletables de pacientes y profesionales.
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -30,8 +31,11 @@ document.addEventListener('DOMContentLoaded', function() {
   window.setupModalClosers(apptModal, document.getElementById('appt-modal-close'));
   window.setupModalClosers(detailModal, document.getElementById('detail-modal-close'));
 
-  // Cargar Selectores de Cita (Pacientes y Dentistas) en los formularios
-  populateFormSelectors();
+  // Cargar Selectores del Calendario
+  populateFilterSelector();
+
+  // Inicializar Componentes de Autocompletado Búsqueda
+  initAllAutocompletes();
 
   // Renderizar Calendario Inicial
   renderCalendar(currentDate);
@@ -63,6 +67,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (addApptBtn) {
     addApptBtn.addEventListener('click', () => {
       apptForm.reset();
+      clearPatientAutocomplete();
+      clearDentistAutocomplete();
       document.getElementById('appt-id').value = ''; // Modo creación
       
       // Colocar por defecto la fecha de hoy en el input
@@ -87,6 +93,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const specialty = document.getElementById('appt-specialty').value;
     const notes = document.getElementById('appt-notes').value;
 
+    if (!patientId) {
+      window.showToast('Por favor, busque y seleccione un paciente clínico válido.', 'error');
+      return;
+    }
+    if (!dentistId) {
+      window.showToast('Por favor, busque y seleccione un odontólogo tratante.', 'error');
+      return;
+    }
+
     const apptData = {
       patientId,
       dentistId,
@@ -99,7 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (id) {
       apptData.id = id;
-      // Mantener el estado original al editar
       const original = window.db.getAppointment(id);
       if (original) apptData.status = original.status;
     }
@@ -125,7 +139,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateFormatted = dt.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
     const timeFormatted = appt.dateTime.split('T')[1];
 
-    detailTime.textContent = `${dateFormatted} a las ${timeFormatted} hrs (${appt.duration} min)`;
+    // Formatear duración de manera legible
+    let durationText = `${appt.duration} min`;
+    if (appt.duration >= 60) {
+      const hours = Math.floor(appt.duration / 60);
+      const mins = appt.duration % 60;
+      durationText = `${hours}h ${mins > 0 ? mins + 'm' : ''}`;
+    }
+
+    detailTime.textContent = `${dateFormatted} a las ${timeFormatted} hrs (${durationText})`;
     detailPatient.innerHTML = `<strong>Paciente:</strong> <a href="pacientes.html?id=${patient.id}" style="color: var(--color-teal); text-decoration:none; font-weight:600;">${patient.name}</a>`;
     detailDentist.innerHTML = `<strong>Dentista:</strong> ${dentist.name} (${dentist.specialty})`;
     detailSpecialty.innerHTML = `<strong>Especialidad:</strong> <span class="tag">${appt.specialty}</span>`;
@@ -184,40 +206,201 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // --- COMPONENTES AUXILIARES ---
-  function populateFormSelectors() {
-    const patients = window.db.getPatients();
+  function populateFilterSelector() {
     const dentists = window.db.getDentists();
-
-    // Rellenar selector de pacientes
-    const patSelect = document.getElementById('appt-patient');
-    patSelect.innerHTML = '<option value="" disabled selected>Seleccione un Paciente...</option>';
-    patients.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.id;
-      opt.textContent = `${p.name} (${p.rut})`;
-      patSelect.appendChild(opt);
-    });
-
-    // Rellenar selector de dentistas
-    const dentSelect = document.getElementById('appt-dentist');
     const filterSelect = document.getElementById('dentist-filter');
-    
-    dentSelect.innerHTML = '<option value="" disabled selected>Seleccione un Profesional...</option>';
     filterSelect.innerHTML = '<option value="all">Todos los Profesionales</option>';
 
     dentists.forEach(d => {
-      // Formulario
-      const opt = document.createElement('option');
-      opt.value = d.id;
-      opt.textContent = `${d.name} (${d.specialty})`;
-      dentSelect.appendChild(opt);
-
-      // Filtro
       const optF = document.createElement('option');
       optF.value = d.id;
       optF.textContent = d.name;
       filterSelect.appendChild(optF);
     });
+  }
+
+  // --- BUSCADORES AUTOCOMPLETABLES ---
+  function initAllAutocompletes() {
+    setupSearchAutocomplete({
+      inputEl: document.getElementById('patient-search-input'),
+      hiddenEl: document.getElementById('appt-patient'),
+      clearBtnEl: document.getElementById('btn-clear-patient'),
+      toggleBtnEl: document.getElementById('btn-toggle-patient'),
+      resultsEl: document.getElementById('patient-search-results'),
+      getDataFn: () => window.db.getPatients().map(p => ({ id: p.id, title: p.name, subtitle: p.rut })),
+      placeholderText: 'Buscar paciente por nombre o RUT...'
+    });
+
+    setupSearchAutocomplete({
+      inputEl: document.getElementById('dentist-search-input'),
+      hiddenEl: document.getElementById('appt-dentist'),
+      clearBtnEl: document.getElementById('btn-clear-dentist'),
+      toggleBtnEl: document.getElementById('btn-toggle-dentist'),
+      resultsEl: document.getElementById('dentist-search-results'),
+      getDataFn: () => window.db.getDentists().map(d => ({ id: d.id, title: d.name, subtitle: d.specialty })),
+      placeholderText: 'Buscar profesional por nombre o especialidad...'
+    });
+  }
+
+  function setupSearchAutocomplete({ inputEl, hiddenEl, clearBtnEl, toggleBtnEl, resultsEl, getDataFn, placeholderText }) {
+    let highlightedIndex = -1;
+    let filteredList = [];
+
+    // Capturar tipeo
+    inputEl.addEventListener('input', function() {
+      const query = this.value.trim().toLowerCase();
+      highlightedIndex = -1;
+
+      if (query.length < 2) {
+        resultsEl.innerHTML = '';
+        resultsEl.classList.add('hidden');
+        clearBtnEl.style.display = 'none';
+        hiddenEl.value = '';
+        return;
+      }
+
+      clearBtnEl.style.display = 'block';
+      const sourceDataList = getDataFn();
+      
+      // Filtrado difuso predictivo
+      filteredList = sourceDataList.filter(item => 
+        item.title.toLowerCase().includes(query) || 
+        (item.subtitle && item.subtitle.toLowerCase().includes(query))
+      );
+
+      renderResults(filteredList, query);
+    });
+
+    // Controlador del botón desplegable (▼) para scroll de todas las opciones
+    if (toggleBtnEl) {
+      toggleBtnEl.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const isOpen = !resultsEl.classList.contains('hidden') && resultsEl.innerHTML !== '';
+        if (isOpen) {
+          closeDropdown();
+        } else {
+          // Obtener lista completa
+          filteredList = getDataFn();
+          renderResults(filteredList, '');
+          inputEl.focus();
+        }
+      });
+    }
+
+    // Renderizar lista flotante con marcado mark
+    function renderResults(list, query) {
+      resultsEl.innerHTML = '';
+      
+      if (list.length === 0) {
+        resultsEl.innerHTML = `<div class="autocomplete-no-results">Sin coincidencias</div>`;
+        resultsEl.classList.remove('hidden');
+        return;
+      }
+
+      list.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'autocomplete-item';
+        row.dataset.id = item.id;
+        
+        // Marcar concordancia (solo si query no está vacío)
+        let highlightedTitle = item.title;
+        let highlightedSubtitle = item.subtitle || '';
+        
+        if (query) {
+          const regex = new RegExp(`(${query})`, 'gi');
+          highlightedTitle = item.title.replace(regex, '<mark>$1</mark>');
+          highlightedSubtitle = item.subtitle ? item.subtitle.replace(regex, '<mark>$1</mark>') : '';
+        }
+
+        row.innerHTML = `
+          <div class="item-title">${highlightedTitle}</div>
+          ${item.subtitle ? `<div class="item-subtitle">${highlightedSubtitle}</div>` : ''}
+        `;
+
+        row.addEventListener('click', () => selectItem(item));
+        resultsEl.appendChild(row);
+      });
+
+      resultsEl.classList.remove('hidden');
+    }
+
+    // Controlador de Teclado
+    inputEl.addEventListener('keydown', function(e) {
+      const rows = resultsEl.querySelectorAll('.autocomplete-item');
+      if (!rows.length) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        highlightedIndex = (highlightedIndex + 1) % rows.length;
+        updateHighlight(rows);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        highlightedIndex = (highlightedIndex - 1 + rows.length) % rows.length;
+        updateHighlight(rows);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (highlightedIndex > -1 && filteredList[highlightedIndex]) {
+          selectItem(filteredList[highlightedIndex]);
+        }
+      } else if (e.key === 'Escape') {
+        closeDropdown();
+      }
+    });
+
+    function updateHighlight(rows) {
+      rows.forEach((row, idx) => {
+        if (idx === highlightedIndex) {
+          row.classList.add('highlighted');
+          row.scrollIntoView({ block: 'nearest' });
+        } else {
+          row.classList.remove('highlighted');
+        }
+      });
+    }
+
+    function selectItem(item) {
+      inputEl.value = item.title;
+      hiddenEl.value = item.id;
+      clearBtnEl.style.display = 'block';
+      closeDropdown();
+    }
+
+    function closeDropdown() {
+      resultsEl.innerHTML = '';
+      resultsEl.classList.add('hidden');
+    }
+
+    // Botón borrar
+    clearBtnEl.addEventListener('click', () => {
+      inputEl.value = '';
+      hiddenEl.value = '';
+      clearBtnEl.style.display = 'none';
+      closeDropdown();
+      inputEl.focus();
+    });
+
+    // Cerrar al clickear fuera
+    document.addEventListener('click', (e) => {
+      if (e.target !== inputEl && e.target !== resultsEl && e.target !== toggleBtnEl) {
+        closeDropdown();
+      }
+    });
+  }
+
+  function clearPatientAutocomplete() {
+    document.getElementById('patient-search-input').value = '';
+    document.getElementById('appt-patient').value = '';
+    document.getElementById('btn-clear-patient').style.display = 'none';
+    document.getElementById('patient-search-results').classList.add('hidden');
+    document.getElementById('patient-search-results').innerHTML = '';
+  }
+
+  function clearDentistAutocomplete() {
+    document.getElementById('dentist-search-input').value = '';
+    document.getElementById('appt-dentist').value = '';
+    document.getElementById('btn-clear-dentist').style.display = 'none';
+    document.getElementById('dentist-search-results').classList.add('hidden');
+    document.getElementById('dentist-search-results').innerHTML = '';
   }
 
   // Algoritmo de Renderizado de Calendario
@@ -226,7 +409,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const year = date.getFullYear();
     const month = date.getMonth();
 
-    // Título del Mes actual (Ej: "Mayo 2026")
     const monthNames = [
       'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
@@ -237,7 +419,6 @@ document.addEventListener('DOMContentLoaded', function() {
     grid.innerHTML = '';
 
     // Obtener primer día del mes (0 = Lunes, 6 = Domingo)
-    // Date.getDay() da 0 para Domingo, mapeémoslo para Lunes = 0
     let firstDayIndex = new Date(year, month, 1).getDay();
     firstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1; // Ajustar a Lunes = 0
 
@@ -261,7 +442,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const cell = createCell(dayNum, false, isToday);
 
-      // Filtrar y ordenar citas para este día específico
       const cellDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
       
       const dayAppts = appointments.filter(appt => {
@@ -288,7 +468,7 @@ document.addEventListener('DOMContentLoaded', function() {
           pillBorder = '1px solid rgba(43, 138, 247, 0.3)';
           textColor = 'var(--color-blue-mid)';
         } else if (appt.status === 'completed') {
-          pillColor = 'rgba(0, 229, 176, 0.12)'; // Teal/Teal
+          pillColor = 'rgba(0, 229, 176, 0.12)'; // Teal
           pillBorder = '1px solid rgba(0, 229, 176, 0.25)';
           textColor = 'var(--color-teal)';
         } else if (appt.status === 'canceled') {
@@ -302,12 +482,12 @@ document.addEventListener('DOMContentLoaded', function() {
         pill.style.background = pillColor;
         pill.style.border = pillBorder;
         pill.style.color = textColor;
-        // Obtener primer nombre del paciente
+        
         const firstName = patient.name.split(' ')[0];
         pill.textContent = `${timeStr} - ${firstName}`;
         
         pill.addEventListener('click', (e) => {
-          e.stopPropagation(); // Evitar clics en la celda vacía
+          e.stopPropagation(); // Evitar clics en la celda
           window.openApptDetails(appt.id);
         });
 
@@ -317,6 +497,8 @@ document.addEventListener('DOMContentLoaded', function() {
       // Permitir hacer doble clic o clic en celda libre para crear cita en esa fecha
       cell.addEventListener('click', () => {
         apptForm.reset();
+        clearPatientAutocomplete();
+        clearDentistAutocomplete();
         document.getElementById('appt-id').value = '';
         document.getElementById('appt-date').value = cellDateStr;
         document.getElementById('appt-time').value = '09:00';
@@ -326,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function() {
       grid.appendChild(cell);
     }
 
-    // Celdas del mes siguiente para completar la cuadrícula (para que siempre tenga 6 filas = 42 celdas)
+    // Celdas del mes siguiente para completar la cuadrícula (siempre tiene 6 filas = 42 celdas)
     const totalCellsFilled = firstDayIndex + totalDays;
     const remainingCells = 42 - totalCellsFilled;
     for (let dayNum = 1; dayNum <= remainingCells; dayNum++) {

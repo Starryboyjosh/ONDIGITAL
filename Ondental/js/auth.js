@@ -6,24 +6,24 @@
 (function() {
   const SESSION_KEY = 'ondental_session';
 
-  // Usuarios válidos del sistema (Demo)
-  const validUsers = [
-    { username: 'admin', name: 'Administrador General', role: 'Administración', avatar: 'A' },
-    { username: 'dentista', name: 'Dr. Sebastián Escoto', role: 'Dentista Principal', avatar: 'SE' }
-  ];
-
   window.auth = {
+    // Retorna todos los usuarios del sistema
+    getValidUsers: () => {
+      return window.db ? window.db.getUsers() : [];
+    },
+
     // Intenta iniciar sesión con usuario y contraseña
     login: (username, password) => {
-      const user = validUsers.find(u => u.username === username.trim().toLowerCase());
+      const user = window.db ? window.db.getUser(username) : null;
       
-      // En este demo clínico, la contraseña universal es "1234"
-      if (user && password === '1234') {
+      // Validamos contra la contraseña del usuario (por defecto "1234")
+      if (user && (user.password === password || (!user.password && password === '1234'))) {
         sessionStorage.setItem(SESSION_KEY, JSON.stringify({
           username: user.username,
           name: user.name,
           role: user.role,
           avatar: user.avatar,
+          companyId: user.companyId,
           loginTime: Date.now()
         }));
         return { success: true };
@@ -35,6 +35,15 @@
     getCurrentUser: () => {
       const session = sessionStorage.getItem(SESSION_KEY);
       return session ? JSON.parse(session) : null;
+    },
+
+    // Retorna la empresa del usuario logueado actualmente
+    getCurrentCompany: () => {
+      const user = window.auth.getCurrentUser();
+      if (user && window.db && window.db.getCompany) {
+        return window.db.getCompany(user.companyId);
+      }
+      return null;
     },
 
     // Cierra la sesión activa y redirige al login

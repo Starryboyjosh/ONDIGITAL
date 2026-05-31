@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión — OnDental Clínica Digital</title>
   <link rel="stylesheet" href="css/styles.css">
+  <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
 </head>
 <body class="login-viewport">
@@ -23,7 +24,7 @@
     <form id="login-form">
       <div class="form-group" style="text-align: left;">
         <label class="form-label" for="username">Usuario Clínico</label>
-        <input type="text" id="username" class="form-control" placeholder="Ej: admin o dentista" required autocomplete="username">
+        <input type="text" id="username" class="form-control" placeholder="Escriba su usuario..." required autocomplete="username">
       </div>
 
       <div class="form-group" style="text-align: left; margin-bottom: 25px;">
@@ -41,9 +42,29 @@
     </form>
 
     <div class="login-demo-box">
-      <strong>Modo Demostración Activo</strong><br>
-      • Usuario Administrador: <code>admin</code> / Contraseña: <code>1234</code><br>
-      • Usuario Dentista: <code>dentista</code> / Contraseña: <code>1234</code>
+      <strong style="display: block; margin-bottom: 10px; font-size: 0.82rem; text-align: center;">Modo Multi-Empresa Clínico (Clave: 1234)</strong>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; font-size: 0.72rem; line-height: 1.4;">
+        <div>
+          <span style="color: #00e5b0; font-weight: 700; font-family: var(--font-title);">💎 Credental</span><br>
+          • <code>admin</code> (Admin)<br>
+          • <code>dentista</code> (Sebastián)
+        </div>
+        <div>
+          <span style="color: #2b8af7; font-weight: 700; font-family: var(--font-title);">🏥 OnDental Central</span><br>
+          • <code>recepcion</code> (María)<br>
+          • <code>dra.lopez</code> (Ana)
+        </div>
+        <div>
+          <span style="color: #f5a623; font-weight: 700; font-family: var(--font-title);">✨ Sonrisa Perfecta</span><br>
+          • <code>dr.martinez</code> (Carlos)<br>
+          • <code>higienista</code> (Laura)
+        </div>
+        <div>
+          <span style="color: #9b59b6; font-weight: 700; font-family: var(--font-title);">💼 DentPro Consultores</span><br>
+          • <code>dr.ramirez</code> (Roberto)<br>
+          • <code>asistente</code> (Patricia)
+        </div>
+      </div>
     </div>
   </div>
 
@@ -57,11 +78,64 @@
       alertBox.style.display = 'block';
     }
 
-    // Lógica del Formulario
+    // 1. Detección en tiempo real del usuario para Branding Dinámico de la Empresa
+    const usernameInput = document.getElementById('username');
+    const brandName = document.querySelector('.login-brand-name');
+    const brandLogo = document.querySelector('.login-logo');
+
+    usernameInput.addEventListener('input', function() {
+      const username = this.value.trim().toLowerCase();
+      const validUsers = window.auth ? window.auth.getValidUsers() : [];
+      const user = validUsers.find(u => u.username === username);
+
+      if (user) {
+        const companies = {
+          'credental': { name: 'Credental', accent: '#00e5b0', logo: '💎' },
+          'ondental-central': { name: 'OnDental Clínica Central', accent: '#2b8af7', logo: '🏥' },
+          'sonrisa-perfecta': { name: 'Sonrisa Perfecta', accent: '#f5a623', logo: '✨' },
+          'dentpro': { name: 'DentPro Consultores', accent: '#9b59b6', logo: '💼' }
+        };
+        const company = companies[user.companyId];
+
+        if (company) {
+          // Cambiar color de acento y sombras CSS
+          document.documentElement.style.setProperty('--color-blue-mid', company.accent);
+          document.documentElement.style.setProperty('--border-glow-active', `${company.accent}66`);
+          
+          // Actualizar logo emoji
+          brandLogo.textContent = company.logo;
+          brandLogo.style.boxShadow = `0 0 15px ${company.accent}73`;
+
+          // Actualizar título
+          const name = company.name;
+          if (name.toLowerCase().includes('dental')) {
+            const parts = name.split(/(dental)/i);
+            brandName.innerHTML = `${parts[0]}<span class="acc">${parts[1]}</span>${parts.slice(2).join('')}`;
+          } else {
+            const words = name.split(' ');
+            if (words.length >= 2) {
+              brandName.innerHTML = `${words[0]} <span class="acc">${words.slice(1).join(' ')}</span>`;
+            } else {
+              brandName.innerHTML = `<span class="acc">${name}</span>`;
+            }
+          }
+          return;
+        }
+      }
+
+      // Restablecer al branding corporativo por defecto
+      document.documentElement.style.setProperty('--color-blue-mid', '#2b8af7');
+      document.documentElement.style.setProperty('--border-glow-active', 'rgba(43, 138, 247, 0.42)');
+      brandLogo.textContent = 'OD';
+      brandLogo.style.boxShadow = '0 0 15px rgba(43, 138, 247, 0.45)';
+      brandName.innerHTML = 'On<span class="acc">Dental</span>';
+    });
+
+    // 2. Lógica de envío del Formulario
     document.getElementById('login-form').addEventListener('submit', function(e) {
       e.preventDefault();
       
-      const userVal = document.getElementById('username').value;
+      const userVal = usernameInput.value;
       const passVal = document.getElementById('password').value;
 
       // Ocultar alerta inicial
@@ -80,7 +154,7 @@
         
         // Reiniciar animación shake
         alertBox.classList.remove('shake');
-        void alertBox.offsetWidth; // Forzar reflow para reiniciar CSS animation
+        void alertBox.offsetWidth; // Forzar reflow
         alertBox.classList.add('shake');
       }
     });

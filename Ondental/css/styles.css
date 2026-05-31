@@ -1323,7 +1323,7 @@ body::before {
   animation: pulse-shimmer 2s infinite ease-in-out;
 }
 
-/* Vista de Impresión del Presupuesto */
+/* Vista de Impresión del Presupuesto (Global) */
 @media print {
   body * {
     visibility: hidden;
@@ -1340,4 +1340,247 @@ body::before {
     padding: 0;
     margin: 0;
   }
+}
+
+/* ==========================================================================
+   OPTIMIZACIONES Y MODO CLARO / OSCURO (ONDIGITAL CUSTOM)
+   ========================================================================== */
+
+/* Botón de Cerrar Sesión - Corrección de SVG y Micro-animación */
+.logout-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.25s ease;
+}
+
+.logout-btn:hover svg {
+  transform: translateX(3px);
+}
+
+/* Autocomplete Premium */
+.autocomplete-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.autocomplete-wrapper .form-control {
+  padding-right: 55px; /* Espacio para botones de limpiar y desplegar */
+}
+
+.btn-clear-search {
+  position: absolute;
+  right: 32px;
+  background: transparent;
+  border: none;
+  color: var(--color-gray);
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: none; /* Controlado dinámicamente */
+  padding: 4px;
+  z-index: 5;
+  line-height: 1;
+}
+
+.btn-clear-search:hover {
+  color: var(--color-white);
+}
+
+.btn-dropdown-toggle {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--color-gray);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 6px;
+  z-index: 5;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.btn-dropdown-toggle:hover {
+  color: var(--color-white);
+}
+
+.autocomplete-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-glow-active);
+  border-radius: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 5px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.autocomplete-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  transition: background 0.2s ease, color 0.2s ease;
+  text-align: left;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover, .autocomplete-item.highlighted {
+  background: rgba(43, 138, 247, 0.15);
+  color: var(--color-white);
+}
+
+.autocomplete-item .item-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.autocomplete-item .item-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-gray);
+  margin-top: 2px;
+}
+
+.autocomplete-item mark {
+  background: rgba(0, 229, 176, 0.25);
+  color: var(--color-teal);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.autocomplete-no-results {
+  padding: 15px;
+  text-align: center;
+  color: var(--color-gray);
+  font-size: 0.85rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==========================================================================
+   ESTILOS DE MODO CLARO (LIGHT THEME OVERRIDES)
+   ========================================================================== */
+html.light-theme {
+  --bg-primary: #f0f4f8;
+  --bg-secondary: #ffffff;
+  --bg-accent: rgba(255, 255, 255, 0.85);
+  --border-glow: rgba(43, 138, 247, 0.12);
+  --border-glow-active: rgba(43, 138, 247, 0.28);
+  --color-white: #1e293b; /* Texto principal cambia a pizarra oscuro */
+  --color-gray: #475569;   /* Texto secundario */
+  --color-gray-dark: #64748b;
+  --box-shadow-premium: 0 8px 30px 0 rgba(160, 175, 195, 0.25);
+  --box-shadow-glow: 0 0 20px rgba(43, 138, 247, 0.1);
+  --glass-blur: blur(20px);
+}
+
+/* Forzar que el fondo degradado en body de modo claro sea sutil y limpio */
+html.light-theme body {
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(ellipse 60% 60% at 75% 15%, rgba(26, 111, 232, 0.05) 0%, transparent 80%),
+    radial-gradient(ellipse 40% 40% at 15% 85%, rgba(0, 229, 176, 0.02) 0%, transparent 70%);
+  color: var(--color-white);
+}
+
+/* Forzar colores específicos para elementos que deben mantener alto contraste */
+html.light-theme .btn-primary {
+  color: #ffffff !important;
+}
+html.light-theme .btn-success {
+  color: #0d8a6a !important; /* Más oscuro para contraste en fondo claro */
+  background: rgba(0, 229, 176, 0.12);
+}
+html.light-theme .btn-danger {
+  color: #d32f2f !important;
+  background: rgba(255, 74, 90, 0.12);
+}
+
+html.light-theme .tag {
+  background: rgba(43, 138, 247, 0.08);
+  color: #1e293b;
+  border: 1px solid rgba(43, 138, 247, 0.15);
+}
+
+/* Modales y Formularios en Modo Claro */
+html.light-theme .form-control {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+}
+
+html.light-theme .form-control:focus {
+  background: #ffffff;
+  border-color: var(--color-blue-mid);
+  box-shadow: 0 0 8px rgba(43, 138, 247, 0.18);
+}
+
+html.light-theme .modal-container {
+  background: #ffffff;
+  box-shadow: 0 25px 60px rgba(100, 116, 139, 0.2);
+}
+
+html.light-theme .modal-footer {
+  background: #f8fafc;
+}
+
+/* Autocomplete en Modo Claro */
+html.light-theme .autocomplete-results {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 25px rgba(100, 116, 139, 0.15);
+}
+
+html.light-theme .autocomplete-item {
+  border-bottom-color: #f1f5f9;
+}
+
+html.light-theme .autocomplete-item:hover,
+html.light-theme .autocomplete-item.highlighted {
+  background: rgba(43, 138, 247, 0.08);
+  color: #1e293b;
+}
+
+html.light-theme .btn-clear-search:hover,
+html.light-theme .btn-dropdown-toggle:hover {
+  color: #1e293b;
+}
+
+/* Tarjetas y Tablas en Modo Claro */
+html.light-theme .user-profile {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+html.light-theme .custom-table th {
+  background: rgba(43, 138, 247, 0.05);
+  color: #475569;
+}
+
+html.light-theme .custom-table tbody tr:hover {
+  background: rgba(43, 138, 247, 0.03);
+}
+
+html.light-theme .toast-notification {
+  color: #ffffff !important; /* El toast se mantiene con texto blanco */
+}
+
+/* Corregir contraste de tips clínicos y otros textos menores */
+html.light-theme strong {
+  color: #1e293b;
 }
