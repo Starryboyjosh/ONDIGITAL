@@ -31,6 +31,14 @@
     { id: 'dentpro', name: 'DentPro Consultores', accent: '#9b59b6', description: 'Consultores dentales especializados' }
   ];
 
+  // Configuración de Clínica por Defecto (Contacto y Ubicación)
+  const defaultClinicaConfig = {
+    'credental': { nombreClinica: 'Credental Providencia', direccion: 'Av. Providencia 1234, Oficina 501, Santiago', telefono: '+56 2 2345 6789', correo: 'contacto@credental.cl' },
+    'ondental-central': { nombreClinica: 'OnDental Clínica Central', direccion: 'Av. Las Condes 9876, Santiago', telefono: '+56 2 2876 5432', correo: 'central@ondental.cl' },
+    'sonrisa-perfecta': { nombreClinica: 'Clínica Sonrisa Perfecta', direccion: 'Calle Esmeralda 456, Valparaíso', telefono: '+56 32 234 5678', correo: 'contacto@sonrisaperfecta.cl' },
+    'dentpro': { nombreClinica: 'DentPro Vitacura', direccion: 'Av. Andrés Bello 2345, Providencia, Santiago', telefono: '+56 2 2987 6543', correo: 'info@dentpro.cl' }
+  };
+
   // 1.5. Usuarios válidos por defecto
   const defaultUsers = [
     { username: 'admin', name: 'Administrador General', role: 'Administración', avatar: 'AG', companyId: 'credental', password: '1234' },
@@ -52,14 +60,14 @@
   ];
 
   const defaultTreatments = [
-    { code: 'TR_01', name: 'Profilaxis Completa y Limpieza', price: 45000 },
-    { code: 'TR_02', name: 'Restauración de Resina Simple (Cara)', price: 35000 },
-    { code: 'TR_03', name: 'Endodoncia Unirradicular', price: 120000 },
-    { code: 'TR_04', name: 'Corona Metal-Porcelana', price: 280000 },
-    { code: 'TR_05', name: 'Implante Dental de Titanio (Solo Fase Quirúrgica)', price: 450000 },
-    { code: 'TR_06', name: 'Extracción Dental Simple', price: 50000 },
-    { code: 'TR_07', name: 'Blanqueamiento Dental Laser (Sesión)', price: 150000 },
-    { code: 'TR_08', name: 'Aparatología Ortodoncia Metálica (Instalación)', price: 320000 }
+    { code: 'TR_01', name: 'Profilaxis Completa y Limpieza', price: 45000, description: 'Limpieza dental profunda y remoción de sarro.' },
+    { code: 'TR_02', name: 'Restauración de Resina Simple (Cara)', price: 35000, description: 'Restauración estética de resina de alta densidad.' },
+    { code: 'TR_03', name: 'Endodoncia Unirradicular', price: 120000, description: 'Tratamiento de conducto para piezas unirradiculares.' },
+    { code: 'TR_04', name: 'Corona Metal-Porcelana', price: 280000, description: 'Rehabilitación fija con corona metal-porcelana estética.' },
+    { code: 'TR_05', name: 'Implante Dental de Titanio (Solo Fase Quirúrgica)', price: 450000, description: 'Colocación quirúrgica de implante de titanio.' },
+    { code: 'TR_06', name: 'Extracción Dental Simple', price: 50000, description: 'Extracción simple de pieza dentaria no restaurable.' },
+    { code: 'TR_07', name: 'Blanqueamiento Dental Laser (Sesión)', price: 150000, description: 'Blanqueamiento clínico mediante luz láser.' },
+    { code: 'TR_08', name: 'Aparatología Ortodoncia Metálica (Instalación)', price: 320000, description: 'Instalación completa de brackets metálicos.' }
   ];
 
   // 3. Pacientes distribuidos en las 4 empresas
@@ -73,6 +81,7 @@
       phone: '+56 9 8472 1928',
       allergies: 'Penicilina',
       medicalHistory: 'Hipertensión controlada con Losartán. Sin otros antecedentes crónicos.',
+      motivoConsulta: 'Limpieza dental general y dolor en un molar al comer dulces.',
       tags: ['Alergias', 'Control Trimestral'],
       companyId: 'credental',
       odontogram: {
@@ -92,6 +101,7 @@
       phone: '+56 9 7384 1029',
       allergies: 'Ninguna',
       medicalHistory: 'Paciente sana. Tratamiento de ortodoncia activo.',
+      motivoConsulta: 'Control de frenillos mensual y ajuste de arcos superiores.',
       tags: ['Ortodoncia'],
       companyId: 'ondental-central',
       odontogram: {
@@ -109,6 +119,7 @@
       phone: '+56 9 6482 9102',
       allergies: 'Aspirina',
       medicalHistory: 'Diabetes tipo II bajo dieta y Metformina.',
+      motivoConsulta: 'Dolor dental agudo en molar inferior izquierdo al masticar.',
       tags: ['Control Semestral'],
       companyId: 'sonrisa-perfecta',
       odontogram: {
@@ -127,6 +138,7 @@
       phone: '+56 9 5592 1083',
       allergies: 'Ninguna',
       medicalHistory: 'Sin condiciones médicas de cuidado.',
+      motivoConsulta: 'Evaluación general y consulta por blanqueamiento dental.',
       tags: ['Estética'],
       companyId: 'dentpro',
       odontogram: {}
@@ -140,6 +152,7 @@
       phone: '+56 9 7784 1209',
       allergies: 'Ninguna',
       medicalHistory: 'Sano.',
+      motivoConsulta: 'Sensibilidad dental al tomar bebidas frías.',
       tags: ['Control Semestral'],
       companyId: 'credental',
       odontogram: {
@@ -155,6 +168,7 @@
       phone: '+56 9 6692 8401',
       allergies: 'Látex',
       medicalHistory: 'Fobia dental leve.',
+      motivoConsulta: 'Sangrado de encías espontáneo durante el cepillado.',
       tags: ['Control Anual'],
       companyId: 'ondental-central',
       odontogram: {}
@@ -252,6 +266,7 @@
       ],
       discount: 10,
       status: 'accepted',
+      paymentStatus: 'pendiente',
       companyId: 'credental'
     },
     {
@@ -265,6 +280,7 @@
       ],
       discount: 5,
       status: 'draft',
+      paymentStatus: 'pendiente',
       companyId: 'sonrisa-perfecta'
     }
   ];
@@ -289,11 +305,25 @@
       set('patients', defaultPatients);
       set('appointments', defaultAppointments);
       set('budgets', defaultBudgets);
+      set('clinica_config', defaultClinicaConfig);
+      set('payments', []);
+      set('periodontograms', {});
       set('initialized', true);
       console.log('OnDental DB Multi-Empresa: Inicializada con éxito sobre LocalStorage.');
-    } else if (!localStorage.getItem(DB_PREFIX + 'users')) {
-      // Por si ya estaba inicializada pero sin la clave de usuarios
-      set('users', defaultUsers);
+    } else {
+      // Garantizar que las nuevas tablas existan incluso si ya estaba inicializada
+      if (!localStorage.getItem(DB_PREFIX + 'clinica_config')) {
+        set('clinica_config', defaultClinicaConfig);
+      }
+      if (!localStorage.getItem(DB_PREFIX + 'payments')) {
+        set('payments', []);
+      }
+      if (!localStorage.getItem(DB_PREFIX + 'periodontograms')) {
+        set('periodontograms', {});
+      }
+      if (!localStorage.getItem(DB_PREFIX + 'users')) {
+        set('users', defaultUsers);
+      }
     }
   }
 
@@ -333,8 +363,52 @@
     },
     getDentist: (id) => get('dentists', []).find(d => d.id === id),
 
-    // TRATAMIENTOS (Catálogo común)
+    // TRATAMIENTOS / PROCEDIMIENTOS (Catálogo del tenant)
     getTreatments: () => get('treatments', []),
+    getProcedures: () => get('treatments', []),
+    saveProcedure: (procedure) => {
+      const treatments = get('treatments', []);
+      const index = treatments.findIndex(t => t.code === procedure.code);
+      if (index === -1) {
+        treatments.push(procedure);
+      } else {
+        treatments[index] = procedure;
+      }
+      set('treatments', treatments);
+      return procedure;
+    },
+    deleteProcedure: (code) => {
+      const treatments = get('treatments', []);
+      const filtered = treatments.filter(t => t.code !== code);
+      set('treatments', filtered);
+    },
+
+    // CONFIGURACIÓN DE CLÍNICA (Aislada por sucursal/tenant)
+    getClinicaConfig: (companyId) => {
+      const configs = get('clinica_config', {});
+      const cid = companyId || getCurrentCompanyId();
+      if (cid && configs[cid]) {
+        return configs[cid];
+      }
+      // Fallback a los datos de la empresa si no hay config
+      const company = window.db.getCompany(cid);
+      return {
+        nombreClinica: company ? company.name : 'OnDental Clínica',
+        direccion: 'Dirección no configurada',
+        telefono: 'Teléfono no configurado',
+        correo: 'Correo no configurado'
+      };
+    },
+    saveClinicaConfig: (companyId, config) => {
+      const configs = get('clinica_config', {});
+      const cid = companyId || getCurrentCompanyId();
+      if (cid) {
+        configs[cid] = config;
+        set('clinica_config', configs);
+        return true;
+      }
+      return false;
+    },
 
     // PACIENTES (Aislados por empresa activa)
     getPatients: () => {
@@ -355,6 +429,7 @@
         // Registrar Paciente Nuevo
         patient.id = 'pat_' + Date.now();
         patient.odontogram = {};
+        patient.motivoConsulta = patient.motivoConsulta || 'Consulta general preventiva.';
         patients.push(patient);
       } else {
         // Modificar Paciente Existente
@@ -423,6 +498,18 @@
       return false;
     },
 
+    // PERIODONTOGRAMA (Almacenamiento directo o indexado por Paciente)
+    getPeriodontogram: (patientId) => {
+      const periodontograms = get('periodontograms', {});
+      return periodontograms[patientId] || null;
+    },
+    savePeriodontogram: (patientId, data) => {
+      const periodontograms = get('periodontograms', {});
+      periodontograms[patientId] = data;
+      set('periodontograms', periodontograms);
+      return true;
+    },
+
     // PRESUPUESTOS (Aislados por empresa activa)
     getBudgets: () => {
       const budgets = get('budgets', []);
@@ -437,6 +524,10 @@
         budget.companyId = cid;
       }
       
+      if (!budget.paymentStatus) {
+        budget.paymentStatus = 'pendiente';
+      }
+      
       if (!budget.id) {
         budget.id = 'bud_' + Date.now();
         budgets.push(budget);
@@ -449,19 +540,59 @@
       set('budgets', budgets);
       return budget;
     },
+
+    // COBRANZAS Y ABONOS (Gestión financiera)
+    getPayments: (budgetId) => {
+      const payments = get('payments', []);
+      return budgetId ? payments.filter(p => p.budgetId === budgetId) : payments;
+    },
+    registerPayment: (payment) => {
+      const payments = get('payments', []);
+      payment.id = 'pay_' + Date.now();
+      payment.date = payment.date || new Date().toISOString().split('T')[0];
+      payments.push(payment);
+      set('payments', payments);
+
+      // Actualizar automáticamente el estado del presupuesto
+      const budget = window.db.getBudgets().find(b => b.id === payment.budgetId);
+      if (budget) {
+        const subtotal = budget.treatments.reduce((acc, t) => acc + (t.price * t.qty), 0);
+        const total = subtotal * (1 - (budget.discount || 0) / 100);
+        
+        // Sumar todos los abonos para este presupuesto
+        const budgetPayments = payments.filter(p => p.budgetId === budget.id);
+        const totalPaid = budgetPayments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
+
+        if (totalPaid >= total) {
+          budget.paymentStatus = 'pagado';
+        } else if (totalPaid > 0) {
+          budget.paymentStatus = 'parcial';
+        } else {
+          budget.paymentStatus = 'pendiente';
+        }
+        window.db.saveBudget(budget);
+      }
+      return payment;
+    },
+    updateBudgetPaymentStatus: (budgetId, paymentStatus) => {
+      const budget = window.db.getBudgets().find(b => b.id === budgetId);
+      if (budget) {
+        budget.paymentStatus = paymentStatus;
+        window.db.saveBudget(budget);
+        return true;
+      }
+      return false;
+    },
     
-    // COMISIONES MÉDICAS (Calculador de ERP inspirado en Dentalink/Doctocliq)
+    // COMISIONES MÉDICAS (Calculador de ERP)
     getCommissions: () => {
       const budgets = get('budgets', []);
       const dentists = get('dentists', []);
       const cid = getCurrentCompanyId();
       
-      // Filtrar presupuestos de la empresa activa
       const activeBudgets = cid ? budgets.filter(b => b.companyId === cid) : budgets;
-      
       const commissions = {};
       
-      // Inicializar odontólogos del tenant
       dentists.forEach(d => {
         if (!cid || d.companyId === cid) {
           commissions[d.id] = {
@@ -474,7 +605,6 @@
         }
       });
       
-      // Calcular comisiones (40% de los presupuestos aceptados)
       activeBudgets.forEach(b => {
         if (b.status === 'accepted' && commissions[b.dentistId]) {
           const subtotal = b.treatments.reduce((acc, t) => acc + (t.price * t.qty), 0);
@@ -487,7 +617,7 @@
       return Object.values(commissions);
     },
 
-    // CRM Y SEGUIMIENTO DE COBRANZA / RECALL (Inspirado en Dentalink/Doctocliq)
+    // CRM Y SEGUIMIENTO DE COBRANZA / RECALL
     getCrmTasks: () => {
       const patients = get('patients', []);
       const appointments = get('appointments', []);
@@ -500,7 +630,6 @@
       
       const tasks = [];
       
-      // 1. Cobranza: Presupuestos aceptados con saldo sin pagar, o presupuestos en borrador sin aceptar
       activeBudgets.forEach(b => {
         if (b.status === 'draft') {
           const patient = activePatients.find(p => p.id === b.patientId);
@@ -522,7 +651,6 @@
         }
       });
       
-      // 2. CRM Recall: Pacientes sin citas registradas en los próximos días o con última cita hace más de 3 meses
       activePatients.forEach(p => {
         const patientAppointments = activeAppts.filter(a => a.patientId === p.id);
         const hasRecentAppt = patientAppointments.some(a => {

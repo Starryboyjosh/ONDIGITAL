@@ -87,18 +87,55 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // 4.5. Inyectar dinámicamente el enlace de "Usuarios" para administradores
+  // 4.5. Inyectar dinámicamente los enlaces adicionales de navegación
   const navMenu = document.querySelector('.nav-menu');
-  if (navMenu && currentUser && currentUser.role === 'Administración') {
-    const userLi = document.createElement('li');
-    userLi.className = 'nav-item';
-    userLi.innerHTML = `
-      <a href="usuarios.html">
-        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-        <span>Usuarios</span>
+  if (navMenu && currentUser) {
+    // 1. Cobranzas (Para todos)
+    const cobLi = document.createElement('li');
+    cobLi.className = 'nav-item';
+    cobLi.innerHTML = `
+      <a href="cobranzas.html">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        <span>Cobranzas</span>
       </a>
     `;
-    navMenu.appendChild(userLi);
+    navMenu.appendChild(cobLi);
+
+    // 2. Procedimientos (Para todos)
+    const procLi = document.createElement('li');
+    procLi.className = 'nav-item';
+    procLi.innerHTML = `
+      <a href="procedimientos.html">
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+        <span>Procedimientos</span>
+      </a>
+    `;
+    navMenu.appendChild(procLi);
+
+    // 3. Opciones exclusivas de Administración (admin)
+    if (currentUser.role === 'Administración') {
+      // Configuración de la Clínica
+      const configLi = document.createElement('li');
+      configLi.className = 'nav-item';
+      configLi.innerHTML = `
+        <a href="configuracion.html">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Configuración</span>
+        </a>
+      `;
+      navMenu.appendChild(configLi);
+
+      // Gestión de Usuarios
+      const userLi = document.createElement('li');
+      userLi.className = 'nav-item';
+      userLi.innerHTML = `
+        <a href="usuarios.html">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span>Usuarios</span>
+        </a>
+      `;
+      navMenu.appendChild(userLi);
+    }
   }
 
   // 5. Resaltar enlace activo en el Sidebar basado en la URL

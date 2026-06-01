@@ -55,6 +55,7 @@ description: Skill maestro para generar, editar y revisar landing pages, SaaS, s
 - `skills/design/design-systems/DESIGN.md`
 - `skills/support/tools/TOOLS.md`
 - `skills/dental-references.md`
+- `skills/product/ondental/SKILL.md`
 
 ## Precedencia
 
@@ -1237,6 +1238,17 @@ SI el proyecto es una plataforma SaaS / dashboard:
   → Leer: skills/design/design-systems/DESIGN.md
   → Leer: skills/support/tools/TOOLS.md
   → Leer: skills/dental-references.md si el proyecto es OnDental o clínica dental
+  → Leer: skills/product/ondental/SKILL.md si el proyecto es OnDental
+
+SI el proyecto es específicamente OnDental (gestión clínica dental):
+  → Leer: skills/product/ondental/SKILL.md (especificación completa del producto)
+  → Leer: skills/dental-references.md (benchmarks del sector)
+  → Leer: skills/product/saas-product-ui/SKILL.md
+  → Leer: skills/data/database-system/SKILL.md
+  → Leer: skills/security/auth-access-control/SKILL.md
+  → Leer: skills/core/html-app-production/SKILL.md
+  → Leer: skills/design/design-systems/DESIGN.md
+  → Leer: skills/support/tools/TOOLS.md
 
 SI el proyecto es un sistema de gestión con base de datos:
   → Leer: skills/product/saas-product-ui/SKILL.md

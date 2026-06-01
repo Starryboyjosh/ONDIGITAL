@@ -19,11 +19,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const cardRut = document.getElementById('card-patient-rut');
   const cardEmail = document.getElementById('card-patient-email');
   const cardPhone = document.getElementById('card-patient-phone');
-  const cardTags = document.getElementById('card-patient-tags');
+  const cardReason = document.getElementById('card-patient-reason');
   const cardAllergies = document.getElementById('card-patient-allergies');
   const cardHistory = document.getElementById('card-patient-history');
   
   const cardLinkOdont = document.getElementById('card-link-odontograma');
+  const cardLinkPerio = document.getElementById('card-link-periodontograma');
   const cardLinkBudget = document.getElementById('card-link-presupuesto');
   const cardTimeline = document.getElementById('card-patient-timeline');
 
@@ -58,6 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const age = parseInt(document.getElementById('patient-age').value);
     const email = document.getElementById('patient-email').value;
     const phone = document.getElementById('patient-phone').value;
+    const reason = document.getElementById('patient-reason').value;
     const allergies = document.getElementById('patient-allergies').value || 'Ninguna';
     const medicalHistory = document.getElementById('patient-history').value || 'Sin antecedentes.';
     const tagsInput = document.getElementById('patient-tags').value;
@@ -71,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
       age,
       email,
       phone,
+      motivoConsulta: reason,
       allergies,
       medicalHistory,
       tags
@@ -173,25 +176,30 @@ document.addEventListener('DOMContentLoaded', function() {
     cardEmail.textContent = patient.email;
     cardPhone.textContent = patient.phone;
 
-    // Rellenar Alergias e Historial
+    // Rellenar Motivo de Consulta, Alergias e Historial
+    if (cardReason) cardReason.textContent = patient.motivoConsulta || 'Consulta general preventiva.';
     cardAllergies.textContent = patient.allergies;
     cardHistory.textContent = patient.medicalHistory;
 
     // Rellenar Etiquetas Clínicas
-    cardTags.innerHTML = '';
-    if (patient.tags && patient.tags.length > 0) {
-      patient.tags.forEach(t => {
-        const tagSpan = document.createElement('span');
-        tagSpan.className = `patient-tag ${t.toLowerCase() === 'alergias' ? 'tag-alergeno' : 'tag-control'}`;
-        tagSpan.textContent = t;
-        cardTags.appendChild(tagSpan);
-      });
-    } else {
-      cardTags.innerHTML = '<span style="font-size: 0.8rem; color: var(--color-gray);">Sin etiquetas</span>';
+    const cardTags = document.getElementById('card-patient-tags');
+    if (cardTags) {
+      cardTags.innerHTML = '';
+      if (patient.tags && patient.tags.length > 0) {
+        patient.tags.forEach(t => {
+          const tagSpan = document.createElement('span');
+          tagSpan.className = `patient-tag ${t.toLowerCase() === 'alergias' ? 'tag-alergeno' : 'tag-control'}`;
+          tagSpan.textContent = t;
+          cardTags.appendChild(tagSpan);
+        });
+      } else {
+        cardTags.innerHTML = '<span style="font-size: 0.8rem; color: var(--color-gray);">Sin etiquetas</span>';
+      }
     }
 
     // Vincular accesos directos
     cardLinkOdont.href = `odontograma.html?id=${patient.id}`;
+    if (cardLinkPerio) cardLinkPerio.href = `periodontograma.html?id=${patient.id}`;
     cardLinkBudget.href = `presupuestos.html?id=${patient.id}`;
 
     // RENDERIZAR CRONOLOGÍA DE CITAS
@@ -257,6 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('patient-age').value = patient.age;
     document.getElementById('patient-email').value = patient.email;
     document.getElementById('patient-phone').value = patient.phone;
+    document.getElementById('patient-reason').value = patient.motivoConsulta || '';
     document.getElementById('patient-allergies').value = patient.allergies === 'Ninguna' ? '' : patient.allergies;
     document.getElementById('patient-history').value = patient.medicalHistory === 'Sin antecedentes.' ? '' : patient.medicalHistory;
     document.getElementById('patient-tags').value = patient.tags ? patient.tags.join(', ') : '';

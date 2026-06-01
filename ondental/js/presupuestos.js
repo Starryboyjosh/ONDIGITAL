@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    const catalog = window.db.getTreatments();
+    const catalog = window.db.getProcedures();
     const treatment = catalog.find(t => t.code === treatCode);
 
     if (treatment) {
@@ -133,10 +133,11 @@ document.addEventListener('DOMContentLoaded', function() {
       date: new Date().toISOString().split('T')[0],
       treatments: activeTreatmentsList,
       discount,
-      status
+      status,
+      paymentStatus: 'pendiente'
     };
 
-    window.db.saveBudget(budgetData);
+    const savedBudget = window.db.saveBudget(budgetData);
     window.showToast('Presupuesto clínico guardado con éxito', 'success');
 
     // Limpiar formulario y re-inicializar
@@ -151,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function populateSelectors() {
     const patients = window.db.getPatients();
     const dentists = window.db.getDentists();
-    const treatments = window.db.getTreatments();
+    const treatments = window.db.getProcedures();
 
     // Llenar pacientes
     patientSelect.innerHTML = '<option value="" disabled selected>Asignar Paciente...</option>';
@@ -181,6 +182,23 @@ document.addEventListener('DOMContentLoaded', function() {
       opt.textContent = `${t.name} — ${prFormatted}`;
       treatmentSelect.appendChild(opt);
     });
+
+    // Cargar Branding de la Clínica Personalizado
+    const currentCompany = window.auth ? window.auth.getCurrentCompany() : null;
+    const clinicaConfig = window.db.getClinicaConfig(currentCompany ? currentCompany.id : null);
+    if (clinicaConfig) {
+      const pdfClinicaName = document.getElementById('pdf-clinica-name');
+      const pdfClinicaContact = document.getElementById('pdf-clinica-contact');
+      const pdfClinicaTagline = document.getElementById('pdf-clinica-tagline');
+
+      if (pdfClinicaName) pdfClinicaName.textContent = clinicaConfig.nombreClinica;
+      if (pdfClinicaContact) {
+        pdfClinicaContact.innerHTML = `${clinicaConfig.direccion}<br>Contacto: ${clinicaConfig.correo} • ${clinicaConfig.telefono}`;
+      }
+      if (pdfClinicaTagline) {
+        pdfClinicaTagline.textContent = `${clinicaConfig.nombreClinica} - Especialidades Integrales`;
+      }
+    }
 
     // Cargar metadatos por defecto de factura
     invIdEl.textContent = 'OD-' + Math.floor(1000 + Math.random() * 9000);

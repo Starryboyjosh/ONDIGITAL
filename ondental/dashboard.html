@@ -158,10 +158,11 @@
         <div class="clinical-sidebar">
           <div class="card">
             <h2 class="card-title" style="margin-bottom: 20px;">Acciones Rápidas</h2>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 12px;" id="dashboard-quick-actions">
               <a href="pacientes.html" class="btn btn-secondary" style="justify-content: flex-start; padding: 12px 18px;">👤 Registrar Nuevo Paciente</a>
               <a href="presupuestos.html" class="btn btn-secondary" style="justify-content: flex-start; padding: 12px 18px;">📄 Elaborar Presupuesto Clínico</a>
-              <a href="odontograma.html" class="btn btn-secondary" style="justify-content: flex-start; padding: 12px 18px;">🦷 Abrir Odontograma General</a>
+              <a href="cobranzas.html" class="btn btn-secondary" style="justify-content: flex-start; padding: 12px 18px;">💵 Módulo de Cobranzas</a>
+              <a href="procedimientos.html" class="btn btn-secondary" style="justify-content: flex-start; padding: 12px 18px;">📋 Catálogo de Procedimientos</a>
             </div>
           </div>
           <div class="card" style="background: rgba(0, 229, 176, 0.04); border-color: rgba(0, 229, 176, 0.15);">
@@ -229,6 +230,18 @@
       const user = window.auth.getCurrentUser();
       if (user) {
         document.getElementById('dashboard-greeting').textContent = `¡Hola, ${user.name}!`;
+      }
+
+      if (user && user.role === 'Administración') {
+        const quickActions = document.getElementById('dashboard-quick-actions');
+        if (quickActions) {
+          const configLink = document.createElement('a');
+          configLink.href = 'configuracion.html';
+          configLink.className = 'btn btn-secondary';
+          configLink.style.cssText = 'justify-content: flex-start; padding: 12px 18px;';
+          configLink.textContent = '⚙️ Configuración de la Clínica';
+          quickActions.appendChild(configLink);
+        }
       }
 
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
