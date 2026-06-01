@@ -24,6 +24,7 @@ dependencies:
   - skills/database-system/SKILL.md
   - skills/design-systems/DESIGN.md
   - skills/tools/TOOLS.md
+  - skills/dental-references.md
 ---
 
 # ONDIGITAL — Skill Maestro de Generación Web
@@ -1198,6 +1199,7 @@ SI el proyecto es una plataforma SaaS / dashboard:
   → Leer: skills/database-system/SKILL.md
   → Leer: skills/design-systems/DESIGN.md
   → Leer: skills/tools/TOOLS.md
+  → Leer: skills/dental-references.md
 
 SI el proyecto es un sistema de gestión con base de datos:
   → Leer: skills/database-system/SKILL.md

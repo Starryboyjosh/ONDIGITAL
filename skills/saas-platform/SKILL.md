@@ -27,6 +27,7 @@ author: ONDIGITAL
 7. [Módulo CRM (Gestión de Clientes y Leads)](#módulo-crm-gestión-de-clientes-y-leads)
 8. [Integración con APIs (Fetch, Loading y Errores)](#integración-con-apis-fetch-loading-y-errores)
 9. [Checklist de Validación SaaS](#checklist-de-validación-saas)
+10. [Referencias Competitivas: Dentalink & Doctocliq](#referencias-competitivas-dentalink--doctocliq)
 
 ---
 
@@ -671,3 +672,12 @@ Antes de desplegar cualquier plataforma SaaS, valide lo siguiente:
 - [ ] **Seguridad de Rutas (RBAC)**: Si un usuario tiene rol `receptionist`, asegure que los módulos financieros no carguen en su pantalla.
 - [ ] **Consistencia de Marca**: Valide que los colores primarios y logos cambien inmediatamente sin parpadeos visuales al cambiar de cuenta.
 - [ ] **Manejo de Errores en APIs**: Desconecte la red local y verifique que la interfaz informe adecuadamente el error de conexión sin bloquear la app.
+
+---
+
+## Referencias Competitivas: Dentalink & Doctocliq
+
+Para diseñar e implementar flujos de trabajo específicos de clínicas odontológicas y médicas, consulte la guía detallada de competidores y benchmark del sector:
+- **Guía de Referencia**: [dental-references.md](file:///home/escoto/ONDIGITAL/skills/dental-references.md)
+
+Esta guía detalla las mejores prácticas en agendas digitales en tiempo real, expedientes electrónicos, odontogramas interactivos, CRM de fidelización de pacientes y ERP de cobros y comisiones.

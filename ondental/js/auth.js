@@ -56,10 +56,11 @@
     // Si no la hay y no se está en la página de login, redirige.
     checkSession: () => {
       const user = window.auth.getCurrentUser();
-      const isLoginPage = window.location.pathname.endsWith('index.html') || 
+      const pathLower = window.location.pathname.toLowerCase();
+      const isLoginPage = pathLower.endsWith('index.html') || 
                           window.location.pathname === '/' || 
-                          window.location.pathname.endsWith('ondental/') ||
-                          window.location.pathname.endsWith('ondental/index.html');
+                          pathLower.endsWith('ondental/') ||
+                          pathLower.endsWith('ondental/index.html');
 
       if (!user && !isLoginPage) {
         // Redirigir de inmediato al login con parámetro de error

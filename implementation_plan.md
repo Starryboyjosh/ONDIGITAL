@@ -6,6 +6,35 @@ El proyecto consta de múltiples páginas HTML estáticas e interconectadas que 
 
 ---
 
+## Referencias del Sector y Benchmark: Dentalink y Doctocliq
+
+Para garantizar que **OnDental** cubra las necesidades reales de una clínica odontológica moderna, nos basamos en las dos plataformas líderes del mercado latinoamericano:
+
+### 🦷 Dentalink
+Dentalink permite optimizar el manejo de la agenda de citas, facilitar el agendamiento de pacientes, concentrar toda la información de la historia clínica y sus evoluciones, realizar odontogramas y periodontogramas de manera simple en la plataforma, además de documentos clínicos, recetas y otras diligencias fundamentales. También facilita la gestión de usuarios, conocer los ingresos, automatizar la generación de comisiones a odontólogos, administrar aranceles, convenios y medios de pago.
+
+**Funciones más destacadas:**
+- **Agenda digital:** El sistema muestra disponibilidad en tiempo real y permite confirmar, reprogramar o cancelar citas sin depender de llamadas telefónicas.
+- **Historia clínica digital:** Gestión digital de datos demográficos, antecedentes, evoluciones, planes de tratamiento, recetas e imágenes, todo organizado y seguro.
+- **Recordatorios automáticos:** El software reduce significativamente las ausencias gracias a recordatorios automáticos vía correo, SMS o WhatsApp.
+- **Reportes y análisis:** Más de 50 reportes descargables en Excel para estar al tanto de las distintas áreas de la clínica y encontrar puntos de mejora.
+- **Educación al paciente:** Acceso a más de 15 videos 3D con animaciones de los tratamientos odontológicos más comunes, para ayudar a los pacientes a entender lo que se va a realizar.
+- **Seguimiento de cobranza:** Permite programar tareas de cobranza para aquellos planes de tratamiento que aún no han sido pagados.
+- **Escalabilidad:** Puedes comenzar con un plan básico y escalar conforme crece el equipo o se abren nuevas sucursales, manteniendo todos los datos integrados y accesibles.
+
+### 🦷 Doctocliq
+Doctocliq ofrece una amplia gama de herramientas diseñadas para optimizar y agilizar la gestión interna de clínicas dentales, estéticas, para médicos y nutricionistas. Sus principales soluciones son la agenda con recordatorios automáticos, historia clínica electrónica por especialidad, recetas, control de caja, facturación electrónica y un potente CRM que permite vender más tratamientos entre los mismos pacientes.
+
+**Funciones más destacadas:**
+- **Agenda con recordatorios por WhatsApp:** Automatiza recordatorios por WhatsApp y email, permite a los pacientes agendar por sí mismos y gestiona pagos en línea.
+- **Expediente clínico digital:** Incluye anamnesis, odontograma, notas de evolución, personalización de fichas clínicas, recetas y notas electrónicas.
+- **Odontograma FDI y ADA:** Registra diagnósticos o hallazgos dentales, crea planes de trabajo detallados y genera presupuestos desde el odontograma.
+- **CRM integrado:** Tiene funciones de marketing y seguimiento como un CRM, adaptado para el día a día de un consultorio médico o dental, desde automatizar recordatorios hasta recuperar pacientes inactivos.
+- **Gestión financiera tipo ERP:** Permite gestionar caja, inventario, trazabilidad de laboratorios, facturación, sueldos y comisiones, todo conectado para tomar mejores decisiones con información en tiempo real.
+- **Plan gratuito disponible:** Cuenta con una versión gratuita con agenda digital con recordatorios automáticos, odontograma digital, presupuestos y control de caja.
+
+---
+
 ## User Review Required
 
 > [!IMPORTANT]

@@ -448,6 +448,105 @@
       }
       set('budgets', budgets);
       return budget;
+    },
+    
+    // COMISIONES MÉDICAS (Calculador de ERP inspirado en Dentalink/Doctocliq)
+    getCommissions: () => {
+      const budgets = get('budgets', []);
+      const dentists = get('dentists', []);
+      const cid = getCurrentCompanyId();
+      
+      // Filtrar presupuestos de la empresa activa
+      const activeBudgets = cid ? budgets.filter(b => b.companyId === cid) : budgets;
+      
+      const commissions = {};
+      
+      // Inicializar odontólogos del tenant
+      dentists.forEach(d => {
+        if (!cid || d.companyId === cid) {
+          commissions[d.id] = {
+            dentistId: d.id,
+            dentistName: d.name,
+            specialty: d.specialty,
+            totalGenerated: 0,
+            commissionAmount: 0
+          };
+        }
+      });
+      
+      // Calcular comisiones (40% de los presupuestos aceptados)
+      activeBudgets.forEach(b => {
+        if (b.status === 'accepted' && commissions[b.dentistId]) {
+          const subtotal = b.treatments.reduce((acc, t) => acc + (t.price * t.qty), 0);
+          const valWithDiscount = subtotal * (1 - (b.discount || 0) / 100);
+          commissions[b.dentistId].totalGenerated += valWithDiscount;
+          commissions[b.dentistId].commissionAmount += valWithDiscount * 0.40; // 40% comisión
+        }
+      });
+      
+      return Object.values(commissions);
+    },
+
+    // CRM Y SEGUIMIENTO DE COBRANZA / RECALL (Inspirado en Dentalink/Doctocliq)
+    getCrmTasks: () => {
+      const patients = get('patients', []);
+      const appointments = get('appointments', []);
+      const budgets = get('budgets', []);
+      const cid = getCurrentCompanyId();
+      
+      const activePatients = cid ? patients.filter(p => p.companyId === cid) : patients;
+      const activeAppts = cid ? appointments.filter(a => a.companyId === cid) : appointments;
+      const activeBudgets = cid ? budgets.filter(b => b.companyId === cid) : budgets;
+      
+      const tasks = [];
+      
+      // 1. Cobranza: Presupuestos aceptados con saldo sin pagar, o presupuestos en borrador sin aceptar
+      activeBudgets.forEach(b => {
+        if (b.status === 'draft') {
+          const patient = activePatients.find(p => p.id === b.patientId);
+          if (patient) {
+            const subtotal = b.treatments.reduce((acc, t) => acc + (t.price * t.qty), 0);
+            const total = subtotal * (1 - (b.discount || 0) / 100);
+            tasks.push({
+              id: 'crm_' + b.id,
+              patientId: patient.id,
+              patientName: patient.name,
+              patientPhone: patient.phone,
+              type: 'cobro',
+              title: 'Presupuesto Borrador',
+              desc: `Presupuesto de ${b.treatments.length} ítems por vencer.`,
+              amount: total,
+              targetId: b.id
+            });
+          }
+        }
+      });
+      
+      // 2. CRM Recall: Pacientes sin citas registradas en los próximos días o con última cita hace más de 3 meses
+      activePatients.forEach(p => {
+        const patientAppointments = activeAppts.filter(a => a.patientId === p.id);
+        const hasRecentAppt = patientAppointments.some(a => {
+          const apptDate = new Date(a.dateTime);
+          const threeMonthsAgo = new Date();
+          threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+          return apptDate > threeMonthsAgo;
+        });
+        
+        if (!hasRecentAppt) {
+          tasks.push({
+            id: 'crm_recall_' + p.id,
+            patientId: p.id,
+            patientName: p.name,
+            patientPhone: p.phone,
+            type: 'recall',
+            title: 'Control Ausente',
+            desc: `Higiene periódica retrasada.`,
+            amount: 45000
+          });
+        }
+      });
+      
+      return tasks;
     }
   };
 
