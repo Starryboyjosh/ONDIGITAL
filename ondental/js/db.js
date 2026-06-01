@@ -7,6 +7,16 @@
 (function() {
   const DB_PREFIX = 'ondental_';
 
+  // Inyectar el cargador de Firebase
+  function injectFirebaseConnector() {
+    if (!document.querySelector('script[src="js/firebase/connection.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'js/firebase/connection.js';
+      document.head.appendChild(script);
+    }
+  }
+  injectFirebaseConnector();
+
   // Helper para obtener el companyId del usuario logueado en tiempo real
   function getCurrentCompanyId() {
     if (window.sessionStorage) {
@@ -23,307 +33,135 @@
     return null;
   }
 
-  // 1. Catálogo de Empresas (Tenants)
-  const defaultCompanies = [
-    { id: 'credental', name: 'Credental', accent: '#00e5b0', description: 'Empresa principal de gestión dental' },
-    { id: 'ondental-central', name: 'OnDental Clínica Central', accent: '#2b8af7', description: 'Clínica central de operaciones' },
-    { id: 'sonrisa-perfecta', name: 'Sonrisa Perfecta', accent: '#f5a623', description: 'Clínica especializada en estética dental' },
-    { id: 'dentpro', name: 'DentPro Consultores', accent: '#9b59b6', description: 'Consultores dentales especializados' }
-  ];
-
-  // Configuración de Clínica por Defecto (Contacto y Ubicación)
-  const defaultClinicaConfig = {
-    'credental': { nombreClinica: 'Credental Providencia', direccion: 'Av. Providencia 1234, Oficina 501, Santiago', telefono: '+56 2 2345 6789', correo: 'contacto@credental.cl' },
-    'ondental-central': { nombreClinica: 'OnDental Clínica Central', direccion: 'Av. Las Condes 9876, Santiago', telefono: '+56 2 2876 5432', correo: 'central@ondental.cl' },
-    'sonrisa-perfecta': { nombreClinica: 'Clínica Sonrisa Perfecta', direccion: 'Calle Esmeralda 456, Valparaíso', telefono: '+56 32 234 5678', correo: 'contacto@sonrisaperfecta.cl' },
-    'dentpro': { nombreClinica: 'DentPro Vitacura', direccion: 'Av. Andrés Bello 2345, Providencia, Santiago', telefono: '+56 2 2987 6543', correo: 'info@dentpro.cl' }
-  };
-
-  // 1.5. Usuarios válidos por defecto
-  const defaultUsers = [
-    { username: 'admin', name: 'Administrador General', role: 'Administración', avatar: 'AG', companyId: 'credental', password: '1234' },
-    { username: 'dentista', name: 'Dr. Sebastián Escoto', role: 'Dentista Principal', avatar: 'SE', companyId: 'credental', password: '1234' },
-    { username: 'recepcion', name: 'María González Ruiz', role: 'Recepcionista', avatar: 'MG', companyId: 'ondental-central', password: '1234' },
-    { username: 'dra.lopez', name: 'Dra. Ana López Herrera', role: 'Odontóloga General', avatar: 'AL', companyId: 'ondental-central', password: '1234' },
-    { username: 'dr.martinez', name: 'Dr. Carlos Martínez Vega', role: 'Cirujano Maxilofacial', avatar: 'CM', companyId: 'sonrisa-perfecta', password: '1234' },
-    { username: 'higienista', name: 'Laura Fernández Díaz', role: 'Higienista Dental', avatar: 'LF', companyId: 'sonrisa-perfecta', password: '1234' },
-    { username: 'dr.ramirez', name: 'Dr. Roberto Ramírez Soto', role: 'Ortodoncista', avatar: 'RR', companyId: 'dentpro', password: '1234' },
-    { username: 'asistente', name: 'Patricia Morales Cruz', role: 'Asistente Dental', avatar: 'PM', companyId: 'dentpro', password: '1234' }
-  ];
-
-  // 2. Dentistas de muestra vinculados a empresas
-  const defaultDentists = [
-    { id: 'dentista', name: 'Dr. Sebastián Escoto', specialty: 'Implantología y Estética', companyId: 'credental' },
-    { id: 'dra.lopez', name: 'Dra. Ana López Herrera', specialty: 'Odontología General', companyId: 'ondental-central' },
-    { id: 'dr.martinez', name: 'Dr. Carlos Martínez Vega', specialty: 'Cirujano Maxilofacial', companyId: 'sonrisa-perfecta' },
-    { id: 'dr.ramirez', name: 'Dr. Roberto Ramírez Soto', specialty: 'Ortodoncista', companyId: 'dentpro' }
-  ];
-
-  const defaultTreatments = [
-    { code: 'TR_01', name: 'Profilaxis Completa y Limpieza', price: 45000, description: 'Limpieza dental profunda y remoción de sarro.' },
-    { code: 'TR_02', name: 'Restauración de Resina Simple (Cara)', price: 35000, description: 'Restauración estética de resina de alta densidad.' },
-    { code: 'TR_03', name: 'Endodoncia Unirradicular', price: 120000, description: 'Tratamiento de conducto para piezas unirradiculares.' },
-    { code: 'TR_04', name: 'Corona Metal-Porcelana', price: 280000, description: 'Rehabilitación fija con corona metal-porcelana estética.' },
-    { code: 'TR_05', name: 'Implante Dental de Titanio (Solo Fase Quirúrgica)', price: 450000, description: 'Colocación quirúrgica de implante de titanio.' },
-    { code: 'TR_06', name: 'Extracción Dental Simple', price: 50000, description: 'Extracción simple de pieza dentaria no restaurable.' },
-    { code: 'TR_07', name: 'Blanqueamiento Dental Laser (Sesión)', price: 150000, description: 'Blanqueamiento clínico mediante luz láser.' },
-    { code: 'TR_08', name: 'Aparatología Ortodoncia Metálica (Instalación)', price: 320000, description: 'Instalación completa de brackets metálicos.' }
-  ];
-
-  // 3. Pacientes distribuidos en las 4 empresas
-  const defaultPatients = [
-    {
-      id: 'pat_1',
-      name: 'Gabriel Mendoza Rojas',
-      rut: '17.342.915-K',
-      age: 34,
-      email: 'gabriel.mendoza@gmail.com',
-      phone: '+56 9 8472 1928',
-      allergies: 'Penicilina',
-      medicalHistory: 'Hipertensión controlada con Losartán. Sin otros antecedentes crónicos.',
-      motivoConsulta: 'Limpieza dental general y dolor en un molar al comer dulces.',
-      tags: ['Alergias', 'Control Trimestral'],
-      companyId: 'credental',
-      odontogram: {
-        '18': { condition: 'ausente', faces: {} },
-        '16': { condition: 'healthy', faces: { top: 'caries', right: 'caries' } },
-        '24': { condition: 'healthy', faces: { center: 'restaurado' } },
-        '36': { condition: 'implante', faces: {} },
-        '47': { condition: 'healthy', faces: { top: 'caries' } }
+  // Inicialización de la Base de Datos
+  function initDB() {
+    if (!sessionStorage.getItem(DB_PREFIX + 'initialized')) {
+      set('companies', []);
+      set('users', []);
+      set('dentists', []);
+      set('treatments', []);
+      set('patients', []);
+      set('appointments', []);
+      set('budgets', []);
+      set('clinica_config', {});
+      set('payments', []);
+      set('periodontograms', {});
+      set('initialized', true);
+      console.log('OnDental DB Multi-Empresa: Inicializada con éxito sobre sessionStorage vacía.');
+    } else {
+      // Garantizar que las tablas existan
+      if (!sessionStorage.getItem(DB_PREFIX + 'clinica_config')) {
+        set('clinica_config', {});
       }
-    },
-    {
-      id: 'pat_2',
-      name: 'Valentina Silva Contreras',
-      rut: '19.821.554-3',
-      age: 26,
-      email: 'valesilva@outlook.cl',
-      phone: '+56 9 7384 1029',
-      allergies: 'Ninguna',
-      medicalHistory: 'Paciente sana. Tratamiento de ortodoncia activo.',
-      motivoConsulta: 'Control de frenillos mensual y ajuste de arcos superiores.',
-      tags: ['Ortodoncia'],
-      companyId: 'ondental-central',
-      odontogram: {
-        '12': { condition: 'corona', faces: {} },
-        '38': { condition: 'ausente', faces: {} },
-        '48': { condition: 'ausente', faces: {} }
+      if (!sessionStorage.getItem(DB_PREFIX + 'payments')) {
+        set('payments', []);
       }
-    },
-    {
-      id: 'pat_3',
-      name: 'Héctor Tapia Valdés',
-      rut: '12.449.182-0',
-      age: 48,
-      email: 'hector.tapia@yahoo.com',
-      phone: '+56 9 6482 9102',
-      allergies: 'Aspirina',
-      medicalHistory: 'Diabetes tipo II bajo dieta y Metformina.',
-      motivoConsulta: 'Dolor dental agudo en molar inferior izquierdo al masticar.',
-      tags: ['Control Semestral'],
-      companyId: 'sonrisa-perfecta',
-      odontogram: {
-        '14': { condition: 'healthy', faces: { center: 'restaurado' } },
-        '15': { condition: 'healthy', faces: { center: 'restaurado' } },
-        '26': { condition: 'healthy', faces: { top: 'caries' } },
-        '46': { condition: 'ausente', faces: {} }
+      if (!sessionStorage.getItem(DB_PREFIX + 'periodontograms')) {
+        set('periodontograms', {});
       }
-    },
-    {
-      id: 'pat_4',
-      name: 'Sofía Morán Alarcón',
-      rut: '21.092.385-2',
-      age: 22,
-      email: 'sofia.moran@live.com',
-      phone: '+56 9 5592 1083',
-      allergies: 'Ninguna',
-      medicalHistory: 'Sin condiciones médicas de cuidado.',
-      motivoConsulta: 'Evaluación general y consulta por blanqueamiento dental.',
-      tags: ['Estética'],
-      companyId: 'dentpro',
-      odontogram: {}
-    },
-    {
-      id: 'pat_5',
-      name: 'Andrés Castro Prieto',
-      rut: '15.228.495-2',
-      age: 41,
-      email: 'andres.castro@gmail.com',
-      phone: '+56 9 7784 1209',
-      allergies: 'Ninguna',
-      medicalHistory: 'Sano.',
-      motivoConsulta: 'Sensibilidad dental al tomar bebidas frías.',
-      tags: ['Control Semestral'],
-      companyId: 'credental',
-      odontogram: {
-        '11': { condition: 'healthy', faces: { center: 'restaurado' } }
+      if (!sessionStorage.getItem(DB_PREFIX + 'users')) {
+        set('users', []);
       }
-    },
-    {
-      id: 'pat_6',
-      name: 'Camila Reyes Ortiz',
-      rut: '18.903.412-1',
-      age: 29,
-      email: 'camilareyes@outlook.com',
-      phone: '+56 9 6692 8401',
-      allergies: 'Látex',
-      medicalHistory: 'Fobia dental leve.',
-      motivoConsulta: 'Sangrado de encías espontáneo durante el cepillado.',
-      tags: ['Control Anual'],
-      companyId: 'ondental-central',
-      odontogram: {}
     }
-  ];
 
-  // Generamos citas relativas a la fecha actual para mantener el dashboard vivo
-  const today = new Date();
-  const formatDate = (daysOffset, hourStr) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() + daysOffset);
-    const dateStr = d.toISOString().split('T')[0];
-    return `${dateStr}T${hourStr}`;
-  };
+    // Esperar a que firebaseConnector esté listo en window para sincronizar
+    const checkConnector = setInterval(() => {
+      if (window.firebaseConnector) {
+        clearInterval(checkConnector);
+        syncAllFromFirebase();
+      }
+    }, 200);
+    // Timeout después de 10 segundos por si acaso offline
+    setTimeout(() => clearInterval(checkConnector), 10000);
+  }
 
-  // Citas de muestra asignadas a empresas y dentistas específicos
-  const defaultAppointments = [
-    {
-      id: 'appt_1',
-      patientId: 'pat_1',
-      dentistId: 'dentista',
-      dateTime: formatDate(0, '09:00'),
-      duration: 45,
-      specialty: 'Limpieza',
-      notes: 'Limpieza profunda periódica por sarro acumulado.',
-      status: 'confirmed',
-      companyId: 'credental'
-    },
-    {
-      id: 'appt_2',
-      patientId: 'pat_2',
-      dentistId: 'dra.lopez',
-      dateTime: formatDate(0, '11:30'),
-      duration: 30,
-      specialty: 'Ortodoncia',
-      notes: 'Control mensual de brackets, ajuste de arcos superiores.',
-      status: 'pending',
-      companyId: 'ondental-central'
-    },
-    {
-      id: 'appt_3',
-      patientId: 'pat_3',
-      dentistId: 'dr.martinez',
-      dateTime: formatDate(0, '15:00'),
-      duration: 60,
-      specialty: 'Endodoncia',
-      notes: 'Inicio de tratamiento de conductos en pieza 26.',
-      status: 'pending',
-      companyId: 'sonrisa-perfecta'
-    },
-    {
-      id: 'appt_4',
-      patientId: 'pat_4',
-      dentistId: 'dr.ramirez',
-      dateTime: formatDate(1, '10:00'),
-      duration: 60,
-      specialty: 'Estética',
-      notes: 'Evaluación y toma de moldes para carillas.',
-      status: 'confirmed',
-      companyId: 'dentpro'
-    },
-    {
-      id: 'appt_5',
-      patientId: 'pat_1',
-      dentistId: 'dentista',
-      dateTime: formatDate(-2, '16:00'),
-      duration: 45,
-      specialty: 'Limpieza',
-      notes: 'Cita anterior realizada con éxito.',
-      status: 'completed',
-      companyId: 'credental'
-    },
-    {
-      id: 'appt_6',
-      patientId: 'pat_5',
-      dentistId: 'dentista',
-      dateTime: formatDate(0, '14:30'),
-      duration: 120, // 2 Horas
-      specialty: 'Estética',
-      notes: 'Instalación de carilla en pieza 11.',
-      status: 'pending',
-      companyId: 'credental'
-    }
-  ];
-
-  const defaultBudgets = [
-    {
-      id: 'bud_1',
-      patientId: 'pat_1',
-      date: today.toISOString().split('T')[0],
-      dentistId: 'dentista',
-      treatments: [
-        { code: 'TR_01', name: 'Profilaxis Completa y Limpieza', price: 45000, qty: 1 },
-        { code: 'TR_02', name: 'Restauración de Resina Simple (Cara)', price: 35000, qty: 2 }
-      ],
-      discount: 10,
-      status: 'accepted',
-      paymentStatus: 'pendiente',
-      companyId: 'credental'
-    },
-    {
-      id: 'bud_2',
-      patientId: 'pat_3',
-      date: today.toISOString().split('T')[0],
-      dentistId: 'dr.martinez',
-      treatments: [
-        { code: 'TR_03', name: 'Endodoncia Unirradicular', price: 120000, qty: 1 },
-        { code: 'TR_04', name: 'Corona Metal-Porcelana', price: 280000, qty: 1 }
-      ],
-      discount: 5,
-      status: 'draft',
-      paymentStatus: 'pendiente',
-      companyId: 'sonrisa-perfecta'
-    }
-  ];
-
-  // Helper para leer/escribir de LocalStorage con JSON
+  // Helper para leer/escribir de sessionStorage con JSON
   function get(key, defaultValue) {
-    const val = localStorage.getItem(DB_PREFIX + key);
+    const val = sessionStorage.getItem(DB_PREFIX + key);
     return val ? JSON.parse(val) : defaultValue;
   }
 
   function set(key, value) {
-    localStorage.setItem(DB_PREFIX + key, JSON.stringify(value));
+    sessionStorage.setItem(DB_PREFIX + key, JSON.stringify(value));
   }
 
-  // Inicialización de la Base de Datos
-  function initDB() {
-    if (!localStorage.getItem(DB_PREFIX + 'initialized')) {
-      set('companies', defaultCompanies);
-      set('users', defaultUsers);
-      set('dentists', defaultDentists);
-      set('treatments', defaultTreatments);
-      set('patients', defaultPatients);
-      set('appointments', defaultAppointments);
-      set('budgets', defaultBudgets);
-      set('clinica_config', defaultClinicaConfig);
-      set('payments', []);
-      set('periodontograms', {});
-      set('initialized', true);
-      console.log('OnDental DB Multi-Empresa: Inicializada con éxito sobre LocalStorage.');
-    } else {
-      // Garantizar que las nuevas tablas existan incluso si ya estaba inicializada
-      if (!localStorage.getItem(DB_PREFIX + 'clinica_config')) {
-        set('clinica_config', defaultClinicaConfig);
+  // Sincronización asíncrona hacia Firebase
+  function syncSave(localKey, docId, data) {
+    if (window.firebaseConnector) {
+      const firestoreColl = 'ondental_' + localKey;
+      window.firebaseConnector.saveDoc(firestoreColl, String(docId), data);
+    }
+  }
+
+  function syncDelete(localKey, docId) {
+    if (window.firebaseConnector) {
+      const firestoreColl = 'ondental_' + localKey;
+      window.firebaseConnector.deleteDoc(firestoreColl, String(docId));
+    }
+  }
+
+  async function syncCollection(localKey, firestoreColl, idField) {
+    const localData = get(localKey, []);
+    const cloudData = await window.firebaseConnector.getDocs(firestoreColl);
+    if (cloudData.length === 0 && localData.length > 0) {
+      // Migración inicial: subir local a Firestore
+      for (const item of localData) {
+        await window.firebaseConnector.saveDoc(firestoreColl, String(item[idField]), item);
       }
-      if (!localStorage.getItem(DB_PREFIX + 'payments')) {
-        set('payments', []);
+      console.log(`Migración inicial exitosa de ${localKey} a Firestore.`);
+    } else if (cloudData.length > 0) {
+      // Mezclar datos de la nube con los locales. Damos prioridad a los datos de la nube.
+      const merged = [...localData];
+      for (const cloudItem of cloudData) {
+        const idx = merged.findIndex(item => String(item[idField]) === String(cloudItem[idField]));
+        if (idx === -1) {
+          merged.push(cloudItem);
+        } else {
+          merged[idx] = { ...merged[idx], ...cloudItem };
+        }
       }
-      if (!localStorage.getItem(DB_PREFIX + 'periodontograms')) {
-        set('periodontograms', {});
+      set(localKey, merged);
+    }
+  }
+
+  async function syncObjectCollection(localKey, firestoreColl) {
+    const localObj = get(localKey, {});
+    const cloudData = await window.firebaseConnector.getDocs(firestoreColl);
+    if (cloudData.length === 0 && Object.keys(localObj).length > 0) {
+      // Subir local a Firestore
+      for (const [docId, data] of Object.entries(localObj)) {
+        await window.firebaseConnector.saveDoc(firestoreColl, docId, data);
       }
-      if (!localStorage.getItem(DB_PREFIX + 'users')) {
-        set('users', defaultUsers);
+    } else if (cloudData.length > 0) {
+      // Mezclar
+      const merged = { ...localObj };
+      for (const cloudItem of cloudData) {
+        const docId = cloudItem.id;
+        const { id, ...data } = cloudItem;
+        merged[docId] = data;
       }
+      set(localKey, merged);
+    }
+  }
+
+  async function syncAllFromFirebase() {
+    if (!window.firebaseConnector) return;
+    try {
+      await window.firebaseConnector.init();
+      console.log("Iniciando sincronización con Firebase...");
+      await syncCollection('companies', 'ondental_companies', 'id');
+      await syncCollection('users', 'ondental_users', 'username');
+      await syncCollection('dentists', 'ondental_dentists', 'id');
+      await syncCollection('treatments', 'ondental_treatments', 'code');
+      await syncCollection('patients', 'ondental_patients', 'id');
+      await syncCollection('appointments', 'ondental_appointments', 'id');
+      await syncCollection('budgets', 'ondental_budgets', 'id');
+      await syncCollection('payments', 'ondental_payments', 'id');
+      await syncObjectCollection('clinica_config', 'ondental_clinica_config');
+      await syncObjectCollection('periodontograms', 'ondental_periodontograms');
+      console.log("🔄 Base de datos sincronizada con Firebase Firestore.");
+    } catch (e) {
+      console.error("Error en sincronización en segundo plano:", e);
     }
   }
 
@@ -343,12 +181,14 @@
         users[index] = { ...users[index], ...user };
       }
       set('users', users);
+      syncSave('users', user.username.toLowerCase().trim(), user);
       return user;
     },
     deleteUser: (username) => {
       const users = get('users', []);
       const filtered = users.filter(u => u.username !== username.toLowerCase().trim());
       set('users', filtered);
+      syncDelete('users', username.toLowerCase().trim());
     },
 
     // EMPRESAS (Tenants)
@@ -375,12 +215,14 @@
         treatments[index] = procedure;
       }
       set('treatments', treatments);
+      syncSave('treatments', procedure.code, procedure);
       return procedure;
     },
     deleteProcedure: (code) => {
       const treatments = get('treatments', []);
       const filtered = treatments.filter(t => t.code !== code);
       set('treatments', filtered);
+      syncDelete('treatments', code);
     },
 
     // CONFIGURACIÓN DE CLÍNICA (Aislada por sucursal/tenant)
@@ -405,6 +247,7 @@
       if (cid) {
         configs[cid] = config;
         set('clinica_config', configs);
+        syncSave('clinica_config', cid, config);
         return true;
       }
       return false;
@@ -439,6 +282,7 @@
         }
       }
       set('patients', patients);
+      syncSave('patients', patient.id, patient);
       return patient;
     },
     deletePatient: (id) => {
@@ -448,6 +292,7 @@
       // Eliminar citas relacionadas
       const appts = get('appointments', []);
       set('appointments', appts.filter(a => a.patientId !== id));
+      syncDelete('patients', id);
     },
 
     // CITAS / AGENDA (Aisladas por empresa activa)
@@ -475,12 +320,14 @@
         }
       }
       set('appointments', appts);
+      syncSave('appointments', appt.id, appt);
       return appt;
     },
     deleteAppointment: (id) => {
       const appts = get('appointments', []);
       const filtered = appts.filter(a => a.id !== id);
       set('appointments', filtered);
+      syncDelete('appointments', id);
     },
 
     // ODONTOGRAMA (Almacenamiento directo en el objeto Paciente)
@@ -507,6 +354,7 @@
       const periodontograms = get('periodontograms', {});
       periodontograms[patientId] = data;
       set('periodontograms', periodontograms);
+      syncSave('periodontograms', patientId, data);
       return true;
     },
 
@@ -538,6 +386,7 @@
         }
       }
       set('budgets', budgets);
+      syncSave('budgets', budget.id, budget);
       return budget;
     },
 
@@ -552,6 +401,7 @@
       payment.date = payment.date || new Date().toISOString().split('T')[0];
       payments.push(payment);
       set('payments', payments);
+      syncSave('payments', payment.id, payment);
 
       // Actualizar automáticamente el estado del presupuesto
       const budget = window.db.getBudgets().find(b => b.id === payment.budgetId);

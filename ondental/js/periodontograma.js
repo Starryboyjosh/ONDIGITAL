@@ -9,25 +9,69 @@ document.addEventListener('DOMContentLoaded', function() {
     window.auth.checkSession();
   }
 
-  // Obtener ID del paciente de la URL
+  // Clave compartida con odontograma para sincronizar paciente seleccionado
+  const PATIENT_STORAGE_KEY = 'ondental_selected_patient';
+
+  // Referencias DOM
+  const patientSelect = document.getElementById('perio-patient-select');
+  const patientSubtitle = document.getElementById('perio-patient-subtitle');
+
+  // --- Poblar el selector de pacientes ---
+  function populatePatientSelect() {
+    const patients = window.db.getPatients();
+    patientSelect.innerHTML = '<option value="" disabled>Seleccione un Paciente...</option>';
+    patients.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = `${p.name} (${p.rut})`;
+      patientSelect.appendChild(opt);
+    });
+  }
+
+  populatePatientSelect();
+
+  // --- Determinar paciente inicial ---
+  // Prioridad: 1) URL ?id=, 2) sessionStorage (último seleccionado), 3) primer disponible
   const urlParams = new URLSearchParams(window.location.search);
-  const patientId = urlParams.get('id');
+  let patientId = urlParams.get('id');
 
   if (!patientId) {
-    window.showToast('No se especificó un paciente válido.', 'error');
-    setTimeout(() => window.location.href = 'pacientes.html', 1500);
-    return;
+    patientId = sessionStorage.getItem(PATIENT_STORAGE_KEY);
   }
 
-  const patient = window.db.getPatient(patientId);
+  // Validar que el paciente existe
+  let patient = patientId ? window.db.getPatient(patientId) : null;
+
   if (!patient) {
-    window.showToast('El paciente no existe en el sistema.', 'error');
-    setTimeout(() => window.location.href = 'pacientes.html', 1500);
+    // Fallback al primer paciente disponible
+    const patients = window.db.getPatients();
+    if (patients && patients.length > 0) {
+      patientId = patients[0].id;
+      patient = window.db.getPatient(patientId);
+    }
+  }
+
+  if (!patient) {
+    window.showToast('No hay pacientes registrados en el sistema.', 'error');
     return;
   }
 
-  // Encabezado
-  document.getElementById('perio-patient-subtitle').textContent = `Paciente: ${patient.name} (${patient.rut}) • Edad: ${patient.age} años`;
+  // Guardar selección en sessionStorage para sincronizar con odontograma
+  sessionStorage.setItem(PATIENT_STORAGE_KEY, patientId);
+
+  // Seleccionar en el dropdown
+  patientSelect.value = patientId;
+
+  // Actualizar encabezado
+  patientSubtitle.textContent = `Paciente: ${patient.name} (${patient.rut}) • Edad: ${patient.age} años`;
+
+  // --- Cambio de paciente: recargar página con el nuevo ID ---
+  patientSelect.addEventListener('change', function() {
+    const newId = this.value;
+    sessionStorage.setItem(PATIENT_STORAGE_KEY, newId);
+    // Recargar con el nuevo paciente en la URL para re-renderizar las cuadrículas
+    window.location.href = `periodontograma.html?id=${newId}`;
+  });
 
   // Las dos arcadas según norma FDI
   const upperTeeth = [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28];

@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
   let currentPatientId = null;
   let odontogramData = {}; // Objeto que mantiene el estado actual en memoria
 
+  // Clave compartida con periodontograma para sincronizar paciente seleccionado
+  const PATIENT_STORAGE_KEY = 'ondental_selected_patient';
+
   // Referencias DOM
   const patientSelect = document.getElementById('odont-patient-select');
   const patientNameHeader = document.getElementById('patient-name-header');
@@ -48,21 +51,35 @@ document.addEventListener('DOMContentLoaded', function() {
   populatePatientSelect();
 
   patientSelect.addEventListener('change', function() {
-    loadPatientOdontogram(this.value);
+    const selectedId = this.value;
+    // Guardar en sessionStorage para sincronizar con periodontograma
+    sessionStorage.setItem(PATIENT_STORAGE_KEY, selectedId);
+    loadPatientOdontogram(selectedId);
   });
 
-  // Cargar si viene de URL (?id=pat_1)
+  // Determinar paciente inicial
+  // Prioridad: 1) URL ?id=, 2) sessionStorage (último seleccionado), 3) primer disponible
   const urlParams = new URLSearchParams(window.location.search);
   const urlId = urlParams.get('id');
-  if (urlId) {
+
+  if (urlId && window.db.getPatient(urlId)) {
     patientSelect.value = urlId;
+    sessionStorage.setItem(PATIENT_STORAGE_KEY, urlId);
     loadPatientOdontogram(urlId);
   } else {
-    // Si no, auto-seleccionar el primero disponible
-    const firstPat = patientSelect.querySelector('option:not([disabled])');
-    if (firstPat) {
-      patientSelect.value = firstPat.value;
-      loadPatientOdontogram(firstPat.value);
+    // Intentar con sessionStorage
+    const storedId = sessionStorage.getItem(PATIENT_STORAGE_KEY);
+    if (storedId && window.db.getPatient(storedId)) {
+      patientSelect.value = storedId;
+      loadPatientOdontogram(storedId);
+    } else {
+      // Fallback: primer paciente disponible
+      const firstPat = patientSelect.querySelector('option:not([disabled])');
+      if (firstPat) {
+        patientSelect.value = firstPat.value;
+        sessionStorage.setItem(PATIENT_STORAGE_KEY, firstPat.value);
+        loadPatientOdontogram(firstPat.value);
+      }
     }
   }
 
