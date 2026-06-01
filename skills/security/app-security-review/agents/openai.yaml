@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Security Review"
+  short_description: "Audit app security before release"
+  default_prompt: "Use $app-security-review to audit this app for production security issues."

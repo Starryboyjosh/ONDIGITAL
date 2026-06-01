@@ -1,14 +1,6 @@
 ---
-name: ondigital-landing-page
-description: >
-  Skill especializado en la generación de landing pages premium y de alta conversión,
-  optimizadas para SEO, responsivas y con integraciones de contacto directo/indirecto
-  (WhatsApp, Formularios, Maps) y plantillas para diversas industrias. Todo en español.
-mode: prototype
-platform: desktop+mobile
-scenario: design
-version: 2.0.0
-author: ONDIGITAL
+name: landing-page
+description: Generate high-conversion Spanish landing pages for MiPyMEs and service businesses with SEO, responsive layout, WhatsApp/forms/maps integrations, strong first viewport hierarchy, real visual assets, and production HTML quality. Use for business pages, campaign pages, local service sites, catalogs, and contact-driven pages.
 ---
 
 # ONDIGITAL — Generación de Landing Pages Premium de Alta Conversión
@@ -16,6 +8,21 @@ author: ONDIGITAL
 > Este skill instruye en el diseño y codificación de páginas de destino (landing pages) ultra-modernas con estética premium, animaciones fluidas y excelente rendimiento. Ideal para farmacias, tiendas, consultorías y clínicas. Todas las interfaces DEBEN estar redactadas en **español**.
 
 ---
+
+## Metadata
+
+- Version: 2.1.0
+- Author: ONDIGITAL
+- Domain: product/landing-page
+- Pair with: `skills/core/html-app-production/SKILL.md`, `skills/core/frontend-quality-review/SKILL.md`, `skills/security/web-security-hardening/SKILL.md`.
+
+## Reglas De Calidad Actualizadas
+
+- La primera pantalla debe comunicar negocio, oferta, ubicación/canal y acción principal sin depender solo de nav.
+- Usar imagen real o generada relevante cuando el usuario deba inspeccionar producto, lugar, persona o servicio.
+- Evitar decoración genérica como orbes, gradientes o tarjetas excesivas cuando no aporten conversión.
+- Mantener copy en español natural, específico para el giro y sin lenguaje de plantilla.
+- Antes de entrega, validar responsive, assets, formularios, SEO básico y seguridad web.
 
 ## 📋 Índice
 1. [Estructura de Conversión (AIDA)](#estructura-de-conversión-aida)

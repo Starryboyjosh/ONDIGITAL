@@ -1,0 +1,4 @@
+interface:
+  display_name: "SaaS Product UI"
+  short_description: "Design dense operational SaaS UI"
+  default_prompt: "Use $saas-product-ui to build a focused SaaS dashboard or admin workflow."

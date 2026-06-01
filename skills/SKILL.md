@@ -1,30 +1,6 @@
 ---
 name: ondigital-web-generator
-description: >
-  Skill maestro para generar páginas web profesionales, plataformas SaaS y sistemas
-  con base de datos para MiPyMEs y negocios de contacto directo/indirecto.
-  Incluye sistema de diseño premium, patrones de autenticación multi-tenant,
-  glassmorphism, accesibilidad y SEO. Todo el contenido de interfaz en español.
-mode: prototype
-platform: desktop+mobile
-scenario: design
-version: 2.0.0
-author: ONDIGITAL
-tags:
-  - web
-  - saas
-  - landing
-  - database
-  - glassmorphism
-  - mipymes
-  - spanish
-dependencies:
-  - skills/saas-platform/SKILL.md
-  - skills/landing-page/SKILL.md
-  - skills/database-system/SKILL.md
-  - skills/design-systems/DESIGN.md
-  - skills/tools/TOOLS.md
-  - skills/dental-references.md
+description: Skill maestro para generar, editar y revisar landing pages, SaaS, sistemas con datos, apps HTML y apps Flutter para MiPyMEs, incluyendo el sitio/app OnDental. Use when an agent needs ONDIGITAL production guidance, Spanish UI copy, design system rules, security gates, dental references, and the correct sub-skill selection.
 ---
 
 # ONDIGITAL — Skill Maestro de Generación Web
@@ -34,6 +10,60 @@ dependencies:
 > Todas las interfaces generadas DEBEN estar en **español**.
 
 ---
+
+## Metadata
+
+- Version: 2.3.0
+- Author: ONDIGITAL
+- Mode: prototype + production guidance
+- Platform: desktop + mobile + Flutter
+- Primary domains: web, SaaS, landing pages, database systems, Flutter, security, product UI, dental apps.
+
+## Mapa De Carpetas
+
+- `core/`: producción HTML y revisión visual/técnica.
+- `product/`: landing pages, SaaS premium y patrones de UI operacional.
+- `data/`: persistencia, CRUD, local-first y bases de datos.
+- `flutter/`: producción Flutter y skills oficiales especializadas.
+- `security/`: auth, access control, hardening web, auditoría de skills.
+- `design/`: sistema visual, tokens y componentes.
+- `support/`: utilidades reutilizables.
+
+## Dependencias
+
+- `skills/product/saas-platform/SKILL.md`
+- `skills/product/landing-page/SKILL.md`
+- `skills/product/saas-product-ui/SKILL.md`
+- `skills/data/database-system/SKILL.md`
+- `skills/core/html-app-production/SKILL.md`
+- `skills/core/frontend-quality-review/SKILL.md`
+- `skills/flutter/flutter-app-production/SKILL.md`
+- `skills/flutter/flutter-add-integration-test/SKILL.md`
+- `skills/flutter/flutter-add-widget-preview/SKILL.md`
+- `skills/flutter/flutter-add-widget-test/SKILL.md`
+- `skills/flutter/flutter-apply-architecture-best-practices/SKILL.md`
+- `skills/flutter/flutter-build-responsive-layout/SKILL.md`
+- `skills/flutter/flutter-fix-layout-issues/SKILL.md`
+- `skills/flutter/flutter-implement-json-serialization/SKILL.md`
+- `skills/flutter/flutter-setup-declarative-routing/SKILL.md`
+- `skills/flutter/flutter-setup-localization/SKILL.md`
+- `skills/flutter/flutter-use-http-package/SKILL.md`
+- `skills/security/app-security-review/SKILL.md`
+- `skills/security/auth-access-control/SKILL.md`
+- `skills/security/web-security-hardening/SKILL.md`
+- `skills/security/skill-supply-chain-audit/SKILL.md`
+- `skills/design/design-systems/DESIGN.md`
+- `skills/support/tools/TOOLS.md`
+- `skills/dental-references.md`
+
+## Precedencia
+
+Cuando haya conflicto entre ejemplos antiguos y skills nuevas:
+
+- Para HTML/apps, seguir primero `skills/core/html-app-production/SKILL.md`.
+- Para SaaS, seguir primero `skills/product/saas-product-ui/SKILL.md`.
+- Para seguridad, seguir primero `skills/security/auth-access-control/SKILL.md` y `skills/security/app-security-review/SKILL.md`.
+- Para visual QA, cerrar con `skills/core/frontend-quality-review/SKILL.md`.
 
 ## 📋 Índice
 
@@ -50,6 +80,7 @@ dependencies:
 11. [Anti-Patrones](#anti-patrones)
 12. [Checklist de Auto-Crítica](#checklist-de-auto-crítica)
 13. [Selección de Sub-Skill](#selección-de-sub-skill)
+14. [Reglas de Seguridad de Producción](#reglas-de-seguridad-de-producción)
 
 ---
 
@@ -69,10 +100,11 @@ dependencies:
 
 | Tipo | Contacto | Ejemplo | Sub-Skill |
 |------|----------|---------|-----------|
-| **Contacto Directo** | WhatsApp, teléfono, visita | Farmacia, clínica, taller | `landing-page` |
-| **Contacto Indirecto** | Carrito, formulario, catálogo | Tienda online, consultoría | `landing-page` + `database-system` |
-| **Plataforma SaaS** | Dashboard, multi-usuario | CRM, ERP, gestión | `saas-platform` + `database-system` |
-| **Sistema Interno** | Solo empleados | Inventario, nómina | `database-system` |
+| **Contacto Directo** | WhatsApp, teléfono, visita | Farmacia, clínica, taller | `landing-page` + `html-app-production` |
+| **Contacto Indirecto** | Carrito, formulario, catálogo | Tienda online, consultoría | `landing-page` + `database-system` + `html-app-production` |
+| **Plataforma SaaS** | Dashboard, multi-usuario | CRM, ERP, gestión | `saas-platform` + `saas-product-ui` + `database-system` |
+| **Sistema Interno** | Solo empleados | Inventario, nómina | `saas-product-ui` + `database-system` |
+| **App Flutter** | App móvil/web/desktop | POS, agenda, CRM móvil | `flutter-app-production` + skills Flutter específicas |
 
 ---
 
@@ -1191,27 +1223,70 @@ Según el tipo de proyecto solicitado, activar el sub-skill correspondiente:
 
 ```
 SI el proyecto es una landing page / página de negocio:
-  → Leer: skills/landing-page/SKILL.md
-  → Leer: skills/design-systems/DESIGN.md
+  → Leer: skills/product/landing-page/SKILL.md
+  → Leer: skills/core/html-app-production/SKILL.md
+  → Leer: skills/design/design-systems/DESIGN.md
 
 SI el proyecto es una plataforma SaaS / dashboard:
-  → Leer: skills/saas-platform/SKILL.md
-  → Leer: skills/database-system/SKILL.md
-  → Leer: skills/design-systems/DESIGN.md
-  → Leer: skills/tools/TOOLS.md
-  → Leer: skills/dental-references.md
+  → Leer: skills/product/saas-platform/SKILL.md
+  → Leer: skills/product/saas-product-ui/SKILL.md
+  → Leer: skills/security/auth-access-control/SKILL.md
+  → Leer: skills/security/app-security-review/SKILL.md
+  → Leer: skills/core/html-app-production/SKILL.md
+  → Leer: skills/data/database-system/SKILL.md
+  → Leer: skills/design/design-systems/DESIGN.md
+  → Leer: skills/support/tools/TOOLS.md
+  → Leer: skills/dental-references.md si el proyecto es OnDental o clínica dental
 
 SI el proyecto es un sistema de gestión con base de datos:
-  → Leer: skills/database-system/SKILL.md
-  → Leer: skills/tools/TOOLS.md
-  → Leer: skills/design-systems/DESIGN.md
+  → Leer: skills/product/saas-product-ui/SKILL.md
+  → Leer: skills/security/auth-access-control/SKILL.md
+  → Leer: skills/security/app-security-review/SKILL.md
+  → Leer: skills/data/database-system/SKILL.md
+  → Leer: skills/core/html-app-production/SKILL.md
+  → Leer: skills/support/tools/TOOLS.md
+  → Leer: skills/design/design-systems/DESIGN.md
+
+SI el proyecto es una app Flutter:
+  → Leer: skills/flutter/flutter-app-production/SKILL.md
+  → Leer según necesidad:
+      - skills/flutter/flutter-apply-architecture-best-practices/SKILL.md
+      - skills/flutter/flutter-build-responsive-layout/SKILL.md
+      - skills/flutter/flutter-fix-layout-issues/SKILL.md
+      - skills/flutter/flutter-setup-declarative-routing/SKILL.md
+      - skills/flutter/flutter-use-http-package/SKILL.md
+      - skills/flutter/flutter-implement-json-serialization/SKILL.md
+      - skills/flutter/flutter-setup-localization/SKILL.md
+      - skills/flutter/flutter-add-widget-test/SKILL.md
+      - skills/flutter/flutter-add-integration-test/SKILL.md
+      - skills/flutter/flutter-add-widget-preview/SKILL.md
+
+SI se pide pulir, auditar, corregir responsive o preparar para entrega:
+  → Leer: skills/core/frontend-quality-review/SKILL.md
+  → Leer: skills/security/app-security-review/SKILL.md
+  → Leer: skills/security/web-security-hardening/SKILL.md
+
+SI se trabaja login, roles, panel admin, usuarios, permisos, tenants o datos privados:
+  → Leer: skills/security/auth-access-control/SKILL.md
+  → Leer: skills/security/app-security-review/SKILL.md
+
+SI se instalan o copian skills externas:
+  → Leer: skills/security/skill-supply-chain-audit/SKILL.md
 
 SIEMPRE leer:
-  → skills/design-systems/DESIGN.md (variables y componentes)
+  → skills/design/design-systems/DESIGN.md (variables y componentes)
   → Este archivo (SKILL.md) para patrones base
 ```
 
 ---
+
+## Reglas de Seguridad de Producción
+
+- `localStorage` y `sessionStorage` son aceptables para demos, preferencias UI y prototipos; no son una frontera de seguridad para producción.
+- Un login visible no debe cargar, importar ni pedir datos del admin hasta que el servidor/API confirme sesión y permisos.
+- Toda ruta/API privada debe validar autenticación, autorización, tenant/empresa y objeto en servidor.
+- La UI puede ocultar botones por UX, pero el permiso real vive en backend, reglas de base de datos o proveedor de auth.
+- Antes de entregar SaaS, dashboards, sistemas internos o apps con usuarios, ejecutar una pasada con `app-security-review`, `auth-access-control` y `web-security-hardening`.
 
 ## Notas de Implementación
 

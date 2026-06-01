@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Quality Review"
+  short_description: "Audit and harden UI before handoff"
+  default_prompt: "Use $frontend-quality-review to audit and tighten this UI before handoff."

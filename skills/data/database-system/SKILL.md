@@ -1,14 +1,6 @@
 ---
-name: ondigital-database-system
-description: >
-  Skill especializado en la gestión e integración de bases de datos persistentes locales
-  (localStorage) y basadas en la nube (Firebase/Firestore) con soporte relacional,
-  paginación, búsquedas, filtrado y exportación de datos en formato CSV/PDF. Todo en español.
-mode: prototype
-platform: desktop+mobile
-scenario: design
-version: 2.0.0
-author: ONDIGITAL
+name: database-system
+description: Design Spanish data layers for ONDIGITAL apps, including local prototypes, CRUD, pagination, search, filters, CSV/PDF exports, Firebase/Firestore-style cloud persistence, tenant-aware records, validation, and migration from demo storage to production data boundaries.
 ---
 
 # ONDIGITAL — Sistemas de Bases de Datos Locales y en la Nube
@@ -16,6 +8,21 @@ author: ONDIGITAL
 > Este skill instruye en el diseño e implementación de motores de datos ligeros pero robustos, ideales para aplicaciones que operan localmente (local-first) o conectadas a servicios de nube en tiempo real. Todas las variables y comentarios explicativos se redactan en **español**.
 
 ---
+
+## Metadata
+
+- Version: 2.1.0
+- Author: ONDIGITAL
+- Domain: data/database-system
+- Pair with: `skills/security/app-security-review/SKILL.md`, `skills/security/auth-access-control/SKILL.md`, `skills/product/saas-product-ui/SKILL.md`.
+
+## Reglas De Producción Actualizadas
+
+- `localStorage` sirve para prototipos, preferencias y demos sin datos reales; no usarlo como seguridad, base de datos sensible o autorización.
+- Validar datos al entrar y al salir de la capa de datos.
+- En sistemas multi-tenant, filtrar por tenant en la consulta/regla del backend, no solo en cliente.
+- No guardar tokens largos, secretos, contraseñas, datos de pago ni información sensible en storage del navegador.
+- Diseñar la API de datos de forma que el backend real pueda reemplazar el mock local sin reescribir toda la UI.
 
 ## 📋 Índice
 1. [Diseño Relacional Simulado en LocalStorage](#diseño-relacional-simulado-en-localstorage)

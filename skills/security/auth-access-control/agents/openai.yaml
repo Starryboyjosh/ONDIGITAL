@@ -1,0 +1,4 @@
+interface:
+  display_name: "Auth Access Control"
+  short_description: "Secure auth, roles, and admin routes"
+  default_prompt: "Use $auth-access-control to implement secure login, roles, and protected admin routes."

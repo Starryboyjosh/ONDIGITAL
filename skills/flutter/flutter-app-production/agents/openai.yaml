@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flutter App Production"
+  short_description: "Ship production Flutter app work"
+  default_prompt: "Use $flutter-app-production to build or improve a production Flutter app."

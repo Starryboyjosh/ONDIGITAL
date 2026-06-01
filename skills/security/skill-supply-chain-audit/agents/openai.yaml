@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Supply Chain Audit"
+  short_description: "Check skills for exfiltration risk"
+  default_prompt: "Use $skill-supply-chain-audit to audit these agent skills before installing them."

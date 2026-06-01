@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML App Production"
+  short_description: "Build polished HTML apps and pages"
+  default_prompt: "Use $html-app-production to build a polished standalone HTML app."

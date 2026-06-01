@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web Security Hardening"
+  short_description: "Harden browser web app defenses"
+  default_prompt: "Use $web-security-hardening to add browser security headers and XSS defenses."

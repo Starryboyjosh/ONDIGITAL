@@ -4,6 +4,14 @@
 
 ---
 
+## Reglas De Seguridad Para Utilidades
+
+- No insertar datos del usuario con `innerHTML`.
+- Preferir `textContent`, `replaceChildren()` y nodos creados con `document.createElement()`.
+- Escapar expresiones regulares construidas desde input.
+- Usar `localStorage` solo para preferencias UI no sensibles.
+- Si una utilidad toca auth, datos privados o exportaciones, revisar con `skills/security/app-security-review/SKILL.md`.
+
 ## 📋 Índice
 1. [Componente Autocomplete Inteligente (Buscador)](#componente-autocomplete-inteligente-buscador)
 2. [Sistema Reactivo de Notificaciones (Toasts Engine)](#sistema-reactivo-de-notificaciones-toasts-engine)
@@ -33,13 +41,40 @@ function initAutocomplete({ input, resultsContainer, dataList, onSelect }) {
   let highlightedIndex = -1;
   let filteredList = [];
 
+  function escapeRegExp(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function buildHighlightedText(text, query) {
+    const fragment = document.createDocumentFragment();
+    const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+    let lastIndex = 0;
+
+    for (const match of text.matchAll(regex)) {
+      if (match.index > lastIndex) {
+        fragment.append(document.createTextNode(text.slice(lastIndex, match.index)));
+      }
+
+      const mark = document.createElement('mark');
+      mark.textContent = match[0];
+      fragment.append(mark);
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < text.length) {
+      fragment.append(document.createTextNode(text.slice(lastIndex)));
+    }
+
+    return fragment;
+  }
+
   // Al escribir en el campo
   input.addEventListener('input', (e) => {
     const val = e.target.value.trim().toLowerCase();
     highlightedIndex = -1;
 
     if (val.length < 2) {
-      resultsContainer.innerHTML = '';
+      resultsContainer.replaceChildren();
       resultsContainer.classList.add('hidden');
       return;
     }
@@ -55,9 +90,12 @@ function initAutocomplete({ input, resultsContainer, dataList, onSelect }) {
 
   // Renderiza la lista flotante
   function renderResults(list, query) {
-    resultsContainer.innerHTML = '';
+    resultsContainer.replaceChildren();
     if (list.length === 0) {
-      resultsContainer.innerHTML = `<div class="autocomplete-no-results">Sin coincidencias</div>`;
+      const empty = document.createElement('div');
+      empty.className = 'autocomplete-no-results';
+      empty.textContent = 'Sin coincidencias';
+      resultsContainer.appendChild(empty);
       resultsContainer.classList.remove('hidden');
       return;
     }
@@ -66,15 +104,18 @@ function initAutocomplete({ input, resultsContainer, dataList, onSelect }) {
       const el = document.createElement('div');
       el.className = 'autocomplete-item';
       el.dataset.id = item.id;
-      
-      // Resaltado de coincidencia (text highlighting)
-      const regex = new RegExp(`(${query})`, 'gi');
-      const highlightedTitle = item.title.replace(regex, '<mark>$1</mark>');
 
-      el.innerHTML = `
-        <div class="item-title">${highlightedTitle}</div>
-        ${item.subtitle ? `<div class="item-subtitle">${item.subtitle}</div>` : ''}
-      `;
+      const title = document.createElement('div');
+      title.className = 'item-title';
+      title.appendChild(buildHighlightedText(item.title, query));
+      el.appendChild(title);
+
+      if (item.subtitle) {
+        const subtitle = document.createElement('div');
+        subtitle.className = 'item-subtitle';
+        subtitle.textContent = item.subtitle;
+        el.appendChild(subtitle);
+      }
 
       el.addEventListener('click', () => selectItem(item));
       resultsContainer.appendChild(el);
@@ -124,7 +165,7 @@ function initAutocomplete({ input, resultsContainer, dataList, onSelect }) {
   }
 
   function closeResults() {
-    resultsContainer.innerHTML = '';
+    resultsContainer.replaceChildren();
     resultsContainer.classList.add('hidden');
   }
 
@@ -174,15 +215,27 @@ const Toast = {
       info: 'ℹ️'
     };
 
-    toast.className = `toast-card toast-${type} glass-surface`;
-    toast.innerHTML = `
-      <span class="toast-icon">${icons[type]}</span>
-      <div class="toast-content">${message}</div>
-      <button class="toast-close">×</button>
-    `;
+    const safeType = Object.prototype.hasOwnProperty.call(icons, type) ? type : 'info';
+    toast.className = `toast-card toast-${safeType} glass-surface`;
+
+    const icon = document.createElement('span');
+    icon.className = 'toast-icon';
+    icon.textContent = icons[safeType];
+
+    const content = document.createElement('div');
+    content.className = 'toast-content';
+    content.textContent = message;
+
+    const close = document.createElement('button');
+    close.className = 'toast-close';
+    close.type = 'button';
+    close.textContent = '×';
+    close.setAttribute('aria-label', 'Cerrar notificación');
+
+    toast.append(icon, content, close);
 
     // Botón de cerrar manual
-    toast.querySelector('.toast-close').addEventListener('click', () => {
+    close.addEventListener('click', () => {
       this.dismiss(toast);
     });
 
@@ -304,8 +357,7 @@ function enableTableSort(table) {
       sortDirection *= -1;
 
       // Actualizar DOM
-      tbody.innerHTML = '';
-      tbody.append(...sortedRows);
+      tbody.replaceChildren(...sortedRows);
 
       // Clases visuales de dirección
       headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));

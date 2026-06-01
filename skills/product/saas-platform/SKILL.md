@@ -1,14 +1,6 @@
 ---
-name: ondigital-saas-platform
-description: >
-  Skill especializado en la generación de plataformas SaaS premium, incluyendo
-  arquitecturas multi-tenant, paneles de control (dashboards), gestión de roles,
-  configuraciones, facturación/suscripciones e integraciones API. Todo en español.
-mode: prototype
-platform: desktop+mobile
-scenario: design
-version: 2.0.0
-author: ONDIGITAL
+name: saas-platform
+description: Generate Spanish SaaS platform screens and prototypes with dashboards, multi-tenant structure, roles, settings, billing, CRM, integrations, and admin workflows. Use for SaaS apps, dashboards, internal tools, operational systems, and multi-user business platforms.
 ---
 
 # ONDIGITAL — Generación de Plataformas SaaS Premium
@@ -16,6 +8,21 @@ author: ONDIGITAL
 > Este skill instruye al agente en el desarrollo de arquitecturas SaaS multi-tenant y de alto impacto visual (glassmorphic, responsive, premium) enfocadas en MiPyMEs y servicios profesionales. Todo el contenido y las interfaces de usuario DEBEN estar en **español**.
 
 ---
+
+## Metadata
+
+- Version: 2.1.0
+- Author: ONDIGITAL
+- Domain: product/saas-platform
+- Pair with: `skills/product/saas-product-ui/SKILL.md`, `skills/security/auth-access-control/SKILL.md`, `skills/security/app-security-review/SKILL.md`, `skills/data/database-system/SKILL.md`.
+
+## Reglas De Producción Actualizadas
+
+- Priorizar operación, claridad y densidad escaneable sobre estética decorativa.
+- Usar glassmorphism solo si no degrada legibilidad, contraste, rendimiento o lectura de tablas.
+- No cargar paneles admin, datos privados ni rutas SaaS antes de validar sesión, rol, tenant y objeto en servidor/API.
+- Los ejemplos con `localStorage` son demos. Para producción, reemplazar por auth/backend/reglas de base de datos reales.
+- Modelar estados de carga, vacío, error, sin permisos, datos obsoletos, guardando y acción destructiva.
 
 ## 📋 Índice
 1. [Arquitectura Multi-Tenant (Aislamiento de Datos)](#arquitectura-multi-tenant-aislamiento-de-datos)
