@@ -9,104 +9,6 @@
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/periodontograma.js"></script>
-  <style>
-    /* Estilos específicos para el Periodontograma */
-    .perio-table-container {
-      overflow-x: auto;
-      margin-bottom: 30px;
-      background: rgba(5, 15, 44, 0.4);
-      border-radius: 12px;
-      border: 1px solid var(--border-glow);
-      padding: 15px;
-    }
-    .perio-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: center;
-      font-size: 0.8rem;
-    }
-    .perio-table th {
-      padding: 6px;
-      border: 1px solid rgba(43, 138, 247, 0.2);
-      background: rgba(43, 138, 247, 0.1);
-      color: var(--color-white);
-      font-family: var(--font-title);
-      font-weight: 700;
-    }
-    .perio-table td {
-      padding: 5px;
-      border: 1px solid rgba(43, 138, 247, 0.15);
-      color: var(--color-white);
-    }
-    .perio-input {
-      width: 38px;
-      padding: 4px;
-      background: rgba(5, 15, 44, 0.7);
-      border: 1px solid var(--border-glow);
-      border-radius: 4px;
-      color: var(--color-white);
-      text-align: center;
-      font-size: 0.85rem;
-    }
-    .perio-input:focus {
-      outline: none;
-      border-color: var(--color-blue-mid);
-    }
-    .perio-btn {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      cursor: pointer;
-      display: inline-block;
-      transition: all 0.2s;
-      background: transparent;
-    }
-    .perio-btn.ss-btn.active {
-      background: var(--state-caries) !important; /* Sangrado = Rojo */
-      box-shadow: 0 0 8px var(--state-caries);
-    }
-    .perio-btn.pb-btn.active {
-      background: #ffb800 !important; /* Placa = Amarillo */
-      box-shadow: 0 0 8px #ffb800;
-    }
-    .nic-label {
-      font-weight: 700;
-      color: var(--color-teal);
-    }
-    .chart-container {
-      background: rgba(5, 15, 44, 0.6);
-      border: 1px solid var(--border-glow);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 30px;
-      position: relative;
-    }
-    .chart-svg {
-      width: 100%;
-      height: 220px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .chart-legend {
-      display: flex;
-      gap: 20px;
-      margin-top: 10px;
-      font-size: 0.8rem;
-      justify-content: center;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .legend-line {
-      width: 30px;
-      height: 3px;
-      border-radius: 2px;
-    }
-  </style>
 </head>
 <body>
   <div class="app-container">
@@ -190,7 +92,7 @@
             <!-- Poblado dinámicamente -->
           </select>
           <button id="save-perio-btn" class="btn btn-primary">
-            💾 Guardar Periodontograma
+            Guardar Periodontograma
           </button>
         </div>
       </header>
@@ -201,40 +103,40 @@
         
         <svg id="perio-chart" class="chart-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
           <!-- Líneas de cuadrícula horizontal para mm -->
-          <line x1="0" y1="20" x2="800" y2="20" stroke="rgba(255,255,255,0.05)" stroke-width="1"></line>
-          <line x1="0" y1="50" x2="800" y2="50" stroke="rgba(255,255,255,0.05)" stroke-width="1"></line>
-          <line x1="0" y1="80" x2="800" y2="80" stroke="rgba(255,255,255,0.05)" stroke-width="1"></line>
-          <line x1="0" y1="110" x2="800" y2="110" stroke="rgba(255,255,255,0.05)" stroke-width="1"></line>
-          <line x1="0" y1="140" x2="800" y2="140" stroke="rgba(255,255,255,0.05)" stroke-width="1"></line>
-          <line x1="0" y1="170" x2="800" y2="170" stroke="rgba(255,255,255,0.05)" stroke-width="1"></line>
+          <line class="perio-grid-line" x1="0" y1="20" x2="800" y2="20"></line>
+          <line class="perio-grid-line" x1="0" y1="50" x2="800" y2="50"></line>
+          <line class="perio-grid-line" x1="0" y1="80" x2="800" y2="80"></line>
+          <line class="perio-grid-line" x1="0" y1="110" x2="800" y2="110"></line>
+          <line class="perio-grid-line" x1="0" y1="140" x2="800" y2="140"></line>
+          <line class="perio-grid-line" x1="0" y1="170" x2="800" y2="170"></line>
 
           <!-- Textos de nivel mm -->
-          <text x="5" y="25" fill="rgba(255,255,255,0.3)" font-size="8">10 mm</text>
-          <text x="5" y="55" fill="rgba(255,255,255,0.3)" font-size="8">8 mm</text>
-          <text x="5" y="85" fill="rgba(255,255,255,0.3)" font-size="8">6 mm</text>
-          <text x="5" y="115" fill="rgba(255,255,255,0.3)" font-size="8">4 mm</text>
-          <text x="5" y="145" fill="rgba(255,255,255,0.3)" font-size="8">2 mm</text>
-          <text x="5" y="175" fill="rgba(255,255,255,0.3)" font-size="8">0 mm</text>
+          <text class="perio-grid-label" x="5" y="25">10 mm</text>
+          <text class="perio-grid-label" x="5" y="55">8 mm</text>
+          <text class="perio-grid-label" x="5" y="85">6 mm</text>
+          <text class="perio-grid-label" x="5" y="115">4 mm</text>
+          <text class="perio-grid-label" x="5" y="145">2 mm</text>
+          <text class="perio-grid-label" x="5" y="175">0 mm</text>
 
           <!-- Relleno de bolsa (Rojo translúcido si PS >= 4) -->
-          <path id="pocket-fill-path" d="" fill="rgba(255, 74, 90, 0.15)"></path>
+          <path id="pocket-fill-path" d="" fill="rgba(220, 38, 38, 0.12)"></path>
 
           <!-- Las líneas curvas -->
-          <path id="mg-line-path" d="" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round"></path> <!-- MG = Verde -->
-          <path id="ps-line-path" d="" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round"></path> <!-- PS = Rojo -->
+          <path id="mg-line-path" d="" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"></path> <!-- MG = Verde -->
+          <path id="ps-line-path" d="" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"></path> <!-- PS = Rojo -->
         </svg>
 
         <div class="chart-legend">
           <div class="legend-item">
-            <div class="legend-line" style="background: #34d399;"></div>
+            <div class="legend-line" style="background: #16a34a;"></div>
             <span>Margen Gingival (MG)</span>
           </div>
           <div class="legend-item">
-            <div class="legend-line" style="background: #f87171;"></div>
+            <div class="legend-line" style="background: #dc2626;"></div>
             <span>Profundidad de Sondaje (PS)</span>
           </div>
           <div class="legend-item">
-            <div style="width: 12px; height: 12px; border-radius: 50%; background: rgba(255, 74, 90, 0.2); border: 1.5px solid #f87171;"></div>
+            <div style="width: 12px; height: 12px; border-radius: 50%; background: rgba(220, 38, 38, 0.15); border: 1.5px solid #dc2626;"></div>
             <span>Bolsa Periodontal (PS &ge; 4mm)</span>
           </div>
         </div>

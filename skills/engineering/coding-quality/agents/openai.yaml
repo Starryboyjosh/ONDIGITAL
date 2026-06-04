@@ -1,0 +1,4 @@
+interface:
+  display_name: "Coding Quality"
+  short_description: "Debugging, refactor, code quality."
+  default_prompt: "Improve this codebase using ONDIGITAL coding-quality rules."

@@ -23,9 +23,14 @@ description: Skill maestro para generar, editar y revisar landing pages, SaaS, s
 
 - `core/`: producción HTML y revisión visual/técnica.
 - `product/`: landing pages, SaaS premium y patrones de UI operacional.
+- `backend/`: APIs, servicios, reglas de backend, migración de prototipo a producción.
 - `data/`: persistencia, CRUD, local-first y bases de datos.
+- `testing/`: QA automatizado, E2E, accesibilidad, API checks y release smoke tests.
+- `engineering/`: calidad de código, debugging, refactor, arquitectura y migraciones.
+- `business/`: digitalización de microempresas, flujos operativos y blueprint de producto.
 - `flutter/`: producción Flutter y skills oficiales especializadas.
 - `security/`: auth, access control, hardening web, auditoría de skills.
+- `registry/`: auditoría y mapa de fuentes externas de skills.
 - `design/`: sistema visual, tokens y componentes.
 - `support/`: utilidades reutilizables.
 
@@ -34,7 +39,12 @@ description: Skill maestro para generar, editar y revisar landing pages, SaaS, s
 - `skills/product/saas-platform/SKILL.md`
 - `skills/product/landing-page/SKILL.md`
 - `skills/product/saas-product-ui/SKILL.md`
+- `skills/product/sales-pos-inventory/SKILL.md`
+- `skills/backend/backend-api-production/SKILL.md`
 - `skills/data/database-system/SKILL.md`
+- `skills/testing/qa-automation/SKILL.md`
+- `skills/engineering/coding-quality/SKILL.md`
+- `skills/business/business-digitalization/SKILL.md`
 - `skills/core/html-app-production/SKILL.md`
 - `skills/core/frontend-quality-review/SKILL.md`
 - `skills/flutter/flutter-app-production/SKILL.md`
@@ -52,6 +62,7 @@ description: Skill maestro para generar, editar y revisar landing pages, SaaS, s
 - `skills/security/auth-access-control/SKILL.md`
 - `skills/security/web-security-hardening/SKILL.md`
 - `skills/security/skill-supply-chain-audit/SKILL.md`
+- `skills/registry/skill-registry-audit/SKILL.md`
 - `skills/design/design-systems/DESIGN.md`
 - `skills/support/tools/TOOLS.md`
 - `skills/dental-references.md`
@@ -1224,15 +1235,19 @@ Según el tipo de proyecto solicitado, activar el sub-skill correspondiente:
 
 ```
 SI el proyecto es una landing page / página de negocio:
+  → Leer: skills/business/business-digitalization/SKILL.md si el usuario pide estructura de negocio, funnel o digitalización
   → Leer: skills/product/landing-page/SKILL.md
   → Leer: skills/core/html-app-production/SKILL.md
   → Leer: skills/design/design-systems/DESIGN.md
 
 SI el proyecto es una plataforma SaaS / dashboard:
+  → Leer: skills/business/business-digitalization/SKILL.md si el dominio del negocio aún no está claro
   → Leer: skills/product/saas-platform/SKILL.md
   → Leer: skills/product/saas-product-ui/SKILL.md
+  → Leer: skills/backend/backend-api-production/SKILL.md si hay datos reales, multi-usuario, integraciones o producción
   → Leer: skills/security/auth-access-control/SKILL.md
   → Leer: skills/security/app-security-review/SKILL.md
+  → Leer: skills/testing/qa-automation/SKILL.md antes de entregar
   → Leer: skills/core/html-app-production/SKILL.md
   → Leer: skills/data/database-system/SKILL.md
   → Leer: skills/design/design-systems/DESIGN.md
@@ -1245,19 +1260,39 @@ SI el proyecto es específicamente OnDental (gestión clínica dental):
   → Leer: skills/dental-references.md (benchmarks del sector)
   → Leer: skills/product/saas-product-ui/SKILL.md
   → Leer: skills/data/database-system/SKILL.md
+  → Leer: skills/backend/backend-api-production/SKILL.md si se conecta a Firebase/producción o datos reales
+  → Leer: skills/testing/qa-automation/SKILL.md para validar flujos clínicos, tenant y roles
   → Leer: skills/security/auth-access-control/SKILL.md
   → Leer: skills/core/html-app-production/SKILL.md
   → Leer: skills/design/design-systems/DESIGN.md
   → Leer: skills/support/tools/TOOLS.md
 
 SI el proyecto es un sistema de gestión con base de datos:
+  → Leer: skills/business/business-digitalization/SKILL.md
   → Leer: skills/product/saas-product-ui/SKILL.md
+  → Leer: skills/backend/backend-api-production/SKILL.md si no es demo local
   → Leer: skills/security/auth-access-control/SKILL.md
   → Leer: skills/security/app-security-review/SKILL.md
+  → Leer: skills/testing/qa-automation/SKILL.md
   → Leer: skills/data/database-system/SKILL.md
   → Leer: skills/core/html-app-production/SKILL.md
   → Leer: skills/support/tools/TOOLS.md
   → Leer: skills/design/design-systems/DESIGN.md
+
+SI el proyecto es ventas, POS, inventario, cobranzas, proveedores o caja:
+  → Leer: skills/business/business-digitalization/SKILL.md
+  → Leer: skills/product/sales-pos-inventory/SKILL.md
+  → Leer: skills/product/saas-product-ui/SKILL.md
+  → Leer: skills/data/database-system/SKILL.md
+  → Leer: skills/backend/backend-api-production/SKILL.md si hay datos reales o multiusuario
+  → Leer: skills/testing/qa-automation/SKILL.md
+
+SI se pide backend, API, Firebase, Supabase, Postgres, Cloud Functions, reglas o migrar demo a producción:
+  → Leer: skills/backend/backend-api-production/SKILL.md
+  → Leer: skills/data/database-system/SKILL.md
+  → Leer: skills/security/auth-access-control/SKILL.md
+  → Leer: skills/security/app-security-review/SKILL.md
+  → Leer: skills/testing/qa-automation/SKILL.md
 
 SI el proyecto es una app Flutter:
   → Leer: skills/flutter/flutter-app-production/SKILL.md
@@ -1275,17 +1310,26 @@ SI el proyecto es una app Flutter:
 
 SI se pide pulir, auditar, corregir responsive o preparar para entrega:
   → Leer: skills/core/frontend-quality-review/SKILL.md
+  → Leer: skills/testing/qa-automation/SKILL.md
   → Leer: skills/security/app-security-review/SKILL.md
   → Leer: skills/security/web-security-hardening/SKILL.md
 
+SI se pide refactor, calidad de código, bugfix, arquitectura, migración o revisar estructura:
+  → Leer: skills/engineering/coding-quality/SKILL.md
+  → Leer el skill de producto/framework correspondiente
+  → Leer: skills/testing/qa-automation/SKILL.md si cambia comportamiento
+
 SI se trabaja login, roles, panel admin, usuarios, permisos, tenants o datos privados:
+  → Leer: skills/backend/backend-api-production/SKILL.md si el proyecto no es solo demo
   → Leer: skills/security/auth-access-control/SKILL.md
   → Leer: skills/security/app-security-review/SKILL.md
 
 SI se instalan o copian skills externas:
+  → Leer: skills/registry/skill-registry-audit/SKILL.md
   → Leer: skills/security/skill-supply-chain-audit/SKILL.md
 
 SIEMPRE leer:
+  → skills/engineering/coding-quality/SKILL.md para cambios de código no triviales
   → skills/design/design-systems/DESIGN.md (variables y componentes)
   → Este archivo (SKILL.md) para patrones base
 ```

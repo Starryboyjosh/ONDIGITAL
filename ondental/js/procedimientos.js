@@ -100,12 +100,8 @@ document.addEventListener('DOMContentLoaded', function() {
     filtered.forEach(p => {
       const tr = document.createElement('tr');
       
-      // Formatear precio (Chilean peso)
-      const priceFormatted = new Intl.NumberFormat('es-CL', { 
-        style: 'currency', 
-        currency: 'CLP', 
-        maximumFractionDigits: 0 
-      }).format(p.price);
+      // Formatear precio (Lempira hondureño)
+      const priceFormatted = window.formatMoney(p.price);
 
       tr.innerHTML = `
         <td><code class="tag" style="font-weight: 700; font-size: 0.8rem;">${p.code}</code></td>

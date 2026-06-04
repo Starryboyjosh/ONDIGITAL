@@ -111,7 +111,7 @@
           <div class="card-title-area">
             <h2 class="card-title">Directorio de la Clínica</h2>
             <!-- Barra de búsqueda predictiva -->
-            <input type="text" id="patient-search" class="form-control" placeholder="Buscar por Nombre, RUT o Teléfono..." style="max-width: 280px; padding: 8px 14px;">
+            <input type="text" id="patient-search" class="form-control" placeholder="Buscar por Nombre, Documento o Teléfono..." style="max-width: 280px; padding: 8px 14px;">
           </div>
 
           <div class="custom-table-container">
@@ -119,7 +119,7 @@
               <thead>
                 <tr>
                   <th>Nombre Paciente</th>
-                  <th>RUT / ID</th>
+                  <th>Documento</th>
                   <th>Teléfono</th>
                   <th style="text-align: right;">Acción</th>
                 </tr>
@@ -149,20 +149,20 @@
 
             <!-- Datos de contacto -->
             <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px;">
-              <div><strong>RUT:</strong> <span id="card-patient-rut" style="color: var(--color-gray);">17.342.915-K</span></div>
+              <div><strong>Documento:</strong> <span id="card-patient-rut" style="color: var(--color-gray);">0801-1995-01234</span></div>
               <div><strong>Correo:</strong> <span id="card-patient-email" style="color: var(--color-gray);">gabriel@gmail.com</span></div>
-              <div><strong>Teléfono:</strong> <span id="card-patient-phone" style="color: var(--color-gray);">+56 9 8472 1928</span></div>
+              <div><strong>Teléfono:</strong> <span id="card-patient-phone" style="color: var(--color-gray);">+504 9876-5432</span></div>
             </div>
 
             <!-- Motivo de Consulta -->
             <div style="background: rgba(43, 138, 247, 0.05); border: 1px solid rgba(43, 138, 247, 0.2); border-radius: 10px; padding: 12px 16px;">
-              <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-blue-mid); text-transform: uppercase;">💬 Motivo de Consulta</span>
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-blue-mid); text-transform: uppercase;">Motivo de Consulta</span>
               <p id="card-patient-reason" style="font-size: 0.85rem; font-weight: 500; margin-top: 4px; color: var(--color-white);">-</p>
             </div>
 
             <!-- Alergias y Advertencias -->
             <div style="background: rgba(255, 74, 90, 0.05); border: 1px solid rgba(255, 74, 90, 0.2); border-radius: 10px; padding: 12px 16px;">
-              <span style="font-size: 0.75rem; font-weight: 700; color: var(--state-caries); text-transform: uppercase;">⚠️ Alergias Registradas</span>
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--state-caries); text-transform: uppercase;">Alergias Registradas</span>
               <p id="card-patient-allergies" style="font-size: 0.85rem; font-weight: 500; margin-top: 4px; color: var(--color-white);">-</p>
             </div>
 
@@ -175,15 +175,15 @@
             <!-- Herramientas Clínicas del Paciente (Redirecciones) -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px;">
               <a href="#" id="card-link-odontograma" class="btn btn-success" style="padding: 12px; font-size: 0.82rem;">
-                🦷 Odontograma
+                Odontograma
               </a>
-              <a href="#" id="card-link-periodontograma" class="btn btn-primary" style="padding: 12px; font-size: 0.82rem; background: rgba(129, 140, 248, 0.15); border: 1px solid rgba(129, 140, 248, 0.35); color: #a78bfa;">
-                📊 Periodontograma
+              <a href="#" id="card-link-periodontograma" class="btn btn-secondary" style="padding: 12px; font-size: 0.82rem;">
+                Periodontograma
               </a>
             </div>
             <div style="display: grid; grid-template-columns: 1fr; margin-top: 5px;">
               <a href="#" id="card-link-presupuesto" class="btn btn-primary" style="padding: 12px; font-size: 0.82rem; width: 100%;">
-                📄 Generar Presupuesto
+                Generar Presupuesto
               </a>
             </div>
 
@@ -199,7 +199,7 @@
 
           <!-- Tarjeta Vacía (Cuando no hay selección) -->
           <div class="card" id="patient-details-empty" style="min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--color-gray); gap: 15px;">
-            <span style="font-size: 3rem;">📁</span>
+            <svg viewBox="0 0 24 24" style="width: 48px; height: 48px; stroke: var(--color-gray-dark); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
             <p style="font-size: 0.95rem; font-weight: 500; max-width: 250px;">
               Seleccione un paciente de la lista de la izquierda para examinar su ficha clínica y odontograma.
             </p>
@@ -232,8 +232,8 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label" for="patient-rut">RUT o Documento</label>
-              <input type="text" id="patient-rut" class="form-control" placeholder="Ej: 19.821.554-3" required>
+              <label class="form-label" for="patient-rut">Documento (RTN / DNI)</label>
+              <input type="text" id="patient-rut" class="form-control" placeholder="Ej: 0801-1995-01234" required>
             </div>
             <div class="form-group">
               <label class="form-label" for="patient-age">Edad</label>
@@ -248,7 +248,7 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="patient-phone">Número de Teléfono</label>
-              <input type="tel" id="patient-phone" class="form-control" placeholder="Ej: +56 9 7384 1029" required>
+              <input type="tel" id="patient-phone" class="form-control" placeholder="Ej: +504 9876-5432" required>
             </div>
           </div>
 

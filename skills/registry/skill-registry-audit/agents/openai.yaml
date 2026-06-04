@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Registry Audit"
+  short_description: "Audit external agent skills."
+  default_prompt: "Audit and map external skills for the ONDIGITAL skill library."

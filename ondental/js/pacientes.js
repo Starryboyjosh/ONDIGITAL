@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (appt.status === 'canceled') { badgeClass = 'badge-canceled'; badgeText = 'Cancelada'; }
 
         const dateObj = new Date(appt.dateTime);
-        const dateStr = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+        const dateStr = dateObj.toLocaleDateString('es-HN', { day: 'numeric', month: 'short', year: 'numeric' });
         const hourStr = appt.dateTime.split('T')[1];
 
         const item = document.createElement('div');

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sales POS Inventory"
+  short_description: "Sales, POS, inventory workflows."
+  default_prompt: "Design sales, POS, or inventory software for this business."

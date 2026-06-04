@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const opt = document.createElement('option');
       opt.value = t.code;
       // Formatear precio para el selector
-      const prFormatted = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(t.price);
+      const prFormatted = window.formatMoney(t.price);
       opt.textContent = `${t.name} — ${prFormatted}`;
       treatmentSelect.appendChild(opt);
     });
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cargar metadatos por defecto de factura
     invIdEl.textContent = 'OD-' + Math.floor(1000 + Math.random() * 9000);
-    invDateEl.textContent = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    invDateEl.textContent = new Date().toLocaleDateString('es-HN', { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
   function updateInvoicePatient(patientId) {
@@ -278,6 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function formatCurrency(value) {
-    return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(value);
+    return window.formatMoney(value);
   }
 });

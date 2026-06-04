@@ -4,13 +4,38 @@
    con soporte para branding dinámico multi-empresa.
    ========================================================================== */
 
-// 0. Autoejecución inmediata para restaurar el tema visual sin parpadeos
+// 0. Autoejecución inmediata para restaurar el tema visual sin parpadeos.
+//    El tema claro es el predeterminado; el oscuro es una opción secundaria.
 (function() {
   const savedTheme = localStorage.getItem('ondental_theme');
-  if (savedTheme === 'light') {
-    document.documentElement.classList.add('light-theme');
+  if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark-theme');
   }
 })();
+
+// Helper: iniciales profesionales a partir del nombre de la empresa.
+function getCompanyInitials(name) {
+  if (!name) return 'OD';
+  const words = name.trim().split(/\s+/);
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+  return words[0].slice(0, 2).toUpperCase();
+}
+
+// Helper centralizado de formato de moneda: Lempira hondureño (HNL).
+// Evita repetir Intl.NumberFormat en cada módulo. Disponible como window.formatMoney.
+window.MONEY_LOCALE = 'es-HN';
+window.MONEY_CURRENCY = 'HNL';
+window.formatMoney = function(value) {
+  const num = Number(value) || 0;
+  return new Intl.NumberFormat(window.MONEY_LOCALE, {
+    style: 'currency',
+    currency: window.MONEY_CURRENCY,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(num);
+};
 
 document.addEventListener('DOMContentLoaded', function() {
   // 1. Verificar Sesión Inicialmente (redundancia de seguridad)
@@ -50,17 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
 
-    // Actualizar logo o emoji corporativo en la barra lateral
+    // Actualizar el logo corporativo (iniciales) en la barra lateral
     const brandLogoEl = document.querySelector('.brand-logo');
     if (brandLogoEl) {
-      const logos = {
-        'credental': '💎',
-        'ondental-central': '🏥',
-        'sonrisa-perfecta': '✨',
-        'dentpro': '💼'
-      };
-      brandLogoEl.textContent = logos[currentCompany.id] || '🦷';
-      brandLogoEl.style.boxShadow = `0 0 15px ${currentCompany.accent}73`;
+      brandLogoEl.textContent = getCompanyInitials(currentCompany.name);
+      brandLogoEl.style.background = currentCompany.accent;
     }
   }
 
@@ -187,13 +206,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // 6. Inyectar alternancia de modo visual Claro/Oscuro en Sidebar
   const userProfileEl = document.querySelector('.user-profile');
   if (userProfileEl) {
+    const SUN_ICON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>';
+    const MOON_ICON = '<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+
     const toggleContainer = document.createElement('div');
     toggleContainer.className = 'theme-toggle-container';
-    toggleContainer.style.cssText = 'margin-top: auto; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; padding: 0 5px;';
+    toggleContainer.style.marginTop = 'auto';
     toggleContainer.innerHTML = `
-      <span style="font-size: 0.8rem; color: var(--color-gray); font-weight: 500;">Modo Visual</span>
-      <button id="theme-toggle-btn" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-glow); border-radius: 20px; padding: 4px 10px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.75rem; color: var(--color-white); font-weight: 600; transition: all 0.3s ease;">
-        <span id="theme-icon">🌙</span> <span id="theme-text">Oscuro</span>
+      <span class="theme-toggle-label">Modo visual</span>
+      <button id="theme-toggle-btn" class="theme-toggle-btn" type="button">
+        <span id="theme-icon"></span><span id="theme-text"></span>
       </button>
     `;
     userProfileEl.parentNode.insertBefore(toggleContainer, userProfileEl);
@@ -203,37 +225,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeIcon = document.getElementById('theme-icon');
     const themeText = document.getElementById('theme-text');
 
-    const updateToggleButton = (isLight) => {
-      if (isLight) {
-        themeIcon.textContent = '☀️';
-        themeText.textContent = 'Claro';
-        themeToggleBtn.style.background = 'rgba(0,0,0,0.05)';
-        themeToggleBtn.style.color = '#1e293b';
-        themeToggleBtn.style.borderColor = 'rgba(0,0,0,0.15)';
-      } else {
-        themeIcon.textContent = '🌙';
-        themeText.textContent = 'Oscuro';
-        themeToggleBtn.style.background = 'rgba(255,255,255,0.05)';
-        themeToggleBtn.style.color = '#ffffff';
-        themeToggleBtn.style.borderColor = 'var(--border-glow)';
-      }
+    // Refleja el tema activo: oscuro muestra luna, claro muestra sol.
+    const updateToggleButton = (isDark) => {
+      themeIcon.innerHTML = isDark ? MOON_ICON : SUN_ICON;
+      themeText.textContent = isDark ? 'Oscuro' : 'Claro';
     };
 
-    // Inicializar estado del botón
-    const isLight = document.documentElement.classList.contains('light-theme');
-    updateToggleButton(isLight);
+    updateToggleButton(document.documentElement.classList.contains('dark-theme'));
 
     themeToggleBtn.addEventListener('click', function() {
-      const wasLight = document.documentElement.classList.contains('light-theme');
-      if (wasLight) {
-        document.documentElement.classList.remove('light-theme');
-        localStorage.setItem('ondental_theme', 'dark');
-        updateToggleButton(false);
-      } else {
-        document.documentElement.classList.add('light-theme');
-        localStorage.setItem('ondental_theme', 'light');
-        updateToggleButton(true);
-      }
+      const isDark = document.documentElement.classList.toggle('dark-theme');
+      localStorage.setItem('ondental_theme', isDark ? 'dark' : 'light');
+      updateToggleButton(isDark);
     });
   }
 });

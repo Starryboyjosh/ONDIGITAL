@@ -65,21 +65,23 @@
 
       if (user) {
         const companies = {
-          'credental': { name: 'Credental', accent: '#00e5b0', logo: '💎' },
-          'ondental-central': { name: 'OnDental Clínica Central', accent: '#2b8af7', logo: '🏥' },
-          'sonrisa-perfecta': { name: 'Sonrisa Perfecta', accent: '#f5a623', logo: '✨' },
-          'dentpro': { name: 'DentPro Consultores', accent: '#9b59b6', logo: '💼' }
+          'credental': { name: 'Credental', accent: '#0f9d8a' },
+          'ondental-central': { name: 'OnDental Clínica Central', accent: '#2563eb' },
+          'sonrisa-perfecta': { name: 'Sonrisa Perfecta', accent: '#d97706' },
+          'dentpro': { name: 'DentPro Consultores', accent: '#7c3aed' }
         };
         const company = companies[user.companyId];
 
         if (company) {
-          // Cambiar color de acento y sombras CSS
+          // Cambiar color de acento principal
           document.documentElement.style.setProperty('--color-blue-mid', company.accent);
-          document.documentElement.style.setProperty('--border-glow-active', `${company.accent}66`);
-          
-          // Actualizar logo emoji
-          brandLogo.textContent = company.logo;
-          brandLogo.style.boxShadow = `0 0 15px ${company.accent}73`;
+
+          // Actualizar logo con iniciales corporativas
+          const parts = company.name.trim().split(/\s+/);
+          brandLogo.textContent = (parts.length >= 2
+            ? parts[0][0] + parts[1][0]
+            : parts[0].slice(0, 2)).toUpperCase();
+          brandLogo.style.background = company.accent;
 
           // Actualizar título
           const name = company.name;
@@ -99,10 +101,9 @@
       }
 
       // Restablecer al branding corporativo por defecto
-      document.documentElement.style.setProperty('--color-blue-mid', '#2b8af7');
-      document.documentElement.style.setProperty('--border-glow-active', 'rgba(43, 138, 247, 0.42)');
+      document.documentElement.style.setProperty('--color-blue-mid', '#2563eb');
       brandLogo.textContent = 'OD';
-      brandLogo.style.boxShadow = '0 0 15px rgba(43, 138, 247, 0.45)';
+      brandLogo.style.background = '';
       brandName.innerHTML = 'On<span class="acc">Dental</span>';
     });
 

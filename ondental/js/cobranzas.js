@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('receipt-clinic-contact').innerHTML = `${clinicaConfig.direccion}<br>Contacto: ${clinicaConfig.correo} • ${clinicaConfig.telefono}`;
 
     document.getElementById('receipt-budget-id').textContent = budget.id.toUpperCase();
-    document.getElementById('receipt-date').textContent = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'numeric', year: 'numeric' });
+    document.getElementById('receipt-date').textContent = new Date().toLocaleDateString('es-HN', { day: 'numeric', month: 'numeric', year: 'numeric' });
     document.getElementById('receipt-patient-name').textContent = patient ? patient.name : 'Paciente';
     document.getElementById('receipt-patient-id').textContent = patient ? patient.rut : '-';
     document.getElementById('receipt-dentist-name').textContent = dentist.name;
@@ -354,6 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function formatCurrency(value) {
-    return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(value);
+    return window.formatMoney(value);
   }
 });

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Digitalization"
+  short_description: "Microbusiness workflow blueprints."
+  default_prompt: "Design a digitalization workflow for this microbusiness."

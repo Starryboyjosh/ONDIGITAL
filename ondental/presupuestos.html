@@ -173,7 +173,7 @@
             </div>
             <div class="form-group">
               <button type="button" id="add-treatment-btn" class="btn btn-success" style="width: 100%; padding: 12px;">
-                ➕ Agregar Ítem
+                Agregar Ítem
               </button>
             </div>
           </div>
@@ -197,7 +197,7 @@
           </div>
 
           <button type="button" id="save-budget-btn" class="btn btn-primary" style="width: 100%; margin-top: 15px; padding: 12px;">
-            💾 Registrar Presupuesto Clínico
+            Registrar Presupuesto Clínico
           </button>
         </div>
 
@@ -207,7 +207,7 @@
           <!-- Botón de Acción de Impresión -->
           <div style="display: flex; justify-content: flex-end;" class="no-print">
             <button type="button" id="print-invoice-btn" class="btn btn-success" style="padding: 12px 25px;">
-              🖨️ Imprimir / Guardar en PDF
+              Imprimir / Guardar en PDF
             </button>
           </div>
 
@@ -218,8 +218,8 @@
               <div class="invoice-logo-area">
                 <div class="invoice-brand" id="pdf-clinica-name">On<span>Dental</span></div>
                 <p style="font-size: 0.72rem; color: #718096; margin-top: 2px;" id="pdf-clinica-contact">
-                  Av. Providencia 1240, Piso 6 • Santiago Centro<br>
-                  Contacto: contacto@ondental.cl • +56 2 2492 1084
+                  Col. Palmira, Ave. República de Argentina • Tegucigalpa, Honduras<br>
+                  Contacto: contacto@ondental.hn • +504 2234-5678
                 </p>
               </div>
               <div class="invoice-info">
@@ -237,7 +237,7 @@
                 <span class="invoice-meta-label">Paciente Destinatario</span>
                 <span style="font-weight: 700; color: #2d3748;" id="inv-patient-name">Seleccione un paciente...</span>
                 <span style="font-size: 0.76rem; color: #4a5568;">
-                  RUT: <span id="inv-patient-id">-</span><br>
+                  Documento: <span id="inv-patient-id">-</span><br>
                   Teléfono: <span id="inv-patient-phone">-</span>
                 </span>
               </div>
@@ -272,19 +272,19 @@
             <!-- Desglose de Totales -->
             <div class="invoice-totals">
               <div class="invoice-total-row">
-                <span style="color: #718096;">Subtotal Neto:</span>
-                <span style="font-weight: 600;" id="inv-subtotal">$0</span>
+                <span style="color: #718096;">Subtotal:</span>
+                <span style="font-weight: 600;" id="inv-subtotal">L 0.00</span>
               </div>
               
               <!-- Fila Descuento Dinámico -->
               <div class="invoice-total-row" id="inv-discount-row" style="display: none; color: #e53e3e;">
                 <span>Descuento Clínico:</span>
-                <span id="inv-discount-val">$0 (0%)</span>
+                <span id="inv-discount-val">L 0.00 (0%)</span>
               </div>
 
               <div class="invoice-total-row grand">
                 <span>Total Presupuestado:</span>
-                <span id="inv-grand-total">$0</span>
+                <span id="inv-grand-total">L 0.00</span>
               </div>
             </div>
 

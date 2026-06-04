@@ -177,33 +177,33 @@
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid var(--border-glow); text-align: center;">
               <div>
                 <div style="font-size: 0.75rem; color: var(--color-gray);">TOTAL</div>
-                <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-white); margin-top: 4px;" id="detail-total-amount">$0</div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-white); margin-top: 4px;" id="detail-total-amount">L 0.00</div>
               </div>
               <div>
                 <div style="font-size: 0.75rem; color: var(--color-gray);">ABONADO</div>
-                <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-teal); margin-top: 4px;" id="detail-paid-amount">$0</div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-teal); margin-top: 4px;" id="detail-paid-amount">L 0.00</div>
               </div>
               <div>
                 <div style="font-size: 0.75rem; color: var(--color-gray);">DEUDA</div>
-                <div style="font-size: 1.1rem; font-weight: 700; color: var(--state-caries); margin-top: 4px;" id="detail-pending-amount">$0</div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--state-caries); margin-top: 4px;" id="detail-pending-amount">L 0.00</div>
               </div>
             </div>
 
             <!-- Botones de Acción Financiera -->
             <div style="display: flex; flex-direction: column; gap: 10px;">
               <button id="btn-confirm-payment" class="btn btn-success" style="width: 100%; padding: 12px;">
-                💵 Confirmar Pago (Abono)
+                Confirmar Pago (Abono)
               </button>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button id="btn-suspend-budget" class="btn btn-secondary" style="padding: 10px; font-size: 0.85rem; border-color: rgba(255, 184, 0, 0.3); color: #ffb800;">
-                  ⏸️ Suspender
+                <button id="btn-suspend-budget" class="btn btn-secondary" style="padding: 10px; font-size: 0.85rem; border-color: rgba(217, 119, 6, 0.35); color: var(--color-amber);">
+                  Suspender
                 </button>
                 <button id="btn-cancel-budget" class="btn btn-danger" style="padding: 10px; font-size: 0.85rem;">
-                  🚫 Cancelar
+                  Cancelar
                 </button>
               </div>
               <button id="btn-print-receipt" class="btn btn-secondary" style="width: 100%; padding: 10px; font-size: 0.85rem;">
-                🖨️ Generar Recibo de Abonos PDF
+                Generar Recibo de Abonos PDF
               </button>
             </div>
 
@@ -217,7 +217,7 @@
           </div>
 
           <div class="card no-print" id="cob-detail-empty" style="min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--color-gray); gap: 15px;">
-            <span style="font-size: 3rem;">💵</span>
+            <svg viewBox="0 0 24 24" style="width: 48px; height: 48px; stroke: var(--color-gray-dark); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
             <p style="font-size: 0.95rem; font-weight: 500; max-width: 250px;">
               Seleccione un presupuesto del listado para gestionar sus pagos y consultar el historial de abonos.
             </p>
@@ -242,7 +242,7 @@
             </div>
 
             <div style="margin-bottom: 20px; font-size: 0.82rem; color: #2d3748; line-height: 1.5;">
-              <div><strong>Paciente:</strong> <span id="receipt-patient-name">-</span> (RUT: <span id="receipt-patient-id">-</span>)</div>
+              <div><strong>Paciente:</strong> <span id="receipt-patient-name">-</span> (Documento: <span id="receipt-patient-id">-</span>)</div>
               <div><strong>Odontólogo:</strong> <span id="receipt-dentist-name">-</span></div>
             </div>
 
@@ -265,15 +265,15 @@
             <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; width: 100%;">
               <div style="width: 250px; display: flex; justify-content: space-between;">
                 <span style="color: #718096;">Total Tratamiento:</span>
-                <span id="receipt-total-budget" style="font-weight: 600;">$0</span>
+                <span id="receipt-total-budget" style="font-weight: 600;">L 0.00</span>
               </div>
               <div style="width: 250px; display: flex; justify-content: space-between; color: #38a169;">
                 <span>Total Abonado:</span>
-                <span id="receipt-total-paid" style="font-weight: 700;">$0</span>
+                <span id="receipt-total-paid" style="font-weight: 700;">L 0.00</span>
               </div>
               <div style="width: 250px; display: flex; justify-content: space-between; border-top: 2px solid #2b8af7; padding-top: 6px; font-weight: 700; color: #e53e3e;">
                 <span>Saldo Deudor:</span>
-                <span id="receipt-total-pending">$0</span>
+                <span id="receipt-total-pending">L 0.00</span>
               </div>
             </div>
 
@@ -302,7 +302,7 @@
         <div class="modal-body">
           <div class="form-group" style="margin-bottom: 12px; background: rgba(0,229,176,0.04); padding: 12px; border-radius: 8px; border: 1px solid rgba(0,229,176,0.25);">
             <div style="font-size: 0.8rem; color: var(--color-gray);">SALDO PENDIENTE ACTUAL:</div>
-            <div style="font-size: 1.25rem; font-weight: 800; color: var(--color-teal); margin-top: 4px;" id="modal-pending-label">$0</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: var(--color-teal); margin-top: 4px;" id="modal-pending-label">L 0.00</div>
           </div>
 
           <div class="form-group">

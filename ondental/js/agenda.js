@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Formatear fecha y hora
     const dt = new Date(appt.dateTime);
-    const dateFormatted = dt.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    const dateFormatted = dt.toLocaleDateString('es-HN', { weekday: 'long', day: 'numeric', month: 'long' });
     const timeFormatted = appt.dateTime.split('T')[1];
 
     // Formatear duración de manera legible
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
       toggleBtnEl: document.getElementById('btn-toggle-patient'),
       resultsEl: document.getElementById('patient-search-results'),
       getDataFn: () => window.db.getPatients().map(p => ({ id: p.id, title: p.name, subtitle: p.rut })),
-      placeholderText: 'Buscar paciente por nombre o RUT...'
+      placeholderText: 'Buscar paciente por nombre o documento...'
     });
 
     setupSearchAutocomplete({

@@ -1,0 +1,4 @@
+interface:
+  display_name: "QA Automation"
+  short_description: "Browser, API, accessibility QA."
+  default_prompt: "Create a QA automation plan for this ONDIGITAL project."
