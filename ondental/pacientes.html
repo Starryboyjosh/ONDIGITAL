@@ -103,24 +103,22 @@
         </div>
       </header>
 
-      <!-- PANEL DIVIDIDO PRINCIPAL -->
-      <div class="dashboard-layout" style="grid-template-columns: 1.3fr 1fr;">
-        
+      <!-- PANEL DIVIDIDO PRINCIPAL: directorio (rail) + expediente -->
+      <div class="patient-layout">
+
         <!-- Panel Izquierdo: Directorio de Pacientes -->
         <div class="card">
-          <div class="card-title-area">
+          <div class="card-title-area" style="flex-direction: column; align-items: stretch; gap: 12px;">
             <h2 class="card-title">Directorio de la Clínica</h2>
             <!-- Barra de búsqueda predictiva -->
-            <input type="text" id="patient-search" class="form-control" placeholder="Buscar por Nombre, Documento o Teléfono..." style="max-width: 280px; padding: 8px 14px;">
+            <input type="text" id="patient-search" class="form-control" placeholder="Buscar por Nombre, Documento o Teléfono..." style="padding: 8px 14px;">
           </div>
 
           <div class="custom-table-container">
             <table class="custom-table">
               <thead>
                 <tr>
-                  <th>Nombre Paciente</th>
-                  <th>Documento</th>
-                  <th>Teléfono</th>
+                  <th>Paciente</th>
                   <th style="text-align: right;">Acción</th>
                 </tr>
               </thead>
@@ -134,74 +132,174 @@
         <!-- Panel Derecho: Expediente Clínico Seleccionado -->
         <div class="clinical-sidebar">
           
-          <!-- Ficha de Expediente Activo -->
-          <div class="card" id="patient-details-card" style="display: none; flex-direction: column; gap: 20px;">
-            
-            <div class="patient-quick-card">
-              <span id="card-patient-age" style="float: right; font-size: 0.85rem; font-weight: 700; color: var(--color-teal);">34 años</span>
-              <h2 class="patient-quick-name" id="card-patient-name">Gabriel Mendoza Rojas</h2>
-              
-              <!-- Etiquetas Clínicas -->
-              <div class="patient-tag-list" id="card-patient-tags" style="margin-top: 8px;">
-                <!-- Poblado dinámicamente -->
+          <!-- Expediente Clínico Activo -->
+          <div class="card" id="patient-details-card" style="display: none; flex-direction: column;">
+
+            <!-- Cabecera del expediente -->
+            <div class="patient-record-header">
+              <div class="patient-record-avatar" id="record-avatar">--</div>
+              <div class="patient-record-id">
+                <h2 class="patient-quick-name" id="card-patient-name">Paciente</h2>
+                <div class="patient-record-sub" id="record-sub">— años</div>
+                <div class="patient-tag-list" id="card-patient-tags" style="margin-top: 8px;"></div>
+              </div>
+              <div class="patient-record-actions">
+                <button type="button" class="btn btn-secondary" id="record-edit-btn" style="padding: 8px 14px; font-size: 0.82rem;">Editar</button>
               </div>
             </div>
 
-            <!-- Datos de contacto -->
-            <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px;">
-              <div><strong>Documento:</strong> <span id="card-patient-rut" style="color: var(--color-gray);">0801-1995-01234</span></div>
-              <div><strong>Correo:</strong> <span id="card-patient-email" style="color: var(--color-gray);">gabriel@gmail.com</span></div>
-              <div><strong>Teléfono:</strong> <span id="card-patient-phone" style="color: var(--color-gray);">+504 9876-5432</span></div>
+            <!-- Pestañas (navegación secundaria) -->
+            <div class="patient-tabs" id="patient-tabs">
+              <button type="button" class="patient-tab active" data-tab="resumen">Resumen</button>
+              <button type="button" class="patient-tab" data-tab="datos">Datos personales</button>
+              <button type="button" class="patient-tab" data-tab="historia">Historia clínica</button>
+              <button type="button" class="patient-tab" data-tab="evoluciones">Evoluciones</button>
+              <button type="button" class="patient-tab" data-tab="clinico">Odontograma / Perio</button>
+              <button type="button" class="patient-tab" data-tab="finanzas">Presupuestos y pagos</button>
+              <button type="button" class="patient-tab" data-tab="documentos">Documentos</button>
+              <button type="button" class="patient-tab" data-tab="comunicaciones">Comunicaciones</button>
             </div>
 
-            <!-- Motivo de Consulta -->
-            <div style="background: rgba(43, 138, 247, 0.05); border: 1px solid rgba(43, 138, 247, 0.2); border-radius: 10px; padding: 12px 16px;">
-              <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-blue-mid); text-transform: uppercase;">Motivo de Consulta</span>
-              <p id="card-patient-reason" style="font-size: 0.85rem; font-weight: 500; margin-top: 4px; color: var(--color-white);">-</p>
-            </div>
+            <!-- Paneles -->
+            <div class="patient-tab-panels">
 
-            <!-- Alergias y Advertencias -->
-            <div style="background: rgba(255, 74, 90, 0.05); border: 1px solid rgba(255, 74, 90, 0.2); border-radius: 10px; padding: 12px 16px;">
-              <span style="font-size: 0.75rem; font-weight: 700; color: var(--state-caries); text-transform: uppercase;">Alergias Registradas</span>
-              <p id="card-patient-allergies" style="font-size: 0.85rem; font-weight: 500; margin-top: 4px; color: var(--color-white);">-</p>
-            </div>
-
-            <!-- Antecedentes Médicos -->
-            <div>
-              <h3 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--color-teal); margin-bottom: 6px;">Historial Médico General</h3>
-              <p id="card-patient-history" style="font-size: 0.82rem; color: var(--color-gray); line-height: 1.6; background: rgba(255,255,255,0.01); border: 1px solid var(--border-glow); padding: 12px; border-radius: 8px;">-</p>
-            </div>
-
-            <!-- Herramientas Clínicas del Paciente (Redirecciones) -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px;">
-              <a href="#" id="card-link-odontograma" class="btn btn-success" style="padding: 12px; font-size: 0.82rem;">
-                Odontograma
-              </a>
-              <a href="#" id="card-link-periodontograma" class="btn btn-secondary" style="padding: 12px; font-size: 0.82rem;">
-                Periodontograma
-              </a>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr; margin-top: 5px;">
-              <a href="#" id="card-link-presupuesto" class="btn btn-primary" style="padding: 12px; font-size: 0.82rem; width: 100%;">
-                Generar Presupuesto
-              </a>
-            </div>
-
-            <!-- Historial de Visitas / Citas -->
-            <div>
-              <h3 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--color-teal); margin-bottom: 12px;">Historial Clínico Citas</h3>
-              <div class="findings-timeline" id="card-patient-timeline">
-                <!-- Timeline de visitas se dibuja aquí -->
+              <!-- RESUMEN -->
+              <div class="patient-panel active" data-panel="resumen">
+                <div class="record-section">
+                  <div class="record-callout info">
+                    <div class="record-callout-label">Motivo de consulta</div>
+                    <div class="record-callout-text" id="record-motivo">-</div>
+                  </div>
+                </div>
+                <div class="record-section" id="record-allergy-section">
+                  <div class="record-callout danger">
+                    <div class="record-callout-label">Alergias y contraindicaciones</div>
+                    <div class="record-callout-text" id="record-allergy-text">-</div>
+                  </div>
+                </div>
+                <div class="record-section">
+                  <div class="record-section-title">Indicadores</div>
+                  <div class="record-stats" id="record-stats"></div>
+                </div>
               </div>
-            </div>
 
+              <!-- DATOS PERSONALES -->
+              <div class="patient-panel" data-panel="datos">
+                <div class="record-section">
+                  <div class="record-section-title">Datos personales</div>
+                  <div class="record-field-grid">
+                    <div><div class="record-field-label">Nombre completo</div><div class="record-field-value" id="data-name">-</div></div>
+                    <div><div class="record-field-label">Documento (RTN / DNI)</div><div class="record-field-value" id="card-patient-rut">-</div></div>
+                    <div><div class="record-field-label">Edad</div><div class="record-field-value" id="data-age">-</div></div>
+                    <div><div class="record-field-label">Correo electrónico</div><div class="record-field-value" id="card-patient-email">-</div></div>
+                    <div><div class="record-field-label">Teléfono</div><div class="record-field-value" id="card-patient-phone">-</div></div>
+                    <div><div class="record-field-label">Dirección</div><div class="record-field-value" style="color: var(--color-gray);">No registrada</div></div>
+                  </div>
+                </div>
+                <div class="record-section">
+                  <button type="button" class="btn btn-secondary" id="record-edit-btn-2">Editar datos del paciente</button>
+                </div>
+              </div>
+
+              <!-- HISTORIA CLÍNICA -->
+              <div class="patient-panel" data-panel="historia">
+                <div class="record-section">
+                  <div class="record-section-title">Anamnesis / Motivo de consulta</div>
+                  <div class="record-text" id="hist-motivo">-</div>
+                </div>
+                <div class="record-section">
+                  <div class="record-section-title">Alergias y antecedentes</div>
+                  <div class="record-text" id="hist-allergies">-</div>
+                </div>
+                <div class="record-section">
+                  <div class="record-section-title">Antecedentes médicos</div>
+                  <div class="record-text" id="hist-history">-</div>
+                </div>
+                <div class="record-section">
+                  <div class="record-section-title">Diagnósticos</div>
+                  <div class="record-empty">
+                    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                    <div class="record-empty-title">Sin diagnósticos registrados</div>
+                    <div class="record-empty-desc">Los diagnósticos clínicos por pieza y por sesión se registrarán en esta sección.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- EVOLUCIONES CLÍNICAS -->
+              <div class="patient-panel" data-panel="evoluciones">
+                <div class="record-section">
+                  <div class="record-section-title">Evoluciones clínicas e historial de citas</div>
+                  <div class="findings-timeline" id="card-patient-timeline"></div>
+                </div>
+              </div>
+
+              <!-- ODONTOGRAMA / PERIODONTOGRAMA -->
+              <div class="patient-panel" data-panel="clinico">
+                <div class="record-section">
+                  <div class="record-section-title">Odontograma</div>
+                  <div class="record-text" id="odonto-summary">-</div>
+                  <a href="#" id="card-link-odontograma" class="btn btn-secondary" style="margin-top: 10px;">Abrir odontograma</a>
+                </div>
+                <div class="record-section">
+                  <div class="record-section-title">Periodontograma</div>
+                  <div class="record-text" id="perio-summary">-</div>
+                  <a href="#" id="card-link-periodontograma" class="btn btn-secondary" style="margin-top: 10px;">Abrir periodontograma</a>
+                </div>
+              </div>
+
+              <!-- PRESUPUESTOS Y PAGOS -->
+              <div class="patient-panel" data-panel="finanzas">
+                <div class="record-section">
+                  <div class="record-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Presupuestos</span>
+                    <a href="#" id="card-link-presupuesto" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.76rem;">Generar presupuesto</a>
+                  </div>
+                  <div class="custom-table-container" style="margin-top: 8px;">
+                    <table class="custom-table">
+                      <thead>
+                        <tr>
+                          <th>Folio</th>
+                          <th>Estado</th>
+                          <th style="text-align: right;">Total</th>
+                          <th style="text-align: right;">Saldo</th>
+                        </tr>
+                      </thead>
+                      <tbody id="patient-budgets-body"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="record-section">
+                  <div class="record-section-title">Pagos</div>
+                  <div id="patient-payments"></div>
+                </div>
+              </div>
+
+              <!-- DOCUMENTOS -->
+              <div class="patient-panel" data-panel="documentos">
+                <div class="record-empty">
+                  <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                  <div class="record-empty-title">Documentos y consentimientos</div>
+                  <div class="record-empty-desc">Aquí se adjuntarán consentimientos informados, radiografías y archivos del paciente. El almacenamiento de archivos aún no está disponible.</div>
+                </div>
+              </div>
+
+              <!-- COMUNICACIONES -->
+              <div class="patient-panel" data-panel="comunicaciones">
+                <div class="record-empty">
+                  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                  <div class="record-empty-title">Comunicaciones con el paciente</div>
+                  <div class="record-empty-desc">Recordatorios de citas, seguimiento de presupuestos y mensajes (WhatsApp / correo) aparecerán aquí cuando se active el módulo de comunicaciones.</div>
+                </div>
+              </div>
+
+            </div>
           </div>
 
-          <!-- Tarjeta Vacía (Cuando no hay selección) -->
+          <!-- Estado vacío (sin paciente seleccionado) -->
           <div class="card" id="patient-details-empty" style="min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--color-gray); gap: 15px;">
             <svg viewBox="0 0 24 24" style="width: 48px; height: 48px; stroke: var(--color-gray-dark); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
             <p style="font-size: 0.95rem; font-weight: 500; max-width: 250px;">
-              Seleccione un paciente de la lista de la izquierda para examinar su ficha clínica y odontograma.
+              Seleccione un paciente del directorio para abrir su expediente clínico.
             </p>
           </div>
 

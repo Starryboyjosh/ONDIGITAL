@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laboratorios — OnDental</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/laboratorios.js"></script>
+</head>
+<body>
+  <div class="app-container">
+
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo">OD</div>
+        <div class="brand-name">On<span class="acc">Dental</span></div>
+      </div>
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item"><a href="dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg><span>Dashboard</span></a></li>
+          <li class="nav-item active"><a href="laboratorios.html"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><line x1="7.5" y1="14" x2="16.5" y2="14"></line></svg><span>Laboratorios</span></a></li>
+        </ul>
+      </nav>
+      <div class="user-profile">
+        <div class="user-avatar" id="sidebar-user-avatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-role" id="sidebar-user-role">Clínico</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="sidebar-logout-btn">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </aside>
+
+    <main class="main-content">
+
+      <header class="page-header">
+        <div class="page-title-area">
+          <h1 class="page-title">Laboratorios</h1>
+          <p class="page-subtitle">Seguimiento de trabajos enviados a laboratorio dental por paciente y tratamiento.</p>
+        </div>
+        <div class="header-actions">
+          <button id="add-orden-btn" class="btn btn-primary">
+            <svg style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nueva orden
+          </button>
+        </div>
+      </header>
+
+      <!-- Resumen por estado -->
+      <section class="metrics-grid">
+        <div class="card metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(217, 119, 6, 0.1); color: var(--color-amber);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+          <div class="metric-info"><span class="metric-title">Pendientes</span><span class="metric-value" id="lab-pendientes">0</span></div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg></div>
+          <div class="metric-info"><span class="metric-title">En tránsito / proceso</span><span class="metric-value" id="lab-transito">0</span></div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(15, 157, 138, 0.1); color: var(--color-teal);"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg></div>
+          <div class="metric-info"><span class="metric-title">Recibidas</span><span class="metric-value" id="lab-recibidas">0</span></div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(22, 163, 74, 0.1); color: var(--color-green);"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 11l-3 3-2-2"></path></svg></div>
+          <div class="metric-info"><span class="metric-title">Entregadas</span><span class="metric-value" id="lab-entregadas">0</span></div>
+        </div>
+      </section>
+
+      <!-- Tabla de órdenes -->
+      <div class="card" style="margin-bottom: 22px;">
+        <div class="card-title-area">
+          <h2 class="card-title">Órdenes de laboratorio</h2>
+          <select id="lab-filter-estado" class="form-control" style="max-width: 220px; padding: 8px 14px;">
+            <option value="all">Todos los estados</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="enviado">Enviado</option>
+            <option value="proceso">En proceso</option>
+            <option value="recibido">Recibido</option>
+            <option value="entregado">Entregado al paciente</option>
+          </select>
+        </div>
+        <div class="custom-table-container">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>Tratamiento</th>
+                <th>Laboratorio</th>
+                <th>Envío</th>
+                <th>Esperada</th>
+                <th style="text-align:right;">Costo</th>
+                <th>Estado</th>
+                <th>Adjuntos</th>
+              </tr>
+            </thead>
+            <tbody id="lab-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <p style="font-size: 0.78rem; color: var(--color-gray); margin-bottom: 40px;">
+        El estado de cada orden permite dar seguimiento al flujo con el laboratorio. La carga de archivos reales y las notificaciones automáticas no están implementadas todavía.
+      </p>
+
+    </main>
+  </div>
+
+  <!-- MODAL: NUEVA ORDEN -->
+  <div class="modal-overlay" id="orden-modal">
+    <div class="modal-container" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Nueva orden de laboratorio</h3>
+        <button class="modal-close-btn" id="orden-modal-close">✕</button>
+      </div>
+      <form id="orden-form">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="ord-paciente">Paciente</label>
+              <select id="ord-paciente" class="form-control" required></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ord-tratamiento">Tratamiento</label>
+              <input type="text" id="ord-tratamiento" class="form-control" placeholder="Ej. Corona de porcelana" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="ord-laboratorio">Laboratorio / proveedor</label>
+              <input type="text" id="ord-laboratorio" class="form-control" placeholder="Ej. Laboratorio Dental Premium" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ord-costo">Costo (L)</label>
+              <input type="number" id="ord-costo" class="form-control" min="0" step="0.01" placeholder="Ej. 1200">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="ord-envio">Fecha de envío</label>
+              <input type="date" id="ord-envio" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ord-esperada">Fecha esperada</label>
+              <input type="date" id="ord-esperada" class="form-control">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ord-estado">Estado</label>
+            <select id="ord-estado" class="form-control">
+              <option value="pendiente">Pendiente</option>
+              <option value="enviado">Enviado</option>
+              <option value="proceso">En proceso</option>
+              <option value="recibido">Recibido</option>
+              <option value="entregado">Entregado al paciente</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('orden-modal').classList.remove('active')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar orden</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

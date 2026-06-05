@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comunicaciones — OnDental</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/comunicaciones.js"></script>
+</head>
+<body>
+  <div class="app-container">
+
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo">OD</div>
+        <div class="brand-name">On<span class="acc">Dental</span></div>
+      </div>
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item"><a href="dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg><span>Dashboard</span></a></li>
+          <li class="nav-item active"><a href="comunicaciones.html"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span>Comunicaciones</span></a></li>
+        </ul>
+      </nav>
+      <div class="user-profile">
+        <div class="user-avatar" id="sidebar-user-avatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-role" id="sidebar-user-role">Clínico</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="sidebar-logout-btn">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </aside>
+
+    <main class="main-content">
+
+      <header class="page-header">
+        <div class="page-title-area">
+          <h1 class="page-title">Comunicaciones</h1>
+          <p class="page-subtitle">Plantillas y seguimiento de pacientes, conectado con agenda, presupuestos y cobranzas.</p>
+        </div>
+      </header>
+
+      <!-- Aviso de integración -->
+      <div class="card" style="margin-bottom: 22px; background: var(--surface-muted);">
+        <p style="font-size: 0.82rem; color: var(--color-gray); line-height: 1.6;">
+          Las plantillas están listas para usarse. El <strong style="color: var(--text-primary);">envío automático por WhatsApp y correo aún no está integrado</strong>; las acciones de envío son demostrativas.
+        </p>
+      </div>
+
+      <!-- Plantillas -->
+      <div class="section-divider">
+        <div class="section-divider-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
+        <span class="section-divider-text">Plantillas</span>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <div class="crm-grid" id="templates-grid" style="margin-bottom: 22px;"></div>
+
+      <!-- Mensajes recientes -->
+      <div class="section-divider">
+        <div class="section-divider-icon" style="background: rgba(15, 157, 138, 0.1); color: var(--color-teal);"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
+        <span class="section-divider-text">Mensajes recientes</span>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <div class="card" style="margin-bottom: 40px;">
+        <div class="card-title-area">
+          <h2 class="card-title">Historial de envíos</h2>
+          <select id="msg-filter-tipo" class="form-control" style="max-width: 220px; padding: 8px 14px;">
+            <option value="all">Todos los tipos</option>
+            <option value="Recordatorio">Recordatorio de cita</option>
+            <option value="Presupuesto">Seguimiento de presupuesto</option>
+            <option value="Cobranza">Cobranza</option>
+            <option value="Reactivación">Cumpleaños / reactivación</option>
+          </select>
+        </div>
+        <div class="custom-table-container">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>Tipo</th>
+                <th>Canal</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="msg-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facturación — OnDental</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/facturacion.js"></script>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- BARRA LATERAL (SIDEBAR) — main.js regenera el menú -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo">OD</div>
+        <div class="brand-name">On<span class="acc">Dental</span></div>
+      </div>
+
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="dashboard.html">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a href="facturacion.html">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              <span>Facturación</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Perfil de usuario en el Sidebar -->
+      <div class="user-profile">
+        <div class="user-avatar" id="sidebar-user-avatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-role" id="sidebar-user-role">Clínico</div>
+        </div>
+      </div>
+
+      <button class="logout-btn" id="sidebar-logout-btn">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+      <!-- Encabezado -->
+      <header class="page-header">
+        <div class="page-title-area">
+          <h1 class="page-title">Facturación</h1>
+          <p class="page-subtitle">Documentos fiscales, rango CAI autorizado y preparación para CFE/CAEE.</p>
+        </div>
+        <div class="header-actions">
+          <button id="emit-doc-btn" class="btn btn-primary">
+            <svg style="width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.5;" viewBox="0 0 24 24">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Emitir documento
+          </button>
+        </div>
+      </header>
+
+      <!-- TARJETAS DE ESTADO FISCAL -->
+      <section class="metrics-grid">
+        <div class="card metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(22, 163, 74, 0.1); color: var(--color-green);">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+          </div>
+          <div class="metric-info">
+            <span class="metric-title">Estado del rango</span>
+            <span class="metric-value" id="fiscal-estado" style="font-size: 1.1rem;">—</span>
+          </div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);">
+            <svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
+          </div>
+          <div class="metric-info">
+            <span class="metric-title">Correlativo actual</span>
+            <span class="metric-value" id="fiscal-correlativo" style="font-size: 1rem;">—</span>
+          </div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(217, 119, 6, 0.1); color: var(--color-amber);">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+          </div>
+          <div class="metric-info">
+            <span class="metric-title">Folios disponibles</span>
+            <span class="metric-value" id="fiscal-restantes">—</span>
+          </div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(220, 38, 38, 0.1); color: var(--color-red);">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </div>
+          <div class="metric-info">
+            <span class="metric-title">Fecha límite de emisión</span>
+            <span class="metric-value" id="fiscal-fechalimite" style="font-size: 1rem;">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ALERTAS DEL RANGO -->
+      <div class="card" style="margin-bottom: 22px;">
+        <div class="card-title-area">
+          <h2 class="card-title">Alertas del rango fiscal</h2>
+          <span class="tag" id="fiscal-cai-tag">CAI —</span>
+        </div>
+        <div id="fiscal-alerts" class="alert-list"></div>
+      </div>
+
+      <!-- DOCUMENTOS EMITIDOS -->
+      <div class="section-divider">
+        <div class="section-divider-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        </div>
+        <span class="section-divider-text">Documentos emitidos</span>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <div class="card" style="margin-bottom: 22px;">
+        <div class="custom-table-container">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Número (CAI)</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th style="text-align: right;">Total</th>
+                <th>Estado</th>
+                <th>CFE/CAEE</th>
+              </tr>
+            </thead>
+            <tbody id="fiscal-docs-body"></tbody>
+          </table>
+        </div>
+        <p style="font-size: 0.76rem; color: var(--color-gray); margin-top: 12px;">
+          Datos de ejemplo para mostrar la estructura. La numeración real se asigna del rango CAI autorizado al emitir cada documento.
+        </p>
+      </div>
+
+      <!-- CONFIGURACIÓN FISCAL -->
+      <div class="section-divider">
+        <div class="section-divider-icon" style="background: rgba(15, 157, 138, 0.1); color: var(--color-teal);">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+        <span class="section-divider-text">Configuración fiscal</span>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <div class="dashboard-layout" style="align-items: start;">
+
+        <!-- Datos fiscales de la clínica -->
+        <div class="card">
+          <div class="card-title-area">
+            <h2 class="card-title">Datos fiscales de la clínica</h2>
+          </div>
+          <form id="fiscal-data-form">
+            <div class="form-group">
+              <label class="form-label" for="fiscal-rtn">RTN</label>
+              <input type="text" id="fiscal-rtn" class="form-control" placeholder="Ej. 08019995123456" maxlength="16" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fiscal-nombre-legal">Nombre legal</label>
+              <input type="text" id="fiscal-nombre-legal" class="form-control" placeholder="Ej. OnDental Clínica Dental S. de R.L." required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fiscal-direccion">Dirección fiscal</label>
+              <input type="text" id="fiscal-direccion" class="form-control" placeholder="Ej. Col. Palmira, Ave. República de Argentina, Tegucigalpa" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="fiscal-telefono">Teléfono</label>
+                <input type="tel" id="fiscal-telefono" class="form-control" placeholder="Ej. +504 2234-5678" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="fiscal-correo">Correo</label>
+                <input type="email" id="fiscal-correo" class="form-control" placeholder="Ej. facturacion@ondental.hn" required>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+              <button type="submit" class="btn btn-primary">Guardar datos fiscales</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Configuración del rango (CAI) -->
+        <div class="card">
+          <div class="card-title-area">
+            <h2 class="card-title">Configuración del rango (CAI)</h2>
+          </div>
+          <form id="cai-form">
+            <div class="form-group">
+              <label class="form-label" for="cai-codigo">CAI actual</label>
+              <input type="text" id="cai-codigo" class="form-control" placeholder="Ej. A1B2C3-D4E5F6-7890AB-CDEF12-3456GH-78" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="cai-rango-inicial">Rango inicial</label>
+                <input type="text" id="cai-rango-inicial" class="form-control" placeholder="000-001-01-00000001" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cai-rango-final">Rango final</label>
+                <input type="text" id="cai-rango-final" class="form-control" placeholder="000-001-01-00001000" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="cai-correlativo">Correlativo actual</label>
+                <input type="text" id="cai-correlativo" class="form-control" placeholder="000-001-01-00000247" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cai-fecha-limite">Fecha límite de emisión</label>
+                <input type="date" id="cai-fecha-limite" class="form-control" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cai-estado">Estado del rango</label>
+              <select id="cai-estado" class="form-control">
+                <option value="activo">Activo</option>
+                <option value="porvencer">Por vencer</option>
+                <option value="vencido">Vencido</option>
+                <option value="cerrado">Cerrado</option>
+              </select>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+              <button type="submit" class="btn btn-primary">Guardar configuración CAI</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- PREPARACIÓN CFE / CAEE (FUTURO) -->
+      <div class="section-divider">
+        <div class="section-divider-icon" style="background: rgba(217, 119, 6, 0.1); color: var(--color-amber);">
+          <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        </div>
+        <span class="section-divider-text">Preparación CFE / CAEE (futuro)</span>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <div class="card" style="margin-bottom: 40px;">
+        <p style="font-size: 0.85rem; color: var(--color-gray); line-height: 1.6; margin-bottom: 16px;">
+          La estructura queda preparada para autoimpresor y facturación electrónica (CFE/CAEE). Estos campos se completarán cuando exista la integración correspondiente. <strong>La integración con la SAR aún no está disponible.</strong>
+        </p>
+        <div class="record-field-grid">
+          <div>
+            <div class="record-field-label">Estado XML</div>
+            <div class="record-field-value"><span class="badge badge-pending">Pendiente</span></div>
+          </div>
+          <div>
+            <div class="record-field-label">Estado de autorización</div>
+            <div class="record-field-value"><span class="badge badge-pending">No solicitada</span></div>
+          </div>
+          <div>
+            <div class="record-field-label">Fecha de emisión</div>
+            <div class="record-field-value" style="color: var(--color-gray);">—</div>
+          </div>
+          <div>
+            <div class="record-field-label">Hash / Identificador</div>
+            <div class="record-field-value" style="color: var(--color-gray);">Pendiente de generación</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>

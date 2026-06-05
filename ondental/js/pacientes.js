@@ -1,6 +1,8 @@
 /* ==========================================================================
-   PACIENTES.JS - LÓGICA DE FICHAS CLÍNICAS Y DIRECTORIO
-   Controla la búsqueda, visualización detallada, registro e historial del paciente
+   PACIENTES.JS - EXPEDIENTE CLÍNICO Y DIRECTORIO
+   Directorio lateral + ficha del paciente con navegación por pestañas
+   (resumen, datos, historia, evoluciones, clínico, finanzas, documentos,
+   comunicaciones). Las secciones sin datos muestran estados vacíos.
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -10,113 +12,130 @@ document.addEventListener('DOMContentLoaded', function() {
   const patientModal = document.getElementById('patient-modal');
   const patientForm = document.getElementById('patient-form');
 
-  // Elementos de la Ficha Detallada (Derecha)
   const detailPanel = document.getElementById('patient-details-card');
   const detailEmpty = document.getElementById('patient-details-empty');
-  
-  const cardName = document.getElementById('card-patient-name');
-  const cardAge = document.getElementById('card-patient-age');
-  const cardRut = document.getElementById('card-patient-rut');
-  const cardEmail = document.getElementById('card-patient-email');
-  const cardPhone = document.getElementById('card-patient-phone');
-  const cardReason = document.getElementById('card-patient-reason');
-  const cardAllergies = document.getElementById('card-patient-allergies');
-  const cardHistory = document.getElementById('card-patient-history');
-  
-  const cardLinkOdont = document.getElementById('card-link-odontograma');
-  const cardLinkPerio = document.getElementById('card-link-periodontograma');
-  const cardLinkBudget = document.getElementById('card-link-presupuesto');
-  const cardTimeline = document.getElementById('card-patient-timeline');
 
   let selectedPatientId = null;
 
   // Registrar Cierre de Modales
   window.setupModalClosers(patientModal, document.getElementById('patient-modal-close'));
 
-  // RENDERIZAR LISTA INICIAL
+  // Render inicial
   renderPatientList();
 
-  // BUSCADOR EN TIEMPO REAL
+  // Buscador en tiempo real
   searchInput.addEventListener('input', function() {
     renderPatientList(this.value);
   });
 
-  // ABRIR CREACIÓN DE PACIENTE
+  // Abrir creación de paciente
   addPatientBtn.addEventListener('click', function() {
     patientForm.reset();
-    document.getElementById('patient-id').value = ''; // Modo creación
+    document.getElementById('patient-id').value = '';
     document.getElementById('modal-title-text').textContent = 'Registrar Nuevo Paciente';
     patientModal.classList.add('active');
   });
 
-  // GUARDAR PACIENTE
+  // Botones de edición dentro del expediente
+  ['record-edit-btn', 'record-edit-btn-2'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', function() {
+        if (selectedPatientId) window.editPatient(selectedPatientId);
+      });
+    }
+  });
+
+  // Navegación por pestañas (delegación)
+  const tabBar = document.getElementById('patient-tabs');
+  if (tabBar) {
+    tabBar.addEventListener('click', function(e) {
+      const btn = e.target.closest('.patient-tab');
+      if (btn) setActiveTab(btn.dataset.tab);
+    });
+  }
+
+  function setActiveTab(tabKey) {
+    document.querySelectorAll('.patient-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === tabKey);
+    });
+    document.querySelectorAll('.patient-panel').forEach(p => {
+      p.classList.toggle('active', p.dataset.panel === tabKey);
+    });
+  }
+
+  // Guardar paciente
   patientForm.addEventListener('submit', function(e) {
     e.preventDefault();
 
     const id = document.getElementById('patient-id').value;
-    const name = document.getElementById('patient-name').value;
-    const rut = document.getElementById('patient-rut').value;
-    const age = parseInt(document.getElementById('patient-age').value);
-    const email = document.getElementById('patient-email').value;
-    const phone = document.getElementById('patient-phone').value;
-    const reason = document.getElementById('patient-reason').value;
-    const allergies = document.getElementById('patient-allergies').value || 'Ninguna';
-    const medicalHistory = document.getElementById('patient-history').value || 'Sin antecedentes.';
     const tagsInput = document.getElementById('patient-tags').value;
-
-    // Procesar etiquetas separadas por comas
     const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0) : [];
 
     const patientData = {
-      name,
-      rut,
-      age,
-      email,
-      phone,
-      motivoConsulta: reason,
-      allergies,
-      medicalHistory,
+      name: document.getElementById('patient-name').value,
+      rut: document.getElementById('patient-rut').value,
+      age: parseInt(document.getElementById('patient-age').value),
+      email: document.getElementById('patient-email').value,
+      phone: document.getElementById('patient-phone').value,
+      motivoConsulta: document.getElementById('patient-reason').value,
+      allergies: document.getElementById('patient-allergies').value || 'Ninguna',
+      medicalHistory: document.getElementById('patient-history').value || 'Sin antecedentes.',
       tags
     };
 
-    if (id) {
-      patientData.id = id;
-    }
+    if (id) patientData.id = id;
 
     const saved = window.db.savePatient(patientData);
     window.showToast(id ? 'Ficha de paciente actualizada' : 'Paciente registrado con éxito', 'success');
 
     patientModal.classList.remove('active');
-    renderPatientList();
+    renderPatientList(searchInput.value);
     window.selectPatient(saved.id);
   });
 
-  // SELECCIONAR PACIENTE POR DEFECTO SI VIENE EN LA URL (?id=pat_1)
-  const urlParams = new URLSearchParams(window.location.search);
-  const paramId = urlParams.get('id');
-  if (paramId) {
-    window.selectPatient(paramId);
+  // Selección por URL (?id=pat_1)
+  const paramId = new URLSearchParams(window.location.search).get('id');
+  if (paramId) window.selectPatient(paramId);
+
+  // --- HELPERS ---
+
+  function getInitials(name) {
+    const w = (name || '').trim().split(/\s+/);
+    if (w.length >= 2) return (w[0][0] + w[1][0]).toUpperCase();
+    return (w[0] || 'P').slice(0, 2).toUpperCase();
   }
 
-  // --- MÉTODOS DE CONTROL ---
+  function fmtDate(s) {
+    return new Date(s).toLocaleDateString('es-HN', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
 
-  // Renders de la tabla izquierda
+  function budgetTotal(b) {
+    const subtotal = b.treatments.reduce((acc, t) => acc + (t.price * t.qty), 0);
+    return subtotal * (1 - (b.discount || 0) / 100);
+  }
+
+  function budgetPaid(b) {
+    return window.db.getPayments(b.id).reduce((acc, p) => acc + parseFloat(p.amount || 0), 0);
+  }
+
+  // --- DIRECTORIO (RAIL IZQUIERDO) ---
+
   function renderPatientList(query = '') {
     const patients = window.db.getPatients();
     patientTableBody.innerHTML = '';
 
-    // Filtrar pacientes
-    const filtered = patients.filter(p => {
-      const q = query.trim().toLowerCase();
-      return p.name.toLowerCase().includes(q) || 
-             p.rut.toLowerCase().includes(q) || 
-             p.phone.includes(q);
-    });
+    const q = query.trim().toLowerCase();
+    const filtered = patients.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.rut.toLowerCase().includes(q) ||
+      p.phone.includes(q)
+    );
 
     if (filtered.length === 0) {
       patientTableBody.innerHTML = `
         <tr>
-          <td colspan="4" style="text-align: center; color: var(--color-gray); padding: 30px;">
+          <td colspan="2" style="text-align: center; color: var(--color-gray); padding: 30px;">
             No se encontraron pacientes registrados.
           </td>
         </tr>
@@ -128,34 +147,24 @@ document.addEventListener('DOMContentLoaded', function() {
       const tr = document.createElement('tr');
       tr.style.cursor = 'pointer';
       tr.className = p.id === selectedPatientId ? 'active-row' : '';
-      
       tr.innerHTML = `
-        <td style="font-weight: 600;">${p.name}</td>
-        <td>${p.rut}</td>
-        <td>${p.phone}</td>
+        <td>
+          <div class="patient-list-name">${p.name}</div>
+          <div class="patient-list-doc">${p.rut}</div>
+        </td>
         <td style="text-align: right;">
           <button onclick="event.stopPropagation(); window.editPatient('${p.id}')" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem;">Editar</button>
         </td>
       `;
-
-      tr.addEventListener('click', () => {
-        window.selectPatient(p.id);
-      });
-
+      tr.addEventListener('click', () => window.selectPatient(p.id));
       patientTableBody.appendChild(tr);
     });
   }
 
-  // Selecciona un paciente y carga la ficha detallada (derecha)
+  // --- SELECCIÓN Y CARGA DEL EXPEDIENTE ---
+
   window.selectPatient = function(patientId) {
     selectedPatientId = patientId;
-    
-    // Resaltar la fila en la tabla
-    const rows = patientTableBody.querySelectorAll('tr');
-    const patients = window.db.getPatients();
-    const index = patients.findIndex(p => p.id === patientId);
-    
-    // Volver a dibujar la tabla para marcar la fila activa
     renderPatientList(searchInput.value);
 
     const patient = window.db.getPatient(patientId);
@@ -165,94 +174,248 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // Ocultar placeholder "seleccione un paciente" y mostrar panel
     detailEmpty.style.display = 'none';
     detailPanel.style.display = 'flex';
+    setActiveTab('resumen');
 
-    // Rellenar Ficha Demográfica
-    cardName.textContent = patient.name;
-    cardAge.textContent = `${patient.age} años`;
-    cardRut.textContent = patient.rut;
-    cardEmail.textContent = patient.email;
-    cardPhone.textContent = patient.phone;
+    // Cabecera
+    document.getElementById('record-avatar').textContent = getInitials(patient.name);
+    document.getElementById('card-patient-name').textContent = patient.name;
+    document.getElementById('record-sub').textContent = `${patient.age} años · ${patient.rut}`;
+    renderTags(patient);
 
-    // Rellenar Motivo de Consulta, Alergias e Historial
-    if (cardReason) cardReason.textContent = patient.motivoConsulta || 'Consulta general preventiva.';
-    cardAllergies.textContent = patient.allergies;
-    cardHistory.textContent = patient.medicalHistory;
+    // Accesos directos a herramientas clínicas
+    document.getElementById('card-link-odontograma').href = `odontograma.html?id=${patient.id}`;
+    document.getElementById('card-link-periodontograma').href = `periodontograma.html?id=${patient.id}`;
+    document.getElementById('card-link-presupuesto').href = `presupuestos.html?id=${patient.id}`;
 
-    // Rellenar Etiquetas Clínicas
+    renderResumen(patient);
+    renderDatos(patient);
+    renderHistoria(patient);
+    renderEvoluciones(patient.id);
+    renderClinico(patient);
+    renderFinanzas(patient.id);
+  };
+
+  function renderTags(patient) {
     const cardTags = document.getElementById('card-patient-tags');
-    if (cardTags) {
-      cardTags.innerHTML = '';
-      if (patient.tags && patient.tags.length > 0) {
-        patient.tags.forEach(t => {
-          const tagSpan = document.createElement('span');
-          tagSpan.className = `patient-tag ${t.toLowerCase() === 'alergias' ? 'tag-alergeno' : 'tag-control'}`;
-          tagSpan.textContent = t;
-          cardTags.appendChild(tagSpan);
-        });
-      } else {
-        cardTags.innerHTML = '<span style="font-size: 0.8rem; color: var(--color-gray);">Sin etiquetas</span>';
-      }
+    cardTags.innerHTML = '';
+    if (patient.tags && patient.tags.length > 0) {
+      patient.tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = `patient-tag ${t.toLowerCase() === 'alergias' ? 'tag-alergeno' : 'tag-control'}`;
+        span.textContent = t;
+        cardTags.appendChild(span);
+      });
+    } else {
+      cardTags.innerHTML = '<span style="font-size: 0.78rem; color: var(--color-gray);">Sin etiquetas</span>';
+    }
+  }
+
+  function renderResumen(patient) {
+    document.getElementById('record-motivo').textContent = patient.motivoConsulta || 'Consulta general preventiva.';
+
+    const allergySection = document.getElementById('record-allergy-section');
+    const hasAllergy = patient.allergies && patient.allergies.trim() &&
+                       patient.allergies.trim().toLowerCase() !== 'ninguna';
+    if (hasAllergy) {
+      allergySection.style.display = 'block';
+      document.getElementById('record-allergy-text').textContent = patient.allergies;
+    } else {
+      allergySection.style.display = 'none';
     }
 
-    // Vincular accesos directos
-    cardLinkOdont.href = `odontograma.html?id=${patient.id}`;
-    if (cardLinkPerio) cardLinkPerio.href = `periodontograma.html?id=${patient.id}`;
-    cardLinkBudget.href = `presupuestos.html?id=${patient.id}`;
+    // Indicadores
+    const appts = window.db.getAppointments().filter(a => a.patientId === patient.id);
+    const now = new Date();
+    const future = appts
+      .filter(a => a.status !== 'canceled' && new Date(a.dateTime) >= now)
+      .sort((a, b) => a.dateTime.localeCompare(b.dateTime));
+    const past = appts
+      .filter(a => a.status === 'completed' && new Date(a.dateTime) < now)
+      .sort((a, b) => b.dateTime.localeCompare(a.dateTime));
 
-    // RENDERIZAR CRONOLOGÍA DE CITAS
-    const appointments = window.db.getAppointments();
-    const patientAppointments = appointments.filter(a => a.patientId === patientId);
-    
-    // Ordenar por fecha cronológica inversa (más reciente primero)
-    patientAppointments.sort((a, b) => b.dateTime.localeCompare(a.dateTime));
+    const budgets = window.db.getBudgets().filter(b => b.patientId === patient.id);
+    let balance = 0;
+    budgets.forEach(b => {
+      if (b.status === 'accepted') balance += Math.max(budgetTotal(b) - budgetPaid(b), 0);
+    });
 
-    cardTimeline.innerHTML = '';
-    if (patientAppointments.length === 0) {
-      cardTimeline.innerHTML = `
-        <div style="font-size: 0.8rem; color: var(--color-gray); padding: 10px 0;">
-          No registra citas agendadas ni tratamientos anteriores.
+    const stats = [
+      { label: 'Próxima cita', value: future.length ? fmtDate(future[0].dateTime) : '—' },
+      { label: 'Última visita', value: past.length ? fmtDate(past[0].dateTime) : '—' },
+      { label: 'Presupuestos', value: budgets.length },
+      { label: 'Saldo pendiente', value: window.formatMoney(balance) }
+    ];
+    document.getElementById('record-stats').innerHTML = stats.map(s => `
+      <div class="record-stat">
+        <div class="record-stat-label">${s.label}</div>
+        <div class="record-stat-value">${s.value}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderDatos(patient) {
+    document.getElementById('data-name').textContent = patient.name;
+    document.getElementById('card-patient-rut').textContent = patient.rut;
+    document.getElementById('data-age').textContent = `${patient.age} años`;
+    document.getElementById('card-patient-email').textContent = patient.email;
+    document.getElementById('card-patient-phone').textContent = patient.phone;
+  }
+
+  function renderHistoria(patient) {
+    document.getElementById('hist-motivo').textContent = patient.motivoConsulta || 'Consulta general preventiva.';
+    document.getElementById('hist-allergies').textContent = patient.allergies || 'Ninguna';
+    document.getElementById('hist-history').textContent = patient.medicalHistory || 'Sin antecedentes.';
+  }
+
+  function renderEvoluciones(patientId) {
+    const timeline = document.getElementById('card-patient-timeline');
+    const appointments = window.db.getAppointments().filter(a => a.patientId === patientId);
+    appointments.sort((a, b) => b.dateTime.localeCompare(a.dateTime));
+
+    timeline.innerHTML = '';
+    if (appointments.length === 0) {
+      timeline.innerHTML = `
+        <div class="record-empty">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <div class="record-empty-title">Sin evoluciones registradas</div>
+          <div class="record-empty-desc">No hay citas ni tratamientos anteriores para este paciente.</div>
         </div>
       `;
+      return;
+    }
+
+    appointments.forEach(appt => {
+      const dentist = window.db.getDentist(appt.dentistId) || { name: 'Desconocido' };
+      let badgeClass = 'badge-pending', badgeText = 'Pendiente';
+      if (appt.status === 'confirmed') { badgeClass = 'badge-confirmed'; badgeText = 'Confirmada'; }
+      if (appt.status === 'completed') { badgeClass = 'badge-completed'; badgeText = 'Completada'; }
+      if (appt.status === 'canceled') { badgeClass = 'badge-canceled'; badgeText = 'Cancelada'; }
+
+      const hourStr = appt.dateTime.split('T')[1];
+      const item = document.createElement('div');
+      item.className = 'finding-item';
+      if (appt.status === 'completed') item.style.borderLeftColor = 'var(--color-green)';
+      if (appt.status === 'canceled') item.style.borderLeftColor = 'var(--color-red)';
+      if (appt.status === 'pending') item.style.borderLeftColor = 'var(--color-amber)';
+
+      item.innerHTML = `
+        <div class="finding-meta">
+          <span>${fmtDate(appt.dateTime)} a las ${hourStr} hrs</span>
+          <span class="badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="finding-desc" style="font-size: 0.82rem; margin-top: 4px;">
+          <strong>${appt.specialty}</strong> con ${dentist.name}
+        </div>
+        ${appt.notes ? `<div style="font-size: 0.75rem; color: var(--color-gray); margin-top: 4px; font-style: italic;">Obs: ${appt.notes}</div>` : ''}
+      `;
+      timeline.appendChild(item);
+    });
+  }
+
+  function renderClinico(patient) {
+    // Odontograma
+    const odo = patient.odontogram || {};
+    let caries = 0, teeth = 0;
+    Object.values(odo).forEach(t => {
+      let hasFinding = false;
+      if (t.faces) {
+        Object.values(t.faces).forEach(fc => {
+          if (fc === 'caries') { caries++; hasFinding = true; }
+          else if (fc) { hasFinding = true; }
+        });
+      }
+      if (t.condition && t.condition !== 'healthy') hasFinding = true;
+      if (hasFinding) teeth++;
+    });
+    const odoEl = document.getElementById('odonto-summary');
+    if (Object.keys(odo).length === 0 || teeth === 0) {
+      odoEl.textContent = 'Sin registros en el odontograma. Abra el editor para iniciar el registro por pieza.';
     } else {
-      patientAppointments.forEach(appt => {
-        const dentist = window.db.getDentist(appt.dentistId) || { name: 'Desconocido' };
-        
-        // Mapear estado
-        let badgeClass = 'badge-pending';
-        let badgeText = 'Pendiente';
-        if (appt.status === 'confirmed') { badgeClass = 'badge-confirmed'; badgeText = 'Confirmada'; }
-        if (appt.status === 'completed') { badgeClass = 'badge-completed'; badgeText = 'Completada'; }
-        if (appt.status === 'canceled') { badgeClass = 'badge-canceled'; badgeText = 'Cancelada'; }
+      odoEl.innerHTML = `${teeth} pieza(s) con hallazgos · <strong style="color: var(--color-red);">${caries} superficie(s) con caries</strong>.`;
+    }
 
-        const dateObj = new Date(appt.dateTime);
-        const dateStr = dateObj.toLocaleDateString('es-HN', { day: 'numeric', month: 'short', year: 'numeric' });
-        const hourStr = appt.dateTime.split('T')[1];
+    // Periodontograma
+    const perio = window.db.getPeriodontogram(patient.id);
+    document.getElementById('perio-summary').textContent = perio
+      ? 'Periodontograma registrado para este paciente.'
+      : 'Sin periodontograma registrado todavía.';
+  }
 
-        const item = document.createElement('div');
-        item.className = 'finding-item';
-        
-        // Asignar colores clínicos al timeline
-        if (appt.status === 'completed') item.style.borderLeftColor = 'var(--color-teal)';
-        if (appt.status === 'canceled') item.style.borderLeftColor = 'var(--state-caries)';
-        if (appt.status === 'pending') item.style.borderLeftColor = '#ffb800';
+  function renderFinanzas(patientId) {
+    const budgets = window.db.getBudgets().filter(b => b.patientId === patientId);
+    const tbody = document.getElementById('patient-budgets-body');
+    const payBox = document.getElementById('patient-payments');
 
-        item.innerHTML = `
-          <div class="finding-meta">
-            <span>${dateStr} a las ${hourStr} hrs</span>
-            <span class="badge ${badgeClass}">${badgeText}</span>
-          </div>
-          <div class="finding-desc" style="font-size: 0.82rem; margin-top: 4px;">
-            <strong>${appt.specialty}</strong> con ${dentist.name}
-          </div>
-          ${appt.notes ? `<div style="font-size: 0.75rem; color: var(--color-gray); margin-top: 4px; font-style: italic;">Obs: ${appt.notes}</div>` : ''}
+    tbody.innerHTML = '';
+    let totalPaid = 0, totalBalance = 0;
+    const allPayments = [];
+
+    if (budgets.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-gray); padding: 22px;">Sin presupuestos registrados.</td></tr>';
+    } else {
+      const statusMap = {
+        draft: ['badge-pending', 'Borrador'],
+        accepted: ['badge-confirmed', 'Aceptado'],
+        rejected: ['badge-canceled', 'Rechazado']
+      };
+      budgets.forEach(b => {
+        const total = budgetTotal(b);
+        const paid = budgetPaid(b);
+        const balance = Math.max(total - paid, 0);
+        totalPaid += paid;
+        totalBalance += balance;
+        window.db.getPayments(b.id).forEach(p => allPayments.push(p));
+
+        const [cls, txt] = statusMap[b.status] || ['badge-pending', b.status || '-'];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><code class="tag">${b.id.toUpperCase()}</code></td>
+          <td><span class="badge ${cls}">${txt}</span></td>
+          <td style="text-align: right; font-weight: 600;">${window.formatMoney(total)}</td>
+          <td style="text-align: right; font-weight: 700; color: ${balance > 0 ? 'var(--color-red)' : 'var(--color-green)'};">${window.formatMoney(balance)}</td>
         `;
-        cardTimeline.appendChild(item);
+        tbody.appendChild(tr);
       });
     }
-  };
+
+    // Pagos
+    if (allPayments.length === 0) {
+      payBox.innerHTML = `
+        <div class="record-empty">
+          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          <div class="record-empty-title">Sin pagos registrados</div>
+          <div class="record-empty-desc">Los abonos del paciente se registran desde el módulo de Cobranzas.</div>
+        </div>
+      `;
+      return;
+    }
+
+    allPayments.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    const rows = allPayments.slice(0, 6).map(p => `
+      <div class="finding-item">
+        <div class="finding-meta">
+          <span>${p.date || '-'} · ${p.method || '-'}</span>
+          <span style="font-weight: 700; color: var(--color-green);">${window.formatMoney(p.amount)}</span>
+        </div>
+      </div>
+    `).join('');
+
+    payBox.innerHTML = `
+      <div style="display: flex; gap: 12px; margin-bottom: 10px;">
+        <div class="record-stat" style="flex: 1;">
+          <div class="record-stat-label">Total abonado</div>
+          <div class="record-stat-value" style="color: var(--color-green);">${window.formatMoney(totalPaid)}</div>
+        </div>
+        <div class="record-stat" style="flex: 1;">
+          <div class="record-stat-label">Saldo pendiente</div>
+          <div class="record-stat-value" style="color: ${totalBalance > 0 ? 'var(--color-red)' : 'var(--text-primary)'};">${window.formatMoney(totalBalance)}</div>
+        </div>
+      </div>
+      <div class="findings-timeline">${rows}</div>
+    `;
+  }
 
   // Abrir edición del paciente
   window.editPatient = function(patientId) {
