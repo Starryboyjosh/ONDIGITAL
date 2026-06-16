@@ -12,7 +12,7 @@ datos** y la **seguridad**.
 ## Estructura
 
 ```
-ondental/
+credental/
   *.html                 Una pantalla por módulo. Cada una incluye, en este orden:
                          db.js → auth.js → main.js → <modulo>.js
   css/styles.css         Sistema de diseño único (tokens + tema claro/oscuro + componentes)
@@ -29,7 +29,7 @@ ondental/
 
 - **Tokens** en `:root` (colores, superficies, bordes, radios, sombras, fuentes).
 - **Tema claro por defecto**; el oscuro se activa con la clase `html.dark-theme`
-  (alterna desde el sidebar; preferencia en `localStorage` clave `ondental_theme`).
+  (alterna desde el sidebar; preferencia en `localStorage` clave `credental_theme`).
 - Los componentes (botones, tarjetas, tablas, formularios, badges, pestañas, alertas,
   estados vacíos, etc.) usan los tokens, por lo que **cambiar la paleta es un solo lugar**.
 
@@ -39,10 +39,10 @@ Hoy la persistencia es **solo del lado del cliente** y mixta:
 
 | Qué | Dónde se guarda | Notas |
 |-----|-----------------|-------|
-| Pacientes, citas, presupuestos, pagos, tratamientos, config clínica, periodontogramas, usuarios, empresas | `sessionStorage` vía `js/db.js` (prefijo `ondental_`) | **Se borra al cerrar la pestaña.** Aislado por empresa (`companyId`). |
+| Pacientes, citas, presupuestos, pagos, tratamientos, config clínica, periodontogramas, usuarios, empresas | `sessionStorage` vía `js/db.js` (prefijo `credental_`) | **Se borra al cerrar la pestaña.** Aislado por empresa (`companyId`). |
 | Sincronización opcional en la nube | Firebase Firestore (`js/firebase/connection.js`) | `db.js` lo inyecta y mezcla datos al cargar. Opcional. |
-| Módulos esqueleto: facturación (RTN/CAI), caja (estado y movimientos), inventario, laboratorios | `localStorage` por empresa (claves `ondental_<modulo>_<companyId>`) | **Persisten** entre sesiones; son datos de ejemplo + altas del usuario. |
-| Preferencia de tema | `localStorage` (`ondental_theme`) | — |
+| Módulos esqueleto: facturación (RTN/CAI), caja (estado y movimientos), inventario, laboratorios | `localStorage` por empresa (claves `credental_<modulo>_<companyId>`) | **Persisten** entre sesiones; son datos de ejemplo + altas del usuario. |
+| Preferencia de tema | `localStorage` (`credental_theme`) | — |
 
 `db.js` expone una API tipo repositorio: `window.db.getPatients()`, `getAppointments()`,
 `getBudgets()`, `getPayments()`, `saveBudget()`, `registerPayment()`, etc. **Toda la app

@@ -1,4 +1,4 @@
-# OnDental — Documentación
+# Credental — Documentación
 
 Prototipo serio de **software de gestión clínica dental** para Honduras. Interfaz
 clínica/administrativa, multi‑empresa, en HTML/CSS/JS sin framework ni build.
@@ -18,7 +18,7 @@ clínica/administrativa, multi‑empresa, en HTML/CSS/JS sin framework ni build.
 
 ## Cómo ejecutarlo
 
-No requiere instalación ni build. Abrir `ondental/index.html` en el navegador
+No requiere instalación ni build. Abrir `credental/index.html` en el navegador
 (idealmente servido por un servidor estático local para que carguen los scripts).
 
 Es un prototipo: los usuarios y datos de demostración provienen de `js/db.js` y de
@@ -28,7 +28,7 @@ resolver datos y seguridad.
 ## Mapa rápido del código
 
 ```
-ondental/
+credental/
   *.html            Pantallas (una por módulo)
   css/styles.css    Sistema de diseño (tokens, tema claro/oscuro, componentes)
   js/

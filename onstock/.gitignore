@@ -1,0 +1,6 @@
+data/
+dist/
+legacy/
+*.db
+*.db-shm
+*.db-wal

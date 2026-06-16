@@ -1,0 +1,74 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg-primary: #050b1a;
+    --color-accent-primary: #a78bfa;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-normal: 250ms;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--color-bg-primary); font-family: 'DM Sans', sans-serif; padding: 32px; display: flex; flex-direction: column; gap: 20px; }
+
+  .input-wrapper { display: flex; flex-direction: column; gap: 6px; max-width: 320px; }
+  .input-label { color: rgba(255,255,255,0.6); font-size: 0.8rem; font-weight: 500; }
+  .input-container { position: relative; display: flex; align-items: center; }
+  .input-icon { position: absolute; left: 12px; font-size: 14px; opacity: 0.5; }
+  .glass-input {
+    width: 100%; padding: 10px 14px 10px 36px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #fff; font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+    outline: none;
+    transition: border-color var(--duration-normal) var(--ease-out), background var(--duration-normal) var(--ease-out);
+    backdrop-filter: blur(16px);
+  }
+  .glass-input::placeholder { color: rgba(255,255,255,0.3); }
+  .glass-input:focus { border-color: var(--color-accent-primary); background: rgba(167,139,250,0.06); }
+  .glass-input.no-icon { padding-left: 14px; }
+  .input-hint { color: rgba(255,255,255,0.3); font-size: 0.75rem; }
+  .input-error .glass-input { border-color: rgba(239,68,68,0.5); }
+  .input-error .input-hint { color: #f87171; }
+</style>
+</head>
+<body>
+  <div class="input-wrapper">
+    <label class="input-label">Correo Electrónico</label>
+    <div class="input-container">
+      <span class="input-icon">✉</span>
+      <input type="email" class="glass-input" placeholder="correo@empresa.com">
+    </div>
+  </div>
+
+  <div class="input-wrapper">
+    <label class="input-label">RUT / Cédula</label>
+    <div class="input-container">
+      <span class="input-icon">#</span>
+      <input type="text" class="glass-input" placeholder="18.452.129-K">
+    </div>
+    <span class="input-hint">Formato: 00.000.000-X</span>
+  </div>
+
+  <div class="input-wrapper">
+    <label class="input-label">Contraseña</label>
+    <div class="input-container">
+      <span class="input-icon">🔒</span>
+      <input type="password" class="glass-input" placeholder="••••••••">
+    </div>
+  </div>
+
+  <div class="input-wrapper input-error">
+    <label class="input-label">Nombre del Paciente</label>
+    <div class="input-container">
+      <span class="input-icon">👤</span>
+      <input type="text" class="glass-input" value="María G" placeholder="Nombre completo">
+    </div>
+    <span class="input-hint">Este campo es obligatorio</span>
+  </div>
+</body>
+</html>

@@ -60,7 +60,7 @@ Un Hero premium combina tipografía audaz, orbes de colores degradados en el fon
       <span class="hero-badge">⭐ Innovación Médica al Alcance</span>
       <h1 class="hero-title">Tu Salud Dental Rediseñada con Tecnología y Confort</h1>
       <p class="hero-description">
-        Agenda tu evaluación hoy mismo en OnDental y experimenta tratamientos sin dolor,
+        Agenda tu evaluación hoy mismo en Credental y experimenta tratamientos sin dolor,
         respaldados por profesionales líderes y tecnología 3D de vanguardia.
       </p>
       <div class="hero-actions">
@@ -339,7 +339,7 @@ Una sección premium de mapa interactivo con la ubicación física de la clínic
       <div class="info-list">
         <div class="info-item">📍 <p>Av. Paseo de la Reforma 123, Ciudad de México</p></div>
         <div class="info-item">📞 <p>+52 55 9876 5432</p></div>
-        <div class="info-item">✉️ <p>contacto@ondental.com</p></div>
+        <div class="info-item">✉️ <p>contacto@credental.com</p></div>
       </div>
     </div>
     <div class="location-map glass-card">
@@ -350,7 +350,7 @@ Una sección premium de mapa interactivo con la ubicación física de la clínic
         style="border:0; border-radius: var(--radius-md);" 
         allowfullscreen="" 
         loading="lazy"
-        title="Ubicación de OnDental Clínica Central">
+        title="Ubicación de Credental Clínica Central">
       </iframe>
     </div>
   </div>
@@ -384,21 +384,21 @@ El SEO técnico garantiza la indexación en buscadores y el posicionamiento en M
 
 ```html
 <!-- Metatags Esenciales para SEO y Compartido Social -->
-<title>OnDental — Implantes Dentales y Ortodoncia en CDMX</title>
+<title>Credental — Implantes Dentales y Ortodoncia en CDMX</title>
 <meta name="description" content="Especialistas en implantes, ortodoncia invisible y diseño de sonrisa en Ciudad de México. Tratamientos sin dolor con tecnología 3D. Agenda tu cita.">
 <meta name="keywords" content="dentista cdmx, implantes dentales, ortodoncia invisible, diseño de sonrisa, clinica dental reforma">
-<link rel="canonical" href="https://www.ondental.com">
+<link rel="canonical" href="https://www.credental.com">
 
 <!-- Metatags Open Graph (Facebook/WhatsApp/LinkedIn) -->
-<meta property="og:title" content="OnDental — Tu Salud Dental Rediseñada con Tecnología">
+<meta property="og:title" content="Credental — Tu Salud Dental Rediseñada con Tecnología">
 <meta property="og:description" content="Clínica dental premium con odontología avanzada y estética de punta.">
-<meta property="og:image" content="https://www.ondental.com/assets/share-preview.png">
-<meta property="og:url" content="https://www.ondental.com">
+<meta property="og:image" content="https://www.credental.com/assets/share-preview.png">
+<meta property="og:url" content="https://www.credental.com">
 <meta property="og:type" content="website">
 
 <!-- Metatags Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="OnDental — Odontología Premium">
+<meta name="twitter:title" content="Credental — Odontología Premium">
 <meta name="twitter:description" content="Odontología digital y estética dental premium en Paseo de la Reforma.">
-<meta name="twitter:image" content="https://www.ondental.com/assets/share-preview.png">
+<meta name="twitter:image" content="https://www.credental.com/assets/share-preview.png">
 ```

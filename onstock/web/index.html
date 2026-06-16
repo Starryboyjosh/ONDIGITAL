@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OnStock</title>
+  <!-- Tema visual: aplica la preferencia guardada antes de pintar (evita parpadeo). Solo apariencia. -->
+  <script>try{if(localStorage.getItem('onstock-theme')==='company')document.documentElement.setAttribute('data-theme','company');}catch(e){}</script>
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='5' y='8' width='22' height='19' rx='5' fill='%232b8af7'/%3E%3Cpath d='M11 8 C11 4 21 4 21 8' stroke='%232b8af7' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3Crect x='8' y='11' width='16' height='13' rx='3' fill='%23050f2c'/%3E%3Ccircle cx='13' cy='17' r='2.2' fill='%2300e5b0'/%3E%3Ccircle cx='19' cy='17' r='2.2' fill='%2300e5b0'/%3E%3Cpath d='M12 21 Q16 23.5 20 21' stroke='%2300e5b0' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-robot" aria-hidden="true">
+        <svg viewBox="88 54 184 188" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect class="r-body" x="100" y="92" width="160" height="140" rx="16"></rect>
+          <path class="r-handle" d="M148 92 C148 62 212 62 212 92" stroke-width="14" fill="none" stroke-linecap="round"></path>
+          <rect class="r-screen" x="112" y="110" width="136" height="108" rx="12"></rect>
+          <g class="r-eye">
+            <ellipse cx="153" cy="154" rx="13" ry="13"></ellipse>
+            <ellipse class="r-pupil" cx="153" cy="154" rx="5" ry="5"></ellipse>
+          </g>
+          <g class="r-eye">
+            <ellipse cx="207" cy="154" rx="13" ry="13"></ellipse>
+            <ellipse class="r-pupil" cx="207" cy="154" rx="5" ry="5"></ellipse>
+          </g>
+          <path class="r-mouth" d="M140 178 Q180 200 220 178" stroke-width="5" fill="none" stroke-linecap="round"></path>
+        </svg>
+      </span>
+      <div>
+        <div class="brand-name"><span class="wm-accent">On</span>Stock</div>
+        <div class="brand-company" id="brand-company">Mi Empresa</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#/" data-route="dashboard">
+        <svg viewBox="0 0 24 24"><path d="M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg>
+        Dashboard
+      </a>
+      <a href="#/ventas" data-route="ventas">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2.5 3.5h3l2.6 12h10.4l2-8.5H6.2"/></svg>
+        Ventas
+      </a>
+      <a href="#/productos" data-route="productos">
+        <svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v9"/></svg>
+        Productos
+      </a>
+      <a href="#/inventario" data-route="inventario">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5zM2 12l10 5 10-5M2 17l10 5 10-5"/></svg>
+        Inventario
+      </a>
+      <a href="#/compras" data-route="compras">
+        <svg viewBox="0 0 24 24"><path d="M1.5 4h3v12h13.5M6 16l-1.2 4h12.9l-1.2-4M8 8h13l-1.5 6H8z"/></svg>
+        Compras
+      </a>
+      <a href="#/proveedores" data-route="proveedores">
+        <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Proveedores
+      </a>
+      <a href="#/gastos" data-route="gastos">
+        <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h4"/></svg>
+        Gastos
+      </a>
+      <a href="#/reportes" data-route="reportes">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 16v-3M12 16v-6M15 16v-4"/></svg>
+        Reportes
+      </a>
+    </nav>
+
+    <div class="nav nav-bottom">
+      <a href="#/configuracion" data-route="configuracion">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34h0a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.55h0a1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87v0a1.7 1.7 0 001.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.55 1z"/></svg>
+        Configuración
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div id="page" class="page"></div>
+  </main>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>

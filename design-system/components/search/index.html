@@ -1,0 +1,59 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Space+Grotesk:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #050b1a; font-family: 'DM Sans', sans-serif; padding: 32px; }
+  .autocomplete-wrapper { position: relative; max-width: 340px; }
+  .search-container { position: relative; display: flex; align-items: center; }
+  .search-icon { position: absolute; left: 12px; color: rgba(255,255,255,0.35); font-size: 14px; }
+  .glass-input {
+    width: 100%; padding: 10px 36px 10px 36px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+    outline: none; backdrop-filter: blur(16px);
+  }
+  .glass-input:focus { border-color: #a78bfa; background: rgba(167,139,250,0.06); }
+  .glass-input::placeholder { color: rgba(255,255,255,0.3); }
+  .btn-clear { position: absolute; right: 10px; background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 18px; line-height: 1; }
+  .autocomplete-results {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: #0a1128; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    backdrop-filter: blur(16px);
+  }
+  .autocomplete-item { padding: 10px 14px; cursor: pointer; transition: background 0.15s; }
+  .autocomplete-item:hover, .autocomplete-item.highlighted { background: rgba(167,139,250,0.08); }
+  .item-title { display: block; color: #fff; font-size: 0.875rem; }
+  .item-subtitle { display: block; color: rgba(255,255,255,0.4); font-size: 0.75rem; font-family: 'Space Grotesk', sans-serif; margin-top: 2px; }
+</style>
+</head>
+<body>
+  <div class="autocomplete-wrapper">
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="glass-input" value="María" placeholder="Buscar paciente por nombre o RUT...">
+      <button class="btn-clear">×</button>
+    </div>
+    <div class="autocomplete-results">
+      <div class="autocomplete-item">
+        <span class="item-title">María González Ruiz</span>
+        <span class="item-subtitle">12.548.963-2 — Limpieza dental</span>
+      </div>
+      <div class="autocomplete-item highlighted">
+        <span class="item-title">María Fernández López</span>
+        <span class="item-subtitle">16.321.874-5 — Ortodoncia</span>
+      </div>
+      <div class="autocomplete-item">
+        <span class="item-title">María José Castillo</span>
+        <span class="item-subtitle">19.004.512-8 — Implante</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

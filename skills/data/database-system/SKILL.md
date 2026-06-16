@@ -64,7 +64,7 @@ function initSampleDatabase() {
   if (!localStorage.getItem(DB_SCHEMAS.COMPANIES)) {
     const companies = [
       { id: 'credental', name: 'Credental', accent: '#00e5b0' },
-      { id: 'ondental-central', name: 'OnDental Clínica Central', accent: '#2b8af7' }
+      { id: 'credental-central', name: 'Credental Clínica Central', accent: '#2b8af7' }
     ];
     localStorage.setItem(DB_SCHEMAS.COMPANIES, JSON.stringify(companies));
   }

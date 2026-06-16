@@ -1,0 +1,74 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg-primary: #050b1a;
+    --color-accent-primary: #a78bfa;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-normal: 250ms;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--color-bg-primary); font-family: 'DM Sans', sans-serif; padding: 32px; display: flex; flex-direction: column; gap: 24px; }
+  h3 { color: rgba(255,255,255,0.35); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+  .glass-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: var(--radius-lg);
+    font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500;
+    cursor: pointer; border: none;
+    background: var(--color-accent-primary);
+    color: #fff;
+    transition: all var(--duration-normal) var(--ease-out);
+  }
+  .glass-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .glass-btn-outline {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.8);
+    backdrop-filter: blur(16px);
+  }
+  .glass-btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); transform: translateY(-1px); }
+
+  .glass-btn-danger {
+    background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #f87171;
+  }
+  .glass-btn-danger:hover { background: rgba(239,68,68,0.25); }
+
+  .glass-btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+  .glass-btn-lg { padding: 14px 28px; font-size: 1rem; }
+</style>
+</head>
+<body>
+  <div>
+    <h3>Primary</h3>
+    <div class="row">
+      <button class="glass-btn glass-btn-sm">Pequeño</button>
+      <button class="glass-btn">Registrar Paciente</button>
+      <button class="glass-btn glass-btn-lg">Guardar Cambios</button>
+    </div>
+  </div>
+  <div>
+    <h3>Secondary (Outline Glass)</h3>
+    <div class="row">
+      <button class="glass-btn glass-btn-outline glass-btn-sm">Cancelar</button>
+      <button class="glass-btn glass-btn-outline">Ver Expediente</button>
+      <button class="glass-btn glass-btn-outline glass-btn-lg">Exportar PDF</button>
+    </div>
+  </div>
+  <div>
+    <h3>Danger</h3>
+    <div class="row">
+      <button class="glass-btn glass-btn-danger">Eliminar Registro</button>
+    </div>
+  </div>
+</body>
+</html>

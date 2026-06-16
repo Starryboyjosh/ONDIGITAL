@@ -1,0 +1,46 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #050b1a; font-family: 'DM Sans', sans-serif; padding: 32px; display: flex; flex-direction: column; gap: 20px; }
+  h3 { color: rgba(255,255,255,0.35); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500;
+  }
+  .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.8; }
+  .badge-success { background: rgba(0,229,176,0.12); color: #00e5b0; border: 1px solid rgba(0,229,176,0.2); }
+  .badge-warning { background: rgba(255,184,89,0.12); color: #ffb859; border: 1px solid rgba(255,184,89,0.2); }
+  .badge-danger  { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+  .badge-info    { background: rgba(43,138,247,0.12); color: #2b8af7; border: 1px solid rgba(43,138,247,0.2); }
+  .badge-neutral { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1); }
+</style>
+</head>
+<body>
+  <div>
+    <h3>Estados de Cita</h3>
+    <div class="row">
+      <span class="badge badge-success">Confirmada</span>
+      <span class="badge badge-warning">Pendiente</span>
+      <span class="badge badge-danger">Cancelada</span>
+      <span class="badge badge-info">En Curso</span>
+      <span class="badge badge-neutral">Completada</span>
+    </div>
+  </div>
+  <div>
+    <h3>Estados de Pago</h3>
+    <div class="row">
+      <span class="badge badge-success">Pagado</span>
+      <span class="badge badge-warning">Parcial</span>
+      <span class="badge badge-danger">Adeudado</span>
+      <span class="badge badge-neutral">Sin cargo</span>
+    </div>
+  </div>
+</body>
+</html>

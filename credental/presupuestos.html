@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presupuestos y Facturación — Credental</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/presupuestos.js"></script>
+  <style>
+    /* Estilos locales complementarios para ocultar elementos en impresión */
+    @media print {
+      /* Ocultar elementos no deseados */
+      .sidebar,
+      .no-print,
+      .page-header,
+      .budget-layout > div:first-child {
+        display: none !important;
+      }
+      /* Ajustar contenedores principales para abarcar toda la página */
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .app-container {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+      }
+      .main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+      }
+      .budget-layout {
+        display: block !important;
+        width: 100% !important;
+      }
+      .invoice-container {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo">CR</div>
+        <div class="brand-name">Cre<span class="acc">dental</span></div>
+      </div>
+
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="dashboard.html">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="agenda.html">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <span>Agenda Citas</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="pacientes.html">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span>Pacientes</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="odontograma.html">
+              <svg viewBox="0 0 24 24"><path d="M12 2C10.5 2 9 3 8 4.5 7 6 6 8.5 6 10c0 4 2 6 2 9 0 2.5 1 3 2 3s1.5-1 2-2c0.5 1 1 2 2 2s2-0.5 2-3c0-3 2-5 2-9 0-1.5-1-4-2-5.5C15 3 13.5 2 12 2z"></path></svg>
+              <span>Odontograma</span>
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a href="presupuestos.html">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              <span>Presupuestos</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Perfil de usuario en el Sidebar -->
+      <div class="user-profile">
+        <div class="user-avatar" id="sidebar-user-avatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-role" id="sidebar-user-role">Clínico</div>
+        </div>
+      </div>
+
+      <button class="logout-btn" id="sidebar-logout-btn">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+      
+      <!-- Encabezado de Página -->
+      <header class="page-header">
+        <div class="page-title-area">
+          <h1 class="page-title">Presupuestos y Finanzas</h1>
+          <p class="page-subtitle">Elabore cotizaciones de tratamientos clínicos con desglose e imprima su formato PDF.</p>
+        </div>
+      </header>
+
+      <!-- DISEÑO DIVIDIDO EN DOS COLUMNAS -->
+      <div class="budget-layout">
+        
+        <!-- Columna Izquierda: Formulario de Elaboración -->
+        <div class="card">
+          <h2 class="card-title" style="margin-bottom: 20px; color: var(--color-teal);">Creador de Presupuestos</h2>
+          
+          <!-- Asignaciones de la Factura -->
+          <div class="form-group">
+            <label class="form-label" for="budget-patient">Paciente Destinatario</label>
+            <select id="budget-patient" class="form-control" required>
+              <!-- Poblado dinámicamente -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="budget-dentist">Odontólogo Evaluador</label>
+            <select id="budget-dentist" class="form-control" required>
+              <!-- Poblado dinámicamente -->
+            </select>
+          </div>
+
+          <div style="border-top: 1px solid rgba(255,255,255,0.05); margin: 25px 0;"></div>
+
+          <!-- Selector de Tratamientos Catálogo -->
+          <h3 style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase; color: var(--color-blue-mid); margin-bottom: 12px;">Cargar Ítem del Catálogo</h3>
+          
+          <div class="form-group">
+            <label class="form-label" for="budget-treatment">Tratamiento Clínico</label>
+            <select id="budget-treatment" class="form-control">
+              <!-- Catálogo cargado de DB -->
+            </select>
+          </div>
+
+          <div class="form-row" style="align-items: flex-end;">
+            <div class="form-group">
+              <label class="form-label" for="budget-qty">Cantidad</label>
+              <select id="budget-qty" class="form-control">
+                <option value="1" selected>1 sesión / pieza</option>
+                <option value="2">2 sesiones / piezas</option>
+                <option value="3">3 sesiones / piezas</option>
+                <option value="4">4 sesiones / piezas</option>
+                <option value="5">5 sesiones / piezas</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button type="button" id="add-treatment-btn" class="btn btn-success" style="width: 100%; padding: 12px;">
+                Agregar Ítem
+              </button>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid rgba(255,255,255,0.05); margin: 25px 0;"></div>
+
+          <!-- Descuento y Estado -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="budget-discount">Descuento Aplicado (%)</label>
+              <input type="number" id="budget-discount" class="form-control" value="0" min="0" max="95">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="budget-status">Estado del Presupuesto</label>
+              <select id="budget-status" class="form-control">
+                <option value="draft" selected>Borrador</option>
+                <option value="accepted">Aceptado por Paciente</option>
+                <option value="rejected">Rechazado</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="button" id="save-budget-btn" class="btn btn-primary" style="width: 100%; margin-top: 15px; padding: 12px;">
+            Registrar Presupuesto Clínico
+          </button>
+        </div>
+
+        <!-- Columna Derecha: Vista Impresión de Factura (Blanca/Negra en impresión) -->
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+          
+          <!-- Botón de Acción de Impresión -->
+          <div style="display: flex; justify-content: flex-end;" class="no-print">
+            <button type="button" id="print-invoice-btn" class="btn btn-success" style="padding: 12px 25px;">
+              Imprimir / Guardar en PDF
+            </button>
+          </div>
+
+          <!-- La Planilla de Presupuesto Real -->
+          <div class="invoice-container">
+            
+            <div class="invoice-header">
+              <div class="invoice-logo-area">
+                <div class="invoice-brand" id="pdf-clinica-name">Cre<span>dental</span></div>
+                <p style="font-size: 0.72rem; color: #718096; margin-top: 2px;" id="pdf-clinica-contact">
+                  Col. Palmira, Ave. República de Argentina • Tegucigalpa, Honduras<br>
+                  Contacto: contacto@credental.hn • +504 2234-5678
+                </p>
+              </div>
+              <div class="invoice-info">
+                <div class="invoice-title">PRESUPUESTO CLÍNICO</div>
+                <div style="font-size: 0.8rem; margin-top: 4px;">
+                  <strong>Nº Presupuesto:</strong> <span id="inv-id">CR-0000</span><br>
+                  <strong>Fecha Emisión:</strong> <span id="inv-date">Cargando...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Meta Información de la Relación Clínica -->
+            <div class="invoice-meta-grid">
+              <div class="invoice-meta-col">
+                <span class="invoice-meta-label">Paciente Destinatario</span>
+                <span style="font-weight: 700; color: #2d3748;" id="inv-patient-name">Seleccione un paciente...</span>
+                <span style="font-size: 0.76rem; color: #4a5568;">
+                  Documento: <span id="inv-patient-id">-</span><br>
+                  Teléfono: <span id="inv-patient-phone">-</span>
+                </span>
+              </div>
+              <div class="invoice-meta-col" style="border-left: 1px solid #e2e8f0; padding-left: 20px;">
+                <span class="invoice-meta-label">Odontólogo Tratante</span>
+                <span style="font-weight: 700; color: #2d3748;" id="inv-dentist-name">Seleccione un odontólogo...</span>
+                <span style="font-size: 0.76rem; color: #4a5568;" id="pdf-clinica-tagline">
+                  Clínica de Especialidades Integrales
+                </span>
+              </div>
+            </div>
+
+            <!-- Tabla Desglose de Cobros -->
+            <table class="invoice-table">
+              <thead>
+                <tr>
+                  <th style="width: 50%;">Detalle del Tratamiento Clínico</th>
+                  <th style="text-align: center; width: 12%;">Cant</th>
+                  <th style="width: 18%;">Unitario</th>
+                  <th style="width: 20%;">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody id="inv-table-body">
+                <tr>
+                  <td colspan="4" style="text-align: center; color: #718096; padding: 25px;">
+                    Ningún tratamiento clínico cargado al listado.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Desglose de Totales -->
+            <div class="invoice-totals">
+              <div class="invoice-total-row">
+                <span style="color: #718096;">Subtotal:</span>
+                <span style="font-weight: 600;" id="inv-subtotal">L 0.00</span>
+              </div>
+              
+              <!-- Fila Descuento Dinámico -->
+              <div class="invoice-total-row" id="inv-discount-row" style="display: none; color: #e53e3e;">
+                <span>Descuento Clínico:</span>
+                <span id="inv-discount-val">L 0.00 (0%)</span>
+              </div>
+
+              <div class="invoice-total-row grand">
+                <span>Total Presupuestado:</span>
+                <span id="inv-grand-total">L 0.00</span>
+              </div>
+            </div>
+
+            <!-- Términos y Condiciones -->
+            <div class="invoice-footer">
+              <strong>Términos del Presupuesto Clínico</strong><br>
+              • Esta cotización tiene una vigencia formal de 30 días a contar del día de su emisión.<br>
+              • Incluye insumos clínicos y controles post-tratamiento inmediatos.<br>
+              • Credental garantiza el uso de materiales biocompatibles e implantes certificados internacionalmente.
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</body>
+</html>

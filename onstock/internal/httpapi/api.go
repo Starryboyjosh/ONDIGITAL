@@ -1,0 +1,134 @@
+// Package httpapi expone la API REST y sirve la SPA embebida.
+package httpapi
+
+import (
+	"encoding/json"
+	"errors"
+	"io/fs"
+	"log"
+	"net/http"
+	"strconv"
+
+	"onstock/internal/store"
+)
+
+type API struct {
+	st *store.Store
+}
+
+func New(st *store.Store) *API { return &API{st: st} }
+
+// Router registra todas las rutas de la API y la SPA estática.
+func (a *API) Router(webFS fs.FS) http.Handler {
+	mux := http.NewServeMux()
+
+	// Dashboard y configuración
+	mux.HandleFunc("GET /api/dashboard", a.getDashboard)
+	mux.HandleFunc("GET /api/settings", a.getSettings)
+	mux.HandleFunc("PUT /api/settings", a.putSettings)
+
+	// Productos y categorías
+	mux.HandleFunc("GET /api/products", a.listProducts)
+	mux.HandleFunc("POST /api/products", a.createProduct)
+	mux.HandleFunc("GET /api/products/next-sku", a.nextSKU)
+	mux.HandleFunc("GET /api/products/by-code/{code}", a.productByCode)
+	mux.HandleFunc("GET /api/products/{id}", a.getProduct)
+	mux.HandleFunc("PUT /api/products/{id}", a.updateProduct)
+	mux.HandleFunc("DELETE /api/products/{id}", a.deleteProduct)
+	mux.HandleFunc("GET /api/categories", a.listCategories)
+	mux.HandleFunc("POST /api/categories", a.createCategory)
+	mux.HandleFunc("PUT /api/categories/{id}", a.updateCategory)
+	mux.HandleFunc("DELETE /api/categories/{id}", a.deleteCategory)
+
+	// Proveedores
+	mux.HandleFunc("GET /api/suppliers", a.listSuppliers)
+	mux.HandleFunc("POST /api/suppliers", a.createSupplier)
+	mux.HandleFunc("GET /api/suppliers/{id}", a.getSupplier)
+	mux.HandleFunc("PUT /api/suppliers/{id}", a.updateSupplier)
+	mux.HandleFunc("DELETE /api/suppliers/{id}", a.deleteSupplier)
+
+	// Inventario
+	mux.HandleFunc("GET /api/movements", a.listMovements)
+	mux.HandleFunc("POST /api/movements", a.createMovement)
+
+	// Ventas
+	mux.HandleFunc("GET /api/sales", a.listSales)
+	mux.HandleFunc("POST /api/sales", a.createSale)
+	mux.HandleFunc("GET /api/sales/{id}", a.getSale)
+	mux.HandleFunc("POST /api/sales/{id}/void", a.voidSale)
+
+	// Órdenes de compra
+	mux.HandleFunc("GET /api/purchase-orders", a.listPOs)
+	mux.HandleFunc("POST /api/purchase-orders", a.createPO)
+	mux.HandleFunc("GET /api/purchase-orders/{id}", a.getPO)
+	mux.HandleFunc("PUT /api/purchase-orders/{id}", a.updatePO)
+	mux.HandleFunc("POST /api/purchase-orders/{id}/status", a.setPOStatus)
+	mux.HandleFunc("DELETE /api/purchase-orders/{id}", a.deletePO)
+
+	// Gastos
+	mux.HandleFunc("GET /api/expenses", a.listExpenses)
+	mux.HandleFunc("POST /api/expenses", a.createExpense)
+	mux.HandleFunc("PUT /api/expenses/{id}", a.updateExpense)
+	mux.HandleFunc("DELETE /api/expenses/{id}", a.deleteExpense)
+
+	// Reportes y exportaciones
+	mux.HandleFunc("GET /api/reports/income-statement", a.incomeStatement)
+	mux.HandleFunc("GET /api/reports/monthly-summary", a.monthlySummary)
+	mux.HandleFunc("GET /api/reports/income-statement/export", a.exportIncomeStatement)
+	mux.HandleFunc("GET /api/reports/monthly-summary/export", a.exportMonthlySummary)
+	mux.HandleFunc("GET /api/reports/inventory/export", a.exportInventory)
+	mux.HandleFunc("GET /api/reports/sales/export", a.exportSales)
+
+	// Códigos de barras y etiquetas
+	mux.HandleFunc("GET /api/barcode/{code}", a.barcodePNG)
+	mux.HandleFunc("GET /api/labels/pdf", a.labelsPDF)
+
+	// SPA estática
+	mux.Handle("/", http.FileServer(http.FS(webFS)))
+
+	return logMiddleware(mux)
+}
+
+func logMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+		if r.URL.Path != "/" && len(r.URL.Path) > 4 && r.URL.Path[:5] == "/api/" {
+			log.Printf("%s %s", r.Method, r.URL.Path)
+		}
+	})
+}
+
+// ── Helpers ─────────────────────────────────────────────
+
+func writeJSON(w http.ResponseWriter, status int, v any) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(v)
+}
+
+func writeErr(w http.ResponseWriter, err error) {
+	status := http.StatusBadRequest
+	if errors.Is(err, store.ErrNotFound) {
+		status = http.StatusNotFound
+	}
+	writeJSON(w, status, map[string]string{"error": err.Error()})
+}
+
+func decode[T any](r *http.Request) (T, error) {
+	var v T
+	err := json.NewDecoder(r.Body).Decode(&v)
+	return v, err
+}
+
+func pathID(r *http.Request) (int64, error) {
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil || id <= 0 {
+		return 0, errors.New("id inválido")
+	}
+	return id, nil
+}
+
+func qInt(r *http.Request, key string) int64 {
+	n, _ := strconv.ParseInt(r.URL.Query().Get(key), 10, 64)
+	return n
+}

@@ -1,6 +1,6 @@
 ---
 name: ondigital-web-generator
-description: Skill maestro para generar, editar y revisar landing pages, SaaS, sistemas con datos, apps HTML y apps Flutter para MiPyMEs, incluyendo el sitio/app OnDental. Use when an agent needs ONDIGITAL production guidance, Spanish UI copy, design system rules, security gates, dental references, and the correct sub-skill selection.
+description: Skill maestro para generar, editar y revisar landing pages, SaaS, sistemas con datos, apps HTML y apps Flutter para MiPyMEs, incluyendo el sitio/app Credental. Use when an agent needs ONDIGITAL production guidance, Spanish UI copy, design system rules, security gates, dental references, and the correct sub-skill selection.
 ---
 
 # ONDIGITAL — Skill Maestro de Generación Web
@@ -66,7 +66,7 @@ description: Skill maestro para generar, editar y revisar landing pages, SaaS, s
 - `skills/design/design-systems/DESIGN.md`
 - `skills/support/tools/TOOLS.md`
 - `skills/dental-references.md`
-- `skills/product/ondental/SKILL.md`
+- `skills/product/credental/SKILL.md`
 
 ## Precedencia
 
@@ -1252,11 +1252,11 @@ SI el proyecto es una plataforma SaaS / dashboard:
   → Leer: skills/data/database-system/SKILL.md
   → Leer: skills/design/design-systems/DESIGN.md
   → Leer: skills/support/tools/TOOLS.md
-  → Leer: skills/dental-references.md si el proyecto es OnDental o clínica dental
-  → Leer: skills/product/ondental/SKILL.md si el proyecto es OnDental
+  → Leer: skills/dental-references.md si el proyecto es Credental o clínica dental
+  → Leer: skills/product/credental/SKILL.md si el proyecto es Credental
 
-SI el proyecto es específicamente OnDental (gestión clínica dental):
-  → Leer: skills/product/ondental/SKILL.md (especificación completa del producto)
+SI el proyecto es específicamente Credental (gestión clínica dental):
+  → Leer: skills/product/credental/SKILL.md (especificación completa del producto)
   → Leer: skills/dental-references.md (benchmarks del sector)
   → Leer: skills/product/saas-product-ui/SKILL.md
   → Leer: skills/data/database-system/SKILL.md
