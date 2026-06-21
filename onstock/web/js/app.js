@@ -60,4 +60,9 @@ window.addEventListener('hashchange', navigate);
   applyTheme();
   try { await refreshSettings(); } catch { /* el servidor mostrará el error en la página */ }
   await navigate();
+  
+  // Sincronizar todos los datos locales a Firebase Firestore en segundo plano
+  import('./firebase/sync.js').then(({ syncAllToFirebase }) => {
+    syncAllToFirebase().catch(err => console.error("Error en la sincronización inicial de Firebase:", err));
+  }).catch(err => console.error("No se pudo cargar el script de sincronización de Firebase:", err));
 })();
