@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OnServe</title>
+  <!-- Tema visual: aplica la preferencia guardada antes de pintar (evita parpadeo). Solo apariencia. -->
+  <script>try{if(localStorage.getItem('onserve-theme')==='company')document.documentElement.setAttribute('data-theme','company');}catch(e){}</script>
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232b8af7'/%3E%3Ccircle cx='16' cy='16' r='8' fill='%23eaf2ff'/%3E%3Ccircle cx='16' cy='16' r='4.4' fill='%23050f2c'/%3E%3Cpath d='M7 7v6M9 7v6M8 13v12' stroke='%2300e5b0' stroke-width='1.7' stroke-linecap='round'/%3E%3Cpath d='M25 7c-1.6 0-2.4 2-2.4 4.5S23.4 15 25 15M25 7v18' stroke='%2300e5b0' stroke-width='1.7' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+</head>
+<body>
+<button class="mobile-nav-toggle" id="mobile-nav-toggle" type="button" aria-label="Abrir navegación" aria-expanded="false" aria-controls="app-sidebar">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+</button>
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+<div class="layout">
+  <aside class="sidebar" id="app-sidebar">
+    <div class="brand">
+      <span class="brand-robot" aria-hidden="true">
+        <svg viewBox="88 54 184 188" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect class="r-body" x="100" y="92" width="160" height="140" rx="16"></rect>
+          <path class="r-handle" d="M148 92 C148 62 212 62 212 92" stroke-width="14" fill="none" stroke-linecap="round"></path>
+          <rect class="r-screen" x="112" y="110" width="136" height="108" rx="12"></rect>
+          <g class="r-eye">
+            <ellipse cx="153" cy="154" rx="13" ry="13"></ellipse>
+            <ellipse class="r-pupil" cx="153" cy="154" rx="5" ry="5"></ellipse>
+          </g>
+          <g class="r-eye">
+            <ellipse cx="207" cy="154" rx="13" ry="13"></ellipse>
+            <ellipse class="r-pupil" cx="207" cy="154" rx="5" ry="5"></ellipse>
+          </g>
+          <path class="r-mouth" d="M140 178 Q180 200 220 178" stroke-width="5" fill="none" stroke-linecap="round"></path>
+        </svg>
+      </span>
+      <div>
+        <div class="brand-name"><span class="wm-accent">On</span>Serve</div>
+        <div class="brand-company" id="brand-company">Mi Restaurante</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#/" data-route="dashboard">
+        <svg viewBox="0 0 24 24"><path d="M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg>
+        Dashboard
+      </a>
+      <a href="#/salon" data-route="salon">
+        <svg viewBox="0 0 24 24"><path d="M3 10h18M5 10V6h14v4M7 10v8M17 10v8"/></svg>
+        Salón
+      </a>
+      <a href="#/cocina" data-route="cocina">
+        <svg viewBox="0 0 24 24"><path d="M12 2c1 4 5 5 5 9a5 5 0 01-10 0c0-2 1-3 1-3 .5 2 2 2 2 2-1-3 0-6 2-8z"/></svg>
+        Cocina
+      </a>
+      <a href="#/menu" data-route="menu">
+        <svg viewBox="0 0 24 24"><path d="M4 3h16v18H4zM8 7h8M8 11h8M8 15h5"/></svg>
+        Menú
+      </a>
+      <a href="#/caja" data-route="caja">
+        <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9v6M18 9v6"/></svg>
+        Caja
+      </a>
+    </nav>
+
+    <div class="nav nav-bottom">
+      <a href="#/config" data-route="config">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34h0a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.55h0a1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87v0a1.7 1.7 0 001.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.55 1z"/></svg>
+        Configuración
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div id="page" class="page"></div>
+  </main>
+</div>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
