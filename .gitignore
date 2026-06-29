@@ -1,0 +1,27 @@
+# ONDIGITAL — root .gitignore
+# Protección repo-wide de secretos y datos efímeros.
+# Las plantillas *.example SÍ se versionan; los archivos reales NO.
+
+# ── Secretos — NUNCA commitear ────────────────────────────────────────────────
+# (`.env.example` no coincide con estos patrones, así que permanece versionado)
+**/.env
+**/.env.local
+**/.env.*.local
+**/auth.json
+**/secrets/**
+*.key
+*.pem
+
+# ── OnStudio: config local (se resuelve desde .env; las *.example sí se versionan)
+onstudio/opencode.json
+onstudio/config.json
+
+# ── OnStudio: datos / workspaces de generación (efímeros, pueden traer datos de cliente)
+onstudio/data/
+
+# ── Claude Code: ajustes locales por máquina (no compartir) ───────────────────
+.claude/settings.local.json
+
+# ── Sistema ───────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

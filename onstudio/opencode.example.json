@@ -1,0 +1,31 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-sonnet-4-5",
+  "small_model": "anthropic/claude-haiku-4-5",
+  "provider": {
+    "anthropic": {
+      "options": { "apiKey": "{env:ANTHROPIC_API_KEY}" }
+    },
+    "openai": {
+      "options": { "apiKey": "{env:OPENAI_API_KEY}" }
+    },
+    "openrouter": {
+      "options": { "apiKey": "{env:OPENROUTER_API_KEY}" }
+    },
+    "google": {
+      "options": { "apiKey": "{env:GEMINI_API_KEY}" }
+    }
+  },
+  "instructions": [
+    "AGENTS.md",
+    "skills/SKILL.md",
+    "skills/product/onstudio-generator/SKILL.md",
+    "skills/product/onstudio-generator/references/*.md"
+  ],
+  "agent": {
+    "site-builder": {
+      "description": "Genera y rebrandea sitios Pro de ONDIGITAL para OnStudio",
+      "mode": "all"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "_comment": "OnStudio config de ejemplo. Copia a config.json y ajusta. Los precios y el margen son PLACEHOLDERS: complétalos con tarifas reales. Nunca pongas llaves aquí; las llaves van en .env y se resuelven en opencode.json con {env:VAR}.",
+  "port": 8100,
+  "data_dir": "./data",
+  "templates_dir": "./templates",
+  "engine": {
+    "mode": "managed",
+    "opencode_bin": "opencode",
+    "opencode_url": "http://127.0.0.1:4096",
+    "timeout_ms": 300000
+  },
+  "allowed_models": [
+    { "provider": "anthropic", "model": "claude-sonnet-4-5", "label": "Claude Sonnet 4.5" },
+    { "provider": "anthropic", "model": "claude-haiku-4-5", "label": "Claude Haiku 4.5" },
+    { "provider": "openai", "model": "REEMPLAZAR", "label": "GPT (definir)" },
+    { "provider": "google", "model": "REEMPLAZAR", "label": "Gemini (definir)" }
+  ],
+  "pricing": {
+    "currency": "USD",
+    "hnl_rate": 24.6,
+    "default_margin": 2.0,
+    "prefer_reported_cost": true,
+    "models": [
+      {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-5",
+        "input_per_mtok": 0.0,
+        "output_per_mtok": 0.0,
+        "margin": 2.0
+      },
+      {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5",
+        "input_per_mtok": 0.0,
+        "output_per_mtok": 0.0,
+        "margin": 2.0
+      }
+    ]
+  }
+}

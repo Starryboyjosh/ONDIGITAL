@@ -40,6 +40,7 @@ description: Skill maestro para generar, editar y revisar landing pages, SaaS, s
 - `skills/product/landing-page/SKILL.md`
 - `skills/product/saas-product-ui/SKILL.md`
 - `skills/product/sales-pos-inventory/SKILL.md`
+- `skills/product/onstudio-generator/SKILL.md`
 - `skills/backend/backend-api-production/SKILL.md`
 - `skills/data/database-system/SKILL.md`
 - `skills/testing/qa-automation/SKILL.md`
@@ -1286,6 +1287,18 @@ SI el proyecto es ventas, POS, inventario, cobranzas, proveedores o caja:
   → Leer: skills/data/database-system/SKILL.md
   → Leer: skills/backend/backend-api-production/SKILL.md si hay datos reales o multiusuario
   → Leer: skills/testing/qa-automation/SKILL.md
+
+SI el proyecto es OnStudio (generar sitios con IA, cobrar por tokens, rebrandear plantillas Pro, motor OpenCode):
+  → Leer: skills/product/onstudio-generator/SKILL.md (orquestador del producto)
+  → Leer: docs/onstudio/ (architecture, generation-pipeline, opencode-integration, token-billing, template-catalog, api-and-config)
+  → Leer el skill de la plantilla destino según site_type:
+      - landing  → skills/product/landing-page/SKILL.md
+      - saas     → skills/product/saas-product-ui/SKILL.md
+      - pos/erp  → skills/product/sales-pos-inventory/SKILL.md
+  → Leer: skills/business/business-digitalization/SKILL.md para mapear rubro→plantilla
+  → Leer: skills/security/app-security-review/SKILL.md (llaves server-side, aislamiento por job)
+  → Leer: skills/core/frontend-quality-review/SKILL.md antes de emitir el sitio
+  → Leer: skills/design/design-systems/DESIGN.md (marca: robot, tema claro por defecto)
 
 SI se pide backend, API, Firebase, Supabase, Postgres, Cloud Functions, reglas o migrar demo a producción:
   → Leer: skills/backend/backend-api-production/SKILL.md

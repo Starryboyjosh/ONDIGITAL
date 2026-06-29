@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OnStudio — Generador de sitios (IA)</title>
+  <meta name="description" content="OnStudio de ONDIGITAL: generador de sitios web para empresas asistido por IA." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="robot" src="/favicon.svg" width="36" height="36" alt="" aria-hidden="true" />
+      <div class="brand-text">
+        <strong>OnStudio</strong>
+        <small>ONDIGITAL · Generador de sitios con IA</small>
+      </div>
+    </div>
+    <button id="theme-toggle" class="toggle" type="button" aria-pressed="false">
+      Colores de empresa
+    </button>
+  </header>
+
+  <main class="container">
+    <section class="card notice">
+      <span class="badge">Phase 1 · Backend</span>
+      <h1>El servidor está listo.</h1>
+      <p>
+        Este es el esqueleto de OnStudio. El motor de IA (OpenCode), el formulario
+        de especificación del negocio y la interfaz completa de generación llegan en
+        las siguientes fases. Abajo se consulta la API en vivo para confirmar que el
+        backend responde.
+      </p>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Estado del servicio</h2>
+        <pre id="health" class="mono">cargando…</pre>
+      </div>
+      <div class="card">
+        <h2>Modelos habilitados</h2>
+        <ul id="models" class="list"><li class="muted">cargando…</li></ul>
+        <p class="hint">Configurables en <code>config.json → allowed_models</code>.</p>
+      </div>
+      <div class="card">
+        <h2>Plantillas Pro</h2>
+        <ul id="templates" class="list"><li class="muted">cargando…</li></ul>
+        <p class="hint">Catálogo base; se materializan en Phase 6.</p>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <span id="version" class="muted">OnStudio</span>
+      <span class="muted">·</span>
+      <span class="muted">Las llaves de API nunca se exponen al navegador.</span>
+    </footer>
+  </main>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

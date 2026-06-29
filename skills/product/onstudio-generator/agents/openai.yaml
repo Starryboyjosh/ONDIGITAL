@@ -1,0 +1,4 @@
+interface:
+  display_name: "OnStudio Generator"
+  short_description: "Generate enterprise sites by rebranding Pro templates, billed by tokens."
+  default_prompt: "Use $onstudio-generator to turn a business spec plus a chosen model into a high-quality website from an ONDIGITAL Pro template."
