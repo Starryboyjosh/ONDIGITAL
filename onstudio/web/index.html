@@ -17,39 +17,157 @@
         <small>ONDIGITAL · Generador de sitios con IA</small>
       </div>
     </div>
-    <button id="theme-toggle" class="toggle" type="button" aria-pressed="false">
-      Colores de empresa
-    </button>
+    <div class="topbar-actions">
+      <span id="engine-chip" class="chip" title="Estado del motor de generación">motor…</span>
+      <button id="theme-toggle" class="toggle" type="button" aria-pressed="false">
+        Colores de empresa
+      </button>
+    </div>
   </header>
 
   <main class="container">
-    <section class="card notice">
-      <span class="badge">Phase 1 · Backend</span>
-      <h1>El servidor está listo.</h1>
-      <p>
-        Este es el esqueleto de OnStudio. El motor de IA (OpenCode), el formulario
-        de especificación del negocio y la interfaz completa de generación llegan en
-        las siguientes fases. Abajo se consulta la API en vivo para confirmar que el
-        backend responde.
-      </p>
-    </section>
+    <div class="layout">
+      <!-- ── Columna: nueva generación ── -->
+      <section class="card form-card">
+        <h2>Nuevo sitio</h2>
+        <p class="hint">
+          Describe el negocio y elige el modelo. Cada generación se cobra por los
+          tokens que consume el modelo seleccionado.
+        </p>
 
-    <section class="grid">
-      <div class="card">
-        <h2>Estado del servicio</h2>
-        <pre id="health" class="mono">cargando…</pre>
-      </div>
-      <div class="card">
-        <h2>Modelos habilitados</h2>
-        <ul id="models" class="list"><li class="muted">cargando…</li></ul>
-        <p class="hint">Configurables en <code>config.json → allowed_models</code>.</p>
-      </div>
-      <div class="card">
-        <h2>Plantillas Pro</h2>
-        <ul id="templates" class="list"><li class="muted">cargando…</li></ul>
-        <p class="hint">Catálogo base; se materializan en Phase 6.</p>
-      </div>
-    </section>
+        <form id="spec-form" novalidate>
+          <fieldset>
+            <legend>Negocio</legend>
+
+            <label class="field">
+              <span>Nombre del negocio <em>*</em></span>
+              <input name="business_name" type="text" maxlength="120"
+                     placeholder="Panadería La Espiga" required />
+            </label>
+
+            <div class="row">
+              <label class="field">
+                <span>Industria</span>
+                <input name="industry" type="text" maxlength="80"
+                       placeholder="alimentos, salud, retail…" />
+              </label>
+              <label class="field">
+                <span>Tipo de sitio <em>*</em></span>
+                <select name="site_type" required>
+                  <option value="landing">Landing / página única</option>
+                  <option value="catalog">Catálogo de productos</option>
+                  <option value="sitio-informativo">Sitio informativo</option>
+                  <option value="restaurant">Restaurante</option>
+                  <option value="saas-clinico">SaaS clínico</option>
+                  <option value="pos">Punto de venta (POS)</option>
+                  <option value="erp-lite">ERP ligero</option>
+                  <option value="saas">Panel SaaS genérico</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Páginas <small>(separadas por coma)</small></span>
+              <input name="pages" type="text"
+                     placeholder="inicio, nosotros, servicios, contacto" />
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Marca <small>(del sitio que se generará)</small></legend>
+            <label class="check">
+              <input name="use_company_colors" type="checkbox" />
+              <span>Tema corporativo navy en el sitio (por defecto: claro/blanco)</span>
+            </label>
+            <div class="row" id="brand-colors">
+              <label class="field">
+                <span>Color primario sugerido</span>
+                <input name="primary" type="color" value="#2b6df6" />
+              </label>
+              <label class="field">
+                <span>Color de acento sugerido</span>
+                <input name="accent" type="color" value="#00b894" />
+              </label>
+            </div>
+            <label class="field">
+              <span>Nota de logo <small>(opcional)</small></span>
+              <input name="logo_hint" type="text" maxlength="120"
+                     placeholder="Logo con espiga de trigo, tonos cálidos" />
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Contacto <small>(opcional — nunca inventamos datos)</small></legend>
+            <div class="row">
+              <label class="field">
+                <span>Teléfono</span>
+                <input name="phone" type="text" maxlength="40" placeholder="+504 0000-0000" />
+              </label>
+              <label class="field">
+                <span>WhatsApp</span>
+                <input name="whatsapp" type="text" maxlength="40" placeholder="+504 0000-0000" />
+              </label>
+            </div>
+            <div class="row">
+              <label class="field">
+                <span>RTN</span>
+                <input name="rtn" type="text" maxlength="40" placeholder="0000-0000-000000" />
+              </label>
+              <label class="field">
+                <span>DNI</span>
+                <input name="dni" type="text" maxlength="40" placeholder="0000-0000-00000" />
+              </label>
+            </div>
+            <label class="field">
+              <span>Dirección</span>
+              <input name="address" type="text" maxlength="160"
+                     placeholder="Col. Centro, Tegucigalpa, Honduras" />
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Contenido</legend>
+            <label class="field">
+              <span>Notas para la IA <small>(texto libre, se trata como datos)</small></span>
+              <textarea name="content_notes" rows="4" maxlength="4000"
+                placeholder="Qué ofrece el negocio, tono, secciones deseadas, llamados a la acción…"></textarea>
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Modelo de IA</legend>
+            <label class="field">
+              <span>Modelo <em>*</em></span>
+              <select name="model" id="model-select" required>
+                <option value="">cargando…</option>
+              </select>
+            </label>
+            <p class="hint">
+              El costo depende del modelo. La factura (USD y Lempiras) aparece en el
+              trabajo al terminar.
+            </p>
+          </fieldset>
+
+          <div class="form-actions">
+            <button type="submit" id="generate-btn" class="btn-primary">Generar sitio</button>
+            <span id="form-msg" class="form-msg" role="status" aria-live="polite"></span>
+          </div>
+        </form>
+      </section>
+
+      <!-- ── Columna: trabajos ── -->
+      <section class="col-jobs">
+        <div class="card">
+          <div class="card-head">
+            <h2>Trabajos</h2>
+            <button id="refresh-jobs" class="link-btn" type="button">Actualizar</button>
+          </div>
+          <ul id="jobs" class="jobs"><li class="muted">cargando…</li></ul>
+        </div>
+
+        <div class="card job-detail" id="job-detail" hidden></div>
+      </section>
+    </div>
 
     <footer class="foot">
       <span id="version" class="muted">OnStudio</span>

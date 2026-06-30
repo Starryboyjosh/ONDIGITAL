@@ -1,7 +1,7 @@
 // OnStudio — Generador de sitios web para empresas asistido por IA (ONDIGITAL).
 // Un solo ejecutable: servidor HTTP + SQLite local + UI embebida. El motor de
-// generación es OpenCode (multi-proveedor) y se integra en Phase 2. Las llaves
-// de API viven solo en el entorno del servidor, nunca en el navegador ni en commits.
+// generación es OpenCode (multi-proveedor) y se inicia bajo demanda al generar. Las
+// llaves de API viven solo en el entorno del servidor, nunca en el navegador ni en commits.
 package main
 
 import (
@@ -12,17 +12,27 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os/exec"
+	"runtime"
 	"time"
 
 	"onstudio/internal/config"
+	"onstudio/internal/engine"
 	"onstudio/internal/httpapi"
+	"onstudio/internal/pipeline"
 	"onstudio/internal/store"
+	"onstudio/internal/templates"
 )
 
-const version = "0.1.0-phase1"
+const version = "0.6.0-phase6"
 
 //go:embed web
 var webFiles embed.FS
+
+// Plantillas Pro productizadas: viajan embebidas en el binario (single-binary).
+//
+//go:embed templates
+var templateFiles embed.FS
 
 func main() {
 	var (
@@ -32,7 +42,6 @@ func main() {
 		noOpen     = flag.Bool("no-open", false, "no abrir el navegador automáticamente")
 	)
 	flag.Parse()
-	_ = noOpen // El auto-open del navegador llega en Phase 5; el flag ya se acepta para `make dev`.
 
 	cfg, source, err := config.Load(*configPath, "config.example.json")
 	if err != nil {
@@ -70,7 +79,29 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	handler := httpapi.New(st, cfg, version).Router(webFS)
+
+	// Plantillas Pro: se productizan desde el embed. Si una falta o es inválida se
+	// degrada al catálogo base sin tumbar el arranque.
+	tplFS, err := fs.Sub(templateFiles, "templates")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if n, warn := templates.LoadFS(tplFS); warn != nil {
+		log.Printf("Plantillas productizadas: %d (con avisos: %v)", n, warn)
+	} else {
+		log.Printf("Plantillas productizadas: %d", n)
+	}
+
+	// Motor de generación (OpenCode) + runner. El motor se inicia de forma perezosa
+	// al procesar el primer job; si el binario no está, el job queda en error sin
+	// tumbar el servidor.
+	eng := engine.New(cfg.Engine)
+	defer eng.Stop()
+	runner := pipeline.NewRunner(st, eng, cfg)
+
+	api := httpapi.New(st, cfg, version)
+	api.SetRunner(runner)
+	handler := api.Router(webFS)
 
 	url := fmt.Sprintf("http://localhost:%d", cfg.Port)
 	fmt.Println("┌────────────────────────────────────────────────┐")
@@ -82,7 +113,7 @@ func main() {
 	}
 	fmt.Printf("│  Datos:     %-34s │\n", truncatePath(cfg.DataDir, 34))
 	fmt.Printf("│  Config:    %-34s │\n", truncatePath(source, 34))
-	fmt.Printf("│  Motor:     %-34s │\n", "OpenCode (Phase 2 — pendiente)")
+	fmt.Printf("│  Motor:     %-34s │\n", fmt.Sprintf("OpenCode %s (bajo demanda)", cfg.Engine.Mode))
 	fmt.Println("│  Para apagar el sistema cierre esta ventana.    │")
 	fmt.Println("└────────────────────────────────────────────────┘")
 
@@ -91,9 +122,34 @@ func main() {
 		Handler:           handler,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
-	if err := server.ListenAndServe(); err != nil {
+	// Escuchamos primero para no abrir el navegador antes de que el socket exista.
+	ln, err := net.Listen("tcp", server.Addr)
+	if err != nil {
+		log.Fatalf("Error al escuchar en %s: %v", server.Addr, err)
+	}
+	if !*noOpen {
+		go openBrowser(url)
+	}
+	if err := server.Serve(ln); err != nil {
 		log.Fatalf("Error del servidor: %v", err)
 	}
+}
+
+// openBrowser abre la URL en el navegador por defecto del sistema. Es de mejor
+// esfuerzo: si el comando no existe o falla (p. ej. en un servidor headless), se
+// ignora el error y el usuario abre manualmente la URL impresa en el banner.
+func openBrowser(url string) {
+	var cmd string
+	var args []string
+	switch runtime.GOOS {
+	case "windows":
+		cmd, args = "rundll32", []string{"url.dll,FileProtocolHandler", url}
+	case "darwin":
+		cmd, args = "open", []string{url}
+	default:
+		cmd, args = "xdg-open", []string{url}
+	}
+	_ = exec.Command(cmd, args...).Start()
 }
 
 func lanIP() string {

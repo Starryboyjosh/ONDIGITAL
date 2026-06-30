@@ -61,6 +61,14 @@ sequenceDiagram
 | Prompt (async) | `POST /session/:id/prompt_async` | igual | `204` + eventos |
 | Eventos (SSE) | `GET /event` | — | stream de eventos |
 
+> **Estado (Phase 2, 2026-06-29):** las dos primeras filas están implementadas en
+> `internal/engine` (`CreateSession`, `Prompt`) y cubiertas por tests contra un
+> servidor `httptest` mock. Los structs (`internal/engine/types.go`) se verificaron
+> contra el SDK oficial (`packages/sdk/js/src/gen/types.gen.ts`). **No** se validó
+> contra un `/doc` en vivo porque `opencode` no está instalado en este entorno; la
+> fuente de verdad sigue siendo el OpenAPI de la versión que el operador instale.
+> Las filas async/SSE quedan para una mejora posterior (la v1 usa el path síncrono).
+
 - **Selección de modelo:** el cuerpo del prompt lleva el modelo elegido, como
   `{ providerID, modelID }` (p.ej. `anthropic` / `claude-sonnet-4-5`) o el string
   `provider/model` según versión. OnStudio lo arma desde `spec.model`.
@@ -74,8 +82,10 @@ Tras el turno, el **mensaje del asistente** trae el uso (input/output tokens,
 tokens de cache y, en muchos proveedores, costo). OnStudio lo lee del objeto
 `info` de la respuesta y lo persiste en `usage`.
 
-> ⚠️ **Verificar el path exacto** (`tokens.input`/`tokens.output`/`tokens.cache`,
-> `cost`, etc.) contra `/doc` de la versión instalada antes de wirear billing.
+> ✅ **Mapeado (Phase 2):** `info.tokens.{input,output,reasoning,cache.{read,write}}`
+> e `info.cost` se leen en `internal/engine` (`tokenInfo`/`assistantInfo`) y se
+> devuelven como `engine.Usage` neutro; un test verifica el parseo. **Verificar el
+> path exacto contra `/doc`** de la versión instalada antes de wirear billing real.
 > Si un proveedor no reporta `cost`, calcularlo con la tarifa del registro de
 > precios (`pricing`). Ver [`token-billing.md`](token-billing.md).
 
@@ -140,9 +150,13 @@ Tres caminos (OnStudio usa el de entorno para no persistir llaves):
 
 ## Checklist de implementación (Phase 2)
 
-1. Resolver binario `opencode` (PATH o ruta en `config.json`); validar versión.
-2. Lanzar/conectar servidor; healthcheck contra `/doc`.
-3. Crear sesión, enviar prompt con `spec.model`, recibir `{info, parts}`.
-4. **Mapear el `info` real** a la tabla `usage` (confirmar campos en `/doc`).
-5. Propagar progreso (async+SSE) a la UI.
-6. Apagar el hijo limpio al cerrar OnStudio.
+1. [x] Resolver binario `opencode` (PATH o ruta en `config.json`); `New` toma
+   `opencode_bin`/`opencode_url` de la config. (Validación de versión: pendiente.)
+2. [x] Lanzar/conectar servidor; healthcheck contra `/doc` (`Start`/`Health`,
+   modo gestionado con Basic Auth aleatorio + modo externo).
+3. [x] Crear sesión, enviar prompt con `spec.model`, recibir `{info, parts}`
+   (`CreateSession`/`Prompt`, sync). Mock-tested.
+4. [x] **Mapear el `info`** a `engine.Usage` (el caller del pipeline lo lleva a
+   `store.usage` en Phase 3/4). Campos confirmados contra el SDK; falta `/doc` vivo.
+5. [ ] Propagar progreso (async+SSE) a la UI. Diferido (v1 usa sync + polling).
+6. [x] Apagar el hijo limpio al cerrar OnStudio (`Stop`/`stopLocked`, SIGINT→SIGKILL).

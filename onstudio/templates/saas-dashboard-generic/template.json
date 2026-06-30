@@ -1,0 +1,31 @@
+{
+  "id": "saas-dashboard-generic",
+  "name": "Dashboard SaaS genérico",
+  "source": "OnStudio Pro · base propia (estilo ONDIGITAL)",
+  "stack": "static-html",
+  "site_type": ["saas"],
+  "entry": "index.html",
+  "rebrand_points": [
+    "business_name",
+    "copy",
+    "theme",
+    "colors",
+    "logo",
+    "modules",
+    "kpis",
+    "table_columns",
+    "sample_data"
+  ],
+  "protected": [
+    "estructura responsive con sidebar colapsable",
+    "accesibilidad (roles, foco visible, navegación por teclado)",
+    "logo robot y toggle de tema con variables CSS --robot-*",
+    "es un PROTOTIPO estático demo: el login y los datos son de muestra, NO presentar como producción",
+    "sin secretos ni datos reales embebidos"
+  ],
+  "notes": "Shell de panel SaaS estático y rebrandeable: sidebar de módulos, topbar con búsqueda y usuario, tarjetas KPI, tabla de muestra y estado vacío. Tema claro por defecto; company-colors (navy ONDIGITAL) opt-in vía [data-theme=company]. NO hay backend: los datos son de muestra y el banner lo aclara. Reemplaza módulos, KPIs, columnas y copy; nunca inventes cifras legales ni datos reales.",
+  "match": {
+    "industries": ["software", "servicios", "operaciones", "administración", "logística", "finanzas"],
+    "keywords": ["dashboard", "panel", "módulos", "reportes", "gestión", "kpi", "saas"]
+  }
+}

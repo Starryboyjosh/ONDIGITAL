@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{business_name}} — Panel</title>
+  <meta name="description" content="Panel de {{business_name}} ({{module_intro}})." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <div class="shell">
+    <!-- ── Sidebar ── -->
+    <aside id="sidebar" class="sidebar" aria-label="Navegación de módulos">
+      <div class="side-brand">
+        <svg class="robot" viewBox="0 0 48 48" width="34" height="34" role="img" aria-label="{{business_name}}">
+          <rect x="9" y="14" width="30" height="23" rx="7" fill="var(--robot-body)" />
+          <rect x="22" y="5" width="4" height="7" rx="2" fill="var(--robot-body)" />
+          <circle cx="24" cy="5" r="3" fill="var(--robot-accent)" />
+          <circle cx="19" cy="25" r="3.4" fill="var(--robot-eye)" />
+          <circle cx="29" cy="25" r="3.4" fill="var(--robot-eye)" />
+          <rect x="18" y="31" width="12" height="3" rx="1.5" fill="var(--robot-accent)" />
+        </svg>
+        <span class="side-name">{{business_name}}</span>
+      </div>
+
+      <nav class="side-nav">
+        <button class="side-link is-active" type="button" data-view="resumen">Resumen</button>
+        <button class="side-link" type="button" data-view="modulo1">{{module_1}}</button>
+        <button class="side-link" type="button" data-view="modulo2">{{module_2}}</button>
+        <button class="side-link" type="button" data-view="modulo3">{{module_3}}</button>
+      </nav>
+
+      <p class="side-foot muted">Prototipo · OnStudio</p>
+    </aside>
+
+    <!-- ── Contenido ── -->
+    <div class="content">
+      <header class="topbar">
+        <button id="sidebar-toggle" class="icon-btn" type="button"
+                aria-controls="sidebar" aria-expanded="false">
+          <span class="sr-only">Mostrar u ocultar módulos</span>
+          <span class="bars" aria-hidden="true"></span>
+        </button>
+
+        <label class="search">
+          <span class="sr-only">Buscar</span>
+          <input type="search" placeholder="Buscar…" autocomplete="off" />
+        </label>
+
+        <div class="topbar-actions">
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false"
+                  title="Cambiar entre tema claro y colores de empresa">
+            Colores de empresa
+          </button>
+          <span class="user" title="Usuario de demostración">
+            <span class="avatar" aria-hidden="true">{{user_initials}}</span>
+            <span class="user-name">{{user_name}}</span>
+          </span>
+        </div>
+      </header>
+
+      <main id="main" class="main">
+        <p class="demo-banner" role="note">
+          Prototipo de demostración. El acceso y los datos son de muestra; no es un sistema de producción.
+        </p>
+
+        <!-- Vista: Resumen -->
+        <section class="view is-active" data-view="resumen" aria-label="Resumen">
+          <h1>Resumen</h1>
+          <div class="kpis">
+            <article class="kpi">
+              <p class="kpi-label">{{kpi_1_label}}</p>
+              <p class="kpi-value">{{kpi_1_value}}</p>
+              <p class="kpi-delta up">{{kpi_1_delta}}</p>
+            </article>
+            <article class="kpi">
+              <p class="kpi-label">{{kpi_2_label}}</p>
+              <p class="kpi-value">{{kpi_2_value}}</p>
+              <p class="kpi-delta up">{{kpi_2_delta}}</p>
+            </article>
+            <article class="kpi">
+              <p class="kpi-label">{{kpi_3_label}}</p>
+              <p class="kpi-value">{{kpi_3_value}}</p>
+              <p class="kpi-delta down">{{kpi_3_delta}}</p>
+            </article>
+            <article class="kpi">
+              <p class="kpi-label">{{kpi_4_label}}</p>
+              <p class="kpi-value">{{kpi_4_value}}</p>
+              <p class="kpi-delta">{{kpi_4_delta}}</p>
+            </article>
+          </div>
+
+          <section class="panel">
+            <header class="panel-head">
+              <h2>{{table_title}}</h2>
+              <button class="btn btn-primary" type="button">{{table_action}}</button>
+            </header>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">{{col_1}}</th>
+                    <th scope="col">{{col_2}}</th>
+                    <th scope="col">{{col_3}}</th>
+                    <th scope="col">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>{{row_1_a}}</td><td>{{row_1_b}}</td><td>{{row_1_c}}</td><td><span class="badge ok">Activo</span></td></tr>
+                  <tr><td>{{row_2_a}}</td><td>{{row_2_b}}</td><td>{{row_2_c}}</td><td><span class="badge warn">Pendiente</span></td></tr>
+                  <tr><td>{{row_3_a}}</td><td>{{row_3_b}}</td><td>{{row_3_c}}</td><td><span class="badge ok">Activo</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <!-- Vistas de módulos: estado vacío rebrandeable -->
+        <section class="view" data-view="modulo1" aria-label="{{module_1}}" hidden>
+          <h1>{{module_1}}</h1>
+          <div class="empty"><p>{{module_1_empty}}</p><button class="btn btn-primary" type="button">{{module_1_action}}</button></div>
+        </section>
+        <section class="view" data-view="modulo2" aria-label="{{module_2}}" hidden>
+          <h1>{{module_2}}</h1>
+          <div class="empty"><p>{{module_2_empty}}</p><button class="btn btn-primary" type="button">{{module_2_action}}</button></div>
+        </section>
+        <section class="view" data-view="modulo3" aria-label="{{module_3}}" hidden>
+          <h1>{{module_3}}</h1>
+          <div class="empty"><p>{{module_3_empty}}</p><button class="btn btn-primary" type="button">{{module_3_action}}</button></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

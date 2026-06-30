@@ -17,16 +17,28 @@ import (
 	"onstudio/internal/store"
 )
 
+// JobRunner ejecuta la generación de un job en segundo plano. La implementa
+// *pipeline.Runner; se inyecta con SetRunner. Si es nil (p.ej. en tests de la API),
+// los jobs se crean en estado 'queued' y no se ejecuta generación.
+type JobRunner interface {
+	Submit(jobID string)
+	Cancel(jobID string) bool
+}
+
 type API struct {
 	st      *store.Store
 	cfg     config.Config
 	version string
 	started time.Time
+	runner  JobRunner
 }
 
 func New(st *store.Store, cfg config.Config, version string) *API {
 	return &API{st: st, cfg: cfg, version: version, started: time.Now()}
 }
+
+// SetRunner conecta el runner de generación (lo llama main tras construir el motor).
+func (a *API) SetRunner(r JobRunner) { a.runner = r }
 
 func (a *API) Router(webFS fs.FS) http.Handler {
 	mux := http.NewServeMux()
@@ -38,6 +50,10 @@ func (a *API) Router(webFS fs.FS) http.Handler {
 	mux.HandleFunc("POST /api/jobs", a.createJob)
 	mux.HandleFunc("GET /api/jobs/{id}", a.getJob)
 	mux.HandleFunc("GET /api/jobs/{id}/billing", a.getBilling)
+	mux.HandleFunc("POST /api/jobs/{id}/cancel", a.cancelJob)
+	mux.HandleFunc("GET /api/jobs/{id}/download", a.download)
+	mux.HandleFunc("GET /api/jobs/{id}/preview", a.previewRedirect)
+	mux.HandleFunc("GET /api/jobs/{id}/preview/{path...}", a.preview)
 
 	mux.Handle("/", http.FileServer(http.FS(webFS)))
 

@@ -51,12 +51,26 @@ type PriceRule struct {
 	Margin        float64 `json:"margin"`
 }
 
-// Brand son las preferencias de marca dentro de la spec.
+// Brand son las preferencias de marca dentro de la spec. El tema claro (blanco) es
+// el default; UseCompanyColors activa los company-colors (navy de ONDIGITAL).
 type Brand struct {
-	UseCompanyColors bool `json:"use_company_colors"`
+	UseCompanyColors bool   `json:"use_company_colors"`
+	Primary          string `json:"primary,omitempty"`
+	Accent           string `json:"accent,omitempty"`
+	LogoHint         string `json:"logo_hint,omitempty"`
 }
 
-// Spec es la especificación normalizada del negocio (subset usado en Phase 1).
+// Contact son los datos de contacto del negocio (texto libre, se sanitiza en intake;
+// nunca se fabrican RTN/DNI ni se inventan datos legales).
+type Contact struct {
+	Phone    string `json:"phone,omitempty"`
+	RTN      string `json:"rtn,omitempty"`
+	DNI      string `json:"dni,omitempty"`
+	Address  string `json:"address,omitempty"`
+	WhatsApp string `json:"whatsapp,omitempty"`
+}
+
+// Spec es la especificación normalizada del negocio que alimenta la generación.
 type Spec struct {
 	BusinessName string   `json:"business_name"`
 	Industry     string   `json:"industry"`
@@ -65,6 +79,7 @@ type Spec struct {
 	Currency     string   `json:"currency"`
 	Brand        Brand    `json:"brand"`
 	Pages        []string `json:"pages"`
+	Contact      Contact  `json:"contact"`
 	ContentNotes string   `json:"content_notes"`
 }
 
@@ -77,15 +92,18 @@ type NewJobInput struct {
 
 // Billing es la vista de factura de un job (tokens, costo, precio USD/HNL).
 type Billing struct {
-	JobID        string  `json:"job_id"`
-	Status       string  `json:"status"`
-	Provider     string  `json:"provider"`
-	Model        string  `json:"model"`
-	InputTokens  int64   `json:"input_tokens"`
-	OutputTokens int64   `json:"output_tokens"`
-	ProviderCost float64 `json:"provider_cost_usd"`
-	PriceUSD     float64 `json:"price_usd"`
-	PriceHNL     float64 `json:"price_hnl"`
-	Currency     string  `json:"currency"`
-	Captured     bool    `json:"captured"`
+	JobID            string  `json:"job_id"`
+	Status           string  `json:"status"`
+	Provider         string  `json:"provider"`
+	Model            string  `json:"model"`
+	InputTokens      int64   `json:"input_tokens"`
+	OutputTokens     int64   `json:"output_tokens"`
+	CacheReadTokens  int64   `json:"cache_read_tokens"`
+	CacheWriteTokens int64   `json:"cache_write_tokens"`
+	ProviderCost     float64 `json:"provider_cost_usd"`
+	Margin           float64 `json:"margin"`
+	PriceUSD         float64 `json:"price_usd"`
+	PriceHNL         float64 `json:"price_hnl"`
+	Currency         string  `json:"currency"`
+	Captured         bool    `json:"captured"`
 }
