@@ -14,19 +14,12 @@
       "Bash(make build:*)",
       "Bash(make build-linux:*)",
       "Bash(make build-windows:*)",
-      "Bash(make -C onstudio:*)",
-      "Bash(opencode serve:*)",
-      "Bash(opencode run:*)",
-      "Bash(opencode auth:*)",
-      "Bash(opencode models:*)",
-      "Bash(opencode --version:*)",
       "Bash(python3 -m http.server:*)",
       "Bash(curl http://127.0.0.1:*)",
       "Bash(curl http://localhost:*)",
       "Bash(git diff:*)",
       "Bash(git status:*)",
-      "Bash(git log:*)",
-      "WebFetch(domain:opencode.ai)"
+      "Bash(git log:*)"
     ],
     "ask": [
       "Bash(git push:*)",
@@ -39,8 +32,7 @@
       "Read(**/auth.json)",
       "Read(**/*.key)",
       "Read(**/*.pem)",
-      "Read(**/secrets/**)",
-      "Read(//home/starryboyjosh/Dev/Projects/ONDIGITAL/onstudio/data/**)"
+      "Read(**/secrets/**)"
     ]
   }
 }

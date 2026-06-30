@@ -12,13 +12,6 @@
 *.key
 *.pem
 
-# ── OnStudio: config local (se resuelve desde .env; las *.example sí se versionan)
-onstudio/opencode.json
-onstudio/config.json
-
-# ── OnStudio: datos / workspaces de generación (efímeros, pueden traer datos de cliente)
-onstudio/data/
-
 # ── Claude Code: ajustes locales por máquina (no compartir) ───────────────────
 .claude/settings.local.json
 
