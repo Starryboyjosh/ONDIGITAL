@@ -1,0 +1,45 @@
+/* ==========================================================================
+   ANIMACIONES
+   ========================================================================== */
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-7px); }
+  40%, 80% { transform: translateX(7px); }
+}
+
+@keyframes pulse-shimmer {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.pulse-animation {
+  animation: pulse-shimmer 2s infinite ease-in-out;
+}
+
+/* Vista de Impresión del Presupuesto */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .invoice-container, .invoice-container * {
+    visibility: visible;
+  }
+  .invoice-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+}
+

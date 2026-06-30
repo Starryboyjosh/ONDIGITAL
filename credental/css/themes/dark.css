@@ -1,0 +1,44 @@
+/* ==========================================================================
+   TEMA OSCURO (OPCIÓN SECUNDARIA SOBRIA) — html.dark-theme
+   ========================================================================== */
+html.dark-theme {
+  --bg-primary: #0f172a;       /* slate-900 */
+  --bg-secondary: #1e293b;     /* slate-800 */
+  --bg-accent: #1e293b;
+  --surface-muted: #243044;
+  --surface-hover: #2a3850;
+
+  --border: #334155;
+  --border-strong: #475569;
+
+  --text-primary: #e2e8f0;
+  --color-white: var(--text-primary);
+  --color-gray: #94a3b8;
+  --color-gray-dark: #64748b;
+
+  --color-blue: #3b82f6;
+  --color-blue-mid: #3b82f6;
+  --color-blue-dark: #60a5fa;
+  --color-teal: #2dd4bf;
+  --color-green: #22c55e;
+  --color-amber: #f59e0b;
+  --color-red: #f87171;
+
+  --state-caries: #f87171;
+  --state-restaurado: #3b82f6;
+  --state-ausente: #64748b;
+  --state-corona: #eab308;
+  --state-implante: #2dd4bf;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* En modo oscuro la cara del diente usa un relleno acorde */
+html.dark-theme .tooth-face {
+  fill: #2a3850;
+}
+html.dark-theme .edu-video-thumb {
+  color: var(--color-gray);
+}

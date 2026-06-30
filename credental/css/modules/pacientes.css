@@ -1,0 +1,254 @@
+/* ==========================================================================
+   FICHA CLÍNICA DEL PACIENTE (EXPEDIENTE CON PESTAÑAS)
+   ========================================================================== */
+
+.patient-record-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.patient-record-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--color-blue-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.patient-record-id {
+  flex: 1;
+  min-width: 0;
+}
+
+.patient-record-sub {
+  font-size: 0.82rem;
+  color: var(--color-gray);
+  margin-top: 2px;
+}
+
+.patient-record-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Barra de pestañas (navegación secundaria del paciente) */
+.patient-tabs {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+.patient-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  padding: 9px 12px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-gray);
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.patient-tab:hover {
+  color: var(--text-primary);
+}
+
+.patient-tab.active {
+  color: var(--color-blue-dark);
+  border-bottom-color: var(--color-blue-mid);
+}
+
+.patient-tab-panels {
+  padding-top: 18px;
+}
+
+.patient-panel {
+  display: none;
+}
+.patient-panel.active {
+  display: block;
+}
+
+/* Sub-secciones dentro de un panel */
+.record-section {
+  margin-bottom: 18px;
+}
+.record-section:last-child {
+  margin-bottom: 0;
+}
+
+.record-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-gray);
+  margin-bottom: 8px;
+}
+
+.record-field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 18px;
+}
+
+.record-field-label {
+  font-size: 0.72rem;
+  color: var(--color-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.record-field-value {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+.record-text {
+  font-size: 0.86rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+/* Indicadores rápidos del resumen */
+.record-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.record-stat {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.record-stat-label {
+  font-size: 0.72rem;
+  color: var(--color-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.record-stat-value {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-top: 4px;
+}
+
+/* Caja destacada (motivo / alergias) */
+.record-callout {
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+}
+.record-callout.info {
+  background: rgba(37, 99, 235, 0.05);
+  border-color: rgba(37, 99, 235, 0.2);
+}
+.record-callout.danger {
+  background: rgba(220, 38, 38, 0.05);
+  border-color: rgba(220, 38, 38, 0.2);
+}
+.record-callout-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--color-gray);
+}
+.record-callout.info .record-callout-label {
+  color: var(--color-blue-mid);
+}
+.record-callout.danger .record-callout-label {
+  color: var(--color-red);
+}
+.record-callout-text {
+  font-size: 0.86rem;
+  color: var(--text-primary);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+/* Estado vacío profesional de sección/placeholder */
+.record-empty {
+  text-align: center;
+  padding: 28px 18px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+}
+.record-empty svg {
+  width: 30px;
+  height: 30px;
+  stroke: var(--color-gray-dark);
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  margin-bottom: 10px;
+}
+.record-empty-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.record-empty-desc {
+  font-size: 0.8rem;
+  color: var(--color-gray);
+  margin: 4px auto 0;
+  max-width: 360px;
+  line-height: 1.5;
+}
+
+/* Subtítulo de paciente en el listado lateral */
+.patient-list-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.patient-list-doc {
+  font-size: 0.76rem;
+  color: var(--color-gray);
+  margin-top: 2px;
+}
+
+/* Maquetación directorio (rail) + expediente, responsiva */
+.patient-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 22px;
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .patient-layout {
+    grid-template-columns: 1fr;
+  }
+}
+

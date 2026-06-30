@@ -1,0 +1,5 @@
+# Project-local Codex defaults for ONDIGITAL.
+# Claude Code's Codex plugin uses the local Codex CLI and picks up this config
+# when the project is trusted.
+model = "gpt-5.5"
+model_reasoning_effort = "high"

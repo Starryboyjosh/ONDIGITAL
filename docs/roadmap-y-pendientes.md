@@ -16,19 +16,27 @@ El prototipo se construyó por etapas. Estado:
 | 8 | Esqueleto de inventario | ✅ Hecho |
 | 9 | Esqueleto de laboratorios | ✅ Hecho |
 | 10 | Esqueleto de comunicaciones | ✅ Hecho |
-| 11 | Reorganización ligera de carpetas (estilos/módulos) | ⏳ Pendiente |
-| 12 | Revisión visual final (desktop/mobile, consistencia) | ⏳ Pendiente |
+| 11 | Reorganización ligera de carpetas (estilos/módulos) | ✅ Hecho |
+| 12 | Revisión visual final (desktop/mobile, consistencia) | ✅ Hecho |
 
-### Paso 11 — Reorganización de carpetas (pendiente)
-Separar `styles.css` por responsabilidad (tokens/base/layout/components/themes) y agrupar
-los `js/` por módulo. **Requiere actualizar las rutas de `<link>`/`<script>` en las ~16
-pantallas**; hacerlo con cuidado para no romper rutas. Conviene hacerlo cuando los módulos
-estén estables.
+### Paso 11 — Reorganización de carpetas (hecho)
+`css/styles.css` se dividió por responsabilidad en parciales bajo `css/base/`, `css/layout/`,
+`css/components/`, `css/modules/` y `css/themes/`. `styles.css` quedó como **manifiesto
+`@import`** que agrega los parciales en el orden original de la cascada (no reordenar sin
+revisar especificidad; el tema oscuro va al final). Las pantallas **no cambiaron**: siguen
+enlazando un único `css/styles.css`, por lo que no hubo riesgo de romper rutas. Los `js/`
+se mantuvieron planos por ahora (mover archivos JS obligaría a editar las ~16 pantallas y la
+ruta de Firebase inyectada en `db.js`); queda como follow-up cuando se decida.
 
-### Paso 12 — Revisión visual final (pendiente)
-Recorrer todas las pantallas en escritorio y móvil/tablet, confirmar consistencia, ausencia
-de textos de Chile, estados vacíos profesionales y que la navegación (16 ítems) no se sienta
-saturada.
+### Paso 12 — Revisión visual final (hecho)
+Se revisó la consistencia de las 16 pantallas (sidebar, navegación centralizada, estados
+vacíos, sin textos de Chile visibles; las etiquetas de documento ya dicen "RTN / DNI"). El
+hallazgo principal: el sidebar fijo de 260px **no era responsivo** y tapaba la pantalla en
+móvil. Se añadió un **panel deslizante con botón hamburguesa + overlay** (CSS `@media
+(max-width: 900px)` en `layout/structure.css`, lógica inyectada por `main.js`), sin tocar las
+pantallas. Pendiente menor (follow-up): el identificador de datos interno se sigue llamando
+`rut` en `db.js` y algunos módulos (no visible al usuario); renombrarlo toca la capa de datos
+y se deja fuera de un retoque visual.
 
 ---
 

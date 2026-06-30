@@ -269,6 +269,65 @@ document.addEventListener('DOMContentLoaded', function() {
       updateToggleButton(isDark);
     });
   }
+
+  // 7. Navegación móvil: botón hamburguesa + overlay para el sidebar deslizante.
+  //    Solo se activa visualmente en móvil (CSS @media); el botón y el velo se
+  //    inyectan aquí para no duplicar markup en las ~16 pantallas.
+  const sidebarEl = document.querySelector('.sidebar');
+  if (sidebarEl) {
+    if (!sidebarEl.id) sidebarEl.id = 'app-sidebar';
+
+    const navToggle = document.createElement('button');
+    navToggle.className = 'sidebar-toggle';
+    navToggle.type = 'button';
+    navToggle.setAttribute('aria-label', 'Abrir menú de navegación');
+    navToggle.setAttribute('aria-controls', sidebarEl.id);
+    navToggle.setAttribute('aria-expanded', 'false');
+    navToggle.innerHTML = '<svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+
+    document.body.appendChild(navToggle);
+    document.body.appendChild(overlay);
+
+    const openSidebar = () => {
+      sidebarEl.classList.add('open');
+      overlay.classList.add('active');
+      document.body.classList.add('sidebar-open');
+      navToggle.setAttribute('aria-expanded', 'true');
+    };
+    const closeSidebar = () => {
+      sidebarEl.classList.remove('open');
+      overlay.classList.remove('active');
+      document.body.classList.remove('sidebar-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    };
+
+    navToggle.addEventListener('click', () => {
+      if (sidebarEl.classList.contains('open')) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+    overlay.addEventListener('click', closeSidebar);
+
+    // Cerrar al tocar un enlace del menú (navegación) o el botón de logout.
+    sidebarEl.addEventListener('click', (e) => {
+      if (e.target.closest('.nav-item a') || e.target.closest('#sidebar-logout-btn')) {
+        closeSidebar();
+      }
+    });
+
+    // Cerrar con Escape y al volver a ancho de escritorio.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSidebar();
+    });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900) closeSidebar();
+    });
+  }
 });
 
 // ==========================================================================

@@ -1,0 +1,104 @@
+/* ==========================================================================
+   PERIODONTOGRAMA Y GRÁFICAS
+   ========================================================================== */
+.perio-table-container {
+  overflow-x: auto;
+  margin-bottom: 28px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 15px;
+}
+.perio-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  font-size: 0.8rem;
+}
+.perio-table th {
+  padding: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--text-primary);
+  font-family: var(--font-title);
+  font-weight: 700;
+}
+.perio-table td {
+  padding: 5px;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+.perio-input {
+  width: 38px;
+  padding: 4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  text-align: center;
+  font-size: 0.85rem;
+}
+.perio-input:focus {
+  outline: none;
+  border-color: var(--color-blue-mid);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+.perio-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  display: inline-block;
+  transition: background 0.15s;
+  background: transparent;
+}
+.perio-btn.ss-btn.active {
+  background: var(--state-caries) !important;
+  border-color: var(--state-caries);
+}
+.perio-btn.pb-btn.active {
+  background: var(--color-amber) !important;
+  border-color: var(--color-amber);
+}
+.nic-label {
+  font-weight: 700;
+  color: var(--color-blue-mid);
+}
+.chart-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 28px;
+  position: relative;
+}
+.chart-svg {
+  width: 100%;
+  height: 220px;
+  background: var(--surface-muted);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+/* Rejilla y etiquetas internas del gráfico de sondaje (se adaptan al tema) */
+.perio-grid-line {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.perio-grid-label {
+  fill: var(--color-gray-dark);
+  font-size: 8px;
+}
+.chart-legend {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  justify-content: center;
+}
+.legend-line {
+  width: 30px;
+  height: 3px;
+  border-radius: 2px;
+}
+

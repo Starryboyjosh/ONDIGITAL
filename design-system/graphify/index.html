@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es-HN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mapa visual Graphify de ONDIGITAL: productos, entrypoints, datos, riesgos y verificaciones del repositorio.">
+  <title>Graphify ONDIGITAL | Mapa del repo</title>
+  <link rel="stylesheet" href="graphify.css">
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Saltar al mapa</a>
+
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Graphify pass</p>
+      <h1>Mapa operativo de ONDIGITAL</h1>
+    </div>
+    <nav class="artifact-links" aria-label="Artefactos Graphify">
+      <a href="../../graphify-out/graph.html">Grafo oficial</a>
+      <a href="../../graphify-out/GRAPH_TREE.html">Arbol D3</a>
+      <a href="../../graphify-out/GRAPH_REPORT.md">Reporte</a>
+      <a href="../../docs/graphify.md">Guia</a>
+    </nav>
+  </header>
+
+  <main class="app-shell" id="workspace">
+    <aside class="control-panel" aria-label="Controles del mapa">
+      <section class="panel-section">
+        <h2>Alcance</h2>
+        <div class="metric-grid" aria-label="Resumen de la corrida local">
+          <div>
+            <span class="metric-value">507</span>
+            <span class="metric-label">nodos</span>
+          </div>
+          <div>
+            <span class="metric-value">1,197</span>
+            <span class="metric-label">relaciones</span>
+          </div>
+          <div>
+            <span class="metric-value">31</span>
+            <span class="metric-label">comunidades</span>
+          </div>
+          <div>
+            <span class="metric-value">54</span>
+            <span class="metric-label">archivos codigo</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <label class="field-label" for="graph-search">Buscar nodo</label>
+        <input id="graph-search" class="search-input" type="search" placeholder="Ej. OnStock, db.js, Firebase" autocomplete="off">
+      </section>
+
+      <section class="panel-section">
+        <h2>Area</h2>
+        <div class="filter-list" id="filter-list" role="list" aria-label="Filtros por area"></div>
+      </section>
+
+      <section class="panel-section inspector" aria-live="polite">
+        <h2>Inspector</h2>
+        <div id="inspector-content">
+          <p class="muted">Selecciona un nodo para ver responsabilidades, riesgos y archivos relacionados.</p>
+        </div>
+      </section>
+    </aside>
+
+    <section class="graph-stage" aria-label="Mapa visual del repositorio">
+      <div class="stage-toolbar">
+        <div>
+          <p class="eyebrow">Productos, datos y verificacion</p>
+          <h2 id="stage-title">ONDIGITAL repo</h2>
+        </div>
+        <div class="toolbar-actions">
+          <button class="tool-button" type="button" id="reset-view" aria-label="Restablecer mapa">Restablecer</button>
+          <button class="tool-button" type="button" id="fit-risk" aria-label="Resaltar riesgos">Riesgos</button>
+        </div>
+      </div>
+
+      <div class="graph-canvas" tabindex="0" aria-describedby="graph-help">
+        <svg id="repo-graph" viewBox="0 0 1180 720" role="img" aria-labelledby="graph-title graph-desc">
+          <title id="graph-title">Grafo operativo de ONDIGITAL</title>
+          <desc id="graph-desc">Mapa de productos, entrypoints, capas de datos, documentacion, skills y verificaciones del repositorio.</desc>
+          <g id="edge-layer"></g>
+          <g id="node-layer"></g>
+        </svg>
+      </div>
+      <p id="graph-help" class="help-text">Click en un nodo para inspeccionarlo. Usa busqueda o filtros para aislar un area.</p>
+    </section>
+  </main>
+
+  <script src="graphify-map.js"></script>
+</body>
+</html>

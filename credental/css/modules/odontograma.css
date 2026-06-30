@@ -1,0 +1,278 @@
+/* ==========================================================================
+   ODONTOGRAMA INTERACTIVO
+   ========================================================================== */
+
+.odontogram-panel {
+  display: grid;
+  grid-template-columns: 3fr 1.2fr;
+  gap: 22px;
+}
+
+@media (max-width: 1100px) {
+  .odontogram-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+.odontogram-workspace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 28px 15px;
+}
+
+.odontogram-arch-title {
+  font-family: var(--font-title);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-gray);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin: 15px 0;
+}
+
+.odontogram-arch {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Diente Individual en el Odontograma */
+.tooth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 48px;
+  margin-bottom: 20px;
+}
+
+.tooth-number {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--color-gray);
+  margin-bottom: 6px;
+}
+
+/* SVG del Diente dividido en Caras */
+.tooth-svg {
+  width: 44px;
+  height: 44px;
+  background: transparent;
+}
+
+.tooth-face {
+  fill: #eef2f7;
+  stroke: var(--border-strong);
+  stroke-width: 1.2;
+  cursor: pointer;
+  transition: fill 0.15s ease, stroke 0.15s ease;
+}
+
+.tooth-face:hover {
+  fill: rgba(37, 99, 235, 0.18);
+  stroke: var(--color-blue-mid);
+}
+
+/* Colores de Estados Aplicados a las Caras */
+.tooth-face.caries {
+  fill: var(--state-caries);
+  fill-opacity: 0.85;
+  stroke: #b91c1c;
+}
+
+.tooth-face.restaurado {
+  fill: var(--state-restaurado);
+  fill-opacity: 0.85;
+  stroke: var(--color-blue-dark);
+}
+
+/* Estados del Diente Completo */
+.tooth-svg.ausente {
+  opacity: 0.35;
+}
+.tooth-svg.ausente .tooth-face {
+  fill: var(--state-ausente);
+}
+
+.tooth-svg.corona .tooth-face {
+  fill: var(--state-corona);
+  fill-opacity: 0.55;
+  stroke: #a87f0a;
+}
+
+.tooth-svg.implante .tooth-face {
+  fill: var(--state-implante);
+  fill-opacity: 0.55;
+  stroke: #0c7d6e;
+}
+
+/* Leyenda del Odontograma */
+.odontogram-legend {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+  padding: 14px;
+  background: var(--surface-muted);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 800px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray);
+}
+
+.legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+/* Ficha Clínica Lateral */
+.clinical-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.patient-quick-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 15px;
+}
+
+.patient-quick-name {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.patient-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.patient-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+}
+.tag-alergeno {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--color-red);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+}
+.tag-control {
+  background: rgba(22, 163, 74, 0.1);
+  color: var(--color-green);
+  border: 1px solid rgba(22, 163, 74, 0.25);
+}
+
+/* Historial de Hallazgos */
+.findings-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.finding-item {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--color-blue-mid);
+  padding: 10px 14px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.finding-item.caries {
+  border-left-color: var(--state-caries);
+}
+.finding-item.restaurado {
+  border-left-color: var(--state-restaurado);
+}
+.finding-item.corona {
+  border-left-color: var(--state-corona);
+}
+.finding-item.implante {
+  border-left-color: var(--state-implante);
+}
+
+.finding-meta {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-gray);
+  font-size: 0.74rem;
+}
+
+.finding-desc {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Selector de Tratamiento en Odontograma */
+.treatment-selector-bar {
+  display: flex;
+  gap: 10px;
+  background: var(--surface-muted);
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 22px;
+  justify-content: center;
+  width: 100%;
+  max-width: 800px;
+  flex-wrap: wrap;
+}
+
+.treatment-tool-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--color-gray);
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.treatment-tool-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.treatment-tool-btn.active {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: var(--color-blue-mid);
+  color: var(--color-blue-dark);
+}
+

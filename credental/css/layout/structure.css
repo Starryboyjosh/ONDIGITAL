@@ -1,0 +1,341 @@
+/* ==========================================================================
+   ESTRUCTURA DE NAVEGACIÓN Y MAQUETACIÓN
+   ========================================================================== */
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  z-index: 100;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 36px;
+  padding-left: 6px;
+}
+
+.brand-logo {
+  width: 38px;
+  height: 38px;
+  background: var(--color-blue-mid);
+  color: #ffffff;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+}
+
+.brand-name {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.2px;
+}
+.brand-name span.acc {
+  color: var(--color-blue-mid);
+}
+
+/* La navegación crece con los módulos: permitir scroll sin cortar ítems */
+.sidebar nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin-right: -6px;
+  padding-right: 6px;
+}
+
+.nav-menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  color: var(--color-gray);
+  text-decoration: none;
+  border-radius: var(--radius);
+  font-weight: 500;
+  font-size: 0.92rem;
+  transition: background 0.15s ease, color 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.nav-item a:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+.nav-item.active a {
+  color: var(--color-blue-dark);
+  background: rgba(37, 99, 235, 0.08);
+  font-weight: 600;
+}
+
+.nav-item.active a svg {
+  stroke: var(--color-blue-mid);
+}
+
+.nav-item svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.15s ease;
+}
+
+.user-profile {
+  margin-top: auto;
+  padding: 12px;
+  background: var(--surface-muted);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--color-blue-mid);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.user-role {
+  font-size: 0.74rem;
+  color: var(--color-gray);
+}
+
+.logout-btn {
+  margin-top: 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--color-red);
+  padding: 9px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.84rem;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  width: 100%;
+}
+.logout-btn:hover {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.35);
+}
+
+/* Alternador de tema (inyectado por main.js) */
+.theme-toggle-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px;
+  margin-bottom: 14px;
+}
+.theme-toggle-label {
+  font-size: 0.8rem;
+  color: var(--color-gray);
+  font-weight: 500;
+}
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.theme-toggle-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+.theme-toggle-btn svg {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Área Principal de Contenido */
+.main-content {
+  margin-left: 260px;
+  flex: 1;
+  padding: 32px clamp(20px, 4vw, 44px);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Header de Página */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-title-area {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page-title {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: -0.4px;
+  color: var(--text-primary);
+}
+
+.page-subtitle {
+  color: var(--color-gray);
+  font-size: 0.9rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   NAVEGACIÓN MÓVIL — botón hamburguesa + overlay (inyectados por main.js)
+   En escritorio el sidebar es fijo; en móvil se convierte en panel deslizante.
+   ========================================================================== */
+
+/* Ocultos por defecto (escritorio): el sidebar fijo basta. */
+.sidebar-toggle { display: none; }
+.sidebar-overlay { display: none; }
+
+@media (max-width: 900px) {
+  /* El sidebar pasa a panel deslizante fuera de pantalla. */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: var(--shadow-md);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* El contenido ocupa todo el ancho; espacio arriba para el botón flotante. */
+  .main-content {
+    margin-left: 0;
+    padding-top: 72px;
+  }
+
+  /* Botón hamburguesa flotante (oculto mientras el panel está abierto). */
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 120;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+  }
+  .sidebar-toggle svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  body.sidebar-open .sidebar-toggle {
+    display: none;
+  }
+
+  /* Velo oscuro detrás del panel abierto. */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 90;
+  }
+  .sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Evitar scroll del fondo mientras el panel está abierto. */
+  body.sidebar-open {
+    overflow: hidden;
+  }
+}
+

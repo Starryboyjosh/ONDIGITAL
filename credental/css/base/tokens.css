@@ -1,0 +1,93 @@
+:root {
+  /* Superficies y fondos (modo claro por defecto) */
+  --bg-primary: #f4f6f9;       /* Fondo general de la app */
+  --bg-secondary: #ffffff;     /* Superficie base (sidebar, modales) */
+  --bg-accent: #ffffff;        /* Tarjetas */
+  --surface-muted: #f8fafc;    /* Relleno sutil (cabeceras de tabla, thumbs) */
+  --surface-hover: #f1f5f9;    /* Hover sobre superficies */
+
+  /* Bordes */
+  --border: #e2e8f0;           /* Borde gris claro estándar */
+  --border-strong: #cbd5e1;    /* Borde enfatizado / hover */
+  /* Alias heredados (compatibilidad con reglas y JS existentes) */
+  --border-glow: var(--border);
+  --border-glow-active: var(--border-strong);
+
+  /* Texto */
+  --text-primary: #1e293b;     /* Texto principal (pizarra) */
+  --color-white: var(--text-primary); /* Alias heredado: texto principal */
+  --color-gray: #64748b;       /* Texto secundario */
+  --color-gray-dark: #94a3b8;  /* Texto terciario / deshabilitado */
+
+  /* Color de acción y semánticos */
+  --color-blue: #2563eb;
+  --color-blue-mid: #2563eb;   /* Acción principal (lo sobrescribe el branding) */
+  --color-blue-dark: #1d4ed8;
+  --color-teal: #0f9d8a;       /* Acento secundario sobrio */
+  --color-green: #16a34a;      /* Estados positivos */
+  --color-amber: #d97706;      /* Advertencias */
+  --color-red: #dc2626;        /* Errores / estados críticos */
+
+  /* Estados Clínicos (odontograma) */
+  --state-caries: #dc2626;
+  --state-restaurado: #2563eb;
+  --state-ausente: #94a3b8;
+  --state-corona: #d4a017;
+  --state-implante: #0f9d8a;
+
+  /* Fuentes */
+  --font-title: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+  /* Radios */
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-pill: 100px;
+
+  /* Sombras sobrias */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  /* Alias heredados */
+  --box-shadow-premium: var(--shadow);
+  --box-shadow-glow: none;
+  --glass-blur: none;
+}
+
+/* Reset de Estilos */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Barra de Desplazamiento */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-dark);
+}
+

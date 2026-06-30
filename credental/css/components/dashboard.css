@@ -1,0 +1,216 @@
+/* ==========================================================================
+   DIVISOR DE SECCIÓN
+   ========================================================================== */
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 18px;
+}
+
+.section-divider-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.section-divider-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.section-divider-text {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.2px;
+  color: var(--text-primary);
+}
+
+.section-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Grid extendido del dashboard */
+.dashboard-extended-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+@media (max-width: 900px) {
+  .dashboard-extended-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   DASHBOARD OPERATIVO — ALERTAS Y TAREAS
+   ========================================================================== */
+
+/* Lista de alertas importantes */
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 13px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+}
+
+.alert-item .alert-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+  background: var(--color-gray);
+}
+
+.alert-item .alert-text {
+  flex: 1;
+  font-size: 0.83rem;
+  color: var(--text-primary);
+  line-height: 1.45;
+}
+
+.alert-item .alert-text a {
+  color: var(--color-blue-mid);
+  text-decoration: none;
+  font-weight: 600;
+}
+.alert-item .alert-text a:hover {
+  text-decoration: underline;
+}
+
+.alert-item.warn {
+  border-color: rgba(217, 119, 6, 0.35);
+  background: rgba(217, 119, 6, 0.07);
+}
+.alert-item.warn .alert-dot {
+  background: var(--color-amber);
+}
+
+.alert-item.danger {
+  border-color: rgba(220, 38, 38, 0.3);
+  background: rgba(220, 38, 38, 0.06);
+}
+.alert-item.danger .alert-dot {
+  background: var(--color-red);
+}
+
+.alert-item.info {
+  border-color: rgba(37, 99, 235, 0.25);
+  background: rgba(37, 99, 235, 0.05);
+}
+.alert-item.info .alert-dot {
+  background: var(--color-blue-mid);
+}
+
+/* Estado vacío profesional reutilizable */
+.dashboard-empty {
+  text-align: center;
+  color: var(--color-gray);
+  font-size: 0.85rem;
+  padding: 22px 10px;
+}
+
+/* Lista de tareas operativas */
+.op-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.op-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 10px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+.op-item:hover {
+  background: var(--surface-hover);
+}
+.op-item.is-static {
+  cursor: default;
+}
+.op-item.is-static:hover {
+  background: transparent;
+}
+
+.op-item-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--surface-muted);
+  color: var(--color-gray);
+}
+.op-item-icon svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.op-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.op-item-title {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.op-item-desc {
+  font-size: 0.76rem;
+  color: var(--color-gray);
+  margin-top: 2px;
+}
+
+.op-item-count {
+  min-width: 30px;
+  text-align: center;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+.op-item-count.zero {
+  color: var(--color-gray-dark);
+}
+.op-item-count.alert {
+  color: var(--color-amber);
+}
+

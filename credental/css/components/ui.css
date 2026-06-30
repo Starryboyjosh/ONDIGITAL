@@ -1,0 +1,301 @@
+/* ==========================================================================
+   COMPONENTES UI
+   ========================================================================== */
+
+/* Botones */
+.btn {
+  font-family: var(--font-body);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--color-blue-mid);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover {
+  background: var(--color-blue-dark);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+.btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+.btn-success {
+  background: rgba(22, 163, 74, 0.1);
+  border: 1px solid rgba(22, 163, 74, 0.3);
+  color: var(--color-green);
+}
+.btn-success:hover {
+  background: rgba(22, 163, 74, 0.16);
+  border-color: var(--color-green);
+}
+
+.btn-danger {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: var(--color-red);
+}
+.btn-danger:hover {
+  background: rgba(220, 38, 38, 0.16);
+  border-color: var(--color-red);
+}
+
+/* Tarjetas */
+.card {
+  background: var(--bg-accent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow);
+}
+
+/* Grid del Dashboard */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.metric-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.metric-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.metric-icon-wrap svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.metric-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.metric-title {
+  color: var(--color-gray);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.metric-value {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.55rem;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+/* Dashboard Layout principal */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 22px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card-title-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.card-title {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+/* Formularios */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.form-label {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-gray);
+}
+
+.form-control {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+
+.form-control::placeholder {
+  color: var(--color-gray-dark);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-blue-mid);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+/* Tablas */
+.custom-table-container {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.custom-table th {
+  background: var(--surface-muted);
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--color-gray);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.custom-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.custom-table tr:last-child td {
+  border-bottom: none;
+}
+
+.custom-table tbody tr {
+  transition: background 0.12s ease;
+}
+
+.custom-table tbody tr:hover {
+  background: var(--surface-hover);
+}
+
+/* Enlace dentro de tablas */
+.hover-link {
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.hover-link:hover {
+  color: var(--color-blue-mid);
+}
+
+/* Etiqueta genérica */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--color-gray);
+  border: 1px solid var(--border);
+}
+
+/* Badges / Etiquetas de Estado */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.badge-pending {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--color-amber);
+  border: 1px solid rgba(217, 119, 6, 0.25);
+}
+
+.badge-confirmed {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--color-blue-mid);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.badge-completed {
+  background: rgba(22, 163, 74, 0.1);
+  color: var(--color-green);
+  border: 1px solid rgba(22, 163, 74, 0.25);
+}
+
+.badge-canceled {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--color-red);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
