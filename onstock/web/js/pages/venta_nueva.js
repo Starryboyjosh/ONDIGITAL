@@ -1,48 +1,71 @@
-// Nueva venta (POS): escáner de código de barras, carrito y cobro con ISV.
+// Caja / Registradora (POS): solo cobro. En modo cajero no hay acceso a finanzas.
 import { api } from '../api.js';
 import {
   $, $$, esc, money, num, icons, toast, toastErr,
   openModal, productPicker, state,
 } from '../ui.js';
+import { isCajero, checkExitPin, enterCajeroMode, exitCajeroMode } from '../access.js';
 
 let cart = []; // {product, qty, unitPrice}  unitPrice tal como se muestra (con/sin ISV según config)
+/** true cuando corre en caja.html (make caja) — sin rutas admin en el proceso */
+let isStandalone = false;
 
-export async function render(page) {
+/**
+ * @param {HTMLElement} page
+ * @param {{ standalone?: boolean }} [opts] standalone = PC solo-caja (make caja)
+ */
+export async function render(page, opts = {}) {
   cart = [];
+  isStandalone = !!opts.standalone;
+  const standalone = isStandalone;
+  const cajero = standalone || isCajero();
   const inclISV = state.settings.prices_include_isv === '1';
 
   page.innerHTML = `
     <div class="page-head">
       <div>
-        <h1>Nueva venta</h1>
-        <div class="sub">Escanea el código de barras o busca el producto · precios ${inclISV ? 'con ISV incluido' : 'sin ISV'}</div>
+        <h1>Caja · Registradora</h1>
+        <div class="sub">${standalone
+          ? `Solo cobro en este equipo · precios ${inclISV ? 'con ISV' : 'sin ISV'} · <kbd>F2</kbd> cobrar`
+          : cajero
+            ? 'Turno de cajero · solo cobro · sin finanzas'
+            : `Punto de venta · precios ${inclISV ? 'con ISV' : 'sin ISV'} · <kbd>F2</kbd> cobrar`}</div>
       </div>
       <div class="page-actions">
-        <a href="#/ventas" class="btn btn-outline">← Volver a ventas</a>
+        ${standalone ? `
+          <span class="badge badge-plain" style="padding:8px 12px">PC cajero</span>
+        ` : cajero ? `
+          <button type="button" class="btn btn-outline" id="btn-exit-caja">Salir de caja (admin)</button>
+        ` : `
+          <button type="button" class="btn btn-outline" id="btn-lock-caja" title="Oculta menús de finanzas">Iniciar turno cajero</button>
+          <a href="#/ventas" class="btn btn-outline">Historial</a>
+        `}
       </div>
     </div>
 
     <div class="pos-grid">
       <div>
-        <div class="card card-pad mb">
+        <div class="card card-pad mb pos-scan-card">
+          <div class="pos-scan-label">Escanear / buscar producto</div>
           <div class="search-wrap">${icons.search}
-            <input class="input" id="pos-search" placeholder="Escanea el código de barras o escribe para buscar… (Enter)" style="font-size:15.5px; padding:12px 12px 12px 36px" autofocus>
+            <input class="input" id="pos-search" placeholder="Código de barras o nombre… (Enter)" style="font-size:15.5px; padding:12px 12px 12px 36px" autofocus>
           </div>
         </div>
         <div class="card">
-          <h2>Carrito <span class="muted" id="cart-count">0 productos</span></h2>
+          <h2>Ticket / carrito <span class="muted" id="cart-count">0 productos</span></h2>
           <div id="cart-table"></div>
         </div>
       </div>
 
-      <div class="card card-pad" style="position:sticky; top:20px">
+      <div class="card card-pad pos-pay-panel">
+        <div class="pos-panel-title">Cobro</div>
         <div class="pos-total-row"><span>Subtotal (sin ISV)</span><span id="t-sub">—</span></div>
         <div class="pos-total-row"><span>ISV</span><span id="t-isv">—</span></div>
         <div class="pos-total-row" style="align-items:center">
           <span>Descuento (${esc(state.settings.currency_symbol || 'L')})</span>
           <input class="input price-input" id="t-disc" type="number" min="0" step="0.01" value="0">
         </div>
-        <div class="pos-total-row grand"><span>Total</span><span id="t-total">${money(0)}</span></div>
+        <div class="pos-total-row grand"><span>Total a cobrar</span><span id="t-total">${money(0)}</span></div>
 
         <hr class="sep">
         <div class="form-grid" style="grid-template-columns:1fr">
@@ -64,9 +87,10 @@ export async function render(page) {
             <input class="input" id="c-notes" placeholder="Opcional">
           </label>
         </div>
-        <button class="btn btn-green" id="btn-charge" style="width:100%; margin-top:14px; padding:12px; font-size:15px" disabled>
+        <button class="btn btn-green" id="btn-charge" style="width:100%; margin-top:14px; padding:14px; font-size:16px" disabled>
           ${icons.check} Cobrar (F2)
         </button>
+        <p class="pos-hint muted">Tras cobrar puedes seguir con la siguiente venta sin salir de la caja.</p>
       </div>
     </div>`;
 
@@ -76,6 +100,18 @@ export async function render(page) {
   $('#t-disc', page).addEventListener('input', () => updateTotals(page));
   $('#btn-charge', page).addEventListener('click', () => charge(page));
 
+  const lockBtn = $('#btn-lock-caja', page);
+  if (lockBtn) {
+    lockBtn.addEventListener('click', () => {
+      enterCajeroMode();
+      toast('Turno de cajero: solo se ve la caja en este equipo');
+    });
+  }
+  const exitBtn = $('#btn-exit-caja', page);
+  if (exitBtn) {
+    exitBtn.addEventListener('click', () => promptExitCaja());
+  }
+
   const onKey = (e) => {
     if (e.key === 'F2') { e.preventDefault(); charge(page); }
   };
@@ -83,6 +119,40 @@ export async function render(page) {
   window.addEventListener('hashchange', () => document.removeEventListener('keydown', onKey), { once: true });
 
   renderCart(page);
+}
+
+function promptExitCaja() {
+  const pinConfigured = (state.settings.caja_exit_pin || '').trim();
+  const m = openModal({
+    title: 'Salir de modo cajero',
+    body: pinConfigured
+      ? `<p class="muted" style="margin:0 0 12px">Ingresa el PIN de administrador para volver a reportes y finanzas.</p>
+         <label class="field">PIN <input class="input" id="exit-pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN"></label>`
+      : `<p class="muted" style="margin:0">No hay PIN configurado. Se liberará el menú completo en este equipo.<br>
+         <span style="font-size:12px">Recomendado: define un PIN en Configuración → Caja.</span></p>`,
+    footer: `
+      <button class="btn btn-outline" data-cancel>Cancelar</button>
+      <button class="btn btn-primary" data-ok>Salir a admin</button>`,
+  });
+  m.el.querySelector('[data-cancel]').addEventListener('click', () => m.close());
+  m.el.querySelector('[data-ok]').addEventListener('click', () => {
+    const input = m.el.querySelector('#exit-pin');
+    const res = checkExitPin(input ? input.value : '', pinConfigured);
+    if (!res.ok) {
+      toast('PIN incorrecto', 'error');
+      return;
+    }
+    m.close();
+    exitCajeroMode();
+    toast('Modo administrador restaurado');
+  });
+  const pinEl = m.el.querySelector('#exit-pin');
+  if (pinEl) {
+    setTimeout(() => pinEl.focus(), 50);
+    pinEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') m.el.querySelector('[data-ok]').click();
+    });
+  }
 }
 
 function addToCart(p, page) {
@@ -213,8 +283,8 @@ async function charge(page) {
           <div class="muted">Subtotal ${money(sale.subtotal)} · ISV ${money(sale.isv)}</div>
         </div>`,
       footer: `
-        <a href="#/ventas" class="btn btn-outline">Ver ventas</a>
-        <button class="btn btn-primary" data-next>${icons.cart} Siguiente venta</button>`,
+        ${isStandalone || isCajero() ? '' : '<a href="#/ventas" class="btn btn-outline">Ver historial</a>'}
+        <button class="btn btn-primary" data-next>${icons.cart} Siguiente en caja</button>`,
       onClose: () => { cart = []; renderCart(page); },
     });
     m.el.querySelector('[data-next]').addEventListener('click', () => {

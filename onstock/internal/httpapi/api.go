@@ -9,18 +9,73 @@ import (
 	"net/http"
 	"strconv"
 
+	"ondigital.hn/modkit"
+	"ondigital.hn/vito"
 	"onstock/internal/store"
 )
 
 type API struct {
-	st *store.Store
+	st      *store.Store
+	vito    *vito.Service   // optional; nil = Vito not mounted
+	catalog *modkit.Catalog // optional module catalog (Fase 2)
 }
 
-func New(st *store.Store) *API { return &API{st: st} }
+// New builds the API. vitoSvc/catalog may be nil.
+func New(st *store.Store, vitoSvc *vito.Service, catalog *modkit.Catalog) *API {
+	return &API{st: st, vito: vitoSvc, catalog: catalog}
+}
 
-// Router registra todas las rutas de la API y la SPA estática.
+// RouterOpts controls which surfaces the process exposes.
+type RouterOpts struct {
+	// CajaOnly: PC del cajero — solo registradora (API POS + caja.html).
+	// Bloquea finanzas, reportes, Vito, administración de productos, etc.
+	CajaOnly bool
+}
+
+// Router registra rutas de la API y la SPA estática (modo admin completo).
 func (a *API) Router(webFS fs.FS) http.Handler {
+	return a.RouterWithOpts(webFS, RouterOpts{})
+}
+
+// RouterWithOpts registra rutas según el modo de proceso (admin vs caja).
+func (a *API) RouterWithOpts(webFS fs.FS, opts RouterOpts) http.Handler {
 	mux := http.NewServeMux()
+
+	if opts.CajaOnly {
+		a.registerCajaRoutes(mux)
+		mux.Handle("/", cajaStaticHandler(webFS))
+		return logMiddleware(mux)
+	}
+
+	a.registerAdminRoutes(mux)
+	mux.Handle("/", http.FileServer(http.FS(webFS)))
+	return logMiddleware(mux)
+}
+
+// registerCajaRoutes: solo lo que la registradora necesita para cobrar.
+func (a *API) registerCajaRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("GET /api/settings", a.getSettingsCaja)
+	mux.HandleFunc("GET /api/products", a.listProducts)
+	mux.HandleFunc("GET /api/products/by-code/{code}", a.productByCode)
+	mux.HandleFunc("GET /api/products/{id}", a.getProduct)
+	mux.HandleFunc("POST /api/sales", a.createSale)
+	// Cualquier otra /api/* → 403 (no filtrar finanzas vía URL)
+	mux.HandleFunc("/api/", a.cajaForbidden)
+}
+
+// registerAdminRoutes: sistema completo (dueño / oficina).
+func (a *API) registerAdminRoutes(mux *http.ServeMux) {
+	// Tenant / plan comercial (Fase 4)
+	mux.HandleFunc("GET /api/tenant", a.getTenant)
+	mux.HandleFunc("PUT /api/tenant", a.putTenant)
+
+	// Módulos de negocio (Fase 2)
+	mux.HandleFunc("GET /api/modules", a.getModules)
+
+	// Vito (asistente white-label; opcional)
+	mux.HandleFunc("GET /api/vito/status", a.getVitoStatus)
+	mux.HandleFunc("POST /api/vito/ask", a.postVitoAsk)
+	mux.HandleFunc("POST /api/vito/confirm", a.postVitoConfirm)
 
 	// Dashboard y configuración
 	mux.HandleFunc("GET /api/dashboard", a.getDashboard)
@@ -82,11 +137,51 @@ func (a *API) Router(webFS fs.FS) http.Handler {
 	// Códigos de barras y etiquetas
 	mux.HandleFunc("GET /api/barcode/{code}", a.barcodePNG)
 	mux.HandleFunc("GET /api/labels/pdf", a.labelsPDF)
+}
 
-	// SPA estática
-	mux.Handle("/", http.FileServer(http.FS(webFS)))
+func (a *API) cajaForbidden(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusForbidden, map[string]string{
+		"error": "Este equipo solo tiene la caja (registradora). Use el sistema de administración en la oficina.",
+	})
+}
 
-	return logMiddleware(mux)
+// getSettingsCaja: settings de cobro sin secretos (PIN de salida, etc.).
+func (a *API) getSettingsCaja(w http.ResponseWriter, r *http.Request) {
+	m, err := a.st.GetSettings()
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	// Solo campos que el POS necesita para cobrar y mostrar la marca.
+	out := map[string]string{}
+	for _, k := range []string{
+		"company_name", "company_rtn", "currency_symbol",
+		"isv_rate", "prices_include_isv",
+	} {
+		if v, ok := m[k]; ok {
+			out[k] = v
+		}
+	}
+	writeJSON(w, http.StatusOK, out)
+}
+
+// cajaStaticHandler sirve la UI de caja y redirige el admin SPA a /caja.html.
+func cajaStaticHandler(webFS fs.FS) http.Handler {
+	files := http.FileServer(http.FS(webFS))
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		// Raíz y SPA admin → solo caja
+		if path == "/" || path == "/index.html" || path == "/index.htm" {
+			http.Redirect(w, r, "/caja.html", http.StatusFound)
+			return
+		}
+		// No exponer el shell admin por error de tipeo
+		if path == "/app.html" {
+			http.Redirect(w, r, "/caja.html", http.StatusFound)
+			return
+		}
+		files.ServeHTTP(w, r)
+	})
 }
 
 func logMiddleware(next http.Handler) http.Handler {

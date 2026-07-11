@@ -13,7 +13,7 @@
 - Cada fase declara: **objetivo**, **entregables**, **criterio de "hecho"** y **riesgos**.
 - Cuando una fase pase a implementación, se trabaja con la disciplina de
   `PLAN.md` vivo + `last_session.md` (handoff entre sesiones) y se verifica antes de avanzar.
-- Hoy esto es **plan**, no código. No se implementa hasta cerrar la Fase 1 en detalle.
+- **Fase 1 está implementada y cerrada.** Las siguientes fases siguen el mismo proceso.
 
 ---
 
@@ -21,10 +21,10 @@
 
 | Pieza | Estado | Nota |
 |-------|--------|------|
-| **Credental** | Prototipo avanzado | UI clínica completa; datos en `sessionStorage` + Firebase opcional; auth demo. Ver [roadmap-y-pendientes.md](roadmap-y-pendientes.md). |
-| **OnStock** | Mini-ERP funcional | Go + SQLite + UI embebida. La casa de estilo del repo. |
-| **Pagina_Web_Original** | Sitio institucional | Estático; pendiente actualizar mensaje y hostear. |
-| **Vito** | No existe | Se construye en la Fase 1. |
+| **Credental** | Prototipo avanzado | UI clínica completa; datos en `sessionStorage` + Firebase opcional; auth demo. Esqueleto Vito local (`credental/vito.html`). |
+| **OnStock** | Mini-ERP + Vito | Go + SQLite + UI embebida. Vito montado (tools, API, UI, seed demo). |
+| **Pagina_Web_Original** | Sitio institucional | Estático; planes/Vito en landing. Hosting demo (Fase 3) aplazado. |
+| **Vito** | **Fase 1 hecha** | Módulo `modules/vito` + host OnStock completo + esqueleto Credental. Ver abajo. |
 | **OnStudio** | Eliminado | Pivote: ya no construimos páginas con IA. |
 
 ---
@@ -49,103 +49,114 @@
 
 ---
 
-## Fase 1 — Vito, el asistente (se construye primero)
+## Fase 1 — Vito, el asistente ✅ CERRADA (2026-07)
 
 **Objetivo:** un asistente funcional que responde **sobre datos reales** del negocio, con la
 experiencia white-label, listo para demostrar.
 
-**Entregables**
+**Estado:** hecho. Criterio de hecho validado en OnStock con seed demo + mock/OpenCode.
 
-- **1.1 Núcleo del servicio Vito.** Nuevo servicio en la casa de estilo de OnStock
-  (Go single-binary + `//go:embed` UI vanilla + SQLite). Carpeta candidata: `vito/`.
-- **1.2 Capa de proveedor abstracta.** Una sola interfaz interna (p. ej. `Provider.Ask(...)`).
-  Primera implementación: **API de OpenCode** (gratuita, para la demo). El resto del sistema
-  no sabe ni le importa quién responde.
-- **1.3 UI de Vito (white-label).** Pantalla de consulta donde solo aparece "Vito": estados
-  de "pensando", respuesta y **fuente de datos** citada. Cero menciones de proveedor.
-- **1.4 Acceso a datos (lo que lo separa de un chatbot).** Vito puede invocar "herramientas"
-  de solo lectura para consultar datos (ventas, inventario, clientes, citas). Se arranca con
-  un conector de demostración alimentado con datos de muestra de OnStock.
-- **1.5 Demo vertical.** Vito contestando preguntas reales sobre esos datos.
+### Entregables (cerrados)
 
-**Criterio de hecho:** preguntar *"¿qué productos están por agotarse?"* y que Vito responda
-con datos reales, citando de dónde salieron, sin exponer ningún proveedor.
+| # | Entregable | Dónde |
+|---|------------|--------|
+| 1.1 | Núcleo módulo Go | `modules/vito/` (`ondigital.hn/vito`) |
+| 1.2 | Provider abstracto + OpenCode + env | `modules/vito` + `onstock/.env.example` |
+| 1.3 | UI white-label OnStock | `onstock/web` → `#/vito` |
+| 1.4 | Tools OnStock (read + acción OC) | `onstock/internal/vitohost` |
+| 1.5 | Demo vertical + datos | `make seed-demo-force`, [demo-fase1-vito.md](demo-fase1-vito.md) |
+| 1.6 | Contrato reuso + esqueleto Credental | [modules/vito/README.md](../modules/vito/README.md), `credental/js/vito/`, `credental/vito.html` |
 
-**Riesgos / cuidados:** inyección de prompts desde los datos; límites y costo de la API;
-alucinaciones → respuestas **ancladas a datos** + cita de la fuente; nunca enviar datos
-sensibles del cliente a un proveedor sin que el plan/infra lo permita.
+**Criterio de hecho:** preguntar *"¿qué productos están por agotarse?"* → respuesta con productos
+reales del SQLite, citation `Inventario · stock bajo`, UI solo dice **Vito**. ✅
+
+**Cómo repetir la demo:**
+
+```bash
+cd onstock && make seed-demo-force && make dev
+# http://localhost:8080/#/vito
+```
+
+**Riesgos que siguen vigentes (Fase 2+):** inyección vía datos; costo API; no filtrar PII a
+proveedores sin política de plan; Credental aún no es backend híbrido completo.
 
 ---
 
-## Fase 2 — Modularización y alimentar a Vito
+## Fase 2 — Modularización y alimentar a Vito ✅ CERRADA (2026-07)
 
 **Objetivo:** convertir los sistemas que ya existen en **módulos** que Vito puede leer (y, más
 adelante, accionar), manteniendo que cada suite **funcione con y sin Vito**.
 
-**Entregables**
+### Entregables (cerrados)
 
-- **2.1 Contrato de módulo.** Definir la interfaz que cada módulo expone: qué datos entrega y
-  qué acciones permite, tanto a la plataforma como a Vito.
-- **2.2 OnStock como módulo.** Inventario, ventas y compras detrás del contrato; conector Vito
-  primero de solo lectura, luego con acciones (p. ej. *"genera la orden de compra de lo que
-  falta"*).
-- **2.3 Credental como módulo.** Agenda, pacientes y facturación detrás del contrato. **Antes**
-  hay que cerrar su capa de datos (hoy `sessionStorage`/Firebase — ver su roadmap) y después
-  enchufar el conector de Vito.
-- **2.4 "Con y sin Vito".** Cada suite corre sola (Starter/Business); Vito se enchufa encima
-  (Enterprise AI) sin reescribir la app.
-- **2.5 Biblioteca de módulos.** Catálogo de módulos reutilizables y el procedimiento para
-  **ensamblar** el sistema de un cliente nuevo a partir de ellos.
+| # | Entregable | Dónde |
+|---|------------|--------|
+| 2.1 | Contrato de módulo | `modules/modkit` + [contrato-modulo.md](contrato-modulo.md) |
+| 2.2 | OnStock como módulo | `vitohost.OnStockModule` + `GET /api/modules` |
+| 2.3 | Credental como módulo | `credental/js/modkit.js` + `vito/module.js` + seed + `vito.html` |
+| 2.4 | Con y sin Vito | [checklist-con-sin-vito.md](checklist-con-sin-vito.md) (verificado) |
+| 2.5 | Biblioteca de módulos | [biblioteca-modulos.md](biblioteca-modulos.md) + catálogos runtime |
 
-**Criterio de hecho:** una misma instancia de Vito responde correctamente sobre **OnStock** y
-**Credental**, y ambas apps siguen operando aunque Vito esté apagado.
+**Criterio de hecho:** Vito responde con datos reales en **OnStock** y **Credental**; ambas
+suites operan con Vito apagado/sin panel. ✅
 
-**Riesgos / cuidados:** no romper el comportamiento offline/local de cada app; mantener el
-aislamiento de datos entre módulos y entre clientes.
+**Notas:** Credental sigue local-first (Firebase opcional). Un backend Go unificado multi-módulo
+puede endurecerse en Fase 4. Multi-tenant de producción y facturación de planes → Fase 4.
+
+**Riesgos que siguen:** aislamiento tenant real; no romper offline; PII hacia providers de IA.
 
 ---
 
-## Fase 3 — Sitio, hosting y presentación
+## Fase 3 — Sitio, hosting y presentación ⏸ APLAZADA
 
 **Objetivo:** actualizar la cara pública y montar la historia de infraestructura del modelo de
 negocio, con una demo real para la escuela.
 
-**Entregables**
+**Decisión (2026-07):** se **salta por ahora**.
+- Landing (`Pagina_Web_Original`) ya está alineada al modelo (Vito, planes, mensaje).
+- Hosting en Raspberry / mini-PC / demo pública **no es prioritario** en este momento.
+- Se puede retomar cuando haga falta presentación escolar o infra administrada de Business.
 
-- **3.1 Mejorar `Pagina_Web_Original`.** Reflejar el nuevo modelo (departamento tecnológico,
-  Vito, planes **sin precios** en la web) y conservar *"Todo lo Vital es Digital."*
-- **3.2 Hosting de demo.** Servir el sitio (y, si se puede, una demo de Vito) desde la
-  **Raspberry Pi 5** para la presentación escolar.
-- **3.3 Camino de infraestructura.** De la Raspberry a **mini-PCs**, hacia la "infraestructura
-  administrada" del Plan Business (hosting, backups, monitoreo, SSL, alta disponibilidad).
-- **3.4 Idea "espacio en la nube" para el cliente.** No solo hosting de base de datos: también
-  un espacio de **comunicación interna** para los empleados del cliente. Opcional, según el
-  cliente; se documenta como oferta, no como obligación.
+**Entregables (pendientes al reabrir)**
 
-**Criterio de hecho:** el sitio actualizado, servido desde la Raspberry Pi 5 y accesible
-durante la presentación.
+- **3.1** Pulir sitio si el mensaje de negocio cambia otra vez.
+- **3.2** Hosting de demo (p. ej. Raspberry Pi 5).
+- **3.3** Camino de infraestructura (Pi → mini-PC → Business administrado).
+- **3.4** Idea “espacio en la nube” / comunicación interna (oferta opcional).
 
-**Riesgos / cuidados:** exponer la Raspberry de forma segura; no prometer en la web infra que
-todavía no se sostiene.
+**Criterio de hecho (cuando se reactive):** sitio actualizado y accesible en el entorno de demo
+acordado (no bloquea Fase 4 de producto).
 
 ---
 
-## Fase 4 — Adaptación general al Modelo de Negocio
+## Fase 4 — Adaptación general al Modelo de Negocio 🔄 EN CURSO
 
 **Objetivo:** endurecer lo que en las fases 1–3 fue demo, hasta que se pueda **vender y
 operar** según los tres planes.
 
+**PLAN vivo:** [PLAN.md](PLAN.md)
+
 **Entregables**
 
-- **4.1 Multi-tenant real:** aislamiento por cliente, modelo de usuarios y roles, backups,
-  seguridad (sustituir las auth/almacenamiento demo).
-- **4.2 Provisión de cliente nuevo:** cómo se arma una entrega Starter / Business /
-  Enterprise AI a partir de la biblioteca de módulos.
-- **4.3 Facturación de la suscripción:** cómo se cobra y administra el plan mensual.
-- **4.4 Documentación viva** de la biblioteca de módulos y del procedimiento de entrega.
+- **4.1 Multi-tenant / seguridad base.** 🔄 Modelo `modules/tenant` + OnStock `GET/PUT /api/tenant`
+  + backups (`make backup`). Auth multi-usuario y storage clínico durable **siguen abiertos**
+  (ver [seguridad-demo-prod.md](seguridad-demo-prod.md)).
+- **4.2 Provisión de cliente nuevo.** ✅ [provision-cliente.md](provision-cliente.md)
+- **4.3 Facturación de la suscripción.** ✅ Ledger `modules/billing` + [facturacion-suscripcion.md](facturacion-suscripcion.md)
+  (sin pasarela de pago todavía).
+- **4.4 Documentación viva.** ✅ Biblioteca + provisión + facturación enlazadas.
 
-**Criterio de hecho:** poder tomar un cliente nuevo y entregarle un plan completo usando el
-proceso documentado, no improvisado.
+**Criterio de hecho (parcial):** hay proceso documentado de entrega por plan + identidad de
+tenant/plan en OnStock + respaldo + ledger ops. Falta auth/tenant enforcement de producción.
+
+**Cómo probar rápido:**
+
+```bash
+cd onstock
+make backup
+# GET http://localhost:8080/api/tenant
+# PUT /api/tenant {"plan":"enterprise_ai"}
+```
 
 ---
 
@@ -157,10 +168,9 @@ Fase 1 (Vito)  ──►  Fase 2 (modularizar + alimentar Vito)  ──►  Fase
                                    └──►  Fase 3 (sitio + hosting)  ── puede correr en paralelo
 ```
 
-- La **Fase 1** es el corazón y va primero.
-- La **Fase 3** (sitio + Raspberry) puede adelantarse en paralelo porque la presentación
-  escolar es un forzante de calendario.
-- La **Fase 4** consolida todo lo anterior para que deje de ser demo.
+- La **Fase 1** (Vito) y la **Fase 2** (módulos) están **cerradas**.
+- La **Fase 3** (sitio + hosting) está **aplazada**: landing hecha; hosting no prioritario.
+- La **Fase 4** (endurecer / vender) es el siguiente bloque de producto cuando se retome.
 
 ---
 
@@ -176,9 +186,12 @@ Fase 1 (Vito)  ──►  Fase 2 (modularizar + alimentar Vito)  ──►  Fase
 
 ---
 
-## Pendientes de decisión (para cerrar antes/durante la Fase 1)
+## Decisiones cerradas (Fase 1)
 
-1. ¿Vito vive en su propia carpeta `vito/` como servicio Go, o se integra dentro de cada app?
-2. ¿La demo conecta Vito a **OnStock** primero (recomendado: ya es Go + SQLite) o a Credental?
-3. ¿Qué tan lejos llega la demo escolar: solo consultas de lectura, o ya alguna acción?
-4. Capa de datos de Credental (bloquea su parte de la Fase 2): local, nube o híbrido.
+1. **Forma de Vito:** módulo reutilizable integrado en cada app (no un servicio monolito aparte).
+2. **Demo de datos:** OnStock y Credental; ancla completa en **OnStock** (Go + SQLite); Credental con esqueleto local.
+3. **Alcance demo escolar:** lectura **y** acciones (con confirmación en UI) en OnStock.
+4. **Credental datos:** híbrido (local + nube); capa completa queda en **Fase 2**.
+
+**Registro durable de la Fase 1:** este archivo + código + [modules/vito/README.md](../modules/vito/README.md) + [demo-fase1-vito.md](demo-fase1-vito.md).  
+El `PLAN.md` vivo de la fase se eliminó al cerrar.

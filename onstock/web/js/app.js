@@ -2,6 +2,7 @@
 import { api } from './api.js';
 import { state, $, $$ } from './ui.js';
 import { applyTheme } from './theme.js';
+import { applyShellMode, cajeroAllowed, isCajero } from './access.js';
 
 import * as dashboard from './pages/dashboard.js';
 import * as productos from './pages/productos.js';
@@ -12,25 +13,40 @@ import * as compras from './pages/compras.js';
 import * as proveedores from './pages/proveedores.js';
 import * as gastos from './pages/gastos.js';
 import * as reportes from './pages/reportes.js';
+import * as vito from './pages/vito.js';
 import * as configuracion from './pages/configuracion.js';
 
 const routes = [
-  { re: /^#?\/?$/, page: dashboard, nav: 'dashboard' },
-  { re: /^#\/ventas\/nueva$/, page: ventaNueva, nav: 'ventas' },
-  { re: /^#\/ventas$/, page: ventas, nav: 'ventas' },
-  { re: /^#\/productos$/, page: productos, nav: 'productos' },
-  { re: /^#\/inventario$/, page: inventario, nav: 'inventario' },
-  { re: /^#\/compras$/, page: compras, nav: 'compras' },
-  { re: /^#\/proveedores$/, page: proveedores, nav: 'proveedores' },
-  { re: /^#\/gastos$/, page: gastos, nav: 'gastos' },
-  { re: /^#\/reportes$/, page: reportes, nav: 'reportes' },
-  { re: /^#\/configuracion$/, page: configuracion, nav: 'configuracion' },
+  { re: /^#?\/?$/, page: dashboard, nav: 'dashboard', access: 'admin' },
+  { re: /^#\/caja$/, page: ventaNueva, nav: 'caja', access: 'any' },
+  { re: /^#\/ventas\/nueva$/, page: ventaNueva, nav: 'caja', access: 'any' },
+  { re: /^#\/ventas$/, page: ventas, nav: 'ventas', access: 'admin' },
+  { re: /^#\/productos$/, page: productos, nav: 'productos', access: 'admin' },
+  { re: /^#\/inventario$/, page: inventario, nav: 'inventario', access: 'admin' },
+  { re: /^#\/compras$/, page: compras, nav: 'compras', access: 'admin' },
+  { re: /^#\/proveedores$/, page: proveedores, nav: 'proveedores', access: 'admin' },
+  { re: /^#\/gastos$/, page: gastos, nav: 'gastos', access: 'admin' },
+  { re: /^#\/reportes$/, page: reportes, nav: 'reportes', access: 'admin' },
+  { re: /^#\/vito$/, page: vito, nav: 'vito', access: 'admin' },
+  { re: /^#\/configuracion$/, page: configuracion, nav: 'configuracion', access: 'admin' },
 ];
 
 async function navigate() {
-  const hash = location.hash || '#/';
-  const route = routes.find(r => r.re.test(hash)) || routes[0];
+  let hash = location.hash || '#/';
 
+  // Cajero: solo caja (sin finanzas / reportes / config)
+  if (isCajero() && !cajeroAllowed(hash)) {
+    location.hash = '#/caja';
+    return;
+  }
+
+  const route = routes.find(r => r.re.test(hash)) || routes[0];
+  if (isCajero() && route.access === 'admin') {
+    location.hash = '#/caja';
+    return;
+  }
+
+  applyShellMode();
   $$('.nav a').forEach(a => a.classList.toggle('active', a.dataset.route === route.nav));
   $('#modal-root').innerHTML = '';
 
@@ -51,17 +67,22 @@ async function navigate() {
 
 export async function refreshSettings() {
   state.settings = await api.get('/api/settings');
-  $('#brand-company').textContent = state.settings.company_name || 'Mi Empresa';
+  const el = $('#brand-company');
+  if (el) el.textContent = state.settings.company_name || 'Mi Empresa';
 }
 
 window.addEventListener('hashchange', navigate);
 
 (async function init() {
   applyTheme();
+  applyShellMode();
   try { await refreshSettings(); } catch { /* el servidor mostrará el error en la página */ }
+  // Si quedó en modo cajero de una sesión anterior, forzar caja
+  if (isCajero() && !cajeroAllowed(location.hash || '#/')) {
+    location.hash = '#/caja';
+  }
   await navigate();
-  
-  // Sincronizar todos los datos locales a Firebase Firestore en segundo plano
+
   import('./firebase/sync.js').then(({ syncAllToFirebase }) => {
     syncAllToFirebase().catch(err => console.error("Error en la sincronización inicial de Firebase:", err));
   }).catch(err => console.error("No se pudo cargar el script de sincronización de Firebase:", err));

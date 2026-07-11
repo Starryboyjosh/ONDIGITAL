@@ -180,6 +180,12 @@ func (s *Store) seedDefaults() error {
 		"isr_rate":             "25",
 		"prices_include_isv":   "1",
 		"allow_negative_stock": "0",
+		// Tenant / plan comercial (Fase 4)
+		"tenant_id": "",
+		"plan":      "starter",
+		"modules":       "onstock",
+		"locale":        "es-HN",
+		"caja_exit_pin": "", // PIN para salir del modo cajero (UI)
 	}
 	for k, v := range defaults {
 		if _, err := s.db.Exec(`INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO NOTHING`, k, v); err != nil {

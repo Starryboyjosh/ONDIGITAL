@@ -18,10 +18,10 @@ type IncomeStatement struct {
 	CostoVentas   float64 `json:"costo_ventas"`
 	UtilidadBruta float64 `json:"utilidad_bruta"`
 
-	GastosVentas         float64 `json:"gastos_ventas"`
+	GastosVentas          float64 `json:"gastos_ventas"`
 	GastosAdministrativos float64 `json:"gastos_administrativos"`
-	GastosOperativos     float64 `json:"gastos_operativos"`
-	UtilidadOperativa    float64 `json:"utilidad_operativa"`
+	GastosOperativos      float64 `json:"gastos_operativos"`
+	UtilidadOperativa     float64 `json:"utilidad_operativa"`
 
 	GastosFinancieros float64 `json:"gastos_financieros"`
 	OtrosGastos       float64 `json:"otros_gastos"`
@@ -136,9 +136,9 @@ func (s *Store) TopProducts(from, to string, limit int) ([]TopProduct, error) {
 }
 
 type MonthPoint struct {
-	Month   string  `json:"month"` // YYYY-MM
-	Label   string  `json:"label"` // ene 25
-	Ventas  float64 `json:"ventas"`
+	Month    string  `json:"month"` // YYYY-MM
+	Label    string  `json:"label"` // ene 25
+	Ventas   float64 `json:"ventas"`
 	Utilidad float64 `json:"utilidad"`
 }
 
@@ -178,20 +178,20 @@ func (s *Store) SalesSeries(n int) ([]MonthPoint, error) {
 }
 
 type Dashboard struct {
-	Month           string       `json:"month"`
-	VentasMes       float64      `json:"ventas_mes"`
-	UtilidadBrutaMes float64     `json:"utilidad_bruta_mes"`
-	GastosMes       float64      `json:"gastos_mes"`
-	NumVentasMes    int          `json:"num_ventas_mes"`
-	TicketPromedio  float64      `json:"ticket_promedio"`
-	ISVCobradoMes   float64      `json:"isv_cobrado_mes"`
-	ValorInventario float64      `json:"valor_inventario"`
-	ProductosActivos int         `json:"productos_activos"`
-	LowStockCount   int          `json:"low_stock_count"`
-	Series          []MonthPoint `json:"series"`
-	TopProducts     []TopProduct `json:"top_products"`
-	LowStock        []Product    `json:"low_stock"`
-	RecentSales     []Sale       `json:"recent_sales"`
+	Month            string       `json:"month"`
+	VentasMes        float64      `json:"ventas_mes"`
+	UtilidadBrutaMes float64      `json:"utilidad_bruta_mes"`
+	GastosMes        float64      `json:"gastos_mes"`
+	NumVentasMes     int          `json:"num_ventas_mes"`
+	TicketPromedio   float64      `json:"ticket_promedio"`
+	ISVCobradoMes    float64      `json:"isv_cobrado_mes"`
+	ValorInventario  float64      `json:"valor_inventario"`
+	ProductosActivos int          `json:"productos_activos"`
+	LowStockCount    int          `json:"low_stock_count"`
+	Series           []MonthPoint `json:"series"`
+	TopProducts      []TopProduct `json:"top_products"`
+	LowStock         []Product    `json:"low_stock"`
+	RecentSales      []Sale       `json:"recent_sales"`
 }
 
 func (s *Store) Dashboard() (Dashboard, error) {

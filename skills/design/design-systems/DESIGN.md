@@ -9,6 +9,8 @@
 - Usar este sistema como biblioteca de tokens y componentes, no como obligación de aplicar glassmorphism en toda pantalla.
 - En SaaS, admin, CRM, ERP y sistemas internos, priorizar legibilidad, densidad escaneable y estados claros sobre efectos visuales.
 - En landing pages, priorizar una primera pantalla con marca/oferta/acción clara y assets relevantes antes de añadir decoración.
+- Realizar landing pages con un diseño premium, animaciones suaves y transiciones fluidas, sin botones flashy, buscar innovar, no buscar estandares aburridos.
+- Usar imagenes cuando sea posible, y evitar usar solo colores y formas sin contexto visual.
 - Evitar paletas dominadas por un solo hue. Combinar superficies neutrales con acentos funcionales y estados reconocibles.
 - No usar texto de escala hero dentro de paneles, tablas, tarjetas compactas o dashboards.
 - Validar contraste, responsive, foco visible, tamaño táctil y texto largo antes de entregar.

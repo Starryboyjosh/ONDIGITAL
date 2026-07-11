@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OnStock · Caja</title>
+  <script>try{if(localStorage.getItem('onstock-theme')==='company')document.documentElement.setAttribute('data-theme','company');}catch(e){}</script>
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='5' y='8' width='22' height='19' rx='5' fill='%232b8af7'/%3E%3Cpath d='M11 8 C11 4 21 4 21 8' stroke='%232b8af7' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3Crect x='8' y='11' width='16' height='13' rx='3' fill='%23050f2c'/%3E%3Ccircle cx='13' cy='17' r='2.2' fill='%2300e5b0'/%3E%3Ccircle cx='19' cy='17' r='2.2' fill='%2300e5b0'/%3E%3Cpath d='M12 21 Q16 23.5 20 21' stroke='%2300e5b0' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body class="mode-caja-standalone">
+  <header class="caja-topbar">
+    <div class="caja-topbar-brand">
+      <span class="brand-robot" aria-hidden="true" style="width:36px;height:36px">
+        <svg viewBox="88 54 184 188" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+          <rect class="r-body" x="100" y="92" width="160" height="140" rx="16"></rect>
+          <path class="r-handle" d="M148 92 C148 62 212 62 212 92" stroke-width="14" fill="none" stroke-linecap="round"></path>
+          <rect class="r-screen" x="112" y="110" width="136" height="108" rx="12"></rect>
+          <ellipse class="r-eye" cx="153" cy="154" rx="13" ry="13"></ellipse>
+          <ellipse class="r-eye" cx="207" cy="154" rx="13" ry="13"></ellipse>
+          <path class="r-mouth" d="M140 178 Q180 200 220 178" stroke-width="5" fill="none" stroke-linecap="round"></path>
+        </svg>
+      </span>
+      <div>
+        <div class="caja-topbar-title"><span class="wm-accent">On</span>Stock · Caja</div>
+        <div class="caja-topbar-sub" id="brand-company">Registradora</div>
+      </div>
+    </div>
+    <div class="caja-topbar-meta" id="caja-clock"></div>
+  </header>
+
+  <main class="caja-main">
+    <div id="page" class="page"></div>
+  </main>
+
+  <div id="modal-root"></div>
+  <div id="toast-root"></div>
+
+  <script type="module" src="/js/caja-app.js"></script>
+</body>
+</html>

@@ -9,6 +9,8 @@
 **/.env.*.local
 **/auth.json
 **/secrets/**
+ops/subscriptions.json
+**/backups/
 *.key
 *.pem
 

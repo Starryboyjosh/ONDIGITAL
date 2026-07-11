@@ -11,8 +11,9 @@ No necesita internet ni instalación.
   (EAN-8/13 o Code128), costo, precio, tasa de ISV por producto (0/15/18%), stock mínimo con alertas.
 - **Códigos de barras** — generación de imagen por producto e impresión de **hojas de etiquetas en PDF**
   (carta, 3×9) con nombre, código y precio. Compatible con escáner USB (funciona como teclado).
-- **Ventas (POS)** — pantalla de venta rápida: escanea o busca, carrito editable, descuento,
-  cálculo automático de ISV, métodos de pago, anulación con reposición de stock.
+- **Caja / Registradora (POS)** — menú **Caja** (`#/caja`): escanea o busca, carrito, ISV, cobro F2.
+  **Modo cajero** (turno): oculta Dashboard, reportes, gastos, compras, Vito y config; solo cobra.
+  Salida con PIN de admin (Configuración). **Ventas** = historial (solo admin).
 - **Compras** — órdenes de compra a proveedores; al recibirlas se suma el stock y se recalcula el
   **costo promedio ponderado** de cada producto.
 - **Inventario** — kardex completo (ventas, compras, entradas, salidas, ajustes por conteo físico).
@@ -46,17 +47,47 @@ Abre esa dirección en el navegador de cualquier PC de la misma red.
 Requisitos: Go 1.22+ (sin CGO, sin Node, sin dependencias nativas).
 
 ```bash
-make dev          # corre en http://localhost:8080
-make test         # go vet + build
-make build        # genera dist/onstock.exe (Windows) y dist/onstock-linux
+make admin            # sistema completo (oficina) → http://localhost:8080
+make dev              # alias de make admin
+make caja             # SOLO registradora (PC cajero) → http://localhost:8081/caja.html
+# En el PC del cajero de la tienda: make caja PORT=8080
+make test             # go vet + tests + build
+make seed-demo        # datos demostrativos (falla si ya hay productos)
+make seed-demo-force  # reemplaza con el set demo (Abarrotes El Progreso)
+make build            # genera dist/onstock.exe (Windows) y dist/onstock-linux
 ```
+
+**Vito** (asistente white-label): menú → Vito, o `http://localhost:8080/#/vito`.  
+Config opcional en `.env` (ver `.env.example`). Guion de demo: `../docs/demo-fase1-vito.md`.  
+**Módulos:** `GET /api/modules` · contrato `../docs/contrato-modulo.md` · biblioteca `../docs/biblioteca-modulos.md`.
 
 Opciones del ejecutable:
 
 ```
--port 8080     puerto del servidor
--data DIR      carpeta de datos (por defecto: ./data junto al ejecutable)
--no-open       no abrir el navegador automáticamente (solo aplica en Windows)
+-port 8080           puerto del servidor
+-data DIR            carpeta de datos (por defecto: ./data junto al ejecutable)
+-caja                modo solo registradora (PC del cajero; sin finanzas ni admin)
+-no-open             no abrir el navegador automáticamente (solo aplica en Windows)
+-seed-demo           carga datos demostrativos y sale
+-seed-demo-force     reemplaza datos con el set demostrativo y sale
+-backup DIR          crea respaldo SQLite en DIR y sale
+```
+
+### Dos PCs en la tienda
+
+| Rol | Comando | Qué ve |
+|-----|---------|--------|
+| Dueño / oficina | `make admin` (o `make dev`) | Inventario, finanzas, reportes, Vito, config |
+| Cajero | `make caja` | Solo la registradora (`/caja.html`) |
+
+En producción Windows se puede lanzar el mismo `.exe` con o sin `-caja`. Misma carpeta `-data` si comparten red/servidor; o un servidor central admin y terminales solo-caja.
+
+```bash
+make backup          # → backups/onstock-backup-*.db
+# Plan comercial del tenant:
+curl -s localhost:8080/api/tenant
+curl -s -X PUT localhost:8080/api/tenant -H 'Content-Type: application/json' \
+  -d '{"plan":"enterprise_ai"}'
 ```
 
 ## Estructura

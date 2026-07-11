@@ -63,6 +63,21 @@ export async function render(page) {
       </div>
     </div>
 
+    <div class="card mt">
+      <h2>Caja / registradora</h2>
+      <div class="card-pad form-grid">
+        <label class="field full">PIN para salir del modo cajero
+          <input class="input" id="c-caja-pin" type="password" inputmode="numeric" autocomplete="new-password"
+            value="${esc(s.caja_exit_pin || '')}" placeholder="Ej. 1234 (recomendado)">
+        </label>
+        <p class="full muted" style="margin:0; font-size:13px; line-height:1.45">
+          El <b>modo cajero</b> oculta Dashboard, reportes, gastos, compras, Vito y configuración.
+          Solo deja la caja. Para volver al menú completo se pide este PIN.
+          Déjalo vacío solo en demos (cualquiera puede salir del turno).
+        </p>
+      </div>
+    </div>
+
     <div class="flex mt" style="justify-content:flex-end">
       <button class="btn btn-primary" id="c-save" style="padding:10px 26px">Guardar configuración</button>
     </div>
@@ -115,6 +130,7 @@ export async function render(page) {
       isr_rate: String(+$('#c-isr', page).value || 25),
       prices_include_isv: $('#c-incl', page).checked ? '1' : '0',
       allow_negative_stock: $('#c-negative', page).checked ? '1' : '0',
+      caja_exit_pin: $('#c-caja-pin', page).value.trim(),
     };
     try {
       await api.put('/api/settings', body);

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vito — Credental</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/data-hybrid.js"></script>
+  <script src="js/modkit.js"></script>
+  <script src="js/vito/seed-demo.js"></script>
+  <script src="js/vito/module.js"></script>
+  <style>
+    .vito-page { max-width: 920px; margin: 0 auto; padding: 1.25rem; }
+    .vito-grid { display: grid; grid-template-columns: 1fr minmax(200px, 260px); gap: 16px; align-items: start; }
+    @media (max-width: 800px) { .vito-grid { grid-template-columns: 1fr; } }
+    .vito-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 1rem; flex-wrap: wrap; }
+    .vito-head h1 { margin: 0; font-size: 1.4rem; }
+    .vito-pill {
+      font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+      background: rgba(0, 184, 148, 0.15); color: #00b894;
+    }
+    .vito-pill.off { background: #f1f5f9; color: #64748b; }
+    .vito-log {
+      min-height: 300px; max-height: 52vh; overflow-y: auto;
+      border: 1px solid var(--border-color, #e2e8f0); border-radius: 14px;
+      padding: 12px; background: var(--bg-card, #fff); margin-bottom: 12px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .vito-bubble { padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.45; max-width: 92%; white-space: pre-wrap; }
+    .vito-bubble.user { align-self: flex-end; background: #2b8af7; color: #fff; }
+    .vito-bubble.bot { align-self: flex-start; background: #f1f5f9; color: #0f172a; }
+    .vito-cites { font-size: 11px; color: #64748b; margin-top: 6px; }
+    .vito-form { display: flex; gap: 8px; }
+    .vito-form input {
+      flex: 1; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border-color, #e2e8f0); font: inherit;
+    }
+    .vito-form button {
+      padding: 10px 16px; border: none; border-radius: 10px;
+      background: #2b8af7; color: #fff; font-weight: 700; cursor: pointer;
+    }
+    .vito-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .vito-chips button {
+      border: 1px solid #e2e8f0; background: #fff; border-radius: 999px;
+      padding: 6px 10px; font-size: 12px; cursor: pointer;
+    }
+    .vito-side {
+      border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; background: #fff;
+      font-size: 13px; color: #475569;
+    }
+    .vito-side h2 { margin: 0 0 8px; font-size: 14px; color: #0f172a; }
+    .vito-side ul { margin: 0; padding-left: 18px; line-height: 1.45; }
+    .vito-cap { font-size: 11px; margin: 4px 0; padding: 4px 6px; background: #f8fafc; border-radius: 6px; }
+    .vito-note { font-size: 12px; color: #64748b; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo">CR</div>
+        <div class="brand-name">Cre<span class="acc">dental</span></div>
+      </div>
+      <nav>
+        <ul class="nav-menu">
+          <li class="nav-item"><a href="dashboard.html"><span>Dashboard</span></a></li>
+          <li class="nav-item"><a href="agenda.html"><span>Agenda</span></a></li>
+          <li class="nav-item"><a href="pacientes.html"><span>Pacientes</span></a></li>
+          <li class="nav-item active"><a href="vito.html"><span>Vito</span></a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="vito-page">
+        <div class="vito-head">
+          <div>
+            <h1>Vito</h1>
+            <p style="margin:4px 0 0;color:#64748b;font-size:14px;">Asistente de la clínica · módulo Credental</p>
+          </div>
+          <span class="vito-pill" id="vito-pill">…</span>
+        </div>
+
+        <div class="vito-grid">
+          <div>
+            <div class="vito-chips" id="vito-chips">
+              <button type="button" data-q="¿Qué citas tengo hoy?">Citas de hoy</button>
+              <button type="button" data-q="¿Qué citas tengo mañana?">Citas de mañana</button>
+              <button type="button" data-q="¿Qué pacientes tienen saldo pendiente?">Saldos pendientes</button>
+              <button type="button" data-q="Resume el expediente de José Antonio Ruiz">Expediente José</button>
+              <button type="button" data-q="Dame un resumen de la clínica">Resumen clínica</button>
+            </div>
+            <div class="vito-log" id="vito-log" role="log" aria-live="polite"></div>
+            <form class="vito-form" id="vito-form">
+              <input id="vito-input" type="text" placeholder="Pregúntale a Vito…" autocomplete="off" maxlength="500">
+              <button type="submit">Enviar</button>
+            </form>
+            <p class="vito-note" id="vito-seed-note"></p>
+          </div>
+          <aside class="vito-side">
+            <h2>Módulo Credental</h2>
+            <div id="mod-info">Cargando…</div>
+            <h2 style="margin-top:14px">Datos</h2>
+            <div id="data-info"></div>
+            <h2 style="margin-top:14px">Capacidades</h2>
+            <div id="cap-list"></div>
+            <p class="vito-note">Sin Vito la clínica sigue en Dashboard / Agenda / Pacientes. Este panel es el plan Enterprise AI.</p>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      if (window.db && window.db.init) {
+        try { window.db.init(); } catch (_) {}
+      }
+      if (window.auth && typeof window.auth.checkSession === 'function') {
+        try { window.auth.checkSession(); } catch (_) {}
+      }
+
+      // Seed demo si vacío
+      let seedMsg = '';
+      if (window.CredentalDemo) {
+        const r = window.CredentalDemo.ensure();
+        if (r.seeded) {
+          seedMsg = 'Datos demo cargados: ' + r.company + ' · ' + r.patients + ' pacientes · ' + r.appointments + ' citas.';
+        } else if (r.reason === 'already-has-data') {
+          seedMsg = 'Usando datos existentes de la clínica (' + r.count + ' pacientes).';
+        }
+      }
+      document.getElementById('vito-seed-note').textContent = seedMsg;
+
+      const log = document.getElementById('vito-log');
+      const form = document.getElementById('vito-form');
+      const input = document.getElementById('vito-input');
+      const pill = document.getElementById('vito-pill');
+
+      const st = window.VitoCredental ? window.VitoCredental.status() : { enabled: false, ready: false };
+      pill.textContent = st.ready ? 'Activo · local-first' : 'No disponible';
+      if (!st.ready) pill.classList.add('off');
+
+      // Panel módulo
+      const mod = window.VitoCredental && window.VitoCredental.module;
+      const infos = window.Modkit && window.Modkit.catalog ? window.Modkit.catalog.infos() : [];
+      document.getElementById('mod-info').innerHTML = mod
+        ? '<strong>' + mod.name + '</strong> v' + mod.version + '<br>' + (mod.description || '')
+        : 'Módulo no registrado';
+      const ds = window.CredentalData ? window.CredentalData.status() : {};
+      document.getElementById('data-info').textContent =
+        (ds.mode || 'n/a') + ' · ' + (ds.cloud_sync || '') + ' · db ' + (ds.db_ready ? 'ok' : 'no');
+      document.getElementById('cap-list').innerHTML = (mod && mod.capabilities || [])
+        .map(function (c) {
+          return '<div class="vito-cap"><b>' + c.id + '</b><br>' + c.description + '</div>';
+        }).join('') || '—';
+
+      function addBubble(text, who, cites) {
+        const div = document.createElement('div');
+        div.className = 'vito-bubble ' + who;
+        div.textContent = text;
+        if (cites && cites.length) {
+          const c = document.createElement('div');
+          c.className = 'vito-cites';
+          c.textContent = 'Fuente: ' + cites.map(function (x) {
+            return x.label + (x.detail ? ' (' + x.detail + ')' : '');
+          }).join(' · ');
+          div.appendChild(c);
+        }
+        log.appendChild(div);
+        log.scrollTop = log.scrollHeight;
+      }
+
+      addBubble('Hola, soy Vito. Puedo consultar agenda, saldos y expedientes de esta clínica.', 'bot');
+
+      function ask(q) {
+        if (!window.VitoCredental) {
+          addBubble('Vito no está cargado.', 'bot');
+          return;
+        }
+        addBubble(q, 'user');
+        const res = window.VitoCredental.ask(q);
+        addBubble(res.reply, 'bot', res.citations);
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const q = input.value.trim();
+        if (!q) return;
+        input.value = '';
+        ask(q);
+      });
+
+      document.getElementById('vito-chips').addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-q]');
+        if (!btn) return;
+        ask(btn.getAttribute('data-q'));
+      });
+    })();
+  </script>
+</body>
+</html>

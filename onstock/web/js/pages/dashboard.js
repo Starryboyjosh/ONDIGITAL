@@ -1,7 +1,8 @@
 // Dashboard: KPIs del mes, gráfica de 12 meses, top productos, stock bajo, ventas recientes.
 import { api } from '../api.js';
-import { $, esc, money, qty, fmtDate, statusBadge, icons } from '../ui.js';
+import { $, esc, money, qty, fmtDate, statusBadge, icons, toast } from '../ui.js';
 import { monthBarChart } from '../charts.js';
+import { enterCajeroMode } from '../access.js';
 
 const ic = {
   sales: '<svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 7h7v7"/></svg>',
@@ -24,7 +25,7 @@ export async function render(page) {
       </div>
       <div class="page-actions">
         <a href="#/reportes" class="btn btn-outline">${icons.download} Reportes</a>
-        <a href="#/ventas/nueva" class="btn btn-primary">${icons.cart} Nueva venta</a>
+        <button type="button" class="btn btn-primary" id="btn-open-caja">${icons.cart} Abrir caja (turno cajero)</button>
       </div>
     </div>
 
@@ -117,6 +118,14 @@ export async function render(page) {
     </div>`;
 
   monthBarChart($('#chart', page), d.series);
+
+  const openCaja = $('#btn-open-caja', page);
+  if (openCaja) {
+    openCaja.addEventListener('click', () => {
+      enterCajeroMode();
+      toast('Turno de cajero: solo caja, sin menús de finanzas');
+    });
+  }
 }
 
 function cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : ''; }

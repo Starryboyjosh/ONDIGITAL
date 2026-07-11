@@ -12,12 +12,12 @@ export async function render(page) {
     <div class="page-head">
       <div>
         <h1>Ventas</h1>
-        <div class="sub">Historial de ventas y facturación</div>
+        <div class="sub">Historial y anulación · para cobrar usa <b>Caja</b></div>
       </div>
       <div class="page-actions">
         <button class="btn btn-outline" id="btn-xlsx">${icons.download} Excel</button>
         <button class="btn btn-outline" id="btn-pdf">${icons.download} PDF</button>
-        <a href="#/ventas/nueva" class="btn btn-primary">${icons.cart} Nueva venta</a>
+        <a href="#/caja" class="btn btn-primary">${icons.cart} Ir a la caja</a>
       </div>
     </div>
 

@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="ONDIGITAL — Plataformas web, apps, automatización e IA a medida desde Honduras.">
+    <meta name="theme-color" content="#0a1224">
+    <title>ONDIGITAL — Todo lo Vital es Digital</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <a class="skip-link" href="#inicio">Saltar al contenido</a>
+
+    <!-- Navbar -->
+    <header class="nav">
+        <div class="shell nav-inner">
+            <a class="brand" href="#inicio" aria-label="ONDIGITAL inicio">
+                <span class="brand-mark" data-expression="delight" aria-hidden="true">
+                    <svg viewBox="88 54 184 188" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="28" y="84" width="18" height="18" rx="4" fill="#3DD68C" opacity=".9"></rect>
+                        <rect x="52" y="63" width="24" height="24" rx="5" fill="#3DD68C"></rect>
+                        <rect x="18" y="112" width="14" height="14" rx="3" fill="#00C49A" opacity=".7"></rect>
+                        <rect x="38" y="119" width="18" height="18" rx="4" fill="#1A9EDA" opacity=".8"></rect>
+                        <rect x="22" y="140" width="12" height="12" rx="3" fill="#1A6FE8" opacity=".55"></rect>
+                        <rect x="42" y="147" width="15" height="15" rx="4" fill="#1A6FE8" opacity=".4"></rect>
+                        <rect x="100" y="92" width="160" height="140" rx="16" fill="url(#navRobotBodyGradient)"></rect>
+                        <path d="M148 92 C148 62 212 62 212 92" stroke="url(#navRobotHandleGradient)" stroke-width="14" fill="none" stroke-linecap="round"></path>
+                        <rect x="112" y="110" width="136" height="108" rx="12" fill="#050F2C"></rect>
+                        <g class="nav-robot-eye nav-eye-left">
+                            <ellipse cx="153" cy="154" rx="13" ry="13" fill="#00E5B0"></ellipse>
+                            <ellipse class="nav-robot-pupil" cx="153" cy="154" rx="5" ry="5" fill="#BFFFF3"></ellipse>
+                        </g>
+                        <g class="nav-robot-eye nav-eye-right">
+                            <ellipse cx="207" cy="154" rx="13" ry="13" fill="#00E5B0"></ellipse>
+                            <ellipse class="nav-robot-pupil" cx="207" cy="154" rx="5" ry="5" fill="#BFFFF3"></ellipse>
+                        </g>
+                        <path class="nav-robot-mouth" d="M140 178 Q180 200 220 178" stroke="#00E5B0" stroke-width="5" fill="none" stroke-linecap="round"></path>
+                        <defs>
+                            <linearGradient id="navRobotBodyGradient" x1="100" y1="92" x2="260" y2="232" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#2B8AF7"></stop>
+                                <stop offset="1" stop-color="#0D3E8A"></stop>
+                            </linearGradient>
+                            <linearGradient id="navRobotHandleGradient" x1="148" y1="60" x2="212" y2="92" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#2B8AF7"></stop>
+                                <stop offset="1" stop-color="#0A5FD4"></stop>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </span>
+                <span class="brand-word"><span class="brand-on">ON</span><span class="brand-digital">DIGITAL</span></span>
+            </a>
+
+            <div class="nav-actions">
+                <a class="btn btn-primary btn-cta" href="#contacto">Cotizar proyecto</a>
+                <div class="nav-menu">
+                    <button class="menu-btn" type="button" aria-label="Abrir menú" aria-controls="site-menu" aria-expanded="false" aria-haspopup="true">
+                        <svg class="menu-icon-open" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                        <svg class="menu-icon-close" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                    </button>
+                    <nav class="nav-drawer" id="site-menu" aria-label="Navegación principal" hidden>
+                        <a href="#servicios">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                            Servicios
+                        </a>
+                        <a href="#tecnologia">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                            Tecnología
+                        </a>
+                        <a href="#vito">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="7" width="14" height="12" rx="3"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/><circle cx="9.5" cy="13" r="1"/><circle cx="14.5" cy="13" r="1"/></svg>
+                            Vito
+                        </a>
+                        <a href="#equipo">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            Equipo
+                        </a>
+                        <a href="#precios">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                            Planes
+                        </a>
+                        <a href="#contacto">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M4 8l8 5 8-5"/></svg>
+                            Contacto
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="nav-scrim" id="nav-scrim" hidden aria-hidden="true"></div>
+
+    <main>
+        <!-- Hero -->
+        <section class="hero" id="inicio">
+            <canvas class="hero-canvas" id="hero-canvas" aria-hidden="true"></canvas>
+            <div class="shell hero-shell">
+                <div class="hero-robot-stage" id="hero-vito" aria-hidden="true">
+                    <div class="vito-aura" aria-hidden="true">
+                        <span class="vito-aura-ring r1"></span>
+                        <span class="vito-aura-ring r2"></span>
+                        <span class="vito-aura-ring r3"></span>
+                        <span class="vito-aura-core"></span>
+                    </div>
+                    <div class="hero-spotlight" aria-hidden="true"></div>
+                    <div class="hero-robot-shadow"></div>
+                    <div class="robot-logo-large" data-mood="cool">
+                        <div class="robot-3d">
+                            <svg class="robot-svg" viewBox="0 0 300 290" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="heroRobotBodyGrad" x1="100" y1="92" x2="268" y2="236" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#4BA3FF"/>
+                                        <stop offset=".45" stop-color="#1A6FE8"/>
+                                        <stop offset="1" stop-color="#0A2F6E"/>
+                                    </linearGradient>
+                                    <linearGradient id="heroRobotBodySide" x1="252" y1="92" x2="280" y2="232" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#0D3E8A"/>
+                                        <stop offset="1" stop-color="#061830"/>
+                                    </linearGradient>
+                                    <linearGradient id="heroRobotHandleGrad" x1="148" y1="56" x2="212" y2="96" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#5AB0FF"/>
+                                        <stop offset="1" stop-color="#0A5FD4"/>
+                                    </linearGradient>
+                                    <linearGradient id="heroRobotScreenGrad" x1="112" y1="110" x2="248" y2="218" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#071428"/>
+                                        <stop offset=".55" stop-color="#040c1c"/>
+                                        <stop offset="1" stop-color="#020610"/>
+                                    </linearGradient>
+                                    <linearGradient id="heroRobotGlass" x1="120" y1="112" x2="230" y2="200" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#fff" stop-opacity=".16"/>
+                                        <stop offset=".35" stop-color="#fff" stop-opacity=".04"/>
+                                        <stop offset="1" stop-color="#00E5B0" stop-opacity="0"/>
+                                    </linearGradient>
+                                    <linearGradient id="heroRobotBevel" x1="108" y1="96" x2="250" y2="220" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#fff" stop-opacity=".28"/>
+                                        <stop offset=".4" stop-color="#fff" stop-opacity=".06"/>
+                                        <stop offset="1" stop-color="#000" stop-opacity=".2"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <!-- Pixel trail (depth layer) -->
+                                <g class="robot-pixels" opacity=".95">
+                                    <rect x="30" y="86" width="16" height="16" rx="3.5" fill="#3DD68C" opacity=".85"/>
+                                    <rect x="54" y="64" width="22" height="22" rx="5" fill="#3DD68C"/>
+                                    <rect x="20" y="114" width="12" height="12" rx="3" fill="#00C49A" opacity=".7"/>
+                                    <rect x="40" y="120" width="16" height="16" rx="4" fill="#1A9EDA" opacity=".78"/>
+                                    <rect x="24" y="142" width="11" height="11" rx="3" fill="#1A6FE8" opacity=".52"/>
+                                    <rect x="44" y="148" width="14" height="14" rx="3.5" fill="#1A6FE8" opacity=".38"/>
+                                    <rect x="28" y="168" width="9" height="9" rx="2.5" fill="#1A6FE8" opacity=".26"/>
+                                    <rect x="48" y="174" width="10" height="10" rx="3" fill="#1A6FE8" opacity=".16"/>
+                                </g>
+
+                                <!-- 3D body stack: shadow → side extrusion → main shell → rim -->
+                                <g class="robot-body-stack">
+                                    <rect class="robot-body-cast" x="106" y="100" width="162" height="142" rx="18" fill="#020810" opacity=".45"/>
+                                    <path class="robot-body-side" d="M252 98 C268 100 274 110 274 126 L274 214 C274 228 266 238 250 240 L248 100 Z" fill="url(#heroRobotBodySide)"/>
+                                    <rect class="robot-body-main" x="100" y="92" width="160" height="140" rx="18" fill="url(#heroRobotBodyGrad)"/>
+                                    <rect class="robot-body-rim" x="102" y="94" width="156" height="136" rx="16" stroke="url(#heroRobotBevel)" stroke-width="2.2" fill="none"/>
+                                    <path class="robot-body-spec" d="M118 104 H236 C244 104 248 110 248 118 V148 C220 130 170 118 118 122 Z" fill="#fff" opacity=".1"/>
+                                </g>
+
+                                <!-- Handle with thickness -->
+                                <g class="robot-handle">
+                                    <path d="M150 94 C150 62 210 62 210 94" stroke="#041428" stroke-width="18" fill="none" stroke-linecap="round" opacity=".55"/>
+                                    <path d="M150 92 C150 60 210 60 210 92" stroke="url(#heroRobotHandleGrad)" stroke-width="14" fill="none" stroke-linecap="round"/>
+                                    <path d="M154 88 C156 68 204 68 206 88" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".22"/>
+                                </g>
+
+                                <!-- Recessed screen + glass -->
+                                <g class="robot-screen">
+                                    <rect x="114" y="112" width="136" height="108" rx="14" fill="#000" opacity=".35"/>
+                                    <rect x="112" y="110" width="136" height="108" rx="14" fill="url(#heroRobotScreenGrad)"/>
+                                    <rect x="114" y="112" width="132" height="104" rx="12" stroke="rgba(0,229,176,.18)" stroke-width="1.2" fill="none"/>
+                                    <rect x="116" y="114" width="80" height="48" rx="10" fill="url(#heroRobotGlass)"/>
+                                </g>
+
+                                <!-- Eyes: same friendly solid teal as nav logo -->
+                                <g class="robot-eye-group eye-left">
+                                    <ellipse class="robot-eye" cx="153" cy="154" rx="13" ry="13" fill="#00E5B0"></ellipse>
+                                    <ellipse class="robot-pupil" cx="153" cy="154" rx="5" ry="5" fill="#BFFFF3"></ellipse>
+                                </g>
+                                <g class="robot-eye-group eye-right">
+                                    <ellipse class="robot-eye" cx="207" cy="154" rx="13" ry="13" fill="#00E5B0"></ellipse>
+                                    <ellipse class="robot-pupil" cx="207" cy="154" rx="5" ry="5" fill="#BFFFF3"></ellipse>
+                                </g>
+
+                                <!-- Mouth: always visible; shape cycles over time (like nav logo) -->
+                                <path class="robot-mouth-large" d="M140 178 Q180 200 220 178" stroke="#00E5B0" stroke-width="5" fill="none" stroke-linecap="round"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Tech pop-ups Vito looks at -->
+                    <div class="vito-popups" id="vito-popups" aria-hidden="true"></div>
+                </div>
+                <div class="hero-copy">
+                    <h1>TODO LO VITAL ES <span class="gradient-text">DIGITAL</span>.</h1>
+                    <p class="hero-sub">Software a medida que reduce fricción y acelera resultados.</p>
+                    <div class="hero-actions">
+                        <a class="btn btn-primary btn-cta" href="#contacto">Hablemos</a>
+                        <a class="btn btn-secondary" href="#servicios">Ver capacidades</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Servicios -->
+        <section id="servicios" class="section-block servicios">
+            <div class="shell">
+                <div class="section-head reveal">
+                    <div class="section-label">Servicios</div>
+                    <h2>Lo que construimos. Resultados medibles.</h2>
+                    <p class="section-sub">Seis líneas de trabajo, un mismo estándar: sistemas que el negocio puede usar desde el día uno.</p>
+                </div>
+
+                <div class="services-bento reveal">
+                    <article class="svc svc--hero">
+                        <div class="svc-glow" aria-hidden="true"></div>
+                        <div class="svc-meta"><span class="svc-num">01</span><span class="svc-kicker">Producto digital</span></div>
+                        <h3>Webs y plataformas</h3>
+                        <p>Portales, e-commerce y SaaS con arquitectura clara, carga rápida y SEO que rinde.</p>
+                        <div class="svc-preview" aria-hidden="true">
+                            <div class="svc-window">
+                                <div class="svc-window-bar"><i></i><i></i><i></i></div>
+                                <div class="svc-window-body">
+                                    <div class="svc-win-nav"></div>
+                                    <div class="svc-win-hero"></div>
+                                    <div class="svc-win-cards"><span></span><span></span><span></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tags"><span class="tag">Next.js</span><span class="tag">React</span><span class="tag">SEO</span></div>
+                    </article>
+
+                    <article class="svc">
+                        <div class="svc-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none"><rect x="14" y="6" width="20" height="36" rx="4" stroke="currentColor" stroke-width="2"/><path d="M20 10h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="24" cy="36" r="2" fill="#00E5B0"/><rect x="17" y="14" width="14" height="16" rx="2" fill="#2B8AF7" opacity=".85"/></svg>
+                        </div>
+                        <div class="svc-meta"><span class="svc-num">02</span></div>
+                        <h3>Apps móviles</h3>
+                        <p>iOS y Android con flujos simples y base lista para crecer.</p>
+                        <div class="tags"><span class="tag">Flutter</span><span class="tag">iOS</span><span class="tag">Android</span></div>
+                    </article>
+
+                    <article class="svc">
+                        <div class="svc-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="8" stroke="currentColor" stroke-width="2"/><path d="M24 10v4M24 34v4M10 24h4M34 24h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="24" cy="24" r="3" fill="#00E5B0"/></svg>
+                        </div>
+                        <div class="svc-meta"><span class="svc-num">03</span></div>
+                        <h3>Automatización</h3>
+                        <p>APIs, reportes y procesos que quitan trabajo manual.</p>
+                        <div class="tags"><span class="tag">APIs</span><span class="tag">Webhooks</span></div>
+                    </article>
+
+                    <article class="svc svc--half">
+                        <div class="svc-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none"><ellipse cx="24" cy="14" rx="12" ry="5" stroke="currentColor" stroke-width="2"/><path d="M12 14v10c0 2.8 5.4 5 12 5s12-2.2 12-5V14M12 24v10c0 2.8 5.4 5 12 5s12-2.2 12-5V24" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="29" r="2" fill="#2B8AF7"/></svg>
+                        </div>
+                        <div class="svc-meta"><span class="svc-num">04</span></div>
+                        <h3>Datos y paneles</h3>
+                        <p>Modelado, migraciones y dashboards para decidir con números reales.</p>
+                        <div class="tags"><span class="tag">PostgreSQL</span><span class="tag">BI</span></div>
+                    </article>
+
+                    <article class="svc svc--half">
+                        <div class="svc-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none"><path d="M20 8l3 7h7l-5.5 4.2 2.1 7L20 22.5 13.4 26.2l2.1-7L10 15h7l3-7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M34 28l1.5 3.5H39l-2.8 2.1 1 3.4L34 35l-3.2 2 1-3.4-2.8-2.1h3.5L34 28z" fill="#2B8AF7"/></svg>
+                        </div>
+                        <div class="svc-meta"><span class="svc-num">06</span></div>
+                        <h3>Sistemas a medida</h3>
+                        <div class="tags"><span class="tag">UX</span><span class="tag">Arquitectura</span></div>
+                        <p>Paneles internos e integraciones hechas a tu operación.</p>
+                    </article>
+
+                    <article class="svc svc--wide svc--full">
+                        <div class="svc-wide-inner">
+                            <div>
+                                <div class="svc-meta"><span class="svc-num">05</span><span class="svc-kicker">Inteligencia</span></div>
+                                <h3>IA aplicada · Vito</h3>
+                                <p>Asistentes y clasificación sobre tus módulos — inventario, citas, ventas. En la nube o en tu servidor.</p>
+                                <div class="tags"><span class="tag">Vito</span><span class="tag">LLMs</span><span class="tag">Python</span></div>
+                            </div>
+                            <div class="svc-ai-visual" aria-hidden="true">
+                                <div class="svc-ai-chip">Consulta</div>
+                                <div class="svc-ai-chip svc-ai-chip--out">Respuesta + acción</div>
+                                <div class="svc-ai-chip">Datos del negocio</div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tecnología — capas -->
+        <section id="tecnologia" class="section-block tecnologia">
+            <div class="shell">
+                <div class="section-head reveal">
+                    <div class="section-label">Tecnología</div>
+                    <h2>Cómo se arma un sistema real.</h2>
+                    <p class="section-sub">Capas claras: interfaz, lógica, datos e infraestructura. Elegimos cada pieza por el problema, no por moda.</p>
+                </div>
+
+                <div class="tech-arch reveal">
+                    <div class="tech-arch-rail" aria-hidden="true"></div>
+
+                    <div class="tech-layer" data-layer="1" style="--layer-color:#61DAFB">
+                        <div class="tech-layer-side">
+                            <span class="tech-layer-num">01</span>
+                            <h3>Interfaz</h3>
+                            <p>Lo que el usuario ve y toca.</p>
+                        </div>
+                        <div class="tech-layer-body">
+                            <span class="tech-pill" style="--tech-color:#61DAFB">React</span>
+                            <span class="tech-pill" style="--tech-color:#e2e8f0">Next.js</span>
+                            <span class="tech-pill" style="--tech-color:#3178C6">TypeScript</span>
+                            <span class="tech-pill" style="--tech-color:#38BDF8">Tailwind</span>
+                            <span class="tech-pill" style="--tech-color:#02569B">Flutter</span>
+                        </div>
+                    </div>
+
+                    <div class="tech-layer" data-layer="2" style="--layer-color:#68A063">
+                        <div class="tech-layer-side">
+                            <span class="tech-layer-num">02</span>
+                            <h3>Lógica</h3>
+                            <p>APIs, reglas de negocio, automatización.</p>
+                        </div>
+                        <div class="tech-layer-body">
+                            <span class="tech-pill" style="--tech-color:#68A063">Node.js</span>
+                            <span class="tech-pill" style="--tech-color:#3776AB">Python</span>
+                            <span class="tech-pill" style="--tech-color:#00ADD8">Go</span>
+                            <span class="tech-pill" style="--tech-color:#3DD68C">REST / Webhooks</span>
+                        </div>
+                    </div>
+
+                    <div class="tech-layer" data-layer="3" style="--layer-color:#4479A1">
+                        <div class="tech-layer-side">
+                            <span class="tech-layer-num">03</span>
+                            <h3>Datos</h3>
+                            <p>Persistencia, caché y consultas confiables.</p>
+                        </div>
+                        <div class="tech-layer-body">
+                            <span class="tech-pill" style="--tech-color:#336791">PostgreSQL</span>
+                            <span class="tech-pill" style="--tech-color:#4479A1">MySQL</span>
+                            <span class="tech-pill" style="--tech-color:#47A248">MongoDB</span>
+                            <span class="tech-pill" style="--tech-color:#DC382D">Redis</span>
+                            <span class="tech-pill" style="--tech-color:#0FA958">SQLite</span>
+                        </div>
+                    </div>
+
+                    <div class="tech-layer" data-layer="4" style="--layer-color:#FF9900">
+                        <div class="tech-layer-side">
+                            <span class="tech-layer-num">04</span>
+                            <h3>Infraestructura</h3>
+                            <p>Despliegue, backups, monitoreo y CI.</p>
+                        </div>
+                        <div class="tech-layer-body">
+                            <span class="tech-pill" style="--tech-color:#FF9900">AWS</span>
+                            <span class="tech-pill" style="--tech-color:#FFCA28">Firebase</span>
+                            <span class="tech-pill" style="--tech-color:#2496ED">Docker</span>
+                            <span class="tech-pill" style="--tech-color:#2B8AF7">GitHub Actions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vito showcase visual -->
+        <section id="vito" class="section-block vito-section">
+            <div class="shell">
+                <div class="section-head reveal">
+                    <div class="section-label">Vito</div>
+                    <h2>IA dentro de tu operación — no un chat genérico.</h2>
+                    <p class="section-sub">Vive sobre tus módulos. Consulta, resume y sugiere acciones con el contexto del negocio.</p>
+                </div>
+
+                <div class="vito-showcase reveal">
+                    <div class="vito-showcase-copy">
+                        <div class="vito-brand-row">
+                            <svg class="vito-face" viewBox="0 0 300 290" fill="none" aria-hidden="true">
+                                <rect x="100" y="92" width="160" height="140" rx="16" fill="url(#vitoShowBody)"></rect>
+                                <path d="M148 92 C148 62 212 62 212 92" stroke="url(#vitoShowHandle)" stroke-width="14" fill="none" stroke-linecap="round"></path>
+                                <rect x="112" y="110" width="136" height="108" rx="12" fill="#050F2C"></rect>
+                                <ellipse cx="153" cy="154" rx="12" ry="12" fill="#00E5B0"></ellipse>
+                                <ellipse cx="207" cy="154" rx="12" ry="12" fill="#00E5B0"></ellipse>
+                                <ellipse cx="153" cy="154" rx="5" ry="5" fill="#00FFD4"></ellipse>
+                                <ellipse cx="207" cy="154" rx="5" ry="5" fill="#00FFD4"></ellipse>
+                                <path d="M140 178 Q180 200 220 178" stroke="#00E5B0" stroke-width="5" fill="none" stroke-linecap="round"></path>
+                                <defs>
+                                    <linearGradient id="vitoShowBody" x1="100" y1="92" x2="260" y2="232"><stop stop-color="#2B8AF7"/><stop offset="1" stop-color="#0D3E8A"/></linearGradient>
+                                    <linearGradient id="vitoShowHandle" x1="148" y1="60" x2="212" y2="92"><stop stop-color="#2B8AF7"/><stop offset="1" stop-color="#0A5FD4"/></linearGradient>
+                                </defs>
+                            </svg>
+                            <div>
+                                <strong>Vito</strong>
+                                <span>Asistente de negocio · Enterprise AI</span>
+                            </div>
+                        </div>
+                        <ul class="vito-feats">
+                            <li>
+                                <span class="vito-feat-icon" aria-hidden="true">◎</span>
+                                <div><strong>Consulta en español</strong><p>Preguntas sobre inventario, ventas o citas con datos reales.</p></div>
+                            </li>
+                            <li>
+                                <span class="vito-feat-icon" aria-hidden="true">⚡</span>
+                                <div><strong>Acciones, no solo texto</strong><p>Genera órdenes, resúmenes y recordatorios listos para usar.</p></div>
+                            </li>
+                            <li>
+                                <span class="vito-feat-icon" aria-hidden="true">⬡</span>
+                                <div><strong>Nube o local</strong><p>En tu servidor si el control de datos lo exige.</p></div>
+                            </li>
+                        </ul>
+                        <a class="btn btn-primary btn-cta" href="#precios">Ver plan Enterprise AI</a>
+                    </div>
+
+                    <div class="vito-mock" aria-hidden="true">
+                        <div class="vito-mock-chrome">
+                            <div class="vito-mock-dots"><i></i><i></i><i></i></div>
+                            <span>OnStock · Panel</span>
+                        </div>
+                        <div class="vito-mock-grid">
+                            <div class="vito-mock-side">
+                                <div class="vito-mock-nav active"></div>
+                                <div class="vito-mock-nav"></div>
+                                <div class="vito-mock-nav"></div>
+                                <div class="vito-mock-nav"></div>
+                            </div>
+                            <div class="vito-mock-main">
+                                <div class="vito-mock-kpis">
+                                    <div class="vito-kpi"><span>Ventas 7d</span><strong>L 48.2k</strong><em>+12%</em></div>
+                                    <div class="vito-kpi"><span>Stock bajo</span><strong>7</strong><em class="warn">alerta</em></div>
+                                    <div class="vito-kpi"><span>Margen</span><strong>31%</strong><em>+2pp</em></div>
+                                </div>
+                                <div class="vito-mock-chart">
+                                    <span style="--h:40%"></span><span style="--h:55%"></span><span style="--h:48%"></span>
+                                    <span style="--h:70%"></span><span style="--h:62%"></span><span style="--h:85%"></span>
+                                    <span style="--h:78%"></span>
+                                </div>
+                                <div class="vito-mock-panel">
+                                    <div class="vito-mock-panel-head">
+                                        <svg viewBox="0 0 40 40" width="28" height="28"><rect width="40" height="40" rx="8" fill="#0D3E8A"/><circle cx="14" cy="18" r="3" fill="#00E5B0"/><circle cx="26" cy="18" r="3" fill="#00E5B0"/><path d="M12 26q8 6 16 0" stroke="#00E5B0" fill="none" stroke-width="2"/></svg>
+                                        Vito
+                                    </div>
+                                    <p class="vito-mock-q">“¿Qué productos están por agotarse esta semana?”</p>
+                                    <div class="vito-mock-a">
+                                        <p><strong>7 productos</strong> bajo el mínimo.</p>
+                                        <ul>
+                                            <li>Amoxicilina 500mg · 12 uds</li>
+                                            <li>Guantes nitrilo M · 4 cajas</li>
+                                            <li>+ 5 más en la lista</li>
+                                        </ul>
+                                        <div class="vito-mock-actions">
+                                            <span>Generar OC</span>
+                                            <span class="ghost">Ver detalle</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Equipo -->
+        <section id="equipo" class="section-block">
+            <div class="shell">
+                <div class="section-head reveal">
+                    <div class="section-label">Equipo</div>
+                    <h2>Quién construye contigo.</h2>
+                </div>
+                <div class="team-grid reveal">
+                    <article class="team-card" tabindex="0">
+                        <div class="team-photo"><img src="equipo/cueva.jpg" alt="Mario Cueva" loading="lazy" width="400" height="400"></div>
+                        <div class="team-name">Mario Cueva</div>
+                        <div class="team-overlay">
+                            <span class="role">Dirección técnica · Fundador</span>
+                            <p>Arquitectura, robótica y visión de producto.</p>
+                        </div>
+                    </article>
+                    <article class="team-card" tabindex="0">
+                        <div class="team-photo"><img src="equipo/josh.png" alt="Joshua Isaula" loading="lazy" width="400" height="400"></div>
+                        <div class="team-name">Joshua Isaula</div>
+                        <div class="team-overlay">
+                            <span class="role">Full stack · Principal</span>
+                            <p>Interfaces, APIs y plataformas operativas.</p>
+                        </div>
+                    </article>
+                    <article class="team-card" tabindex="0">
+                        <div class="team-photo"><img src="equipo/escoto.jpg" alt="Danniel Escoto" loading="lazy" width="400" height="400"></div>
+                        <div class="team-name">Danniel Escoto</div>
+                        <div class="team-overlay">
+                            <span class="role">Mobile e IA</span>
+                            <p>Apps móviles y modelos de lenguaje aplicados.</p>
+                        </div>
+                    </article>
+                    <article class="team-card" tabindex="0">
+                        <div class="team-photo"><img src="equipo/victor.png" alt="Victor Mendez" loading="lazy" width="400" height="400"></div>
+                        <div class="team-name">Victor Mendez</div>
+                        <div class="team-overlay">
+                            <span class="role">Diseño UX</span>
+                            <p>Flujos, prototipos y sistemas visuales claros.</p>
+                        </div>
+                    </article>
+                    <article class="team-card" tabindex="0">
+                        <div class="team-photo"><img src="equipo/jorge.png" alt="Jorge Portillo" loading="lazy" width="400" height="400"></div>
+                        <div class="team-name">Jorge Portillo</div>
+                        <div class="team-overlay">
+                            <span class="role">Backend y datos</span>
+                            <p>Bases relacionales, infraestructura y soporte.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Planes -->
+        <section id="precios" class="section-block precios">
+            <div class="shell">
+                <div class="section-head reveal">
+                    <div class="section-label">Planes</div>
+                    <h2>Precios claros. Relación continua.</h2>
+                </div>
+                <div class="precios-grid">
+                    <article class="precio-card reveal reveal-stagger" style="--rs-delay:0ms" data-plan="starter">
+                        <div class="precio-badge">Starter</div>
+                        <div class="precio-price"><span class="precio-currency">$</span><span class="precio-amount" data-count-to="99">99</span><span class="precio-period">USD/mes</span></div>
+                        <ul class="precio-features">
+                            <li>Sistema personalizado</li>
+                            <li>Soporte y correcciones</li>
+                            <li>Actualizaciones mensuales</li>
+                            <li>Mejoras menores</li>
+                            <li>Capacitación básica</li>
+                            <li class="muted">Sin hosting administrado</li>
+                        </ul>
+                        <a class="btn btn-secondary precio-btn" href="#contacto" data-plan="starter">Elegir Starter</a>
+                    </article>
+
+                    <article class="precio-card precio-card--featured reveal reveal-stagger" style="--rs-delay:80ms" data-plan="business">
+                        <div class="precio-ribbon">Recomendado</div>
+                        <div class="precio-badge precio-badge--popular">Business</div>
+                        <div class="precio-price"><span class="precio-currency">$</span><span class="precio-amount" data-count-to="149">149</span><span class="precio-period">USD/mes</span></div>
+                        <ul class="precio-features">
+                            <li>Todo Starter</li>
+                            <li class="has-tip" data-tip="Hosting, backups, SSL, monitoreo y servidor gestionado.">Infraestructura administrada</li>
+                            <li class="has-tip" data-tip="CRM, inventario, POS, RRHH, reportes, APIs y más — listos para adaptar.">Biblioteca de módulos</li>
+                            <li>Alta disponibilidad</li>
+                            <li>Optimización continua</li>
+                            <li>Escalabilidad incluida</li>
+                        </ul>
+                        <a class="btn btn-primary btn-cta precio-btn" href="#contacto" data-plan="business">Elegir Business</a>
+                    </article>
+
+                    <article class="precio-card precio-card--ai reveal reveal-stagger" style="--rs-delay:160ms" data-plan="enterprise">
+                        <div class="precio-badge precio-badge--ai">Enterprise AI</div>
+                        <div class="precio-price"><span class="precio-currency">$</span><span class="precio-amount" data-count-to="199">199</span><span class="precio-period">USD/mes</span></div>
+                        <ul class="precio-features">
+                            <li>Todo Business</li>
+                            <li class="has-tip" data-tip="Consultas en español sobre inventario, ventas, citas y más.">Vito integrado</li>
+                            <li>Automatización con IA</li>
+                            <li>Alertas y predicciones</li>
+                            <li class="has-tip" data-tip="API en la nube o modelo en tu servidor. Solo ves a Vito.">IA nube o local</li>
+                            <li>Datos bajo tu control</li>
+                        </ul>
+                        <a class="btn btn-primary precio-btn" href="#contacto" data-plan="enterprise">Activar AI</a>
+                    </article>
+                </div>
+                <p class="precio-note reveal">Mínimo 3 meses. USD, facturación en HNL al tipo de cambio del día.</p>
+            </div>
+        </section>
+
+        <!-- Contacto -->
+        <section id="contacto" class="section-block contact">
+            <div class="shell">
+                <div class="contact-box reveal">
+                    <div class="contact-copy">
+                        <div class="section-label">Contacto</div>
+                        <h2>Cuéntanos qué hay que construir.</h2>
+                        <p>Elige un plan, revisa sus ventajas y cuéntanos tu idea. Definimos alcance y te damos una ruta realista.</p>
+
+                        <div class="plan-summary" id="plan-summary" data-plan="business">
+                            <div class="plan-summary-head">
+                                <span class="plan-summary-label">Plan elegido</span>
+                                <strong id="plan-summary-name">Business</strong>
+                                <span class="plan-summary-price" id="plan-summary-price">$149 USD/mes</span>
+                            </div>
+                            <p class="plan-summary-kicker">Ventajas incluidas</p>
+                            <ul class="plan-summary-list" id="plan-summary-list">
+                                <li>Todo Starter</li>
+                                <li>Infraestructura administrada</li>
+                                <li>Biblioteca de módulos</li>
+                                <li>Alta disponibilidad</li>
+                                <li>Optimización continua</li>
+                                <li>Escalabilidad incluida</li>
+                            </ul>
+                            <p class="plan-promise" id="plan-promise">
+                                En poco tiempo nuestro equipo te contactará para llevar a cabo tu idea.
+                            </p>
+                        </div>
+
+                        <div class="contact-links">
+                            <a class="btn btn-secondary" href="mailto:hola@ondigital.hn">hola@ondigital.hn</a>
+                            <a class="btn btn-secondary" href="https://wa.me/50412345678" target="_blank" rel="noopener">WhatsApp</a>
+                        </div>
+                    </div>
+                    <form class="contact-form" id="lead-form" novalidate>
+                        <div class="field">
+                            <span class="field-label" id="plan-picker-label">Plan</span>
+                            <div class="plan-picker" role="radiogroup" aria-labelledby="plan-picker-label">
+                                <label class="plan-option">
+                                    <input type="radio" name="plan" value="starter">
+                                    <span class="plan-option-card">
+                                        <em>Starter</em>
+                                        <strong>$99</strong>
+                                        <small>USD/mes</small>
+                                    </span>
+                                </label>
+                                <label class="plan-option">
+                                    <input type="radio" name="plan" value="business" checked>
+                                    <span class="plan-option-card">
+                                        <em>Business</em>
+                                        <strong>$149</strong>
+                                        <small>USD/mes</small>
+                                    </span>
+                                </label>
+                                <label class="plan-option">
+                                    <input type="radio" name="plan" value="enterprise">
+                                    <span class="plan-option-card">
+                                        <em>Enterprise AI</em>
+                                        <strong>$199</strong>
+                                        <small>USD/mes</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="name">Nombre</label>
+                            <input id="name" name="name" autocomplete="name" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="field">
+                            <label for="email">Correo</label>
+                            <input id="email" name="email" type="email" autocomplete="email" placeholder="tu@empresa.com" required>
+                        </div>
+                        <div class="field">
+                            <label for="message">Proyecto</label>
+                            <textarea id="message" name="message" placeholder="Qué necesitas construir o automatizar…" required></textarea>
+                        </div>
+                        <button class="btn btn-primary btn-cta" type="submit">Enviar mensaje</button>
+                        <div class="form-note" id="form-note" aria-live="polite"></div>
+                        <div class="form-success" id="form-success" hidden>
+                            <div class="form-success-icon" aria-hidden="true">✓</div>
+                            <strong>¡Listo!</strong>
+                            <p id="form-success-text">En poco tiempo nuestro equipo te contactará para llevar a cabo tu idea.</p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="shell footer-inner">
+            <strong>ONDIGITAL</strong>
+            <span>Todo lo Vital es Digital · Honduras</span>
+            <span>Web · Apps · Datos · IA</span>
+        </div>
+    </footer>
+
+    <div class="tip-bubble" id="tip-bubble" role="tooltip" hidden></div>
+    <script src="script.js"></script>
+</body>
+</html>

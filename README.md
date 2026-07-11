@@ -110,6 +110,7 @@ La app corre en `http://localhost:8080`.
 
 ## Trabajo Con Agentes AI
 
+
 Este repo incluye `AGENTS.md` como guía compartida para Codex y `CLAUDE.md` como puente para
 Claude Code. Para instalar el plugin oficial que permite usar Codex dentro de Claude Code y
 trabajar con el flujo Claude implementa -> Codex revisa -> Claude corrige, ver

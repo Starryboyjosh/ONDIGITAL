@@ -2,7 +2,8 @@
 
 ## Project Snapshot
 
-- ONDIGITAL is a multi-product repository for the main website, internal prototypes, and the Micro-Empresa product line for Honduras.
+- ONDIGITAL is a Honduran micro-empresa (student graduation project, run as a real company) that becomes each client's technology department: bespoke, modular business platforms delivered under a subscription model. This repository holds the main website, internal prototypes, and the products that prove that model. See `docs/modelo-negocio.md` and `docs/plan-maestro.md`.
+- **Vito** is ONDIGITAL's white-label AI assistant: in the UI only "Vito" ever appears — never "Claude", "ChatGPT", "OpenCode" or any provider name. The AI engine is an implementation detail (cloud API today, possibly a model running locally on the client's own server) behind a swappable provider layer. Vito works over the business's real data and is optional (Enterprise AI plan).
 - User-facing product copy should stay in Spanish. For active Honduras products, prefer local conventions such as HNL, es-HN, RTN/DNI, +504, and SAR-related wording when relevant.
 - `credental/` is a static HTML/CSS/vanilla JS dental clinic prototype. It has no framework or build step. Current auth and storage are demo-grade, not production security or durable clinical storage.
 - `onstock/` is a Go 1.22+ local mini-ERP with an embedded vanilla JS web UI and SQLite storage.
