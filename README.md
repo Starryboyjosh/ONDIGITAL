@@ -12,7 +12,8 @@ ONDIGITAL es una **micro-empresa hondureña** formada por un equipo de estudiant
 mentalidad de producto, nacida como proyecto de graduación y construida como una empresa real.
 
 > Modelo de negocio completo en [`docs/modelo-negocio.md`](docs/modelo-negocio.md) ·
-> Hoja de ruta en [`docs/plan-maestro.md`](docs/plan-maestro.md).
+> Auditoría y plan de implementación en [`docs/auditoria-estatica-ondigital.md`](docs/auditoria-estatica-ondigital.md)
+> y [`docs/plan-implementacion-super-v2.md`](docs/plan-implementacion-super-v2.md).
 
 ## Qué hacemos
 

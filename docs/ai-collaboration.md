@@ -6,7 +6,9 @@ Este repo queda configurado para que Claude Code y Codex compartan las mismas re
 - `CLAUDE.md` importa `AGENTS.md` para Claude Code y agrega notas específicas de coordinación.
 - `.codex/config.toml` configura Codex en este proyecto para usar `gpt-5.5` con razonamiento alto.
 - `docs/graphify.md` define el pase Graphify para mapear el repo antes de implementaciones grandes.
-- `docs/claude-implementation-prompt.md` contiene el prompt maestro listo para pegar en Claude Code.
+- `docs/auditoria-estatica-ondigital.md` contiene el baseline de riesgos y hallazgos.
+- `docs/plan-implementacion-super-v2.md` contiene el plan maestro listo para entregar a otro
+  modelo implementador.
 
 Referencias oficiales:
 
@@ -101,10 +103,10 @@ Para una revisión normal antes de entregar:
 /codex:result
 ```
 
-Para iniciar una implementación amplia del repo, pegar en Claude el prompt de:
+Para iniciar una implementación amplia del repo, entregar a Claude o al modelo implementador:
 
 ```text
-docs/claude-implementation-prompt.md
+docs/plan-implementacion-super-v2.md
 ```
 
 Ese prompt obliga a ejecutar Graphify, dividir por fases, no hacer commits y cerrar con revisión Codex.

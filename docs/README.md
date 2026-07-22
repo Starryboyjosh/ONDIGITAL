@@ -5,16 +5,20 @@ clínica/administrativa, multi‑empresa, en HTML/CSS/JS sin framework ni build.
 
 > Estado actual: **prototipo funcional con dirección de producto**. La estética,
 > la localización (Honduras) y el esqueleto de los módulos operativos están listos.
-> La **base de datos definitiva** y la **seguridad productiva** quedan por definir
-> con el equipo (ver [roadmap-y-pendientes.md](roadmap-y-pendientes.md)).
+> La **base de datos definitiva** y la **seguridad productiva** siguen pendientes.
+> La ejecución consolidada está en [plan-implementacion-super-v2.md](plan-implementacion-super-v2.md),
+> respaldada por la [auditoría estática](auditoria-estatica-ondigital.md).
 
 ## Índice de documentación
 
 - [funcionalidades.md](funcionalidades.md) — Qué hace cada módulo y en qué estado está.
 - [arquitectura.md](arquitectura.md) — Estructura técnica, capa de datos y dónde tocar
   para base de datos y seguridad.
-- [roadmap-y-pendientes.md](roadmap-y-pendientes.md) — Pasos completados, pendientes
-  y decisiones abiertas (datos, seguridad, integraciones).
+- [plan-implementacion-super-v2.md](plan-implementacion-super-v2.md) — Fuente única de ejecución,
+  fases, dependencias, aprobación, evidencia y criterios de producción.
+- [auditoria-estatica-ondigital.md](auditoria-estatica-ondigital.md) — Baseline de riesgos y
+  hallazgos que originaron la versión v2.
+- [plan-maestro.md](plan-maestro.md) — Histórico del cierre de Fases 1–4.
 
 ## Cómo ejecutarlo
 

@@ -12,7 +12,8 @@
 - Las fases están ordenadas por **dependencia**, no por calendario fijo.
 - Cada fase declara: **objetivo**, **entregables**, **criterio de "hecho"** y **riesgos**.
 - Cuando una fase pase a implementación, se trabaja con la disciplina de
-  `PLAN.md` vivo + `last_session.md` (handoff entre sesiones) y se verifica antes de avanzar.
+  [plan-implementacion-super-v2.md](plan-implementacion-super-v2.md) + evidencia de fase
+  (handoff entre sesiones) y se verifica antes de avanzar.
 - **Fase 1 está implementada y cerrada.** Las siguientes fases siguen el mismo proceso.
 
 ---
@@ -134,7 +135,7 @@ acordado (no bloquea Fase 4 de producto).
 **Objetivo:** endurecer lo que en las fases 1–3 fue demo, hasta que se pueda **vender y
 operar** según los tres planes.
 
-**PLAN vivo:** [PLAN.md](PLAN.md)
+**Plan de ejecución vigente:** [plan-implementacion-super-v2.md](plan-implementacion-super-v2.md)
 
 **Entregables**
 
@@ -177,9 +178,9 @@ Fase 1 (Vito)  ──►  Fase 2 (modularizar + alimentar Vito)  ──►  Fase
 ## Cómo ejecutamos (disciplina de trabajo)
 
 - Una fase a la vez, en **entregables pequeños y verificables**.
-- Al implementar: `PLAN.md` vivo junto al trabajo (marcado en el mismo turno en que se
-  completa cada ítem) + `last_session.md` antes de quedarse sin contexto; ambos se borran al
-  terminar la fase. El registro durable vive en estos docs y en el código.
+- Al implementar: actualizar el super plan en el mismo turno en que se completa cada ítem
+  + `last_session.md` antes de quedarse sin contexto. El registro durable vive en estos docs
+  y en el código.
 - **Verificación:** `cd onstock && make test` para cambios en Go / API embebida; smoke test
   con servidor estático para cambios de UI/web; reportar el comando exacto si algo no se pudo
   correr.

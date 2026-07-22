@@ -10,7 +10,8 @@ Graphify es el pase de mapa del repo que los agentes deben ejecutar antes de una
 
 ## Rutina Graphify
 
-1. Leer `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/README.md`, `docs/arquitectura.md` y `docs/roadmap-y-pendientes.md`.
+1. Leer `AGENTS.md`, `CLAUDE.md`, `README.md`, `docs/README.md`, `docs/arquitectura.md`,
+   `docs/auditoria-estatica-ondigital.md` y `docs/plan-implementacion-super-v2.md`.
 2. Identificar los productos afectados, entrypoints, dependencias, capa de datos, riesgos y comandos de verificación.
 3. Declarar el grafo de trabajo antes de editar código.
 4. Dividir la implementación en fases pequeñas y verificables.
@@ -112,7 +113,8 @@ flowchart TD
   Skills --> SecuritySkills["security/ auth, hardening, app review"]
   Skills --> BackendSkills["backend/ APIs y producción"]
 
-  Docs --> Roadmap["roadmap pasos 11-12 pendientes"]
+  Docs --> Audit["auditoría estática"]
+  Docs --> Roadmap["super plan v2 de implementación"]
   Docs --> Architecture["arquitectura datos/seguridad"]
   Docs --> Collaboration["ai-collaboration combo Claude+Codex"]
 ```
@@ -128,7 +130,7 @@ flowchart TD
 ## Slice Recomendado Para Implementación Grande
 
 1. Completar primero una fase documentada y verificable, no todo el repo de golpe.
-2. Para Credental, comenzar por `docs/roadmap-y-pendientes.md` pasos 11 y 12 si el usuario no da otra prioridad.
+2. Para Credental, comenzar por las Fases 1 y 5 de `docs/plan-implementacion-super-v2.md` si el usuario no da otra prioridad.
 3. Para OnStock, correr `cd onstock && make test` antes y después de cambios.
 4. Para seguridad/datos, proponer arquitectura y límites antes de implementar almacenamiento productivo.
 5. Antes de cerrar, pedir o ejecutar una revisión Codex read-only con `/codex:adversarial-review`.
