@@ -21,9 +21,9 @@ Generar ID: usar `tenant.NewID(nombre)` o el script abajo.
 
 | Plan | USD/mes | Incluye | Vito |
 |------|---------|---------|------|
-| Starter | 99 | Suite a medida en **infra del cliente** | No |
-| Business | 149 | + infra administrada + biblioteca de módulos | No* |
-| Enterprise AI | 199 | + **Vito** sobre los datos del negocio | Sí |
+| Starter | 19 | Suite a medida en **infra del cliente** | No |
+| Business | 49 | + infra administrada + biblioteca de módulos | No* |
+| Enterprise AI | 99 | + **Vito** sobre los datos del negocio | Sí |
 
 \* Business puede preparar `.env` Vito desactivado hasta upgrade.
 

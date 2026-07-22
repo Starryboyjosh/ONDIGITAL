@@ -8,7 +8,7 @@ import (
 
 func TestParsePlan_AndFlags(t *testing.T) {
 	p, err := tenant.ParsePlan("enterprise_ai")
-	if err != nil || !p.IncludesVito() || p.PriceUSDMonthly() != 199 {
+	if err != nil || !p.IncludesVito() || p.PriceUSDMonthly() != 99 {
 		t.Fatalf("enterprise: %v %v", p, err)
 	}
 	b, _ := tenant.ParsePlan("business")

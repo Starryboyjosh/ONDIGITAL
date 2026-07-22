@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -104,7 +105,7 @@ func (s *Service) Ask(ctx context.Context, req AskRequest) (AskResponse, error) 
 				reply = synthesizeFromTools(msgs)
 			}
 			return AskResponse{
-				Reply:     reply,
+				Reply:     s.sanitizeReply(reply),
 				Citations: dedupeCitations(allCitations),
 				ToolCalls: lastCalls,
 				Mock:      mock,
@@ -164,7 +165,7 @@ func (s *Service) Ask(ctx context.Context, req AskRequest) (AskResponse, error) 
 
 	// Exhausted rounds after tool use — answer from tool data (typical mock path).
 	return AskResponse{
-		Reply:     synthesizeFromTools(msgs),
+		Reply:     s.sanitizeReply(synthesizeFromTools(msgs)),
 		Citations: dedupeCitations(allCitations),
 		ToolCalls: lastCalls,
 		Mock:      mock,
@@ -254,7 +255,7 @@ func (s *Service) ConfirmAction(ctx context.Context, toolName string, args map[s
 			Mock:  mock,
 		}, nil
 	}
-	reply := preferSummary(res.Content)
+	reply := s.sanitizeReply(preferSummary(res.Content))
 	if reply == "" {
 		reply = "Acción completada."
 	}
@@ -264,6 +265,25 @@ func (s *Service) ConfirmAction(ctx context.Context, toolName string, args map[s
 		ToolCalls: []ToolCall{{ID: "confirm_1", Name: toolName, Arguments: args}},
 		Mock:      mock,
 	}, nil
+}
+
+// sanitizeReply enforces the white-label boundary even when a provider ignores its prompt.
+func (s *Service) sanitizeReply(reply string) string {
+	terms := []string{
+		"Claude", "ChatGPT", "OpenAI", "OpenCode", "Anthropic", "GPT-4", "Nemotron",
+	}
+	if s.provider != nil {
+		terms = append(terms, s.provider.Name())
+	}
+	for _, term := range terms {
+		term = strings.TrimSpace(term)
+		if term == "" {
+			continue
+		}
+		pattern := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(term) + `\b`)
+		reply = pattern.ReplaceAllString(reply, "Vito")
+	}
+	return reply
 }
 
 func preferSummary(content string) string {

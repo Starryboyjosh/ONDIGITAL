@@ -22,7 +22,7 @@ func TestLedger_CreateList(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if sub.AmountUSD != 199 {
+	if sub.AmountUSD != 99 {
 		t.Fatalf("amount %d", sub.AmountUSD)
 	}
 	led2, err := billing.OpenLedger(path)
@@ -32,7 +32,7 @@ func TestLedger_CreateList(t *testing.T) {
 	if len(led2.List()) != 1 {
 		t.Fatalf("list %d", len(led2.List()))
 	}
-	if led2.MonthlyRecurringUSD() != 199 {
+	if led2.MonthlyRecurringUSD() != 99 {
 		t.Fatalf("mrr %d", led2.MonthlyRecurringUSD())
 	}
 }

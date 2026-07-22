@@ -12,9 +12,9 @@ import (
 type Plan string
 
 const (
-	PlanStarter       Plan = "starter"        // $99 — app only, client infra
-	PlanBusiness      Plan = "business"       // $149 — + managed infra + module library
-	PlanEnterpriseAI  Plan = "enterprise_ai"  // $199 — + Vito
+	PlanStarter       Plan = "starter"        // $19 — app only, client infra
+	PlanBusiness      Plan = "business"       // $49 — + managed infra + module library
+	PlanEnterpriseAI  Plan = "enterprise_ai"  // $99 — + Vito
 )
 
 // Role is a suite user role (not ONDIGITAL staff).
@@ -88,11 +88,11 @@ func (p Plan) LabelES() string {
 func (p Plan) PriceUSDMonthly() int {
 	switch p {
 	case PlanStarter:
-		return 99
+		return 19
 	case PlanBusiness:
-		return 149
+		return 49
 	case PlanEnterpriseAI:
-		return 199
+		return 99
 	default:
 		return 0
 	}

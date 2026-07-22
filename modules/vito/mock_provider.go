@@ -135,7 +135,7 @@ func (m *MockProvider) Ask(ctx context.Context, req ProviderRequest) (ProviderRe
 					"• ¿Qué producto se mueve más lento?\n"+
 					"• ¿Cómo puedo evitar pérdidas?\n"+
 					"• Genera la orden de compra de lo que falta\n\n"+
-					"Si quieres respuestas más libres en lenguaje natural, configura tu API en el archivo .env del servidor (VITO_OPENCODE_API_KEY).",
+					"Para ampliar el tipo de consultas disponibles, contacta al administrador del sistema.",
 				truncateRunes(user, 120),
 			),
 		}, nil

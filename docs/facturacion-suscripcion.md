@@ -11,9 +11,9 @@ Implementación: `modules/billing` (ledger JSON).
 
 | Plan | USD / mes | Código |
 |------|-----------|--------|
-| Starter | 99 | `starter` |
-| Business | 149 | `business` |
-| Enterprise AI | 199 | `enterprise_ai` |
+| Starter | 19 | `starter` |
+| Business | 49 | `business` |
+| Enterprise AI | 99 | `enterprise_ai` |
 
 Cobro en Honduras: **USD de referencia**, facturación en **HNL** al tipo de cambio del día
 (acuerdo comercial; el ledger guarda `amount_usd`).

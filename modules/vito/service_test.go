@@ -9,6 +9,17 @@ import (
 	"ondigital.hn/vito"
 )
 
+type namedReplyProvider struct {
+	name  string
+	reply string
+}
+
+func (p namedReplyProvider) Name() string { return p.name }
+
+func (p namedReplyProvider) Ask(context.Context, vito.ProviderRequest) (vito.ProviderResult, error) {
+	return vito.ProviderResult{Content: p.reply}, nil
+}
+
 func TestNew_RequiresProvider(t *testing.T) {
 	_, err := vito.New(vito.Config{Enabled: true}, nil, nil)
 	if err == nil {
@@ -173,6 +184,44 @@ func TestProviderName_InternalOnly(t *testing.T) {
 	assertNoVendorLeak(t, res.Reply)
 	if strings.Contains(strings.ToLower(res.Reply), "mock") {
 		t.Errorf("reply must not expose provider id: %q", res.Reply)
+	}
+}
+
+func TestAsk_MockGuidanceDoesNotLeakDeploymentDetails(t *testing.T) {
+	reg := vito.NewRegistry()
+	if err := reg.Register(vito.Tool{Name: "business_data", ReadOnly: true}, func(context.Context, map[string]any) (vito.ToolResult, error) {
+		return vito.ToolResult{OK: true}, nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	svc := mustService(t, true, reg)
+	res, err := svc.Ask(context.Background(), vito.AskRequest{Message: "Necesito una respuesta abierta"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, forbidden := range []string{"vito_", "api key", "opencode", "openai", "anthropic"} {
+		if strings.Contains(strings.ToLower(res.Reply), forbidden) {
+			t.Errorf("reply leaked %q: %q", forbidden, res.Reply)
+		}
+	}
+}
+
+func TestAsk_SanitizesProviderBranding(t *testing.T) {
+	svc, err := vito.New(vito.Config{Enabled: true}, namedReplyProvider{
+		name:  "internal-engine",
+		reply: "Soy ChatGPT de OpenAI y uso internal-engine.",
+	}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := svc.Ask(context.Background(), vito.AskRequest{Message: "quien eres"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, forbidden := range []string{"chatgpt", "openai", "internal-engine"} {
+		if strings.Contains(strings.ToLower(res.Reply), forbidden) {
+			t.Errorf("reply leaked %q: %q", forbidden, res.Reply)
+		}
 	}
 }
 

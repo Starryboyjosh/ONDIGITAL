@@ -119,7 +119,7 @@ Los planes representan distintos niveles de acompañamiento tecnológico.
 
 # Plan Starter
 
-**Precio sugerido:** $99 USD / mes
+**Precio sugerido:** $19 USD / mes
 
 Pensado para empresas que administran su propia infraestructura o ya poseen un servidor.
 
@@ -142,7 +142,7 @@ No incluye infraestructura administrada.
 
 # Plan Business
 
-**Precio sugerido:** $149 USD / mes
+**Precio sugerido:** $49 USD / mes
 
 Incluye todo lo del plan Starter más:
 
@@ -187,7 +187,7 @@ Esto permite incorporar nuevas funcionalidades sin comenzar desde cero.
 
 # Plan Enterprise AI
 
-**Precio sugerido:** $199 USD / mes
+**Precio sugerido:** $99 USD / mes
 
 Incluye todo lo del plan Business.
 

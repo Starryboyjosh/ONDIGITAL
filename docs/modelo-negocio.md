@@ -167,7 +167,19 @@ El desarrollo no termina cuando se entrega el sistema. El objetivo es una **rela
 con el cliente mediante mejoras, mantenimiento y evolución constante del software. Cada plan
 representa un nivel distinto de acompañamiento tecnológico.
 
-### Plan Starter — $99 USD / mes
+### Precios vigentes
+
+| Plan | Precio mensual de referencia | Infraestructura administrada | Vito |
+|---|---:|---|---|
+| Starter | **$19 USD/mes** | No | No |
+| Business | **$49 USD/mes** | Sí | No |
+| Enterprise AI | **$99 USD/mes** | Sí | Sí |
+
+Los precios están expresados en USD como referencia comercial. La facturación en Honduras se
+realiza en HNL al tipo de cambio del día, según el acuerdo con cada cliente. El mínimo
+comercial es de tres meses.
+
+### Plan Starter — $19 USD / mes
 
 Para empresas que administran su propia infraestructura o ya poseen un servidor.
 
@@ -178,7 +190,7 @@ básica.
 
 _No incluye infraestructura administrada._
 
-### Plan Business — $149 USD / mes
+### Plan Business — $49 USD / mes
 
 Todo lo del plan Starter, más:
 
@@ -190,7 +202,7 @@ Todo lo del plan Starter, más:
   integraciones, automatizaciones) que se integran y adaptan rápidamente, sin empezar desde
   cero.
 
-### Plan Enterprise AI — $199 USD / mes
+### Plan Enterprise AI — $99 USD / mes
 
 Todo lo del plan Business, más **Vito** integrado directamente al negocio: consultas
 inteligentes, automatización inteligente e inteligencia de negocio sobre los datos del
