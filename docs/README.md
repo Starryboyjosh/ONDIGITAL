@@ -22,8 +22,16 @@ clínica/administrativa, multi‑empresa, en HTML/CSS/JS sin framework ni build.
 
 ## Cómo ejecutarlo
 
-No requiere instalación ni build. Abrir `credental/index.html` en el navegador
-(idealmente servido por un servidor estático local para que carguen los scripts).
+No requiere instalación ni build. Servir la carpeta `credental/` con un servidor estático
+local y abrir `index.html` para que carguen los scripts. El acceso de demostración es:
+
+```text
+Usuario: testing
+Contraseña: 1234
+```
+
+La semilla clínica se carga automáticamente en la sesión del navegador e incluye pacientes,
+citas, presupuestos, procedimientos y datos para Vito.
 
 Es un prototipo: los usuarios y datos de demostración provienen de `js/db.js` y de
 la sincronización opcional con Firebase. No usar con datos reales de pacientes hasta
