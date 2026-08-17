@@ -1,0 +1,96 @@
+﻿Bloque,Respuesta/Categoria,Frecuencia,Porcentaje
+Q1,Muy Bajo,104,32.4
+Q1,Medio,81,25.23
+Q1,Bajo,70,21.81
+Q1,Alto,66,20.56
+Q2,Entre 5 y 10 horas a la semana,113,35.2
+Q2,Menos de 5 horas a la semana,73,22.74
+Q2,Mas de 10 horas a la semana,69,21.5
+Q2,"No se pierde el tiempo, todo está perfectamente optimizado",66,20.56
+Q3,"En libretas, folders o agendas físicas",112,34.89
+Q3,En archivos de excel u otro programa de hojas de calculo,93,28.97
+Q3,En un software especializado en la nube,86,26.79
+Q3,"En libretas, folders o agendas físicas;En archivos de excel u otro programa de hojas de calculo;En un software especializado en la nube",15,4.67
+Q3,En archivos de excel u otro programa de hojas de calculo;En un software especializado en la nube,6,1.87
+Q3,"En libretas, folders o agendas físicas;En archivos de excel u otro programa de hojas de calculo",6,1.87
+Q3,"En libretas, folders o agendas físicas;En un software especializado en la nube",3,0.93
+Q4,3,89,27.73
+Q4,5,86,26.79
+Q4,4,49,15.26
+Q4,1,49,15.26
+Q4,2,48,14.95
+Q5,Dispuesto,125,38.94
+Q5,Muy Dispuesto,71,22.12
+Q5,Indiferente,70,21.81
+Q5,Indispuesto,55,17.13
+Q6,Desconocimiento sobre que opciones existen,115,35.83
+Q6,El costo del servicio,84,26.17
+Q6,falta de tiempo para implementar o aprender una nueva herramienta,66,20.56
+Q6,No lo considero necesario,56,17.45
+Q7,Definitivamente,109,33.96
+Q7,Interesado,88,27.41
+Q7,Para nada,65,20.25
+Q7,Inseguro,59,18.38
+Q8,Muy Dispuesto,122,38.01
+Q8,Dispuesto,83,25.86
+Q8,Indispuesto,63,19.63
+Q8,Indiferente,53,16.51
+Q9 (multiseleccion),Precio accesible,190,59.19
+Q9 (multiseleccion),Aumente mis ingresos,190,59.19
+Q9 (multiseleccion),Facilidad de uso,181,56.39
+Q9 (multiseleccion),Automatice mi negocio,174,54.21
+Q10 - proceso,las tareas recurrentes,19,5.92
+Q10 - proceso,las compras,18,5.61
+Q10 - proceso,la atención de consultas,18,5.61
+Q10 - proceso,los reportes,17,5.3
+Q10 - proceso,la planificación semanal,16,4.98
+Q10 - proceso,el seguimiento de garantías,15,4.67
+Q10 - proceso,la agenda de citas,15,4.67
+Q10 - proceso,el registro de proveedores,15,4.67
+Q10 - proceso,el archivo de documentos,14,4.36
+Q10 - proceso,el seguimiento de clientes,14,4.36
+Q10 - proceso,las ventas diarias,14,4.36
+Q10 - proceso,los pagos pendientes,13,4.05
+Q10 - proceso,el control de gastos,13,4.05
+Q10 - proceso,los indicadores,13,4.05
+Q10 - proceso,las solicitudes internas,13,4.05
+Q10 - proceso,el inventario,12,3.74
+Q10 - proceso,los pedidos,12,3.74
+Q10 - proceso,los turnos del equipo,11,3.43
+Q10 - proceso,los contratos,11,3.43
+Q10 - proceso,las órdenes de trabajo,11,3.43
+Q10 - proceso,el control de caja,10,3.12
+Q10 - proceso,las facturas,10,3.12
+Q10 - proceso,la comunicación con clientes,9,2.8
+Q10 - proceso,las cotizaciones,4,1.25
+Q10 - proceso,las entregas,4,1.25
+Q10 - problema,causa olvidos,22,6.85
+Q10 - problema,no deja ver el estado real,20,6.23
+Q10 - problema,se actualiza tarde,20,6.23
+Q10 - problema,no tiene responsables claros,19,5.92
+Q10 - problema,produce retrasos,19,5.92
+Q10 - problema,genera duplicados,17,5.3
+Q10 - problema,se pierde información,17,5.3
+Q10 - problema,limita el crecimiento,17,5.3
+Q10 - problema,se maneja de forma dispersa,16,4.98
+Q10 - problema,depende de hojas de cálculo,16,4.98
+Q10 - problema,dificulta dar seguimiento,16,4.98
+Q10 - problema,provoca errores,16,4.98
+Q10 - problema,quita tiempo al equipo,15,4.67
+Q10 - problema,no tiene alertas,14,4.36
+Q10 - problema,impide medir resultados,14,4.36
+Q10 - problema,retrasa las decisiones,14,4.36
+Q10 - problema,hace difícil encontrar datos,13,4.05
+Q10 - problema,requiere mucho trabajo manual,12,3.74
+Q10 - problema,requiere revisar varios archivos,12,3.74
+Q10 - problema,complica la coordinación,12,3.74
+Q10 - objetivo,mejorar el servicio,39,12.15
+Q10 - objetivo,responder más rápido,38,11.84
+Q10 - objetivo,tener información centralizada,36,11.21
+Q10 - objetivo,ordenar el trabajo,36,11.21
+Q10 - objetivo,evitar tareas repetidas,34,10.59
+Q10 - objetivo,tomar decisiones con datos,33,10.28
+Q10 - objetivo,ahorrar tiempo,29,9.03
+Q10 - objetivo,aumentar la productividad,28,8.72
+Q10 - objetivo,controlar mejor los costos,25,7.79
+Q10 - objetivo,reducir errores,23,7.17

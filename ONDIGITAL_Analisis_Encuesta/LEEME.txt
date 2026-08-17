@@ -1,0 +1,52 @@
+ONDIGITAL - PAQUETE COMPLETO DE ANALISIS DE ENCUESTA
+===================================================
+
+Base analizada: 321 respuestas.
+
+ARCHIVOS PRINCIPALES
+- ONDIGITAL_Analisis_Completo.xlsx: libro ejecutivo renovado con portada, dashboard, decisiones, base enriquecida, frecuencias, cruces, diccionario y visuales.
+- Informe_Visual_ONDIGITAL.pdf: informe visual de 14 paginas de la primera entrega.
+- dashboard_ondigital.html: dashboard ejecutivo autocontenido, con filtros, visualizaciones intercambiables, simulador, exportacion CSV y modo claro/oscuro.
+- dashboard_ondigital(1).html: copia compatible con el nombre de la entrega original.
+- explorador_respuestas.html: explorador responsive con filtros, paginacion, detalle por respuesta y exportacion CSV.
+- infografia_resumen.png: resumen visual de los indicadores principales.
+- datos_limpios_y_enriquecidos.csv: base original mas scores e indices derivados.
+- resumen_metricas.json: resumen estructurado para reutilizar en codigo.
+- informe_ejecutivo.md: interpretacion ejecutiva en texto.
+
+REGENERAR ENTREGABLES
+- Requiere Python 3 y openpyxl.
+- Desde esta carpeta ejecutar: python3 scripts/mejorar_reporte.py
+- El script vuelve a generar ONDIGITAL_Analisis_Completo.xlsx y explorador_respuestas.html a partir de datos_limpios_y_enriquecidos.csv y resumen_metricas.json.
+
+ABRIR EL REPORTE
+- Para que los enlaces entre dashboard y explorador funcionen, servir esta carpeta con: python3 -m http.server 4180
+- Abrir: http://127.0.0.1:4180/dashboard_ondigital.html
+- Abrir la tabla completa: http://127.0.0.1:4180/explorador_respuestas.html
+
+ESTRUCTURA DEL EXCEL RENOVADO
+- 00_Portada: lectura en una frase, señales, navegación y advertencia metodológica.
+- 01_Dashboard: indicadores, segmentación, calidad de datos, gráficos y prioridades.
+- 02_Decisiones: hallazgo, implicación y siguiente movimiento para ONDIGITAL.
+- 03_Respuestas: base limpia y enriquecida con filtros y formato condicional.
+- 04_Frecuencias: distribuciones completas por bloque de pregunta.
+- 05_Cruces: asociaciones estadísticas y control de calidad.
+- 06_Diccionario: definiciones de scores, segmentos y límites de interpretación.
+- 07_Visuales: selección de gráficos lista para presentar.
+
+CARPETAS
+- graficos/: 15 visualizaciones PNG individuales.
+- tablas/: frecuencias, asociaciones estadisticas, segmentos, metricas y cruces.
+- raw/: CSV original extraido del ZIP entregado.
+
+LECTURA RAPIDA PARA ONDIGITAL
+- 73.2% usa papel y/o Excel.
+- 61.1% esta dispuesto o muy dispuesto a un sistema a la medida.
+- 61.4% quiere o considera un equipo tecnologico externo continuo.
+- 63.9% esta dispuesto o muy dispuesto a aprender tecnologia nueva.
+- El freno mas frecuente es el desconocimiento de opciones (35.8%), por encima del costo (26.2%).
+- La demanda de automatizacion esta repartida en muchos procesos, lo que favorece una arquitectura modular.
+- Vito tiene mas sentido como capa sobre datos ya centralizados que como primera venta.
+
+ADVERTENCIA METODOLOGICA
+La estructura temporal y textual del archivo sugiere datos simulados o altamente guiados. Los resultados describen esta base y sirven para exploracion, presentacion y formulacion de hipotesis; no deben extrapolarse como representativos del mercado hondureno sin una recoleccion real y documentada.

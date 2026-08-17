@@ -1,0 +1,12 @@
+﻿Relacion,Efecto (V o rho),p_value
+Madurez tecnologica vs disposicion,0.442,2.7413209974729543e-37
+Tiempo perdido vs disposicion,0.453,3.223824434937886e-39
+Freno principal vs disposicion,0.434,7.007242926808732e-36
+Equipo externo vs disposicion,0.419,2.7209227673381574e-33
+Aprendizaje vs disposicion,0.418,4.277273854137304e-33
+Almacenamiento vs percepcion de perdida,0.236,2.432552318059986e-10
+Madurez vs disposicion (Spearman),-0.201,0.00029570583263715405
+Horas perdidas vs dolor (Spearman),0.177,0.0014139575970666387
+Disposicion vs equipo externo (Spearman),0.144,0.00959895555569453
+Disposicion vs aprendizaje (Spearman),0.218,8.253256188566585e-05
+Equipo externo vs aprendizaje (Spearman),0.638,4.1617810216990873e-38

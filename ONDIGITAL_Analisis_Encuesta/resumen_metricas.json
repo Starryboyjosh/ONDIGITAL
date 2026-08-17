@@ -1,0 +1,323 @@
+{
+  "n": 321,
+  "metricas": {
+    "Tecnología baja o muy baja": {
+      "n": 174,
+      "pct": 54.21
+    },
+    "Pierde 5+ h/semana": {
+      "n": 182,
+      "pct": 56.7
+    },
+    "Usa papel y/o Excel": {
+      "n": 235,
+      "pct": 73.21
+    },
+    "Percibe pérdida 4-5/5": {
+      "n": 135,
+      "pct": 42.06
+    },
+    "Dispuesto o muy dispuesto": {
+      "n": 196,
+      "pct": 61.06
+    },
+    "Quiere equipo externo": {
+      "n": 197,
+      "pct": 61.37
+    },
+    "Dispuesto a aprender": {
+      "n": 205,
+      "pct": 63.86
+    }
+  },
+  "indice_oportunidad_promedio": 55.47,
+  "indice_oportunidad_mediana": 55.56,
+  "segmentos": {
+    "Listo para vender": {
+      "n": 75,
+      "pct": 23.36
+    },
+    "Educar y nutrir": {
+      "n": 40,
+      "pct": 12.46
+    },
+    "Baja prioridad": {
+      "n": 66,
+      "pct": 20.56
+    },
+    "Interes medio / diagnostico": {
+      "n": 87,
+      "pct": 27.1
+    },
+    "Sensible al precio": {
+      "n": 53,
+      "pct": 16.51
+    }
+  },
+  "niveles_oportunidad": {
+    "Muy alta": {
+      "n": 98,
+      "pct": 30.53
+    },
+    "Baja": {
+      "n": 98,
+      "pct": 30.53
+    },
+    "Media": {
+      "n": 87,
+      "pct": 27.1
+    },
+    "Alta": {
+      "n": 38,
+      "pct": 11.84
+    }
+  },
+  "q9": {
+    "Automatice mi negocio": {
+      "n": 174,
+      "pct": 54.21
+    },
+    "Precio accesible": {
+      "n": 190,
+      "pct": 59.19
+    },
+    "Aumente mis ingresos": {
+      "n": 190,
+      "pct": 59.19
+    },
+    "Facilidad de uso": {
+      "n": 181,
+      "pct": 56.39
+    }
+  },
+  "top_procesos": [
+    [
+      "las tareas recurrentes",
+      19
+    ],
+    [
+      "las compras",
+      18
+    ],
+    [
+      "la atención de consultas",
+      18
+    ],
+    [
+      "los reportes",
+      17
+    ],
+    [
+      "la planificación semanal",
+      16
+    ],
+    [
+      "el seguimiento de garantías",
+      15
+    ],
+    [
+      "la agenda de citas",
+      15
+    ],
+    [
+      "el registro de proveedores",
+      15
+    ],
+    [
+      "el archivo de documentos",
+      14
+    ],
+    [
+      "el seguimiento de clientes",
+      14
+    ],
+    [
+      "las ventas diarias",
+      14
+    ],
+    [
+      "los pagos pendientes",
+      13
+    ],
+    [
+      "el control de gastos",
+      13
+    ],
+    [
+      "los indicadores",
+      13
+    ],
+    [
+      "las solicitudes internas",
+      13
+    ]
+  ],
+  "top_problemas": [
+    [
+      "causa olvidos",
+      22
+    ],
+    [
+      "no deja ver el estado real",
+      20
+    ],
+    [
+      "se actualiza tarde",
+      20
+    ],
+    [
+      "no tiene responsables claros",
+      19
+    ],
+    [
+      "produce retrasos",
+      19
+    ],
+    [
+      "genera duplicados",
+      17
+    ],
+    [
+      "se pierde información",
+      17
+    ],
+    [
+      "limita el crecimiento",
+      17
+    ],
+    [
+      "se maneja de forma dispersa",
+      16
+    ],
+    [
+      "depende de hojas de cálculo",
+      16
+    ],
+    [
+      "dificulta dar seguimiento",
+      16
+    ],
+    [
+      "provoca errores",
+      16
+    ],
+    [
+      "quita tiempo al equipo",
+      15
+    ],
+    [
+      "no tiene alertas",
+      14
+    ],
+    [
+      "impide medir resultados",
+      14
+    ]
+  ],
+  "top_objetivos": [
+    [
+      "mejorar el servicio",
+      39
+    ],
+    [
+      "responder más rápido",
+      38
+    ],
+    [
+      "tener información centralizada",
+      36
+    ],
+    [
+      "ordenar el trabajo",
+      36
+    ],
+    [
+      "evitar tareas repetidas",
+      34
+    ],
+    [
+      "tomar decisiones con datos",
+      33
+    ],
+    [
+      "ahorrar tiempo",
+      29
+    ],
+    [
+      "aumentar la productividad",
+      28
+    ],
+    [
+      "controlar mejor los costos",
+      25
+    ],
+    [
+      "reducir errores",
+      23
+    ]
+  ],
+  "calidad_datos": {
+    "q10_parseable_misma_plantilla": 321,
+    "intervalos_consecutivos_mismo_segundo": 176,
+    "intervalos_consecutivos_hasta_2_segundos": 296,
+    "filas_en_patrones_cerrados_duplicados": 75,
+    "duracion_captura_segundos": 1499.0
+  },
+  "asociaciones": [
+    {
+      "relacion": "Madurez tecnologica vs disposicion",
+      "efecto": 0.442,
+      "p_value": 2.7413209974729543e-37
+    },
+    {
+      "relacion": "Tiempo perdido vs disposicion",
+      "efecto": 0.453,
+      "p_value": 3.223824434937886e-39
+    },
+    {
+      "relacion": "Freno principal vs disposicion",
+      "efecto": 0.434,
+      "p_value": 7.007242926808732e-36
+    },
+    {
+      "relacion": "Equipo externo vs disposicion",
+      "efecto": 0.419,
+      "p_value": 2.7209227673381574e-33
+    },
+    {
+      "relacion": "Aprendizaje vs disposicion",
+      "efecto": 0.418,
+      "p_value": 4.277273854137304e-33
+    },
+    {
+      "relacion": "Almacenamiento vs percepcion de perdida",
+      "efecto": 0.236,
+      "p_value": 2.432552318059986e-10
+    },
+    {
+      "relacion": "Madurez vs disposicion (Spearman)",
+      "efecto": -0.201,
+      "p_value": 0.00029570583263715405
+    },
+    {
+      "relacion": "Horas perdidas vs dolor (Spearman)",
+      "efecto": 0.177,
+      "p_value": 0.0014139575970666387
+    },
+    {
+      "relacion": "Disposicion vs equipo externo (Spearman)",
+      "efecto": 0.144,
+      "p_value": 0.00959895555569453
+    },
+    {
+      "relacion": "Disposicion vs aprendizaje (Spearman)",
+      "efecto": 0.218,
+      "p_value": 8.253256188566585e-05
+    },
+    {
+      "relacion": "Equipo externo vs aprendizaje (Spearman)",
+      "efecto": 0.638,
+      "p_value": 4.1617810216990873e-38
+    }
+  ]
+}
