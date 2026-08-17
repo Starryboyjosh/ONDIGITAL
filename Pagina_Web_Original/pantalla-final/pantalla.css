@@ -1,0 +1,740 @@
+/* ONDIGITAL - Pantalla final: pieza de exhibicion, Vito es el punto de atencion. */
+
+:root {
+    --bg: #030711;
+    --bg-raised: #071322;
+    --fg: #f0f4ff;
+    --muted: rgba(207, 220, 242, 0.78);
+    --soft: rgba(168, 186, 216, 0.74);
+    --border: rgba(112, 143, 190, 0.24);
+    --border-strong: rgba(139, 175, 226, 0.46);
+    --blue: #2b8af7;
+    --blue-soft: #1a9eda;
+    --mint: #00e5b0;
+    --green: #3dd68c;
+    --font: system-ui, -apple-system, "Segoe UI", "Avenir Next", Inter, sans-serif;
+    --font-display: "Avenir Next", system-ui, -apple-system, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Consolas, monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+    /* Escala de la pieza: todo crece con la altura real de la pantalla. */
+    --marco-y: clamp(22px, 3.4svh, 54px);
+    --marco-x: clamp(22px, 3.6vw, 76px);
+    /* Vito y su orbita mandan: el nucleo es el objeto mas grande del encuadre. */
+    --nucleo-tam: min(80svh, 45vw);
+    --tarjeta-ancho: clamp(300px, 29vw, 540px);
+    --tarjeta-sep: clamp(10px, 1.4svh, 18px);
+
+    /* Escala z semantica. */
+    --z-orbita: 1;
+    --z-escena: 2;
+    --z-vito: 3;
+    --z-nodos: 9;
+    --z-marco: 10;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+    min-height: 100%;
+    background: var(--bg);
+}
+
+body {
+    min-width: 320px;
+    min-height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse 70% 55% at 50% 56%, rgba(43, 138, 247, 0.12), transparent 70%),
+        radial-gradient(ellipse 52% 44% at 50% 52%, rgba(0, 229, 176, 0.07), transparent 72%),
+        radial-gradient(ellipse 90% 60% at 50% 0%, rgba(15, 33, 61, 0.5), transparent 68%),
+        var(--bg);
+    color: var(--fg);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+}
+
+body.sin-cursor { cursor: none; }
+
+:focus-visible {
+    outline: 3px solid var(--mint);
+    outline-offset: 4px;
+}
+
+.pantalla {
+    position: relative;
+    min-height: 100svh;
+    padding: var(--marco-y) var(--marco-x);
+}
+
+/* Un solo escenario centrado: marca arriba, lema arriba, Vito al medio. */
+.escenario {
+    position: relative;
+    min-height: calc(100svh - (var(--marco-y) * 2));
+    isolation: isolate;
+}
+
+/* Franja de marca: ancla superior del encuadre. */
+.marca-fija {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: var(--z-marco);
+    display: flex;
+    align-items: baseline;
+    gap: clamp(12px, 1.2vw, 20px);
+    transform: translateX(-50%);
+}
+
+.marca-nombre {
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: clamp(15px, 1.7svh, 21px);
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    line-height: 1;
+}
+
+.marca-nombre b { color: var(--mint); }
+
+.lema {
+    position: absolute;
+    top: clamp(26px, 4.4svh, 62px);
+    left: 50%;
+    z-index: var(--z-marco);
+    display: grid;
+    gap: 0.06em;
+    margin: 0;
+    color: rgba(232, 238, 250, 0.94);
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 6.6svh, 5.4rem);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    line-height: 0.94;
+    text-align: center;
+    text-transform: uppercase;
+    text-wrap: balance;
+    transform: translateX(-50%);
+}
+
+.lema span { display: block; white-space: nowrap; }
+
+/* Tratamiento de la landing oficial: base solida + barrido neon enmascarado. */
+.lema em {
+    position: relative;
+    display: inline-block;
+    color: #f2f8ff;
+    font-style: normal;
+    text-shadow: none;
+    animation: heroNeonGlow 2.6s ease-in-out infinite;
+}
+
+.lema em::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    color: var(--mint);
+    -webkit-mask-image: linear-gradient(102deg, transparent 44%, #000 48%, #000 53%, transparent 57%);
+    mask-image: linear-gradient(102deg, transparent 44%, #000 48%, #000 53%, transparent 57%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 220% 100%;
+    mask-size: 220% 100%;
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+    animation: heroNeonSweep 2.6s linear infinite, heroNeonHue 2.6s linear infinite;
+    will-change: mask-position;
+}
+
+@keyframes heroNeonSweep {
+    0% { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+    31% { -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+    100% { -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+}
+
+@keyframes heroNeonHue {
+    0% { color: var(--mint); text-shadow: 0 0 0.08em rgba(0, 229, 176, 0.95), 0 0 0.34em rgba(0, 229, 176, 0.6); }
+    12% { color: #29f5c4; text-shadow: 0 0 0.1em rgba(0, 229, 176, 1), 0 0 0.4em rgba(0, 229, 176, 0.55); }
+    17% { color: #ffffff; text-shadow: 0 0 0.14em rgba(255, 255, 255, 1), 0 0 0.5em rgba(196, 236, 255, 0.7); }
+    23% { color: #4fa6ff; text-shadow: 0 0 0.1em rgba(43, 138, 247, 1), 0 0 0.42em rgba(43, 138, 247, 0.6); }
+    31%, 100% { color: var(--blue); text-shadow: 0 0 0.08em rgba(43, 138, 247, 0.95), 0 0 0.34em rgba(43, 138, 247, 0.5); }
+}
+
+@keyframes heroNeonGlow {
+    0%, 100% { filter: drop-shadow(0 0 0.04em rgba(0, 229, 176, 0.5)) drop-shadow(0 0 0.3em rgba(43, 138, 247, 0.28)); }
+    14% { filter: drop-shadow(0 0 0.07em rgba(255, 255, 255, 0.85)) drop-shadow(0 0 0.42em rgba(0, 229, 176, 0.55)); }
+    28% { filter: drop-shadow(0 0 0.05em rgba(43, 138, 247, 0.78)) drop-shadow(0 0 0.38em rgba(43, 138, 247, 0.4)); }
+}
+
+/* La escena ocupa todo el encuadre: Vito al centro, capacidades alrededor. */
+.escena {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-escena);
+    perspective: 1200px;
+    perspective-origin: 50% 46%;
+}
+
+/* Nucleo: cuadrado centrado que sostiene orbitas, aura y Vito. */
+.nucleo {
+    position: absolute;
+    top: 47%;
+    left: 50%;
+    width: var(--nucleo-tam);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    transform-style: preserve-3d;
+}
+
+.orbitas {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-orbita);
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.orbita-anillo {
+    fill: none;
+    transform-origin: 200px 200px;
+}
+
+.orbita-anillo.a1 { stroke: rgba(0, 229, 176, 0.52); stroke-width: 1.4; stroke-dasharray: 3 12; animation: orbitaGira 46s linear infinite; }
+.orbita-anillo.a2 { stroke: rgba(43, 138, 247, 0.46); stroke-width: 1.4; stroke-dasharray: 2 9; animation: orbitaGira 68s linear infinite reverse; }
+.orbita-anillo.a3 { stroke: rgba(151, 178, 218, 0.32); stroke-width: 1.1; stroke-dasharray: 1.5 8; animation: orbitaGira 96s linear infinite; }
+
+@keyframes orbitaGira { to { transform: rotate(360deg); } }
+
+/* Cada linea apunta hacia el nodo que le toca. */
+.orbita-linea {
+    stroke: rgba(0, 229, 176, 0.74);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-dasharray: 2.5 13;
+    filter: drop-shadow(0 0 3px rgba(0, 229, 176, 0.55));
+    animation: pulsoEntrante 3.6s linear infinite;
+}
+
+.orbita-linea:nth-of-type(2) { animation-delay: -0.7s; }
+.orbita-linea:nth-of-type(3) { animation-delay: -1.4s; }
+.orbita-linea:nth-of-type(4) { animation-delay: -2.1s; }
+.orbita-linea:nth-of-type(5) { animation-delay: -2.8s; }
+
+@keyframes pulsoEntrante {
+    from { stroke-dashoffset: 0; }
+    to { stroke-dashoffset: 31; }
+}
+
+.aura {
+    position: absolute;
+    inset: 8% 10%;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    transform-style: preserve-3d;
+}
+
+.aura-nucleo {
+    position: absolute;
+    width: 48%;
+    height: 48%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 229, 176, 0.13) 0%, rgba(43, 138, 247, 0.08) 42%, transparent 70%);
+    filter: blur(7px);
+    animation: auraNucleo 4.5s ease-in-out infinite;
+}
+
+.aura-onda {
+    position: absolute;
+    border: 1px solid rgba(0, 229, 176, 0.18);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(43, 138, 247, 0.07), inset 0 0 10px rgba(0, 229, 176, 0.03);
+    transform: rotateX(58deg);
+    animation: auraOnda 5.5s ease-out infinite;
+}
+
+.aura-onda.o1 { width: 46%; height: 56%; }
+.aura-onda.o2 { width: 62%; height: 72%; border-color: rgba(43, 138, 247, 0.14); animation-delay: 1.3s; }
+.aura-onda.o3 { width: 78%; height: 88%; border-color: rgba(0, 229, 176, 0.08); animation-delay: 2.6s; }
+
+@keyframes auraNucleo {
+    0%, 100% { opacity: 0.4; transform: scale(0.97); }
+    50% { opacity: 0.72; transform: scale(1.03); }
+}
+
+@keyframes auraOnda {
+    0% { opacity: 0.26; transform: rotateX(58deg) scale(0.92); }
+    70% { opacity: 0.1; }
+    100% { opacity: 0; transform: rotateX(58deg) scale(1.2); }
+}
+
+.sombra {
+    position: absolute;
+    bottom: 13%;
+    left: 50%;
+    width: 42%;
+    height: 3.2%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.72), transparent 72%);
+    filter: blur(8px);
+    opacity: 0.68;
+    pointer-events: none;
+    transform: translateX(-50%) rotateX(70deg);
+    animation: sombraLatido 4.6s ease-in-out infinite;
+}
+
+@keyframes sombraLatido {
+    0%, 100% { opacity: 0.68; transform: translateX(-50%) rotateX(70deg) scale(1); }
+    50% { opacity: 0.34; transform: translateX(-50%) rotateX(70deg) scale(0.82); }
+}
+
+/* viewBox recortado al arte real: Vito ocupa de verdad el espacio que se le da. */
+.robot-logo-large {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: var(--z-vito);
+    width: 44%;
+    transform: translate(-50%, -54%) rotateX(var(--vito-tilt-x, 5deg)) rotateY(var(--vito-tilt-y, -8deg));
+    transform-style: preserve-3d;
+    transition: transform 420ms var(--ease-out);
+}
+
+.robot-3d {
+    position: relative;
+    transform-style: preserve-3d;
+    animation: robotFlota 4.6s ease-in-out infinite;
+    filter: drop-shadow(0 24px 32px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 24px rgba(0, 229, 176, 0.1));
+}
+
+@keyframes robotFlota {
+    0%, 100% { transform: translate3d(0, 0, 0) rotateY(0deg) rotateX(0deg); }
+    25% { transform: translate3d(0, -8px, 8px) rotateY(3.5deg) rotateX(-1.5deg); }
+    50% { transform: translate3d(0, -16px, 14px) rotateY(0deg) rotateX(1.5deg); }
+    75% { transform: translate3d(0, -7px, 7px) rotateY(-3.5deg) rotateX(-1deg); }
+}
+
+.robot-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    transform-style: preserve-3d;
+}
+
+.robot-body-cast { transform: translate(4px, 6px); }
+.robot-body-side { transform-origin: right center; }
+.robot-handle { transform-origin: 180px 76px; animation: asaBalanceo 4.6s ease-in-out infinite; }
+.robot-body-spec { transform-origin: center; animation: brilloBarrido 5.8s ease-in-out infinite; }
+
+@keyframes asaBalanceo {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-1.5px); }
+}
+
+@keyframes brilloBarrido {
+    0%, 100% { opacity: 0.08; }
+    45% { opacity: 0.15; }
+    55% { opacity: 0.1; }
+}
+
+.robot-eye-group,
+.robot-eye,
+.robot-pupil {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.robot-pupil { transform: translate(var(--mirada-x, 0px), var(--mirada-y, 0px)); transition: transform 280ms var(--ease-out); }
+.robot-eye-group.parpadea { animation: parpadeo 0.17s ease-out; }
+.robot-mouth-large { filter: drop-shadow(0 0 5px rgba(0, 229, 176, 0.32)); }
+
+@keyframes parpadeo {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(0.1); }
+}
+
+/* Nodos: cada capacidad vive en su propio punto alrededor de Vito. */
+.nodos {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-nodos);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+}
+
+.nodo-shell {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    pointer-events: auto;
+}
+
+/* Posiciones alrededor del nucleo. Fuera del anillo, nunca sobre Vito. */
+.nodo-shell[data-capacidad="ia"] { --x: 32%; --y: 29%; }
+.nodo-shell[data-capacidad="webs"] { --x: 68%; --y: 29%; }
+.nodo-shell[data-capacidad="sistemas"] { --x: 32%; --y: 71%; }
+.nodo-shell[data-capacidad="apps"] { --x: 68%; --y: 71%; }
+.nodo-shell[data-capacidad="auto"] { --x: 50%; --y: 91%; }
+
+/* Cada nodo crece hacia afuera: la tarjeta nunca invade el centro. */
+.nodo-shell.hacia-izq { transform: translate(-100%, -50%); }
+.nodo-shell.hacia-der { transform: translate(0, -50%); }
+.nodo-shell.hacia-arriba { transform: translate(-50%, -50%); }
+.nodo-shell.activo { z-index: 2; }
+
+.nodo {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 0.9svh, 12px);
+    min-height: 44px;
+    padding: clamp(10px, 1.2svh, 15px) clamp(14px, 1.4vw, 22px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(6, 14, 27, 0.86);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: clamp(11px, 1.25svh, 15px);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    animation: nodoRespira 6.4s ease-in-out infinite;
+    animation-delay: var(--retardo, 0s);
+    transition: transform 200ms var(--ease-out), border-color 200ms ease-out, background-color 200ms ease-out, color 200ms ease-out, box-shadow 200ms ease-out;
+}
+
+.nodo::before {
+    content: "";
+    width: clamp(7px, 0.85svh, 10px);
+    height: clamp(7px, 0.85svh, 10px);
+    flex: none;
+    border-radius: 50%;
+    background: var(--marca, var(--mint));
+    box-shadow: 0 0 10px var(--marca, var(--mint));
+    transition: transform 200ms var(--ease-out);
+}
+
+.nodo-shell.activo .nodo {
+    border-color: color-mix(in srgb, var(--marca, var(--mint)) 70%, white 10%);
+    background: color-mix(in srgb, var(--marca, var(--mint)) 18%, rgba(6, 14, 27, 0.94));
+    color: #ffffff;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--marca, var(--mint)) 34%, transparent), 0 10px 30px rgba(0, 0, 0, 0.44);
+    animation: none;
+    opacity: 1;
+}
+
+.nodo-shell.activo .nodo::before { transform: scale(1.25); }
+.nodo:active { transform: scale(0.97); }
+
+@keyframes nodoRespira {
+    0%, 100% { opacity: 0.72; }
+    50% { opacity: 1; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .nodo-shell:not(.activo) .nodo:hover { border-color: var(--border-strong); background: rgba(13, 31, 54, 0.96); }
+}
+
+/* Tarjeta de capacidad: se abre pegada a su nodo y crece hacia el borde. */
+.nodo-tarjeta {
+    position: absolute;
+    display: grid;
+    grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(12px, 1.2vw, 20px);
+    width: var(--tarjeta-ancho);
+    padding: clamp(13px, 1.7svh, 21px);
+    padding-bottom: clamp(17px, 2.2svh, 27px);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--marca, var(--mint)) 24%, var(--border));
+    border-radius: 18px;
+    background:
+        radial-gradient(ellipse 120% 70% at 50% 0%, color-mix(in srgb, var(--marca, var(--mint)) 14%, transparent), transparent 74%),
+        linear-gradient(180deg, rgba(10, 24, 42, 0.97), rgba(4, 11, 22, 0.98));
+    box-shadow:
+        0 30px 70px rgba(0, 0, 0, 0.58),
+        0 0 0 1px color-mix(in srgb, var(--marca, var(--mint)) 12%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 260ms ease-out,
+        transform 520ms var(--ease-out),
+        visibility 0s linear 520ms;
+}
+
+.hacia-izq .nodo-tarjeta {
+    top: calc(100% + var(--tarjeta-sep));
+    right: 0;
+    transform-origin: top right;
+    transform: translateY(-10px) scale(0.96);
+}
+
+.hacia-der .nodo-tarjeta {
+    top: calc(100% + var(--tarjeta-sep));
+    left: 0;
+    transform-origin: top left;
+    transform: translateY(-10px) scale(0.96);
+}
+
+.hacia-arriba .nodo-tarjeta {
+    bottom: calc(100% + var(--tarjeta-sep));
+    left: 50%;
+    margin-left: calc(var(--tarjeta-ancho) / -2);
+    transform-origin: bottom center;
+    transform: translateY(10px) scale(0.96);
+}
+
+.nodo-shell.activo .nodo-tarjeta {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+        opacity 340ms ease-out,
+        transform 620ms var(--ease-out),
+        visibility 0s;
+}
+
+.tarjeta-visual {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 10px;
+    background: linear-gradient(165deg, #071628, #040c19);
+    box-shadow: inset 0 0 0 1px rgba(139, 175, 226, 0.16);
+}
+
+.tarjeta-visual svg { display: block; width: 100%; height: 100%; }
+
+.tarjeta-copy { min-width: 0; }
+
+.tarjeta-titulo {
+    margin: 0;
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 2.2svh, 1.7rem);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+    text-wrap: balance;
+}
+
+.tarjeta-texto {
+    margin: clamp(6px, 0.9svh, 11px) 0 0;
+    color: var(--muted);
+    font-size: clamp(0.82rem, 1.55svh, 1.08rem);
+    line-height: 1.42;
+    text-wrap: pretty;
+}
+
+.tarjeta-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(5px, 0.7svh, 8px);
+    margin: clamp(9px, 1.3svh, 15px) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tarjeta-tags li {
+    padding: clamp(4px, 0.6svh, 7px) clamp(8px, 0.8vw, 12px);
+    border: 1px solid color-mix(in srgb, var(--marca, var(--mint)) 26%, var(--border));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--marca, var(--mint)) 9%, transparent);
+    color: #e4ecfa;
+    font-family: var(--font-mono);
+    font-size: clamp(9px, 1.05svh, 12px);
+    letter-spacing: 0.05em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* Graficos de la tarjeta: SVG para que aguanten un monitor grande. */
+.viz-linea { stroke-dasharray: 460; stroke-dashoffset: 460; animation: vizTrazo 1.5s var(--ease-out) forwards; }
+.viz-sube { transform-box: fill-box; transform-origin: bottom center; animation: vizSube 700ms var(--ease-out) backwards; }
+.viz-late { animation: vizLate 2.4s ease-in-out infinite; }
+.viz-corre { animation: vizCorre 3.2s linear infinite; }
+.viz-escribe { animation: vizEscribe 1.4s ease-in-out infinite; }
+
+@keyframes vizTrazo { to { stroke-dashoffset: 0; } }
+@keyframes vizSube { from { transform: scaleY(0); opacity: 0; } }
+@keyframes vizLate { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+@keyframes vizCorre { from { stroke-dashoffset: 220; } to { stroke-dashoffset: 0; } }
+@keyframes vizEscribe { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-1.5px); } }
+
+/* Pie: firma discreta, sin competir con la escena. */
+.pie {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: var(--z-marco);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+    pointer-events: none;
+}
+
+.pie-nota {
+    color: var(--soft);
+    font-family: var(--font-mono);
+    font-size: clamp(10px, 1.05svh, 13px);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+/* Pantallas anchas y bajas: menos altura para todo, nodos mas juntos. */
+@media (min-width: 1181px) and (max-height: 820px) {
+    :root {
+        --nucleo-tam: min(64svh, 34vw);
+        --tarjeta-ancho: clamp(300px, 27vw, 430px);
+    }
+
+    .lema { font-size: clamp(2.1rem, 5.8svh, 3.4rem); }
+    .nodo-shell[data-capacidad="ia"],
+    .nodo-shell[data-capacidad="webs"] { --y: 28%; }
+    .nodo-shell[data-capacidad="sistemas"],
+    .nodo-shell[data-capacidad="apps"] { --y: 70%; }
+    .nodo-shell[data-capacidad="auto"] { --y: 96%; }
+}
+
+/* Monitores muy grandes (2K/4K en pared): sube el techo de toda la escala. */
+@media (min-width: 2200px) {
+    :root {
+        --nucleo-tam: min(66svh, 38vw);
+        --tarjeta-ancho: clamp(560px, 27vw, 860px);
+    }
+
+    .lema { font-size: clamp(3.4rem, 7svh, 6rem); }
+    .marca-nombre { font-size: clamp(21px, 1.7svh, 30px); }
+    .pie-nota { font-size: clamp(13px, 1.05svh, 17px); }
+    .nodo { font-size: clamp(15px, 1.25svh, 20px); }
+    .tarjeta-titulo { font-size: clamp(1.7rem, 2.4svh, 2.6rem); }
+    .tarjeta-texto { font-size: clamp(1.08rem, 1.6svh, 1.5rem); }
+    .tarjeta-tags li { font-size: clamp(12px, 1.05svh, 16px); }
+}
+
+/* Portrait y pantallas angostas: la orbita se convierte en lista, con scroll. */
+@media (max-width: 1180px), (orientation: portrait) {
+    body { overflow-x: hidden; overflow-y: auto; }
+    .pantalla { min-height: 100svh; padding: 26px 20px 44px; }
+
+    .escenario {
+        display: flex;
+        min-height: 0;
+        flex-direction: column;
+        align-items: center;
+        gap: clamp(20px, 3.4svh, 36px);
+    }
+
+    .marca-fija { position: static; left: auto; justify-content: center; transform: none; }
+
+    .lema {
+        position: static;
+        font-size: clamp(2.4rem, 8.6vw, 4.2rem);
+        transform: none;
+    }
+
+    .escena {
+        position: static;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: clamp(18px, 3svh, 32px);
+        width: 100%;
+    }
+
+    .nucleo {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: min(72vw, 420px);
+        transform: none;
+    }
+
+    .nodos {
+        position: static;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: min(94vw, 480px);
+    }
+
+    .nodo-shell {
+        position: static;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        transform: none;
+    }
+
+    .nodo-shell[data-capacidad="webs"] { order: 1; }
+    .nodo-shell[data-capacidad="apps"] { order: 2; }
+    .nodo-shell[data-capacidad="auto"] { order: 3; }
+    .nodo-shell[data-capacidad="sistemas"] { order: 4; }
+    .nodo-shell[data-capacidad="ia"] { order: 5; }
+
+    .nodo { width: 100%; }
+
+    .nodo-tarjeta {
+        position: static;
+        width: 100%;
+        margin-left: 0;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+    }
+
+    .nodo-shell:not(.activo) .nodo-tarjeta { display: none; }
+
+    .pie { position: static; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lema em,
+    .lema em::after,
+    .orbita-anillo,
+    .orbita-linea,
+    .aura-nucleo,
+    .aura-onda,
+    .sombra,
+    .robot-3d,
+    .robot-handle,
+    .robot-body-spec,
+    .nodo,
+    .viz-linea,
+    .viz-sube,
+    .viz-late,
+    .viz-corre,
+    .viz-escribe {
+        animation: none !important;
+    }
+
+    .lema em::after { opacity: 1; -webkit-mask-position: 0 0; mask-position: 0 0; }
+    .nodo { opacity: 1; }
+    .viz-linea { stroke-dashoffset: 0; }
+    .viz-sube { transform: none; opacity: 1; }
+    .viz-late, .viz-escribe { opacity: 1; }
+    .viz-corre { stroke-dashoffset: 0; }
+    .nodo-tarjeta,
+    .nodo-shell.activo .nodo-tarjeta {
+        transform: none !important;
+        transition: opacity 120ms linear, visibility 0s;
+    }
+
+    .robot-logo-large,
+    .robot-pupil {
+        transition-duration: 1ms;
+    }
+}

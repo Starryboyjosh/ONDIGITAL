@@ -119,9 +119,9 @@
     /* ─── Hero Vito: sonrisa cíclica, parpadeo, pop-ups tech, mirada ─── */
     const heroLogo = $(".robot-logo-large");
     const heroStage = $("#hero-vito");
-    const heroMouth = $(".robot-logo-large .robot-mouth-large");
-    const pupils = $$(".robot-logo-large .robot-pupil");
-    const eyeGroups = $$(".robot-logo-large .robot-eye-group");
+    const heroMouth = heroLogo ? $(".robot-mouth-large", heroLogo) : null;
+    const pupils = heroLogo ? $$(".robot-pupil", heroLogo) : [];
+    const eyeGroups = heroLogo ? $$(".robot-eye-group", heroLogo) : [];
     const popupLayer = $("#vito-popups");
 
     // Expresiones de boca (mismo estilo que el logo del nav)
@@ -414,6 +414,33 @@
         const tagsEl = $("#services-tags");
         const detailEl = $("#services-detail");
         const progressEl = $("#services-progress-fill");
+        const servicesVitoEl = $("#services-vito");
+        const sourceVito = hero ? $(".robot-logo-large", hero) : null;
+        let servicesVito = null;
+
+        // Servicios reutiliza el mismo SVG del hero para que Vito conserve
+        // identidad visual, colores y expresiones en toda la landing.
+        if (servicesVitoEl && sourceVito) {
+            servicesVito = sourceVito.cloneNode(true);
+            const idMap = new Map();
+            servicesVito.querySelectorAll("[id]").forEach((element, index) => {
+                const nextId = `${element.id}-services-${index}`;
+                idMap.set(element.id, nextId);
+                element.id = nextId;
+            });
+            servicesVito.querySelectorAll("*").forEach((element) => {
+                ["fill", "stroke", "filter", "clip-path", "mask", "href", "xlink:href"].forEach((attribute) => {
+                    const value = element.getAttribute(attribute);
+                    if (!value) return;
+                    const nextValue = value
+                        .replace(/url\(#([^\)]+)\)/g, (match, id) => `url(#${idMap.get(id) || id})`)
+                        .replace(/^#(.+)$/, (match, id) => `#${idMap.get(id) || id}`);
+                    if (nextValue !== value) element.setAttribute(attribute, nextValue);
+                });
+            });
+            servicesVito.dataset.mood = "vito";
+            servicesVitoEl.appendChild(servicesVito);
+        }
 
         if (prefersReduced || !window.THREE) {
             section.classList.add("services-static-mode");
@@ -428,7 +455,6 @@
         let scene;
         let camera;
         let renderer;
-        let vito;
         let particleField;
         let cards = [];
         let targetProgress = 0;
@@ -438,6 +464,8 @@
         let visible = false;
         let lastIndex = -1;
         let raf = 0;
+        let vitoIndex = -1;
+        let vitoHandoffTimer = 0;
         const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
         const clock = new THREE.Clock();
 
@@ -551,125 +579,6 @@
             return texture;
         };
 
-        const createVito = () => {
-            const group = new THREE.Group();
-            const bodyGroup = new THREE.Group();
-
-            const faceCanvas = document.createElement("canvas");
-            faceCanvas.width = 512;
-            faceCanvas.height = 420;
-            const f = faceCanvas.getContext("2d");
-            const faceBg = f.createLinearGradient(0, 0, 512, 420);
-            faceBg.addColorStop(0, "#07172b");
-            faceBg.addColorStop(1, "#020713");
-            roundedRect(f, 0, 0, 512, 420, 54);
-            f.fillStyle = faceBg;
-            f.fill();
-            const faceShine = f.createLinearGradient(20, 0, 420, 360);
-            faceShine.addColorStop(0, "rgba(255,255,255,.13)");
-            faceShine.addColorStop(.35, "rgba(255,255,255,.02)");
-            faceShine.addColorStop(1, "rgba(255,255,255,0)");
-            roundedRect(f, 0, 0, 512, 420, 54);
-            f.fillStyle = faceShine;
-            f.fill();
-            f.shadowColor = "#00E5B0";
-            f.shadowBlur = 26;
-            f.strokeStyle = "#00E5B0";
-            f.fillStyle = "#00E5B0";
-            f.lineWidth = 13;
-            [170, 342].forEach((x) => {
-                f.beginPath();
-                f.arc(x, 174, 48, 0, Math.PI * 2);
-                f.stroke();
-                f.beginPath();
-                f.arc(x, 174, 10, 0, Math.PI * 2);
-                f.fill();
-            });
-            f.lineCap = "round";
-            f.beginPath();
-            f.arc(256, 222, 104, .18 * Math.PI, .82 * Math.PI, false);
-            f.stroke();
-
-            const bodyShape = new THREE.Shape();
-            const w = 4.3;
-            const h = 3.65;
-            const r = .78;
-            const x = -w / 2;
-            const y = -h / 2;
-            bodyShape.moveTo(x + r, y);
-            bodyShape.lineTo(x + w - r, y);
-            bodyShape.quadraticCurveTo(x + w, y, x + w, y + r);
-            bodyShape.lineTo(x + w, y + h - r);
-            bodyShape.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-            bodyShape.lineTo(x + r, y + h);
-            bodyShape.quadraticCurveTo(x, y + h, x, y + h - r);
-            bodyShape.lineTo(x, y + r);
-            bodyShape.quadraticCurveTo(x, y, x + r, y);
-
-            const geometry = new THREE.ExtrudeGeometry(bodyShape, {
-                depth: 1.05,
-                bevelEnabled: true,
-                bevelSegments: 6,
-                steps: 1,
-                bevelSize: .24,
-                bevelThickness: .24
-            });
-            geometry.center();
-            const bodyMat = new THREE.MeshStandardMaterial({
-                color: 0x1671e8,
-                metalness: .38,
-                roughness: .2
-            });
-            const body = new THREE.Mesh(geometry, bodyMat);
-            bodyGroup.add(body);
-
-            const faceTexture = new THREE.CanvasTexture(faceCanvas);
-            const screen = new THREE.Mesh(
-                new THREE.PlaneGeometry(3.72, 3.05),
-                new THREE.MeshStandardMaterial({
-                    map: faceTexture,
-                    metalness: .72,
-                    roughness: .1,
-                    emissive: 0x002d22,
-                    emissiveIntensity: .35
-                })
-            );
-            screen.position.z = .78;
-            bodyGroup.add(screen);
-
-            const handle = new THREE.Mesh(new THREE.TorusGeometry(1.1, .22, 16, 42, Math.PI), bodyMat);
-            handle.position.set(0, 2.03, -.03);
-            bodyGroup.add(handle);
-
-            const earMat = new THREE.MeshStandardMaterial({ color: 0x36a2ff, metalness: .3, roughness: .24 });
-            [-1, 1].forEach((side) => {
-                const ear = new THREE.Mesh(new THREE.SphereGeometry(.26, 20, 14), earMat);
-                ear.scale.set(1.1, .75, .7);
-                ear.position.set(side * 2.38, .88, .02);
-                group.add(ear);
-            });
-
-            const trailData = [
-                [-2.65, .95, .28, 0x3DD68C], [-2.95, .45, .22, 0x00C49A],
-                [-2.78, -.08, .2, 0x1A9EDA], [-3.02, -.58, .16, 0x1A6FE8]
-            ];
-            trailData.forEach(([tx, ty, size, color], trailIndex) => {
-                const pixel = new THREE.Mesh(
-                    new THREE.BoxGeometry(size, size, .13),
-                    new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: .28, roughness: .25, metalness: .34 })
-                );
-                pixel.position.set(tx, ty, -.06 - trailIndex * .04);
-                pixel.rotation.z = .18;
-                pixel.userData.baseY = ty;
-                group.add(pixel);
-            });
-
-            group.add(bodyGroup);
-            group.position.set(-1.05, -.2, 0);
-            group.scale.setScalar(.83);
-            return group;
-        };
-
         const createParticles = () => {
             const count = window.innerWidth < 700 ? 420 : 900;
             const geometry = new THREE.BufferGeometry();
@@ -720,9 +629,6 @@
             const mint = new THREE.PointLight(0x00E5B0, 3.4, 24);
             mint.position.set(7, -5, 5);
             scene.add(mint);
-
-            vito = createVito();
-            scene.add(vito);
 
             const cardWidth = window.innerWidth < 640 ? 3.55 : 4.65;
             const cardHeight = cardWidth * .625;
@@ -838,17 +744,30 @@
                 attr.needsUpdate = true;
             });
 
-            if (vito) {
-                const mobileScale = window.innerWidth < 640 ? .64 : .83;
-                vito.scale.setScalar(mobileScale * (1 - exit * .18));
-                vito.position.x = window.innerWidth < 640 ? -1.25 : -1.05;
-                vito.position.y = Math.sin(elapsed * 1.25) * .16 - exit * 2;
-                vito.rotation.x = Math.sin(elapsed * .75) * .08 + pointer.y * .12;
-                vito.rotation.y = Math.sin(elapsed * .5) * .14 + pointer.x * .18 + serviceProgress * .16;
-                vito.children.forEach((child, childIndex) => {
-                    if (Number.isFinite(child.userData?.baseY)) child.position.y = child.userData.baseY + Math.sin(elapsed * 2 + childIndex * .55) * .055;
-                });
-                vito.visible = exit < .99;
+            if (servicesVito && servicesVitoEl) {
+                // Vito está detrás de las tarjetas: se inclina hacia la que llega,
+                // se endereza cuando el servicio queda fijo y da un pulso en cada relevo.
+                const lean = activeFloat - Math.round(activeFloat);          // -0.5 → 0.5
+                const locked = clamp(1 - Math.abs(lean) * 2);                // 1 = servicio asentado
+                const thrust = clamp(Math.abs(targetProgress - smoothProgress) * 26);
+                const breathe = Math.sin(elapsed * 1.15);
+
+                servicesVitoEl.style.setProperty("--services-vito-x", `${lean * -34 - pointer.x * 16}px`);
+                servicesVitoEl.style.setProperty("--services-vito-y", `${breathe * 7 + Math.abs(lean) * 18 - serviceProgress * 24 - exit * 40}px`);
+                servicesVitoEl.style.setProperty("--services-vito-lean", `${lean * 7 + pointer.x * 2}deg`);
+                servicesVitoEl.style.setProperty("--services-vito-scale", (1 + thrust * .05 - Math.abs(lean) * .07 - exit * .2).toFixed(3));
+                servicesVitoEl.style.setProperty("--services-vito-charge", (thrust * .62 + locked * .38).toFixed(3));
+                servicesVitoEl.style.setProperty("--services-vito-accent", services[activeIndex].accent);
+                servicesVitoEl.style.opacity = String(Math.max(0, .96 - exit * .96));
+
+                if (activeIndex !== vitoIndex) {
+                    vitoIndex = activeIndex;
+                    servicesVitoEl.classList.remove("is-handoff");
+                    void servicesVitoEl.offsetWidth;                          // reinicia las animaciones del pulso
+                    servicesVitoEl.classList.add("is-handoff");
+                    window.clearTimeout(vitoHandoffTimer);
+                    vitoHandoffTimer = window.setTimeout(() => servicesVitoEl.classList.remove("is-handoff"), 740);
+                }
             }
         };
 
@@ -1043,6 +962,94 @@
         });
     });
 
+    /* ─── Carrusel infinito de planes en móvil ─── */
+    const setupMobilePricingCarousel = () => {
+        const grid = $(".precios-grid");
+        if (!grid) return;
+
+        const media = window.matchMedia("(max-width: 740px)");
+        const originals = $$(".precio-card:not([data-carousel-clone])", grid);
+        if (originals.length < 2) return;
+
+        let state = null;
+
+        const prepareClone = (card) => {
+            card.dataset.carouselClone = "true";
+            card.setAttribute("aria-hidden", "true");
+            card.classList.add("is-visible");
+            card.querySelectorAll("a, button, input, select, textarea, [tabindex]").forEach((element) => {
+                element.tabIndex = -1;
+            });
+            return card;
+        };
+
+        const start = () => {
+            if (state || !media.matches) return;
+
+            const business = originals.find((card) => card.dataset.plan === "business");
+            const ordered = business
+                ? [business, ...originals.filter((card) => card !== business)]
+                : [...originals];
+            grid.classList.add("is-looping");
+            ordered.forEach((card) => grid.appendChild(card));
+
+            const before = prepareClone(ordered[ordered.length - 1].cloneNode(true));
+            const after = prepareClone(ordered[0].cloneNode(true));
+            grid.insertBefore(before, ordered[0]);
+            grid.appendChild(after);
+
+            // Las tarjetas asoman a los lados y se anclan al centro de la pista,
+            // así que todas las medidas se hacen sobre centros, no sobre bordes.
+            const centerOf = (item) => item.offsetLeft + item.offsetWidth / 2 - grid.clientWidth / 2;
+            const nearestIndex = () => {
+                const items = [...grid.children];
+                return items.reduce((closest, item, index) => {
+                    const distance = Math.abs(centerOf(item) - grid.scrollLeft);
+                    const closestDistance = Math.abs(centerOf(items[closest]) - grid.scrollLeft);
+                    return distance < closestDistance ? index : closest;
+                }, 0);
+            };
+            const jumpTo = (item) => {
+                grid.scrollTo({ left: centerOf(item), behavior: "auto" });
+            };
+            const settle = () => {
+                const index = nearestIndex();
+                if (index === 0) jumpTo(ordered[ordered.length - 1]);
+                if (index === grid.children.length - 1) jumpTo(ordered[0]);
+            };
+            const onScroll = () => {
+                clearTimeout(state?.settleTimer);
+                state.settleTimer = window.setTimeout(settle, 90);
+            };
+
+            grid.addEventListener("scroll", onScroll, { passive: true });
+            state = { before, after, onScroll, settleTimer: 0 };
+            requestAnimationFrame(() => jumpTo(ordered[0]));
+        };
+
+        const stop = () => {
+            if (!state) return;
+            clearTimeout(state.settleTimer);
+            grid.removeEventListener("scroll", state.onScroll);
+            state.before.remove();
+            state.after.remove();
+            originals.forEach((card) => grid.appendChild(card));
+            grid.classList.remove("is-looping");
+            grid.scrollTo({ left: 0, behavior: "auto" });
+            state = null;
+        };
+
+        const sync = () => {
+            if (media.matches) start();
+            else stop();
+        };
+
+        sync();
+        if (media.addEventListener) media.addEventListener("change", sync);
+        else media.addListener(sync);
+    };
+    setupMobilePricingCarousel();
+
     /* ─── Tooltips de planes ─── */
     const tip = $("#tip-bubble");
     const showTip = (el, text, x, y) => {
@@ -1130,14 +1137,14 @@
         },
         enterprise: {
             id: "enterprise",
-            name: "Enterprise AI",
+            name: "Enterprise IA",
             price: "$99 USD/mes",
             features: [
                 "Todo Business",
                 "Vito integrado",
                 "Automatización con IA",
                 "Alertas y predicciones",
-                "IA nube o local",
+                "IA en la nube o local",
                 "Datos bajo tu control"
             ]
         }
@@ -1242,12 +1249,9 @@
             return;
         }
 
-        form.querySelectorAll("input, textarea, button[type=submit]").forEach((el) => {
-            el.disabled = true;
-        });
         if (note) note.textContent = "";
         if (successText) {
-            successText.textContent = `Plan ${plan.name} (${plan.price}). ${PLAN_PROMISE}`;
+            successText.textContent = `Plan ${plan.name} (${plan.price}). Se abrirá tu correo para enviar la solicitud; si no se abre, escríbenos al +504 8777-5824.`;
         }
         if (success) success.hidden = false;
 
@@ -1257,6 +1261,7 @@
                 `Hola ONDIGITAL,\n\nSoy ${name} (${email}).\n\nPlan de interés: ${plan.name} (${plan.price})\n\nProyecto:\n${message}`
             );
             form.dataset.mailto = `mailto:hola@ondigital.hn?subject=${subject}&body=${body}`;
+            window.location.href = form.dataset.mailto;
         } catch (_) { /* ignore */ }
     });
 

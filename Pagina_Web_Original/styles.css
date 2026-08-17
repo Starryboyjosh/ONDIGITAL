@@ -682,7 +682,53 @@ ul { list-style: none; margin: 0; padding: 0; }
     color: rgba(225, 232, 248, 0.82);
     text-shadow: 0 2px 28px rgba(0, 0, 0, 0.4);
 }
-.hero-emphasis { color: var(--accent-2); }
+/* "DIGITAL": la palabra base siempre es sólida y legible; encima viaja un
+   barrido neón en diagonal (izquierda → derecha) con los colores de marca:
+   el verde de los ojos de Vito, el azul ONDIGITAL y un destello blanco. */
+.hero-emphasis {
+    position: relative;
+    display: inline-block;
+    color: #f2f8ff;
+    text-shadow: none;
+    animation: heroNeonGlow 2.6s ease-in-out infinite;
+}
+.hero-emphasis::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    color: #00E5B0;
+    -webkit-mask-image: linear-gradient(102deg, transparent 44%, #000 48%, #000 53%, transparent 57%);
+    mask-image: linear-gradient(102deg, transparent 44%, #000 48%, #000 53%, transparent 57%);
+    -webkit-mask-size: 220% 100%;
+    mask-size: 220% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+    animation:
+        heroNeonSweep 2.6s linear infinite,
+        heroNeonHue 2.6s linear infinite;
+    will-change: mask-position;
+}
+/* El barrido cruza la palabra en ~0.8 s y descansa el resto del ciclo. */
+@keyframes heroNeonSweep {
+    0%   { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+    31%  { -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+    100% { -webkit-mask-position: 0% 0; mask-position: 0% 0; }
+}
+@keyframes heroNeonHue {
+    0% { color: #00E5B0; text-shadow: 0 0 .08em rgba(0, 229, 176, .95), 0 0 .34em rgba(0, 229, 176, .6); }
+    12% { color: #29F5C4; text-shadow: 0 0 .1em rgba(0, 229, 176, 1), 0 0 .4em rgba(0, 229, 176, .55); }
+    17% { color: #ffffff; text-shadow: 0 0 .14em rgba(255, 255, 255, 1), 0 0 .5em rgba(196, 236, 255, .7); }
+    23% { color: #4FA6FF; text-shadow: 0 0 .1em rgba(43, 138, 247, 1), 0 0 .42em rgba(43, 138, 247, .6); }
+    31%, 100% { color: #2B8AF7; text-shadow: 0 0 .08em rgba(43, 138, 247, .95), 0 0 .34em rgba(43, 138, 247, .5); }
+}
+@keyframes heroNeonGlow {
+    0%, 100% { filter: drop-shadow(0 0 .04em rgba(0, 229, 176, .5)) drop-shadow(0 0 .3em rgba(43, 138, 247, .28)); }
+    14% { filter: drop-shadow(0 0 .07em rgba(255, 255, 255, .85)) drop-shadow(0 0 .42em rgba(0, 229, 176, .55)); }
+    28% { filter: drop-shadow(0 0 .05em rgba(43, 138, 247, .78)) drop-shadow(0 0 .38em rgba(43, 138, 247, .4)); }
+}
 .hero-sub {
     margin: 16px auto 0;
     max-width: 480px;
@@ -703,6 +749,9 @@ ul { list-style: none; margin: 0; padding: 0; }
     padding: clamp(56px, 8vw, 100px) 0;
     content-visibility: auto;
     contain-intrinsic-size: auto 700px;
+    /* El nav es sticky: sin esto, cualquier ancla del menú aterriza con el
+       eyebrow y media línea del título escondidos detrás de la barra. */
+    scroll-margin-top: calc(var(--nav-h) + 16px);
 }
 .section-head {
     margin-bottom: 36px;
@@ -1286,27 +1335,38 @@ h2 {
 }
 
 /* ─── TEAM ─── */
+/* Las fotos vienen de cámaras y luces distintas, así que en reposo se igualan
+   con desaturado + tinte de marca y recuperan color al enfocar a la persona. */
 .team-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 12px;
+    gap: clamp(10px, 1.3vw, 18px);
+    align-items: start;
 }
 .team-card {
     position: relative;
-    border-radius: 20px;
+    border-radius: 22px;
     overflow: hidden;
-    border: 1px solid var(--border);
     background: var(--surface);
     aspect-ratio: 3 / 4;
     cursor: pointer;
-    transition: transform 280ms var(--ease), border-color 280ms var(--ease);
+    isolation: isolate;
+    transition: transform 340ms var(--ease), box-shadow 340ms var(--ease);
 }
+/* Ritmo en zig-zag: la fila deja de leerse como cinco cartas idénticas. */
+.team-card:nth-child(even) { margin-top: clamp(14px, 2.4vw, 32px); }
+.team-card--lead { aspect-ratio: 3 / 4.3; }
 .team-card:hover,
 .team-card:focus-visible,
 .team-card.is-open {
-    transform: translateY(-4px) scale(1.02);
-    border-color: rgba(43, 138, 247, 0.45);
-    outline: none;
+    transform: translateY(-7px);
+    box-shadow: 0 26px 54px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(43, 138, 247, 0.5);
+}
+/* El anillo azul de 1px medía 2.36:1 sobre el fondo: por debajo del 3:1 que
+   pide WCAG 2.4.11 para el indicador de foco. El verde marca a 12:1. */
+.team-card:focus-visible {
+    outline: 3px solid var(--accent-2);
+    outline-offset: 3px;
 }
 .team-photo {
     position: absolute;
@@ -1316,61 +1376,96 @@ h2 {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 280ms var(--ease);
+    filter: saturate(0.42) contrast(1.05) brightness(0.92);
+    transform: scale(1.02);
+    transition: filter 420ms var(--ease), transform 520ms var(--ease);
+}
+/* Capa 1: tinte de marca que unifica los retratos; se retira al enfocar. */
+.team-photo::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(202deg, rgba(43, 138, 247, 0.34), rgba(0, 229, 176, 0.13) 58%, transparent 88%);
+    transition: opacity 420ms var(--ease);
+}
+/* Capa 2: velo inferior que sostiene la legibilidad del nombre. */
+.team-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(0deg, rgba(3, 8, 18, 0.95) 2%, rgba(3, 8, 18, 0.58) 32%, transparent 64%);
+    transition: background 420ms var(--ease);
 }
 .team-card:hover .team-photo img,
+.team-card:focus-visible .team-photo img,
 .team-card.is-open .team-photo img {
-    transform: scale(1.05);
+    filter: saturate(1) contrast(1.02) brightness(1);
+    transform: scale(1.07);
 }
-.team-name {
+.team-card:hover .team-photo::before,
+.team-card:focus-visible .team-photo::before,
+.team-card.is-open .team-photo::before { opacity: 0; }
+.team-card:hover .team-photo::after,
+.team-card:focus-visible .team-photo::after,
+.team-card.is-open .team-photo::after {
+    background: linear-gradient(0deg, rgba(3, 8, 18, 0.97) 2%, rgba(3, 8, 18, 0.82) 44%, rgba(3, 8, 18, 0.22) 78%);
+}
+.team-id {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 2;
-    padding: 28px 12px 12px;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 15px;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
-    transition: opacity 250ms var(--ease);
+    padding: 18px 16px 16px;
 }
-.team-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 16px;
-    background: linear-gradient(180deg, rgba(8, 14, 28, 0.15), rgba(8, 14, 28, 0.92));
-    opacity: 0;
-    transform: scale(1.02);
-    transition: opacity 280ms var(--ease), transform 280ms var(--ease);
-    pointer-events: none;
+.team-id::before {
+    content: "";
+    display: block;
+    width: 18px;
+    height: 2px;
+    margin-bottom: 11px;
+    border-radius: 2px;
+    background: var(--accent-2);
+    box-shadow: 0 0 10px rgba(0, 229, 176, 0.5);
+    transition: width 380ms var(--ease);
 }
-.team-card:hover .team-overlay,
-.team-card:focus-visible .team-overlay,
-.team-card.is-open .team-overlay {
-    opacity: 1;
-    transform: scale(1);
-}
-.team-card:hover .team-name,
-.team-card:focus-visible .team-name,
-.team-card.is-open .team-name {
-    opacity: 0;
-}
-.team-overlay .role {
+.team-card:hover .team-id::before,
+.team-card:focus-visible .team-id::before,
+.team-card.is-open .team-id::before { width: 46px; }
+.team-role {
+    display: block;
     color: var(--accent-2);
-    font: 800 10px/1.3 var(--font-mono);
-    letter-spacing: 0.08em;
+    font: 700 10px/1.35 var(--font-mono);
+    letter-spacing: 0.07em;
     text-transform: uppercase;
 }
-.team-overlay p {
-    margin: 8px 0 0;
+.team-name {
+    margin: 5px 0 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(15px, 1.15vw, 18px);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+.team-bio {
+    margin: 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
     color: var(--muted);
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: 12.5px;
+    line-height: 1.45;
+    transition: max-height 420ms var(--ease), opacity 300ms var(--ease), margin-top 420ms var(--ease);
+}
+.team-card:hover .team-bio,
+.team-card:focus-visible .team-bio,
+.team-card.is-open .team-bio {
+    max-height: 96px;
+    opacity: 1;
+    margin-top: 9px;
 }
 
 /* ─── PRECIOS ─── */
@@ -1380,41 +1475,61 @@ h2 {
 .precios-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    gap: clamp(12px, 1.4vw, 20px);
     align-items: stretch;
 }
+/* Cada plan lleva su propio acento: los tres dejan de leerse como clones y la
+   escalera Starter → Business → Enterprise se ve antes de leer los precios. */
 .precio-card {
+    --plan-accent: #86A9D8;
+    --plan-glow: rgba(134, 169, 216, 0.2);
     position: relative;
     display: flex;
     flex-direction: column;
-    padding: 24px 20px 20px;
-    border-radius: 24px;
+    padding: 30px 24px 24px;
+    border-radius: 26px;
     border: 1px solid var(--border);
     background: var(--surface);
     overflow: hidden;
-    transition: transform 250ms var(--ease), border-color 250ms var(--ease), box-shadow 250ms var(--ease);
+    transition: transform 260ms var(--ease), border-color 260ms var(--ease), box-shadow 260ms var(--ease);
 }
-.precio-card:hover {
-    transform: translateY(-5px);
-    border-color: rgba(43, 138, 247, 0.4);
-    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
+.precio-card[data-plan="business"] {
+    --plan-accent: #4FA6FF;
+    --plan-glow: rgba(43, 138, 247, 0.34);
 }
-.precio-card--featured {
-    border-color: rgba(43, 138, 247, 0.5);
-    background:
-        linear-gradient(165deg, rgba(43, 138, 247, 0.16), transparent 45%),
-        var(--surface-strong);
-    box-shadow: 0 24px 56px rgba(0, 0, 0, 0.35), 0 0 40px rgba(43, 138, 247, 0.12);
-    transform: scale(1.02);
-    z-index: 1;
+.precio-card[data-plan="enterprise"] {
+    --plan-accent: #00E5B0;
+    --plan-glow: rgba(0, 229, 176, 0.28);
 }
-.precio-card--featured::before {
+.precio-card::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--plan-accent), transparent);
+    opacity: 0.5;
+}
+.precio-card:hover {
+    transform: translateY(-5px);
+    border-color: color-mix(in srgb, var(--plan-accent) 45%, transparent);
+    box-shadow: 0 24px 52px rgba(0, 0, 0, 0.36), 0 0 44px -18px var(--plan-glow);
+}
+.precio-card--featured {
+    border-color: rgba(43, 138, 247, 0.48);
+    background:
+        radial-gradient(125% 80% at 50% 0%, rgba(43, 138, 247, 0.2), transparent 62%),
+        var(--surface-strong);
+    box-shadow: 0 32px 72px rgba(0, 0, 0, 0.44), 0 0 0 1px rgba(43, 138, 247, 0.2), 0 0 70px -14px var(--plan-glow);
+    padding: 38px 26px 26px;
+    transform: scale(1.045);
+    z-index: 1;
+}
+/* Filete superior animado; la pestaña "Recomendado" se apoya en su centro. */
+.precio-card--featured::before {
+    height: 3px;
+    opacity: 1;
     background: linear-gradient(90deg, #2B8AF7, #00E5B0, #2B8AF7);
     background-size: 200% 100%;
     animation: featuredBar 3.5s linear infinite;
@@ -1423,56 +1538,55 @@ h2 {
     to { background-position: 200% 50%; }
 }
 .precio-card--featured:hover {
-    transform: translateY(-6px) scale(1.02);
+    transform: translateY(-6px) scale(1.045);
 }
 .precio-ribbon {
     position: absolute;
-    top: 16px;
-    right: -32px;
-    width: 130px;
-    padding: 6px 0;
-    text-align: center;
+    top: 0;
+    left: 50%;
+    z-index: 3;
+    transform: translateX(-50%);
+    padding: 7px 18px 6px;
+    border-radius: 0 0 12px 12px;
     font: 800 10px/1 var(--font-mono);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #04101f;
-    background: linear-gradient(90deg, var(--accent-2), #7dffd4);
-    transform: rotate(38deg);
+    background: linear-gradient(100deg, var(--accent-2), #6ee7ff);
 }
 .precio-badge {
     display: inline-flex;
     width: fit-content;
-    padding: 6px 11px;
+    padding: 6px 12px;
     border-radius: 999px;
     font: 700 11px/1 var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--accent-2);
-    border: 1px solid rgba(0, 229, 176, 0.3);
-    background: rgba(0, 229, 176, 0.1);
-    margin-bottom: 14px;
+    color: var(--plan-accent);
+    border: 1px solid color-mix(in srgb, var(--plan-accent) 34%, transparent);
+    background: color-mix(in srgb, var(--plan-accent) 12%, transparent);
+    margin-bottom: 16px;
 }
-.precio-badge--popular {
-    color: #fff;
-    border-color: transparent;
-    background: linear-gradient(135deg, var(--accent), #1a6fe8);
-}
+.precio-badge--popular,
 .precio-badge--ai {
-    color: #fff;
+    color: #04101f;
     border-color: transparent;
-    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    background: var(--plan-accent);
 }
 .precio-price {
     display: flex;
-    align-items: baseline;
-    gap: 4px;
-    margin-bottom: 16px;
+    align-items: flex-start;
+    gap: 5px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 .precio-currency {
     font-family: var(--font-display);
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 800;
-    color: var(--accent-2);
+    color: var(--plan-accent);
+    margin-top: 0.42em;
 }
 .precio-amount {
     font-family: var(--font-display);
@@ -1484,58 +1598,87 @@ h2 {
 }
 .precio-card--featured .precio-amount {
     font-size: clamp(50px, 5.5vw, 66px);
-    color: var(--accent-2);
+    color: var(--plan-accent);
 }
 .precio-period {
+    align-self: flex-end;
+    margin-bottom: 0.35em;
     font-size: 13px;
     color: var(--muted);
     font-weight: 600;
 }
 .precio-features {
     flex: 1;
-    margin-bottom: 8px;
+    display: grid;
+    align-content: start;
+    gap: 2px;
+    margin-bottom: 10px;
 }
 .precio-features li {
     position: relative;
-    padding: 9px 0 9px 22px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 7px 0 7px 27px;
     color: var(--muted);
-    font-size: 14px;
-    line-height: 1.4;
+    font-size: 13.5px;
+    line-height: 1.45;
 }
+/* Marca de incluido / no incluido en vez de viñetas idénticas. */
 .precio-features li::before {
-    content: "";
+    content: "✓";
     position: absolute;
     left: 0;
-    top: 14px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent-2);
-    box-shadow: 0 0 8px rgba(0, 229, 176, 0.4);
+    top: 7px;
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 7px;
+    font: 700 10px/1 var(--font);
+    color: var(--plan-accent);
+    background: color-mix(in srgb, var(--plan-accent) 16%, transparent);
 }
-.precio-features li.muted { color: var(--soft); }
-.precio-features li.muted::before { background: var(--soft); box-shadow: none; }
+/* Lo no incluido se distingue por la marca, no por bajar el contraste del texto. */
+.precio-features li.muted { color: var(--muted); }
+.precio-features li.muted::before {
+    content: "–";
+    color: rgba(198, 212, 236, 0.62);
+    background: rgba(255, 255, 255, 0.06);
+}
 .precio-features li.has-tip {
     cursor: help;
     color: var(--fg);
     text-decoration: underline;
     text-decoration-style: dotted;
     text-underline-offset: 3px;
-    text-decoration-color: rgba(0, 229, 176, 0.4);
+    text-decoration-color: color-mix(in srgb, var(--plan-accent) 45%, transparent);
 }
-.precio-btn { width: 100%; margin-top: 12px; }
+.precio-btn { width: 100%; margin-top: 14px; }
 .precio-card--featured .precio-btn {
     min-height: 48px;
     box-shadow: 0 12px 32px rgba(43, 138, 247, 0.35);
 }
-.precio-note {
-    margin: 24px auto 0;
-    text-align: center;
-    color: var(--muted);
-    font-size: 13px;
-    max-width: 480px;
+/* El CTA hereda el acento del plan para cerrar la identidad de cada tarjeta. */
+.precio-card[data-plan="enterprise"] .precio-btn.btn-primary {
+    color: #04101f;
+    background: linear-gradient(135deg, var(--accent-2), #35d6ff);
+    box-shadow: 0 12px 32px rgba(0, 229, 176, 0.28);
 }
+.precio-card[data-plan="enterprise"] .precio-btn.btn-primary:hover {
+    box-shadow: 0 16px 40px rgba(0, 229, 176, 0.4);
+}
+/* Los términos que más consultas generan (plazo mínimo y riesgo cambiario)
+   van antes de los CTA, no como letra chica debajo de los botones. */
+.precio-note {
+    margin: -14px 0 26px;
+    color: var(--fg);
+    font-size: 14px;
+    line-height: 1.5;
+    max-width: 62ch;
+    padding: 11px 15px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.03);
+}
+.precio-note strong { font-weight: 700; color: var(--accent-2); }
 
 .tip-bubble {
     position: fixed;
@@ -1674,10 +1817,14 @@ h2 {
 }
 
 .contact-links {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     margin-top: 20px;
+    max-width: 430px;
+}
+.contact-links .btn {
+    width: 100%;
 }
 .contact-form {
     display: grid;
@@ -1878,6 +2025,12 @@ footer {
         transform: rotateX(6deg) rotateY(-10deg);
     }
     .vito-popups { display: none; }
+    .hero-emphasis {
+        animation: none !important;
+        color: #eaf6ff !important;
+        filter: drop-shadow(0 0 .06em rgba(0, 229, 176, .55)) drop-shadow(0 0 .26em rgba(43, 138, 247, .32)) !important;
+    }
+    .hero-emphasis::after { display: none !important; }
 }
 
 /* ─── RESPONSIVE ─── */
@@ -1888,14 +2041,10 @@ footer {
     .svc--hero { grid-column: span 6; grid-row: span 1; min-height: 300px; }
     .svc--wide { grid-column: span 6; }
     .svc--full { grid-column: span 6; }
-    .team-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .precios-grid { grid-template-columns: 1fr 1fr; }
+    /* El destacado deja de escalar: a este ancho el scale invadiría a sus vecinos. */
     .precio-card--featured {
-        grid-column: span 2;
-        max-width: 420px;
-        margin: 0 auto;
-        width: 100%;
         transform: none;
+        padding: 32px 22px 22px;
     }
     .precio-card--featured:hover { transform: translateY(-5px); }
     .contact-box { grid-template-columns: 1fr; }
@@ -1903,7 +2052,7 @@ footer {
     .plan-option-card strong { font-size: 0.95rem; }
     .vito-showcase { grid-template-columns: 1fr; }
 }
-@media (max-width: 900px) {
+@media (max-width: 980px) {
     .nav-actions .btn-cta { display: none; }
     .tech-layer {
         grid-template-columns: 1fr;
@@ -1914,31 +2063,114 @@ footer {
     .tech-arch-rail { left: 19px; }
     .tech-layer::before { left: 12px; }
     .svc-wide-inner { grid-template-columns: 1fr; }
+    /* Tablet: la fila de cinco se reagrupa en tres y la fila huérfana se centra,
+       en vez de caer a una sola tarjeta con la sección medio vacía. */
     .team-grid {
         display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+    }
+    .team-card {
+        flex: 0 1 calc((100% - 2 * clamp(10px, 1.3vw, 18px)) / 3);
+        aspect-ratio: 3 / 4;
+    }
+    /* Los media queries no suman especificidad: `.team-card` sola pierde contra
+       `.team-card:nth-child(even)`, así que el zig-zag sobrevivía aquí e
+       invertía el ritmo en la fila reagrupada. */
+    .team-grid .team-card:nth-child(even) { margin-top: 0; }
+    .team-card--lead { aspect-ratio: 3 / 4; }
+    .precio-card { padding: 24px 18px 20px; }
+    .precio-card--featured { padding: 30px 20px 22px; }
+    .contact-links {
+        max-width: 480px;
+    }
+}
+/* Móvil: una tarjeta a la vez, deslizable en lateral. La pista ocupa todo el
+   ancho y las vecinas asoman, así el gesto se anuncia solo y no queda hueco. */
+@media (max-width: 740px) {
+    .team-grid {
+        /* En vw, no en %: un % aquí se resolvería contra el propio content-box,
+           que a su vez depende del padding calculado desde --card-w. */
+        --card-w: min(72vw, 320px);
+        width: 100%;
+        display: flex;
+        flex-wrap: nowrap;
+        /* Sin esto hereda el `center` de tablet y el desbordamiento inicial
+           queda fuera de alcance: el carrusel arrancaría en la tercera tarjeta. */
+        justify-content: flex-start;
+        align-items: stretch;
         overflow-x: auto;
         scroll-snap-type: x mandatory;
-        gap: 12px;
-        padding-bottom: 8px;
+        gap: 14px;
+        padding-bottom: 10px;
+        padding-inline-start: 0;
+        /* Holgura final del ancho exacto del degradado: sin ella la última
+           tarjeta no puede salir de la zona difuminada y queda 22% en negro
+           por más que se deslice. */
+        padding-inline-end: 27%;
+        scroll-padding-inline: 0;
+        overscroll-behavior-x: contain;
         scrollbar-width: none;
+        /* Anclaje al inicio: la tarjeta activa queda a ras del margen y la
+           siguiente asoma a la derecha, sin hueco muerto en el primer ítem. */
+        mask-image: linear-gradient(90deg, #000 86%, transparent);
     }
     .team-grid::-webkit-scrollbar { display: none; }
     .team-card {
-        flex: 0 0 min(72vw, 260px);
+        flex: 0 0 var(--card-w);
         scroll-snap-align: start;
-        aspect-ratio: 3 / 4;
+        scroll-snap-stop: always;
+        aspect-ratio: 4 / 5;
+    }
+    /* Mismo caso de especificidad que en tablet: aquí el zig-zag dejaba las
+       tarjetas del carrusel con alturas distintas (364/350/364…) y el snap
+       aterrizaba en una fila que saltaba. */
+    .team-grid .team-card:nth-child(even) { margin-top: 0; }
+    .team-card--lead { aspect-ratio: 4 / 5; }
+    .precios-grid {
+        --card-w: min(80vw, 380px);
+        width: 100%;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 14px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: 0;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+        padding-block: 6px 12px;
+        mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+    }
+    .precios-grid:not(.is-looping) {
+        padding-inline: max(0px, calc((100% - var(--card-w)) / 2));
+    }
+    .precios-grid::-webkit-scrollbar { display: none; }
+    .precios-grid:not(.is-looping) .precio-card--featured { order: -1; }
+    .precio-card {
+        flex: 0 0 var(--card-w);
+        min-width: 0;
+        order: 0;
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+    }
+    .precio-card--featured,
+    .precio-card--featured:hover {
+        max-width: none;
+        margin: 0;
+        transform: none;
     }
 }
 @media (max-width: 640px) {
     .services-bento { grid-template-columns: 1fr; }
     .svc, .svc--hero, .svc--wide, .svc--full, .svc--half { grid-column: span 1; min-height: auto; }
-    .precios-grid { grid-template-columns: 1fr; }
+    .team-grid { --card-w: min(74vw, 280px); }
+    .precios-grid { --card-w: min(80vw, 330px); }
     .precio-card--featured {
         grid-column: auto;
-        order: -1;
+        order: 0;
         max-width: none;
     }
-    .precio-ribbon { display: none; }
     h1 { font-size: clamp(32px, 9vw, 42px); }
     .hero-robot-stage { min-height: 220px; }
     .robot-logo-large { width: clamp(180px, 58vw, 280px); }
@@ -1946,6 +2178,7 @@ footer {
     .hero-actions .btn { width: auto; }
     .footer-inner { flex-direction: column; }
     .vito-mock-kpis { grid-template-columns: 1fr; }
+    .contact-links { grid-template-columns: 1fr; }
 }
 
 
@@ -1970,7 +2203,83 @@ footer {
 .services-webgl,
 .services-vignette,
 .services-grid { position: absolute; inset: 0; width: 100%; height: 100%; }
-.services-webgl { z-index: 1; display: block; }
+.services-webgl { z-index: 2; display: block; }
+/* Vito vive DETRÁS de las tarjetas: cada servicio pasa por delante de él
+   y Vito reacciona al relevo (inclinación, pulso, anillo de energía). */
+.services-vito {
+    --services-vito-x: 0px;
+    --services-vito-y: 0px;
+    --services-vito-lean: 0deg;
+    --services-vito-scale: 1;
+    --services-vito-charge: 0;
+    --services-vito-accent: #2B8AF7;
+    position: absolute;
+    z-index: 1;
+    top: 53%;
+    left: 44%;
+    width: clamp(210px, 26vw, 380px);
+    transform:
+        translate3d(calc(-50% + var(--services-vito-x)), calc(-50% + var(--services-vito-y)), 0)
+        rotate(var(--services-vito-lean))
+        scale(var(--services-vito-scale));
+    pointer-events: none;
+    transition: opacity 260ms ease;
+    filter: drop-shadow(0 24px 32px rgba(0,0,0,.46));
+}
+.services-vito::before {
+    content: "";
+    position: absolute;
+    inset: -12% -24%;
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--services-vito-accent) 32%, transparent) 0%, transparent 68%);
+    opacity: calc(.34 + var(--services-vito-charge) * .48);
+    filter: blur(4px);
+}
+.services-vito::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    z-index: -1;
+    width: 76%;
+    aspect-ratio: 1;
+    margin: -38% 0 0 -38%;
+    border: 1px solid color-mix(in srgb, var(--services-vito-accent) 60%, transparent);
+    border-radius: 50%;
+    opacity: 0;
+}
+.services-vito.is-handoff::after { animation: servicesVitoRing 720ms var(--ease-out-expo); }
+.services-vito .robot-logo-large {
+    width: 100%;
+    transform: none;
+}
+.services-vito .robot-3d {
+    animation: servicesVitoFloat 5.2s ease-in-out infinite;
+    filter: drop-shadow(0 16px 22px rgba(0,0,0,.42)) drop-shadow(0 0 24px rgba(0,229,176,.14));
+}
+.services-vito .robot-svg { transform-origin: 50% 62%; }
+.services-vito.is-handoff .robot-svg { animation: servicesVitoKick 660ms var(--ease-out-expo); }
+.services-vito.is-handoff .robot-eye,
+.services-vito.is-handoff .robot-pupil,
+.services-vito.is-handoff .robot-mouth-large { animation: servicesVitoSpark 660ms ease-out; }
+@keyframes servicesVitoFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(1deg); }
+}
+@keyframes servicesVitoRing {
+    0%   { opacity: .8; transform: scale(.5); }
+    100% { opacity: 0; transform: scale(2.05); }
+}
+@keyframes servicesVitoKick {
+    0%   { transform: scale(1) rotate(0deg); }
+    22%  { transform: scale(1.075) rotate(-1.6deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes servicesVitoSpark {
+    0%, 100% { filter: drop-shadow(0 0 3px rgba(0, 229, 176, .55)); }
+    25%      { filter: drop-shadow(0 0 12px rgba(255, 255, 255, .95)) brightness(1.6); }
+}
 .services-grid {
     z-index: 0;
     opacity: .31;
@@ -1980,11 +2289,11 @@ footer {
     mask-image: radial-gradient(circle at 46% 48%, #000 0%, transparent 72%);
 }
 .services-vignette {
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
     background: linear-gradient(180deg, rgba(2,5,12,.86) 0%, transparent 17%, transparent 76%, rgba(2,5,12,.94) 100%), linear-gradient(90deg, rgba(2,5,12,.6), transparent 31%, transparent 76%, rgba(2,5,12,.42));
 }
-.services-ui { position: relative; z-index: 3; height: 100%; padding-top: calc(var(--nav-h) + 28px); padding-bottom: 34px; pointer-events: none; }
+.services-ui { position: relative; z-index: 4; height: 100%; padding-top: calc(var(--nav-h) + 28px); padding-bottom: 34px; pointer-events: none; }
 .services-section-copy {
     position: absolute;
     top: calc(var(--nav-h) + 30px);
@@ -2021,6 +2330,7 @@ footer {
 .services-parallax.services-static-mode { min-height: auto !important; padding: clamp(72px,9vw,112px) 0; background: linear-gradient(180deg, rgba(15,26,48,.28), transparent); }
 .services-static-mode .services-sticky { position: relative; height: auto; min-height: 0; overflow: visible; background: transparent; }
 .services-static-mode .services-webgl, .services-static-mode .services-vignette, .services-static-mode .services-grid, .services-static-mode .services-detail, .services-static-mode .services-progress { display: none; }
+.services-static-mode .services-vito { display: none; }
 .services-static-mode .services-ui { height: auto; padding: 0; }
 .services-static-mode .services-section-copy { position: relative; top: auto; right: auto; width: min(500px, 100%); margin-left: auto; margin-bottom: 34px; }
 .services-static-mode .services-static-fallback { display: grid; width: min(var(--max), calc(100% - clamp(24px,5vw,64px))); margin: 0 auto; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
@@ -2059,6 +2369,48 @@ footer {
 .visual-data i { position:absolute; width:34%; height:24%; border-radius:50%; border:2px solid color-mix(in srgb,var(--phase) 55%,transparent); background:rgba(68,121,161,.12); opacity:0; transform:translateY(28px); }.visual-data i::after{content:"";position:absolute;left:-2px;right:-2px;top:50%;height:64px;border-left:2px solid color-mix(in srgb,var(--phase) 45%,transparent);border-right:2px solid color-mix(in srgb,var(--phase) 45%,transparent);}.visual-data i:nth-child(1){left:8%;top:25%}.visual-data i:nth-child(2){left:33%;top:15%}.visual-data i:nth-child(3){right:8%;top:29%}.visual-data span{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--phase);box-shadow:0 0 18px var(--phase);opacity:0}.visual-data span:nth-of-type(1){left:31%;top:44%}.visual-data span:nth-of-type(2){left:56%;top:36%}.visual-data span:nth-of-type(3){right:24%;top:53%}.tech-phase.is-active .visual-data i{animation:dataRise 650ms var(--ease-spring) forwards}.tech-phase.is-active .visual-data i:nth-child(2){animation-delay:120ms}.tech-phase.is-active .visual-data i:nth-child(3){animation-delay:240ms}.tech-phase.is-active .visual-data span{animation:dataPulse 1.1s 550ms ease-in-out infinite}
 .visual-infra i{position:absolute;border:1px solid color-mix(in srgb,var(--phase) 45%,transparent);border-radius:50%;opacity:0;transform:scale(.55)}.visual-infra i:nth-child(1){width:190px;height:190px}.visual-infra i:nth-child(2){width:140px;height:140px}.visual-infra i:nth-child(3){width:90px;height:90px}.visual-infra strong{position:relative;z-index:2;padding:13px 18px;border-radius:12px;background:var(--phase);color:#111827;font:900 13px var(--font-mono);letter-spacing:.1em;opacity:0;transform:translateY(12px)}.tech-phase.is-active .visual-infra i{animation:infraRing 1.8s ease-in-out infinite}.tech-phase.is-active .visual-infra i:nth-child(2){animation-delay:180ms}.tech-phase.is-active .visual-infra i:nth-child(3){animation-delay:360ms}.tech-phase.is-active .visual-infra strong{animation:nodePop 600ms 260ms var(--ease-spring) forwards}
 @keyframes slideVisual{to{opacity:1;transform:none}}@keyframes growVisual{to{transform:scaleY(1)}}@keyframes nodePop{to{opacity:1;transform:scale(1)}}@keyframes lineFlow{to{transform:scaleX(1)}}@keyframes dataRise{to{opacity:1;transform:none}}@keyframes dataPulse{0%,100%{opacity:.25;transform:scale(.75)}50%{opacity:1;transform:scale(1.35)}}@keyframes infraRing{0%,100%{opacity:.18;transform:scale(.78)}50%{opacity:.8;transform:scale(1)}}
+
+/* Las fases comparten una sola superficie; el diagrama es parte del contenido. */
+.tech-slider-track { gap: clamp(18px, 3vw, 46px); transition: transform 180ms var(--ease); }
+.tech-phase {
+    grid-template-columns: minmax(0, 1fr) minmax(230px, .78fr);
+    gap: clamp(18px, 3vw, 38px);
+    min-height: min(54vh, 470px);
+    border-radius: 28px;
+    transform: translateY(14px);
+    transition: opacity 420ms var(--ease), transform 520ms var(--ease), border-color 420ms ease, box-shadow 520ms var(--ease);
+}
+.tech-phase.is-active {
+    transform: translateY(0);
+    box-shadow: 0 30px 90px rgba(0,0,0,.42), 0 0 42px color-mix(in srgb, var(--phase) 12%, transparent);
+}
+.tech-phase-copy { position: relative; z-index: 2; }
+.tech-phase-visual {
+    min-height: 230px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    opacity: .36;
+    transform: translateX(18px) scale(.96);
+    transition: opacity 420ms var(--ease), transform 520ms var(--ease);
+}
+.tech-phase.is-active .tech-phase-visual { opacity: 1; transform: none; }
+.tech-phase::after {
+    content: "";
+    position: absolute;
+    top: 14%;
+    right: 24%;
+    bottom: 14%;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--phase) 42%, transparent), transparent);
+    opacity: .45;
+}
+@media (max-width: 740px) {
+    .services-vito { top: 48%; left: 46%; width: clamp(190px, 52vw, 280px); }
+    .tech-phase { grid-template-columns: 1fr; min-height: 510px; }
+    .tech-phase-visual { min-height: 160px; }
+    .tech-phase::after { top: 49%; right: 12%; left: 12%; bottom: auto; width: auto; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--phase) 42%, transparent), transparent); }
+}
 .tech-path { position:absolute; left:0; right:0; bottom:42px; height:2px; border-radius:99px; background:rgba(255,255,255,.09); overflow:hidden; }.tech-path span{display:block;width:100%;height:100%;transform:scaleX(0);transform-origin:left;background:linear-gradient(90deg,var(--accent),var(--accent-2),#FF9900);box-shadow:0 0 18px rgba(0,229,176,.4)}
 .tech-progress-dots { position:absolute; right:0; bottom:30px; display:flex; gap:7px; }.tech-progress-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.17);transition:transform 240ms ease,background 240ms ease}.tech-progress-dots i.is-active{background:var(--accent-2);transform:scale(1.45);box-shadow:0 0 12px rgba(0,229,176,.65)}
 .journey-vito-home { position:absolute; inset:0; z-index:7; pointer-events:none; }
@@ -2066,6 +2418,11 @@ footer {
 .journey-vito svg { display:block; width:100%; height:auto; position:relative; z-index:2; }.journey-vito-glow{position:absolute;inset:18% 8%;border-radius:50%;background:rgba(43,138,247,.24);filter:blur(30px)}
 .journey-vito.is-travelling { position:absolute; left:0; top:0; transform:translate3d(var(--journey-x,10vw),var(--journey-y,50vh),0) translate(-50%,-50%) rotate(var(--journey-tilt,0deg)); transition:transform 120ms linear; }
 .journey-vito.is-following { position:fixed; right:clamp(18px,4vw,54px); bottom:clamp(18px,5vh,52px); width:clamp(78px,8vw,112px); animation:vitoFollowFloat 3.2s ease-in-out infinite; }
+/* `is-following` es `fixed` y persiste por toda la página, no solo por su
+   sección: por debajo de este ancho se pintaba encima de las features de la
+   tarjeta Enterprise justo en el momento de decidir. Es decorativa
+   (`aria-hidden`, `pointer-events:none`), así que se retira sin costo. */
+@media (max-width: 1200px) { .journey-vito.is-following { display: none; } }
 .journey-vito.is-docked { position:absolute; left:50%; top:46%; width:clamp(145px,16vw,220px); transform:translate(-50%,-50%); animation:vitoDockFloat 4s ease-in-out infinite; filter:drop-shadow(0 28px 38px rgba(0,0,0,.5)) drop-shadow(0 0 22px rgba(0,229,176,.16)); }
 .journey-pixels rect{animation:journeyPixel 1.8s ease-in-out infinite}.journey-pixels rect:nth-child(2){animation-delay:180ms}.journey-pixels rect:nth-child(3){animation-delay:360ms}.journey-pixels rect:nth-child(4){animation-delay:540ms}.journey-pupil{animation:vitoLook 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}.journey-eye{filter:drop-shadow(0 0 4px rgba(0,229,176,.7))}
 @keyframes vitoFollowFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}@keyframes vitoDockFloat{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-9px)}}@keyframes journeyPixel{0%,100%{opacity:.25;transform:translateX(0)}50%{opacity:1;transform:translateX(-6px)}}@keyframes vitoLook{0%,35%,100%{transform:translateX(0)}45%,60%{transform:translateX(3px)}70%,85%{transform:translateX(-3px)}}
@@ -2103,12 +2460,41 @@ footer {
 }
 @media (max-width:640px){
     .services-parallax{min-height:570vh}.services-sticky{min-height:560px}.services-section-copy{top:calc(var(--nav-h) + 16px);right:0;width:min(235px,68vw)}.services-section-copy h2{font-size:23px}.services-section-copy p{font-size:11px}.services-detail{left:0;right:0;bottom:58px;width:auto;padding:14px 15px;border-radius:16px}.services-detail h3{font-size:22px}.services-detail p{font-size:12px}.services-progress{bottom:20px}.services-static-mode .services-static-fallback{grid-template-columns:1fr}
-    .tech-sticky{min-height:600px}.tech-stage{padding-top:calc(var(--nav-h) + 15px)}.tech-journey-head{width:90%}.tech-journey-head h2{font-size:28px}.tech-slider-window{top:230px;bottom:76px}.tech-slider-track{gap:22px;padding-left:0}.tech-phase{flex-basis:88vw;height:390px;grid-template-columns:1fr;padding:22px;border-radius:24px}.tech-phase h3{font-size:38px}.tech-phase-visual{display:none}.tech-path{bottom:29px}.tech-progress-dots{bottom:18px}.journey-vito{width:90px}.journey-vito.is-following{width:74px;right:14px;bottom:18px}.journey-vito.is-docked{width:160px}
+    .tech-sticky{min-height:600px}.tech-stage{padding-top:calc(var(--nav-h) + 15px)}.tech-journey-head{width:90%}.tech-journey-head h2{font-size:28px}.tech-slider-window{top:230px;bottom:76px}.tech-slider-track{gap:22px;padding-left:0}.tech-phase{flex-basis:88vw;height:auto;min-height:520px;grid-template-columns:1fr;padding:22px;border-radius:24px}.tech-phase h3{font-size:38px}.tech-phase-visual{display:grid;min-height:150px}.tech-path{bottom:29px}.tech-progress-dots{bottom:18px}.journey-vito{width:90px}.journey-vito.is-following{width:74px;right:14px;bottom:18px}.journey-vito.is-docked{width:160px}
     .vito-ai-section{min-height:980px}.vito-ai-layout{gap:18px}.vito-dock-column{min-height:330px}.vito-dock-slot{width:250px}.vito-dock-copy{margin-top:-8px}.ai-chat-chrome>em{display:none}.ai-chat-body{padding:14px;min-height:610px;max-height:none}.ai-message{max-width:96%}.ai-findings{grid-template-columns:1fr}.order-lines{grid-template-columns:1fr}.ai-plan span:nth-last-child(-n+2){display:none}
 }
+@media (min-width:641px) and (max-width:740px){
+    .tech-phase { grid-template-columns: 1fr; }
+    .tech-phase-visual { display: grid; min-height: 160px; }
+}
 @media (prefers-reduced-motion:reduce){
-    .services-parallax{min-height:auto!important}.services-parallax .services-sticky{position:relative;height:auto;min-height:0}.services-parallax .services-webgl,.services-parallax .services-vignette,.services-parallax .services-grid,.services-parallax .services-detail,.services-parallax .services-progress{display:none!important}.services-parallax .services-ui{height:auto;padding:clamp(72px,9vw,112px) 0 34px}.services-parallax .services-section-copy{position:relative;top:auto;right:auto;width:min(500px,100%);margin-left:auto}.services-parallax .services-static-fallback{display:grid;width:min(var(--max),calc(100% - clamp(24px,5vw,64px)));margin:30px auto 0;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .services-parallax{min-height:auto!important}.services-parallax .services-sticky{position:relative;height:auto;min-height:0}.services-parallax .services-webgl,.services-parallax .services-vignette,.services-parallax .services-grid,.services-parallax .services-detail,.services-parallax .services-progress,.services-parallax .services-vito{display:none!important}.services-parallax .services-ui{height:auto;padding:clamp(72px,9vw,112px) 0 34px}.services-parallax .services-section-copy{position:relative;top:auto;right:auto;width:min(500px,100%);margin-left:auto}.services-parallax .services-static-fallback{display:grid;width:min(var(--max),calc(100% - clamp(24px,5vw,64px)));margin:30px auto 0;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
     .tech-journey{min-height:auto!important;padding:80px 0}.tech-sticky{position:relative;height:auto;overflow:visible}.tech-stage{height:auto}.tech-slider-window{position:relative;top:auto;bottom:auto;margin-top:40px;overflow:auto}.tech-slider-track{transform:none!important}.journey-vito-home,.tech-path,.tech-progress-dots{display:none}.tech-phase{opacity:1;transform:none}.tech-stack span{opacity:1;transform:none}.tech-phase-visual *{animation:none!important;opacity:1!important;transform:none!important}
     .journey-vito.is-following{animation:none}.journey-vito.is-docked{animation:none}.ai-message,.ai-thinking{opacity:1;transform:none;transition:none}.vito-dock-rings i,.status-dot{animation:none}
 }
 
+/* ─── MODO PRESENTACIÓN ───
+   Solo se activa cuando presentacion.config.js trae autoScroll: true; la clase
+   la pone presentacion.js. En uso normal ninguna de estas reglas existe en la
+   página. */
+.modo-presentacion {
+    /* El scroll suave nativo pelea con el desplazamiento cuadro a cuadro:
+       cada scrollTo cancelaría y reiniciaría la animación del navegador. */
+    scroll-behavior: auto;
+}
+.modo-presentacion--sin-cursor,
+.modo-presentacion--sin-cursor body { cursor: none; }
+.modo-presentacion--sin-cursor { scrollbar-width: none; }
+.modo-presentacion--sin-cursor body::-webkit-scrollbar { display: none; }
+
+.presentacion-fundido {
+    position: fixed;
+    inset: 0;
+    /* Por encima de todo el chrome del sitio: el máximo en uso es 100 (skip-link). */
+    z-index: 120;
+    background: #01030a;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 700ms var(--ease);
+}
+.presentacion-fundido.visible { opacity: 1; }
