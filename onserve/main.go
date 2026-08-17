@@ -28,9 +28,12 @@ var webFiles embed.FS
 func main() {
 	defaultData := filepath.Join(defaultBaseDir(), "data")
 	var (
-		port    = flag.Int("port", 8090, "puerto del servidor")
-		dataDir = flag.String("data", defaultData, "carpeta donde se guarda la base de datos")
-		noOpen  = flag.Bool("no-open", false, "no abrir el navegador automáticamente")
+		port          = flag.Int("port", 8090, "puerto del servidor")
+		host          = flag.String("host", "127.0.0.1", "interfaz de escucha (127.0.0.1 local; 0.0.0.0 red local)")
+		dataDir       = flag.String("data", defaultData, "carpeta donde se guarda la base de datos")
+		noOpen        = flag.Bool("no-open", false, "no abrir el navegador automáticamente")
+		seedDemo      = flag.Bool("seed-demo", false, "cargar datos demostrativos y salir")
+		seedDemoForce = flag.Bool("seed-demo-force", false, "reemplazar datos con el set demostrativo y salir")
 	)
 	flag.Parse()
 
@@ -40,21 +43,42 @@ func main() {
 	}
 	defer st.Close()
 
+	if *seedDemo || *seedDemoForce {
+		rep, err := st.SeedDemo(*seedDemoForce)
+		if err != nil {
+			log.Fatalf("Seed demo: %v", err)
+		}
+		fmt.Println("┌────────────────────────────────────────────────┐")
+		fmt.Println("│     OnServe — datos demostrativos listos       │")
+		fmt.Println("├────────────────────────────────────────────────┤")
+		fmt.Printf("│  Zonas:       %-32d │\n", rep.Zones)
+		fmt.Printf("│  Mesas:       %-32d │\n", rep.Tables)
+		fmt.Printf("│  Platillos:   %-32d │\n", rep.MenuItems)
+		fmt.Printf("│  Comandas:    %d pagadas / %d abiertas         │\n", rep.PaidOrders, rep.OpenOrders)
+		fmt.Printf("│  Facturas:    %-32d │\n", rep.Invoices)
+		fmt.Println("│  Empresa: Café Valle HN (demo)                  │")
+		fmt.Println("└────────────────────────────────────────────────┘")
+		fmt.Println("Siguiente: make dev  →  http://localhost:8090")
+		return
+	}
+
 	webFS, err := fs.Sub(webFiles, "web")
 	if err != nil {
 		log.Fatal(err)
 	}
 	handler := httpapi.New(st).Router(webFS)
 
-	addr := fmt.Sprintf(":%d", *port)
+	addr := fmt.Sprintf("%s:%d", *host, *port)
 	url := fmt.Sprintf("http://localhost:%d", *port)
 
 	fmt.Println("┌────────────────────────────────────────────────┐")
 	fmt.Println("│         OnServe — Operación de restaurante      │")
 	fmt.Println("├────────────────────────────────────────────────┤")
 	fmt.Printf("│  Interfaz:  %-34s │\n", url)
-	if lan := lanIP(); lan != "" {
-		fmt.Printf("│  En la red: http://%s:%d%*s│\n", lan, *port, 27-len(lan)-len(fmt.Sprint(*port)), " ")
+	if *host != "127.0.0.1" && *host != "localhost" {
+		if lan := lanIP(); lan != "" {
+			fmt.Printf("│  En la red: http://%s:%d%*s│\n", lan, *port, 27-len(lan)-len(fmt.Sprint(*port)), " ")
+		}
 	}
 	fmt.Printf("│  Datos:     %-34s │\n", truncatePath(*dataDir, 34))
 	fmt.Println("│  Para apagar el sistema cierre esta ventana.   │")

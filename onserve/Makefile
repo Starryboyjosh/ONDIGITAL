@@ -1,9 +1,15 @@
 # OnServe — comandos de desarrollo y compilación
-.PHONY: dev build build-linux build-windows clean test
+.PHONY: dev seed-demo seed-demo-force build build-linux build-windows clean test
 
 # Desarrollo en Linux (recarga manual: Ctrl+C y volver a correr)
 dev:
 	go run . -port 8090 -no-open
+
+seed-demo:
+	go run . -seed-demo
+
+seed-demo-force:
+	go run . -seed-demo-force
 
 # Compila ambos ejecutables de producción en dist/
 build: build-linux build-windows

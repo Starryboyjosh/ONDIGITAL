@@ -25,14 +25,24 @@ servidor HTTP, interfaz web embebida y base de datos SQLite local.
 
 ```bash
 make dev
+make seed-demo        # carga salón, menú, caja, comandas y cocina de demostración
+make seed-demo-force  # reemplaza la data local con el set sintético
 make test
 make build
 ```
 
 Por defecto la app corre en `http://localhost:8090` y guarda la base de datos en
 `data/onserve.db` junto al ejecutable o al directorio de trabajo usado con `go run`.
+Escucha en `127.0.0.1` por defecto; usa `-host 0.0.0.0` únicamente para habilitar acceso
+desde otras PCs de la red local.
 Para cambiar la carpeta de datos:
 
 ```bash
 go run . -port 8090 -data ./tmp-data -no-open
+# Acceso desde otras PCs de la red local, solo cuando sea necesario:
+go run . -host 0.0.0.0 -port 8090 -data ./tmp-data -no-open
 ```
+
+La semilla usa la empresa ficticia **Café Valle HN**, dos comandas cobradas, una
+comanda abierta en cocina, una sesión de caja y facturas locales de ejemplo.
+No representa facturación electrónica SAR ni debe recibir datos reales.
