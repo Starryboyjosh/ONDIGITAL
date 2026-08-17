@@ -23,9 +23,13 @@ depends_on:
 > (aesthetics futuristas, glassmorphic, micro-animaciones, modo híbrido oscuro-clínico).
 
 El proyecto consta de múltiples páginas HTML estáticas e interconectadas que utilizan
-`localStorage` para simular una base de datos local en tiempo real, permitiendo una
+`sessionStorage` para simular una base de datos local en tiempo real, permitiendo una
 experiencia de SPA (Single Page Application) sin necesidad de infraestructura de servidor,
 ideal para demostraciones, portafolios y despliegues locales rápidos.
+
+La demo actual funciona en modo local-first: no carga Firebase ni sincroniza datos cloud por
+defecto. Todos los pacientes, citas, presupuestos y pagos son sintéticos y la autenticación
+del navegador no es apta para expedientes reales.
 
 Para referencias del sector y benchmark, consultar `skills/dental-references.md`.
 
@@ -67,29 +71,20 @@ credental/
 
 ### Empresas (Companies)
 
-Se pre-cargan las siguientes 4 empresas en el sistema:
+La demostración se entrega con un tenant clínico principal; la capa multi-empresa sigue disponible para futuras sucursales.
 
 | ID | Nombre | Color de Acento | Descripción |
 |----|--------|-----------------|-------------|
-| `credental` | **Credental** | `#00e5b0` (verde azulado) | Empresa principal de gestión dental |
-| `credental-central` | Credental Clínica Central | `#2b8af7` (azul digital) | Clínica central de operaciones |
-| `sonrisa-perfecta` | Sonrisa Perfecta | `#f5a623` (dorado cálido) | Clínica especializada en estética dental |
-| `dentpro` | DentPro Consultores | `#9b59b6` (púrpura profesional) | Consultores dentales especializados |
+| `co_credental_demo` | **CREDental** | `#cb6ce6` (morado de acción) | Clínica dental demo basada en la identidad oficial de credentalhn.com |
 
 ### Usuarios del Sistema
 
-Se pre-cargan los siguientes 8 usuarios:
+Se pre-cargan dos usuarios de demostración:
 
 | Username | Contraseña | Nombre Completo | Rol | Empresa | Avatar |
 |----------|------------|-----------------|-----|---------|--------|
-| `admin` | `1234` | Administrador General | Administración | **Credental** | `AG` |
-| `dentista` | `1234` | Dr. Sebastián Escoto | Dentista Principal | **Credental** | `SE` |
-| `recepcion` | `1234` | María González Ruiz | Recepcionista | Credental Clínica Central | `MG` |
-| `dra.lopez` | `1234` | Dra. Ana López Herrera | Odontóloga General | Credental Clínica Central | `AL` |
-| `dr.martinez` | `1234` | Dr. Carlos Martínez Vega | Cirujano Maxilofacial | Sonrisa Perfecta | `CM` |
-| `higienista` | `1234` | Laura Fernández Díaz | Higienista Dental | Sonrisa Perfecta | `LF` |
-| `dr.ramirez` | `1234` | Dr. Roberto Ramírez Soto | Ortodoncista | DentPro Consultores | `RR` |
-| `asistente` | `1234` | Patricia Morales Cruz | Asistente Dental | DentPro Consultores | `PM` |
+| `admin` | `1234` | Administrador Credental | Administración | **CREDental** | `AD` |
+| `testing` | `1234` | Usuario de Pruebas | Administración | **CREDental** | `TS` |
 
 Cada usuario tiene un campo `companyId` que vincula al usuario con su empresa correspondiente.
 
@@ -99,15 +94,25 @@ Cada usuario tiene un campo `companyId` que vincula al usuario con su empresa co
 
 ### Autenticación Multi-Usuario y Multi-Empresa
 
-- Sistema de autenticación local con **8 usuarios distribuidos en 4 empresas/clínicas**.
+- Sistema de autenticación local con usuarios demo aislados por `companyId`.
 - Cada usuario pertenece a una empresa específica mediante un campo `companyId`.
 - Al iniciar sesión, el sistema carga automáticamente el branding (nombre, logo, color de acento) de la empresa correspondiente en el sidebar, header and pantalla de login.
-- Las credenciales predeterminadas para demostración rápida son `admin / 1234` (empresa: **Credental**).
+- Las credenciales predeterminadas para demostración rápida son `testing / 1234` (empresa: **CREDental**).
+- Las operaciones por ID validan el `companyId` de la sesión activa; los IDs de la semilla
+  incluyen `co_credental_demo` para evitar colisiones con otros tenants.
+- La semilla solo corre para `co_credental_demo` (o migra el identificador legado conocido) y
+  no expone una operación global de borrado/reset.
+
+### Datos fiscales de demostración
+
+La pantalla de Facturación muestra RTN, CAI, rangos y documentos sintéticos para explicar el
+flujo. Se marcan explícitamente como demo y no tienen validez ante SAR; no deben sustituir la
+configuración fiscal real de la clínica.
 
 ### Diseño y Estilo Visual
 
-- Reutiliza y adapta el sistema visual premium ONDIGITAL (tipografías **Syne** y **DM Sans**, fondo de azul nocturno `--navy: #050f2c` con acentos en `--teal: #00e5b0` y `--blue-mid: #2b8af7`).
-- Coherencia de marca con todo el ecosistema ONDIGITAL.
+- Usa la identidad oficial de CREDental: azul primario `#004aad`, teal oscuro `#004d66`, morado `#cb6ce6` y crema `#fff6e7`, con **DM Sans** para una interfaz clínica legible.
+- La marca oficial se carga desde `credental/assets/credental-logo-official.png` y `credental/assets/credental-icon.png`.
 - Cada empresa puede tener un color de acento personalizado que se inyecta dinámicamente al iniciar sesión vía `--company-accent`.
 
 ### Odontograma Interactivo
@@ -153,16 +158,16 @@ Cada usuario tiene un campo `companyId` que vincula al usuario con su empresa co
   - **Nombre**: Título del tratamiento (ej. `Endodoncia Molar`).
   - **Costo**: Precio base sugerido en la moneda local.
   - **Descripción**: Breve detalle técnico o comercial del procedimiento.
-- Se autoguarda en `localStorage` y actualiza inmediatamente la lista disponible en la creación de presupuestos.
+- Se autoguarda en `sessionStorage` y actualiza inmediatamente la lista disponible en la creación de presupuestos.
 
 ### Configuración de la Clínica (Branding del Presupuesto)
 
 - Nueva sección de **Configuración** exclusiva para usuarios con rol `Administración` (usuario `admin`).
 - Permite modificar la información básica de la clínica asociada a la empresa actual:
-  - **Nombre de la Clínica**: Reemplaza el título del presupuesto (que antes por defecto decía "Credental"). El PDF y la cabecera del presupuesto llevarán este nombre personalizado.
+  - **Nombre de la Clínica**: Reemplaza el título del presupuesto (que por defecto usa "CREDental"). El PDF y la cabecera del presupuesto llevarán este nombre personalizado.
   - **Ubicación / Dirección**: Dirección física de la clínica que aparecerá en el pie de página o sección de datos del presupuesto.
   - **Contacto**: Teléfono de la clínica y correo electrónico de atención.
-- Los datos se guardan en el perfil de la empresa dentro de la base de datos local y se inyectan dinámicamente en los presupuestos creados y en los PDFs generados.
+- Los datos se guardan en el perfil del tenant dentro de la base de datos local y se inyectan dinámicamente en los presupuestos creados y en los PDFs generados.
 
 ### Motivo de Consulta en Registro de Pacientes
 
@@ -177,7 +182,7 @@ Cada usuario tiene un campo `companyId` que vincula al usuario con su empresa co
 ### styles.css
 
 Contiene el sistema de diseño completo:
-- **Variables de color**: `#050f2c` (navy profundo), `#0a1a3a` (navy secundario), `#1a6fe8` (azul digital), `#00e5b0` (verde azulado curativo), `#ff4a5a` (caries/rojo), `#3dd68c` (restaurado/verde).
+- **Variables de color**: `#004aad` (azul primario), `#004d66` (teal oscuro), `#cb6ce6` (acción morada), `#fff6e7` (crema), `#dc2626` (caries/rojo) y `#198754` (estados positivos).
 - **Variables dinámicas de empresa**: `--company-accent` se inyecta dinámicamente según la empresa del usuario logueado, cambiando los acentos de color en sidebar, header y botones primarios.
 - **Glassmorphism**: Efectos de desenfoque (`backdrop-filter: blur(12px)`) con bordes translúcidos para tarjetas y menús.
 - **Tipografía**: Importación de Google Fonts (**Syne** para encabezados de alto impacto, **DM Sans** para contenido legible y corporativo).
@@ -188,8 +193,8 @@ Contiene el sistema de diseño completo:
 ### db.js
 
 El corazón de datos de la aplicación. Carga datos pre-poblados si no existen en `localStorage`:
-- **Empresas pre-cargadas**: Las 4 empresas con datos de branding y campos adicionales para configuración de clínica (`nombreClinica`, `direccion`, `telefono`, `correo`).
-- **Usuarios pre-cargados**: Los 8 usuarios con `companyId` asignado.
+- **Empresa demo pre-cargada**: CREDental con datos de branding y campos adicionales para configuración de clínica (`nombreClinica`, `direccion`, `telefono`, `correo`).
+- **Usuarios pre-cargados**: `admin` y `testing`, ambos con `companyId` asignado a CREDental.
 - **Pacientes pre-cargados**: Pacientes de prueba con historiales médicos básicos y el campo `motivoConsulta` inicializado.
 - **Procedimientos pre-cargados**: Catálogo inicial de aranceles y tratamientos con ID, nombre, costo y descripción.
 - **Cobranzas y abonos**: Tabla para registrar los pagos/abonos realizados a los presupuestos.
@@ -238,7 +243,7 @@ Controla la seguridad del lado del cliente con soporte multi-usuario y multi-emp
 - Consume dinámicamente la lista de tratamientos desde el catálogo de procedimientos (`db.getProcedures()`).
 - Al presionar **Guardar/Aceptar**, el presupuesto se registra automáticamente en la tabla de **Cobranzas** para su respectivo control financiero.
 - **Exportación en PDF (`window.print`)**:
-  - En lugar de "Credental", la cabecera muestra en tipografía elegante el `nombreClinica` configurado.
+  - En lugar de "CREDental", la cabecera muestra en tipografía elegante el `nombreClinica` configurado.
   - El pie de página y los datos del emisor se extraen de la `direccion`, `telefono` y `correo` guardados en la configuración de la clínica para esa empresa.
 
 ### cobranzas.html

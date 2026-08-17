@@ -68,6 +68,30 @@ description: Skill maestro para generar, editar y revisar landing pages, SaaS, s
 - `skills/dental-references.md`
 - `skills/product/credental/SKILL.md`
 
+## Fuentes Frontend Vendorizadas
+
+Estas fuentes selectivas vienen del catalogo frontend de Ossus y no sustituyen
+las skills propias de ONDIGITAL:
+
+- `skills/vendor/pbakaus/impeccable/impeccable/SKILL.md`: critica, auditoria,
+  accesibilidad, responsive y refinamiento visual.
+- `skills/vendor/nextlevelbuilder/ui-ux-pro-max-skill/ui-ux-pro-max/SKILL.md`:
+  busqueda local de patrones UI/UX, estilos, paletas, tipografia y stack.
+- `skills/vendor/nextlevelbuilder/ui-ux-pro-max-skill/brand/SKILL.md`:
+  identidad visual, voz de marca, assets y tokens.
+- `skills/vendor/zanwei/design-dna/design-dna/SKILL.md`: estructura de design
+  system, estilo cualitativo y efectos visuales.
+- `skills/vendor/emilkowalski/skills/`: revision, planificacion y exploracion
+  de motion e interaccion.
+- `skills/vendor/greensock/gsap-skills/`: GSAP core, timelines, ScrollTrigger,
+  plugins, utilidades, frameworks, React y rendimiento.
+- `skills/vendor/lottiefiles/motion-design-skill/motion-design/SKILL.md`:
+  personalidad, timing y coreografia de motion.
+
+Antes de usar una fuente externa, leer su `SOURCE.md`. No ejecutar instaladores,
+hooks, helpers de red ni scripts que escriban archivos sin una tarea explicita
+y una revision de sus efectos.
+
 ## Precedencia
 
 Cuando haya conflicto entre ejemplos antiguos y skills nuevas:

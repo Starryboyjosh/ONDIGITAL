@@ -1,6 +1,7 @@
 # ONDIGITAL Open Source Skill Map
 
 Audit date: 2026-06-04
+Last selective import review: 2026-08-16
 
 This file records external agent-skill sources reviewed for ONDIGITAL. It is not an install script. Use it to decide whether to house-copy, vendor-copy, complement, or reject a source.
 
@@ -13,6 +14,11 @@ Current action taken:
 - Added first-party skills for backend production, QA automation, coding quality, business digitalization, and sales/POS/inventory.
 - Kept external repos as cited sources and future vendor candidates.
 - Did not copy third-party scripts into production folders.
+- Selectively vendored the 18 frontend and motion entries supplied from the
+  Ossus v0.1 almanac under `skills/vendor`; they remain separate from
+  first-party skills.
+- Did not import Ossus tools, policies, rejected entries, or unrelated skills
+  from the source repositories.
 
 ## Sources Reviewed
 
@@ -23,6 +29,11 @@ Current action taken:
 | MoizIbnYousaf/Ai-Agent-Skills | https://github.com/MoizIbnYousaf/Ai-Agent-Skills | MIT, 17 skills, 1066 stars, CLI/library manager | Backend development, database design, best practices, skill library curation | Reference source. Useful ideas, but mixed upstream/source metadata and installer surface make house-copy safer |
 | mxyhi/ok-skills | https://github.com/mxyhi/ok-skills | Apache-2.0, active, 45 skills, 405 stars, scripts/extensions present | TDD, systematic debugging, architecture improvement, browser automation, docs lookup | Complement. Strong coding-process ideas; vendor individual skills only after script/reference audit |
 | nextlevelbuilder/ui-ux-pro-max-skill | https://github.com/nextlevelbuilder/ui-ux-pro-max-skill | MIT, very popular, large design dataset, multiple skills/scripts | Advanced UI/UX, design system generation, accessibility/performance checks | Optional design vendor candidate. Current ONDIGITAL `frontend-quality-review` and `design-systems` cover the default. Consider vendoring only for dedicated design-system work |
+| pbakaus/impeccable | https://github.com/pbakaus/impeccable | Apache-2.0, focused frontend skill, references plus deterministic detector and optional networked helpers | UI critique, responsive/accessibility polish, design-system context, frontend anti-pattern detection | Selective vendor-copy of `impeccable` at a pinned commit; scripts remain constrained and are not run by default |
+| emilkowalski/skills | https://github.com/emilkowalski/skills | MIT, focused text-only motion guidance | Animation review, motion planning, restrained opportunities, Apple-style interaction, isolated prototypes | Selective vendor-copy of the five listed motion skills; advisory/read-only rules retained |
+| greensock/gsap-skills | https://github.com/greensock/gsap-skills | MIT, official text-only GSAP guidance | Core tweens, timelines, ScrollTrigger, plugins, framework lifecycle, React and performance | Selective vendor-copy of the eight listed GSAP skills at the registry-pinned commit; no package install |
+| lottiefiles/motion-design-skill | https://github.com/lottiefiles/motion-design-skill | MIT, text-only motion design framework | Motion personality, timing, choreography and feedback patterns | Selective vendor-copy of `motion-design`; apply ONDIGITAL accessibility and performance gates |
+| zanwei/design-dna | https://github.com/zanwei/design-dna | MIT, structured design-system/style/effects workflow plus one example image | Extracting and applying design tokens, qualitative style and visual effects | Selective vendor-copy of `design-dna`; references and assets remain advisory, no automatic retrieval |
 | cosmicstack-labs/mercury-agent-skills | https://github.com/cosmicstack-labs/mercury-agent-skills | MIT, 130 skills, 23 categories, 258 stars, broad business/product/testing/backend coverage | Business digitalization, product strategy, inventory optimizer, API design, E2E testing, accessibility testing | Reference source. Strong for SMB operations; house-copy relevant patterns into ONDIGITAL-owned skills |
 | Siddharth00/agent-revamp-skills | https://github.com/Siddharth00/agent-revamp-skills | MIT, small/new, 9 migration skills, 1 star | Prototype-to-production migrations, audit to plan to validate workflow | Reference source. Useful migration discipline, but low maturity; do not vendor yet |
 | seb1n/awesome-ai-agent-skills | https://github.com/seb1n/awesome-ai-agent-skills | MIT, 90+ universal skills, 94 stars | Broad cross-domain inspiration | Future review only. Not audited locally in this pass |
@@ -63,3 +74,8 @@ Before any future vendor-copy:
 4. Record license and audit date.
 5. Keep external code under `skills/vendor`, not mixed into first-party folders.
 6. Do not run CLIs from skill repos until their install/update behavior is reviewed.
+
+The 2026-08-16 Ossus import follows these constraints: only the 18 supplied
+frontend and motion entries were copied; upstream licenses and pinned commits
+are recorded in adjacent `SOURCE.md` files; no installer, hook, package
+install, or networked helper was executed.
