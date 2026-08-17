@@ -41,6 +41,8 @@ No necesita internet ni instalación.
 
 Al iniciar, la consola muestra algo como `En la red: http://192.168.1.50:8080`.
 Abre esa dirección en el navegador de cualquier PC de la misma red.
+Para habilitar ese acceso explícitamente ejecuta el sistema con `-host 0.0.0.0`.
+El valor predeterminado es `127.0.0.1`, adecuado para una sola PC.
 
 ## Desarrollo (Linux)
 
@@ -64,6 +66,7 @@ Config opcional en `.env` (ver `.env.example`). Guion de demo: `../docs/demo-fas
 Opciones del ejecutable:
 
 ```
+-host 127.0.0.1    interfaz de escucha (local por defecto; usa 0.0.0.0 para red local)
 -port 8080           puerto del servidor
 -data DIR            carpeta de datos (por defecto: ./data junto al ejecutable)
 -caja                modo solo registradora (PC del cajero; sin finanzas ni admin)

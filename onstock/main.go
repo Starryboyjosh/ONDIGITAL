@@ -28,6 +28,7 @@ func main() {
 	defaultData := filepath.Join(defaultBaseDir(), "data")
 	var (
 		port          = flag.Int("port", 8080, "puerto del servidor")
+		host          = flag.String("host", "127.0.0.1", "interfaz de escucha (127.0.0.1 local; 0.0.0.0 red local)")
 		dataDir       = flag.String("data", defaultData, "carpeta donde se guarda la base de datos")
 		noOpen        = flag.Bool("no-open", false, "no abrir el navegador automáticamente")
 		cajaOnly      = flag.Bool("caja", false, "modo solo caja: PC del cajero (sin finanzas ni admin)")
@@ -86,7 +87,7 @@ func main() {
 	base := defaultBaseDir()
 	var handler http.Handler
 	var openURL string
-	addr := fmt.Sprintf(":%d", *port)
+	addr := fmt.Sprintf("%s:%d", *host, *port)
 	baseURL := fmt.Sprintf("http://localhost:%d", *port)
 
 	if *cajaOnly {
@@ -98,8 +99,10 @@ func main() {
 		fmt.Println("│        OnStock — CAJA (solo registradora)      │")
 		fmt.Println("├────────────────────────────────────────────────┤")
 		fmt.Printf("│  Caja:      %-34s │\n", openURL)
-		if lan := lanIP(); lan != "" {
-			fmt.Printf("│  En la red: http://%s:%d/caja.html%*s│\n", lan, *port, 18-len(lan)-len(fmt.Sprint(*port)), " ")
+		if *host != "127.0.0.1" && *host != "localhost" {
+			if lan := lanIP(); lan != "" {
+				fmt.Printf("│  En la red: http://%s:%d/caja.html%*s│\n", lan, *port, 18-len(lan)-len(fmt.Sprint(*port)), " ")
+			}
 		}
 		fmt.Printf("│  Datos:     %-34s │\n", truncatePath(*dataDir, 34))
 		fmt.Println("│  Sin finanzas · sin reportes · sin admin       │")
@@ -123,8 +126,10 @@ func main() {
 		fmt.Println("│     OnStock — Administración (sistema completo)│")
 		fmt.Println("├────────────────────────────────────────────────┤")
 		fmt.Printf("│  Interfaz:  %-34s │\n", openURL)
-		if lan := lanIP(); lan != "" {
-			fmt.Printf("│  En la red: http://%s:%d%*s│\n", lan, *port, 27-len(lan)-len(fmt.Sprint(*port)), " ")
+		if *host != "127.0.0.1" && *host != "localhost" {
+			if lan := lanIP(); lan != "" {
+				fmt.Printf("│  En la red: http://%s:%d%*s│\n", lan, *port, 27-len(lan)-len(fmt.Sprint(*port)), " ")
+			}
 		}
 		fmt.Printf("│  Datos:     %-34s │\n", truncatePath(*dataDir, 34))
 		fmt.Printf("│  Vito:      %-34s │\n", vitoLine)
