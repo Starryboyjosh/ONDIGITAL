@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Configuración de la Clínica — Credental</title>
+  <title>Configuración de la Clínica — CREDental</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/vito/seed-demo.js"></script>
   <!-- Ruta guard: redirección inmediata para no-administradores antes de renderizar la página -->
   <script>
     (function() {
       const user = window.auth ? window.auth.getCurrentUser() : null;
-      if (!user || user.role !== 'Administración') {
+      if (!user || !window.auth.isAdmin(user)) {
         window.location.href = 'dashboard.html';
       }
     })();
@@ -26,7 +27,7 @@
     <aside class="sidebar">
       <div class="brand-section">
         <div class="brand-logo">CR</div>
-        <div class="brand-name">Cre<span class="acc">dental</span></div>
+        <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
 
       <nav>
@@ -97,7 +98,7 @@
       </header>
 
       <!-- PANEL DE FORMULARIO -->
-      <div class="dashboard-layout" style="grid-template-columns: 1.5fr 1fr; gap: 30px;">
+      <div class="dashboard-layout" style="gap: 30px;">
         
         <div class="card">
           <div class="card-title-area" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; margin-bottom: 20px;">
@@ -108,24 +109,24 @@
             <div class="form-group">
               <label class="form-label" for="config-name">Nombre de la Clínica / Sucursal</label>
               <input type="text" id="config-name" class="form-control" placeholder="Ej. Clínica Dental San Patricio" required autocomplete="off">
-              <span style="font-size: 0.75rem; color: var(--color-gray); margin-top: 4px;">Este nombre reemplazará la marca "Credental" en el encabezado de los presupuestos y PDFs de exportación.</span>
+              <span style="font-size: 0.75rem; color: var(--color-gray); margin-top: 4px;">Este nombre aparecerá en el encabezado de los presupuestos y recibos de exportación.</span>
             </div>
 
             <div class="form-group">
               <label class="form-label" for="config-address">Dirección Física (Ubicación)</label>
-              <input type="text" id="config-address" class="form-control" placeholder="Ej. Col. Palmira, Ave. República de Argentina, Tegucigalpa" required autocomplete="off">
+              <input type="text" id="config-address" class="form-control" placeholder="Ej. Barrio Río Piedras, San Pedro Sula" required autocomplete="off">
               <span style="font-size: 0.75rem; color: var(--color-gray); margin-top: 4px;">Ubicación física que aparecerá en el pie de página de los presupuestos impresos.</span>
             </div>
 
             <div class="form-row" style="margin-bottom: 20px;">
               <div class="form-group">
                 <label class="form-label" for="config-phone">Teléfono de Contacto</label>
-                <input type="tel" id="config-phone" class="form-control" placeholder="Ej. +504 2234-5678" required autocomplete="off">
+                <input type="tel" id="config-phone" class="form-control" placeholder="Ej. +504 3243-3050" required autocomplete="off">
               </div>
 
               <div class="form-group">
                 <label class="form-label" for="config-email">Correo Electrónico de Contacto</label>
-                <input type="email" id="config-email" class="form-control" placeholder="Ej. contacto@clinicasanpatricio.hn" required autocomplete="off">
+                <input type="email" id="config-email" class="form-control" placeholder="Ej. correo@suclinica.hn" required autocomplete="off">
               </div>
             </div>
 
@@ -159,7 +160,7 @@
             </div>
           </div>
 
-          <div class="card" style="background: rgba(43, 138, 247, 0.04); border-color: rgba(43, 138, 247, 0.25);">
+          <div class="card" style="background: rgba(var(--brand-primary-rgb), 0.04); border-color: rgba(var(--brand-primary-rgb), 0.25);">
             <h3 style="font-family: var(--font-title); font-size: 0.95rem; color: var(--color-white); margin-bottom: 8px;">Rol Administrador</h3>
             <p style="font-size: 0.82rem; color: var(--color-gray); line-height: 1.6;">Como usuario administrador, los cambios que guarde se aplicarán globalmente para todos los presupuestos emitidos por esta sucursal a partir de este momento.</p>
           </div>

@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Módulo de Cobranzas — Credental</title>
+  <title>Módulo de Cobranzas — CREDental</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/vito/seed-demo.js"></script>
   <script src="js/main.js"></script>
   <script src="js/cobranzas.js"></script>
   <style>
@@ -53,7 +54,7 @@
     <aside class="sidebar">
       <div class="brand-section">
         <div class="brand-logo">CR</div>
-        <div class="brand-name">Cre<span class="acc">dental</span></div>
+        <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
 
       <nav>
@@ -124,15 +125,15 @@
       </header>
 
       <!-- PANEL PRINCIPAL -->
-      <div class="dashboard-layout" style="grid-template-columns: 1.8fr 1.2fr; gap: 25px;">
+      <div class="dashboard-layout cobranzas-layout">
         
         <!-- Tabla de cobranzas -->
-        <div class="card no-print">
-          <div class="card-title-area">
+        <div class="card no-print cob-list-card">
+          <div class="card-title-area cob-list-toolbar">
             <h2 class="card-title">Listado de Presupuestos y Cobros</h2>
-            <div style="display: flex; gap: 10px; width: 100%; max-width: 480px; justify-content: flex-end;">
-              <input type="text" id="cob-search" class="form-control" placeholder="Buscar por Paciente..." style="max-width: 200px; padding: 8px 12px;">
-              <select id="cob-filter-status" class="form-control" style="max-width: 180px;">
+            <div class="cob-list-filters">
+              <input type="text" id="cob-search" class="form-control cob-search" placeholder="Buscar por paciente...">
+              <select id="cob-filter-status" class="form-control cob-status">
                 <option value="todos" selected>Todos los estados</option>
                 <option value="pendiente">Pendiente</option>
                 <option value="parcial">Pagado Parcial</option>
@@ -225,9 +226,10 @@
 
           <!-- EL COMPROBANTE/RECIBO REAL DE IMPRESIÓN (Visible en impresión o vista previa de recibo) -->
           <div class="card receipt-print-container" style="display: none; background: #ffffff; color: #000000; font-family: 'DM Sans', sans-serif;">
-            <div style="border-bottom: 2px solid #2b8af7; padding-bottom: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="border-bottom: 2px solid var(--brand-primary); padding-bottom: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start;">
               <div>
-                <h1 id="receipt-clinic-name" style="font-size: 1.3rem; font-weight: 800; font-family: var(--font-title); color: #050f2c;">Credental</h1>
+                <img src="assets/credental-logo-official.png" alt="CREDental" width="150" height="42" style="display: block; width: 150px; height: 42px; object-fit: contain; object-position: left center; padding: 5px 8px; border-radius: 6px; background: var(--brand-primary);">
+                <h1 id="receipt-clinic-name" style="font-size: 1.3rem; font-weight: 800; font-family: var(--font-title); color: var(--brand-teal); margin-top: 8px;">CREDental</h1>
                 <p id="receipt-clinic-contact" style="font-size: 0.72rem; color: #4a5568; margin-top: 4px; line-height: 1.4;">
                   Cargando datos de contacto...
                 </p>
@@ -271,7 +273,7 @@
                 <span>Total Abonado:</span>
                 <span id="receipt-total-paid" style="font-weight: 700;">L 0.00</span>
               </div>
-              <div style="width: 250px; display: flex; justify-content: space-between; border-top: 2px solid #2b8af7; padding-top: 6px; font-weight: 700; color: #e53e3e;">
+              <div style="width: 250px; display: flex; justify-content: space-between; border-top: 2px solid var(--brand-primary); padding-top: 6px; font-weight: 700; color: #e53e3e;">
                 <span>Saldo Deudor:</span>
                 <span id="receipt-total-pending">L 0.00</span>
               </div>
@@ -300,13 +302,13 @@
       <form id="payment-form">
         <input type="hidden" id="payment-budget-id">
         <div class="modal-body">
-          <div class="form-group" style="margin-bottom: 12px; background: rgba(0,229,176,0.04); padding: 12px; border-radius: 8px; border: 1px solid rgba(0,229,176,0.25);">
+          <div class="form-group" style="margin-bottom: 12px; background: rgba(var(--brand-purple-rgb), 0.04); padding: 12px; border-radius: 8px; border: 1px solid rgba(var(--brand-purple-rgb), 0.25);">
             <div style="font-size: 0.8rem; color: var(--color-gray);">SALDO PENDIENTE ACTUAL:</div>
             <div style="font-size: 1.25rem; font-weight: 800; color: var(--color-teal); margin-top: 4px;" id="modal-pending-label">L 0.00</div>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="payment-amount">Monto del Pago ($)</label>
+            <label class="form-label" for="payment-amount">Monto del pago (HNL)</label>
             <input type="number" id="payment-amount" class="form-control" placeholder="Ej. 50000" required min="1">
           </div>
 

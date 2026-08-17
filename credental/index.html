@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Iniciar Sesión — Credental Clínica Digital</title>
+        <title>Iniciar Sesión — CREDental</title>
         <link rel="stylesheet" href="css/styles.css" />
         <script src="js/db.js"></script>
         <script src="js/auth.js"></script>
@@ -12,14 +12,29 @@
     <body class="login-viewport">
         <div class="card login-card">
             <div class="login-brand">
-                <div class="login-logo">CR</div>
+                <div class="login-logo" role="img" aria-label="CREDental — Ortodoncia, implantes y estética dental">CR</div>
                 <div class="login-brand-name">
-                    Cre<span class="acc">dental</span>
+                    CRED<span class="acc">ental</span>
                 </div>
             </div>
 
             <p class="login-lead">
                 Sistema Inteligente de Gestión Dental e Historias Clínicas
+            </p>
+
+            <p class="login-demo-hint" style="
+                margin: 0 0 18px;
+                padding: 10px 12px;
+                border-radius: 10px;
+                border: 1px solid rgba(203, 108, 230, 0.3);
+                background: rgba(203, 108, 230, 0.1);
+                color: var(--color-gray, #64748b);
+                font-size: 0.85rem;
+                line-height: 1.45;
+                text-align: left;
+            ">
+                <strong style="color: var(--brand-purple);">Demo:</strong>
+                usuario <code>testing</code> · contraseña <code>1234</code>
             </p>
 
             <!-- Caja de alertas dinámicas -->
@@ -94,7 +109,6 @@
             // 1. Detección en tiempo real del usuario para Branding Dinámico de la Empresa
             const usernameInput = document.getElementById("username");
             const brandName = document.querySelector(".login-brand-name");
-            const brandLogo = document.querySelector(".login-logo");
 
             usernameInput.addEventListener("input", function () {
                 const username = this.value.trim().toLowerCase();
@@ -105,18 +119,14 @@
 
                 if (user) {
                     const companies = {
-                        credental: { name: "Credental", accent: "#0f9d8a" },
-                        "credental-central": {
-                            name: "Credental Clínica Central",
-                            accent: "#2563eb",
+                        credental: { name: "CREDental", accent: "#cb6ce6" },
+                        "co_credental_demo": {
+                            name: "CREDental",
+                            accent: "#cb6ce6",
                         },
-                        "sonrisa-perfecta": {
-                            name: "Sonrisa Perfecta",
-                            accent: "#d97706",
-                        },
-                        dentpro: {
-                            name: "DentPro Consultores",
-                            accent: "#7c3aed",
+                        "co_demo_credental": {
+                            name: "CREDental",
+                            accent: "#cb6ce6",
                         },
                     };
                     const company = companies[user.companyId];
@@ -127,15 +137,6 @@
                             "--color-blue-mid",
                             company.accent,
                         );
-
-                        // Actualizar logo con iniciales corporativas
-                        const parts = company.name.trim().split(/\s+/);
-                        brandLogo.textContent = (
-                            parts.length >= 2
-                                ? parts[0][0] + parts[1][0]
-                                : parts[0].slice(0, 2)
-                        ).toUpperCase();
-                        brandLogo.style.background = company.accent;
 
                         // Actualizar título
                         const name = company.name;
@@ -157,11 +158,9 @@
                 // Restablecer al branding corporativo por defecto
                 document.documentElement.style.setProperty(
                     "--color-blue-mid",
-                    "#2563eb",
+                    "#cb6ce6",
                 );
-                brandLogo.textContent = "CR";
-                brandLogo.style.background = "";
-                brandName.innerHTML = 'Cre<span class="acc">dental</span>';
+                brandName.innerHTML = 'CRED<span class="acc">ental</span>';
             });
 
             // 2. Lógica de envío del Formulario

@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Caja y Finanzas — Credental</title>
+  <title>Caja y Finanzas — CREDental</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/vito/seed-demo.js"></script>
   <script src="js/main.js"></script>
   <script src="js/caja.js"></script>
 </head>
@@ -16,7 +17,7 @@
     <aside class="sidebar">
       <div class="brand-section">
         <div class="brand-logo">CR</div>
-        <div class="brand-name">Cre<span class="acc">dental</span></div>
+        <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
       <nav>
         <ul class="nav-menu">
@@ -66,7 +67,7 @@
       <div class="card" style="margin-bottom: 22px;">
         <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
           <div style="display: flex; align-items: center; gap: 14px;">
-            <div class="metric-icon-wrap" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);">
+            <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);">
               <svg viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4z"></path></svg>
             </div>
             <div>
@@ -103,7 +104,7 @@
           <div class="metric-info"><span class="metric-title">Anulaciones</span><span class="metric-value" id="caja-anulaciones">L 0.00</span></div>
         </div>
         <div class="card metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);">
+          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);">
             <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
           </div>
           <div class="metric-info"><span class="metric-title">Efectivo en caja</span><span class="metric-value" id="caja-efectivo">L 0.00</span></div>
@@ -123,7 +124,7 @@
 
       <!-- Movimientos del día -->
       <div class="section-divider">
-        <div class="section-divider-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);">
+        <div class="section-divider-icon" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);">
           <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
         </div>
         <span class="section-divider-text">Movimientos del día</span>
@@ -149,7 +150,7 @@
 
       <!-- Arqueo y conciliación (placeholders) -->
       <div class="section-divider">
-        <div class="section-divider-icon" style="background: rgba(15, 157, 138, 0.1); color: var(--color-teal);">
+        <div class="section-divider-icon" style="background: rgba(var(--brand-teal-rgb), 0.1); color: var(--color-teal);">
           <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
         </div>
         <span class="section-divider-text">Arqueo y conciliación</span>

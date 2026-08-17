@@ -3,15 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestión de Usuarios — Credental</title>
+  <title>Gestión de Usuarios — CREDental</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/vito/seed-demo.js"></script>
   <!-- Ruta guard: redirección inmediata para no-administradores antes de renderizar la página -->
   <script>
     (function() {
       const user = window.auth ? window.auth.getCurrentUser() : null;
-      if (!user || user.role !== 'Administración') {
+      if (!user || !window.auth.isAdmin(user)) {
         window.location.href = 'dashboard.html';
       }
     })();
@@ -25,7 +26,7 @@
     <aside class="sidebar">
       <div class="brand-section">
         <div class="brand-logo">CR</div>
-        <div class="brand-name">Cre<span class="acc">dental</span></div>
+        <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
 
       <nav>
@@ -268,15 +269,12 @@
         // Si el usuario creado es un profesional clínico, también lo registramos en la lista de dentistas
         const rolesClinicos = ['Dentista Principal', 'Odontóloga General', 'Cirujano Maxilofacial', 'Ortodoncista'];
         if (rolesClinicos.includes(role)) {
-          const dentists = localStorage.getItem('credental_dentists');
-          const list = dentists ? JSON.parse(dentists) : [];
-          list.push({
+          window.db.saveDentist({
             id: username,
             name: fullname,
             specialty: role === 'Dentista Principal' ? 'Implantología y Estética' : role,
             companyId: currentUser.companyId
           });
-          localStorage.setItem('credental_dentists', JSON.stringify(list));
         }
 
         window.showToast('Usuario registrado con éxito.', 'success');
@@ -301,24 +299,47 @@
 
       companyUsers.forEach(user => {
         const tr = document.createElement('tr');
-        
-        // Mapear botón de eliminar (no permitir que el administrador actual se auto-elimine)
-        let actionHtml = '';
+
+        const avatarCell = document.createElement('td');
+        const avatar = document.createElement('div');
+        avatar.className = 'user-avatar';
+        avatar.style.cssText = 'width: 36px; height: 36px; font-size: 0.85rem;';
+        avatar.textContent = user.avatar || 'U';
+        avatarCell.appendChild(avatar);
+
+        const nameCell = document.createElement('td');
+        nameCell.style.fontWeight = '600';
+        nameCell.textContent = user.name || 'Sin nombre';
+
+        const usernameCell = document.createElement('td');
+        const usernameCode = document.createElement('code');
+        usernameCode.textContent = user.username || '';
+        usernameCell.appendChild(usernameCode);
+
+        const roleCell = document.createElement('td');
+        const roleTag = document.createElement('span');
+        roleTag.className = 'tag';
+        roleTag.textContent = user.role || 'Usuario';
+        roleCell.appendChild(roleTag);
+
+        const actionCell = document.createElement('td');
+        actionCell.style.textAlign = 'right';
         if (user.username === currentUser.username) {
-          actionHtml = `<span style="font-size: 0.8rem; color: var(--color-teal); font-weight: 600; padding-right: 15px;">Tú (Sesión Activa)</span>`;
+          const activeLabel = document.createElement('span');
+          activeLabel.style.cssText = 'font-size: 0.8rem; color: var(--color-teal); font-weight: 600; padding-right: 15px;';
+          activeLabel.textContent = 'Tú (Sesión Activa)';
+          actionCell.appendChild(activeLabel);
         } else {
-          actionHtml = `<button onclick="deleteUser('${user.username}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">Eliminar</button>`;
+          const deleteButton = document.createElement('button');
+          deleteButton.type = 'button';
+          deleteButton.className = 'btn btn-danger';
+          deleteButton.style.cssText = 'padding: 6px 12px; font-size: 0.8rem;';
+          deleteButton.textContent = 'Eliminar';
+          deleteButton.addEventListener('click', () => window.deleteUser(user.username));
+          actionCell.appendChild(deleteButton);
         }
 
-        tr.innerHTML = `
-          <td>
-            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 0.85rem;">${user.avatar || 'U'}</div>
-          </td>
-          <td style="font-weight: 600;">${user.name}</td>
-          <td><code>${user.username}</code></td>
-          <td><span class="tag">${user.role}</span></td>
-          <td style="text-align: right;">${actionHtml}</td>
-        `;
+        tr.append(avatarCell, nameCell, usernameCell, roleCell, actionCell);
         tableBody.appendChild(tr);
       });
     }
@@ -329,12 +350,7 @@
         window.db.deleteUser(username);
         
         // También remover de la lista de dentistas si existía
-        const dentists = localStorage.getItem('credental_dentists');
-        if (dentists) {
-          const list = JSON.parse(dentists);
-          const filtered = list.filter(d => d.id !== username);
-          localStorage.setItem('credental_dentists', JSON.stringify(filtered));
-        }
+        if (window.db.deleteDentist) window.db.deleteDentist(username);
 
         window.showToast('Usuario eliminado del sistema.', 'warning');
         renderUsersTable();

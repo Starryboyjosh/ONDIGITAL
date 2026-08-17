@@ -13,16 +13,6 @@
   }
 })();
 
-// Helper: iniciales profesionales a partir del nombre de la empresa.
-function getCompanyInitials(name) {
-  if (!name) return 'OD';
-  const words = name.trim().split(/\s+/);
-  if (words.length >= 2) {
-    return (words[0][0] + words[1][0]).toUpperCase();
-  }
-  return words[0].slice(0, 2).toUpperCase();
-}
-
 // Helper centralizado de formato de moneda: Lempira hondureño (HNL).
 // Evita repetir Intl.NumberFormat en cada módulo. Disponible como window.formatMoney.
 window.MONEY_LOCALE = 'es-HN';
@@ -75,12 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
 
-    // Actualizar el logo corporativo (iniciales) en la barra lateral
-    const brandLogoEl = document.querySelector('.brand-logo');
-    if (brandLogoEl) {
-      brandLogoEl.textContent = getCompanyInitials(currentCompany.name);
-      brandLogoEl.style.background = currentCompany.accent;
-    }
+    // El isotipo oficial se mantiene fijo; solo el nombre puede variar por tenant.
   }
 
   // 3. Cargar Perfil de Usuario en el Sidebar
@@ -116,6 +101,11 @@ document.addEventListener('DOMContentLoaded', function() {
         href: 'dashboard.html',
         label: 'Dashboard',
         icon: '<rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect>'
+      },
+      {
+        href: 'vito.html',
+        label: 'Vito',
+        icon: '<rect x="5" y="7" width="14" height="12" rx="3"></rect><path d="M9 7V5a3 3 0 0 1 6 0v2"></path><circle cx="9.5" cy="13" r="1"></circle><circle cx="14.5" cy="13" r="1"></circle><path d="M9.5 16.5c1 .8 3.5.8 5 0"></path>'
       },
       {
         href: 'agenda.html',
@@ -168,21 +158,6 @@ document.addEventListener('DOMContentLoaded', function() {
         icon: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>'
       },
       {
-        href: 'laboratorios.html',
-        label: 'Laboratorios',
-        icon: '<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><line x1="7.5" y1="14" x2="16.5" y2="14"></line>'
-      },
-      {
-        href: 'comunicaciones.html',
-        label: 'Comunicaciones',
-        icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>'
-      },
-      {
-        href: 'procedimientos.html',
-        label: 'Procedimientos',
-        icon: '<path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>'
-      },
-      {
         href: 'configuracion.html',
         label: 'Configuración',
         icon: '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>',
@@ -200,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
     navMenu.innerHTML = '';
 
     // Generar los ítems dinámicamente
-    const isAdmin = currentUser && currentUser.role === 'Administración';
+    const isAdmin = currentUser && window.auth && window.auth.isAdmin(currentUser);
     navItems.forEach(item => {
       // Omitir ítems exclusivos de admin si el usuario no es admin
       if (item.adminOnly && !isAdmin) return;
@@ -344,18 +319,21 @@ window.showToast = function(message, type = 'success') {
   const toast = document.createElement('div');
   toast.className = `toast-notification ${type}`;
   
-  // Asignar colores según el tipo
-  let bg = 'rgba(10, 26, 60, 0.9)';
-  let border = '1px solid rgba(43, 138, 247, 0.4)';
-  let iconColor = '#00e5b0';
+  // Asignar colores según el tipo usando la identidad oficial de CREDental.
+  const rootStyles = getComputedStyle(document.documentElement);
+  const brandPrimary = rootStyles.getPropertyValue('--brand-primary').trim() || '#004aad';
+  const brandPurple = rootStyles.getPropertyValue('--brand-purple').trim() || '#cb6ce6';
+  let bg = 'rgba(0, 77, 102, 0.96)';
+  let border = `1px solid ${brandPrimary}66`;
+  let iconColor = brandPurple;
   let iconSvg = '<circle cx="12" cy="12" r="10"></circle><polyline points="12 8 12 12 16 14"></polyline>'; // Reloj para info
 
   const currentCompany = window.auth ? window.auth.getCurrentCompany() : null;
-  const activeAccent = currentCompany ? currentCompany.accent : '#2b8af7';
+  const activeAccent = currentCompany ? currentCompany.accent : brandPrimary;
 
   if (type === 'success') {
-    border = '1px solid rgba(0, 229, 176, 0.4)';
-    iconColor = '#00e5b0';
+    border = `1px solid ${brandPurple}80`;
+    iconColor = brandPurple;
     iconSvg = '<polyline points="20 6 9 17 4 12"></polyline>'; // Check
   } else if (type === 'error') {
     border = '1px solid rgba(255, 74, 90, 0.4)';

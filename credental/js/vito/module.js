@@ -14,13 +14,18 @@
   }
 
   function todayISO() {
-    return new Date().toISOString().slice(0, 10);
+    const date = new Date();
+    return date.getFullYear() + '-' +
+      String(date.getMonth() + 1).padStart(2, '0') + '-' +
+      String(date.getDate()).padStart(2, '0');
   }
 
   function addDaysISO(n) {
     const d = new Date();
     d.setDate(d.getDate() + n);
-    return d.toISOString().slice(0, 10);
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
   }
 
   function patientName(p) {
@@ -95,7 +100,7 @@
           const pat = global.db.getPatient(a.patientId);
           const den = global.db.getDentist ? global.db.getDentist(a.dentistId) : null;
           return (i + 1) + '. ' + apptTime(a) + ' · ' + patientName(pat) +
-            (den ? ' · Dr(a). ' + (den.name || '') : '') +
+            (den ? ' · ' + (den.name || '') : '') +
             (a.specialty ? ' · ' + a.specialty : '') +
             (a.status ? ' (' + a.status + ')' : '');
         });
@@ -224,8 +229,8 @@
           budgets: budgets.length
         }, {
           source: 'credental.local.snapshot',
-          label: 'Credental · datos locales',
-          detail: 'local-first + sync opcional'
+          label: 'CREDental · datos locales',
+          detail: 'local-first'
         });
       }
     }
@@ -273,7 +278,7 @@
     }
     if (!global.db) {
       return {
-        reply: 'La base de datos de Credental no está lista. Recarga la página.',
+        reply: 'La base de datos de CREDental no está lista. Recarga la página.',
         citations: [],
         mock: true
       };
@@ -317,7 +322,7 @@
       enabled: enabled,
       ready: enabled,
       message: enabled
-        ? 'Módulo Credental activo (local-first; sync Firebase si está configurado).'
+        ? 'Módulo CREDental activo en modo local-first para la demostración.'
         : 'Sin motor de datos.',
       hybrid: 'local-first'
     };
@@ -325,7 +330,7 @@
 
   const moduleDef = {
     id: 'credental',
-    name: 'Credental',
+    name: 'CREDental',
     version: '0.2.0',
     description: 'Agenda, pacientes, presupuestos y cobranzas para clínicas dentales.',
     capabilities: CAPABILITIES,

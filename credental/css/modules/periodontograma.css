@@ -3,6 +3,11 @@
    ========================================================================== */
 .perio-table-container {
   overflow-x: auto;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  contain: inline-size;
   margin-bottom: 28px;
   background: var(--bg-secondary);
   border-radius: var(--radius);
@@ -10,7 +15,8 @@
   padding: 15px;
 }
 .perio-table {
-  width: 100%;
+  width: max-content;
+  min-width: 850px;
   border-collapse: collapse;
   text-align: center;
   font-size: 0.8rem;
@@ -41,7 +47,7 @@
 .perio-input:focus {
   outline: none;
   border-color: var(--color-blue-mid);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.12);
 }
 .perio-btn {
   width: 22px;
@@ -101,4 +107,3 @@
   height: 3px;
   border-radius: 2px;
 }
-

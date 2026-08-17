@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Odontograma Clínico — Credental</title>
+  <title>Odontograma Clínico — CREDental</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/vito/seed-demo.js"></script>
   <script src="js/main.js"></script>
   <script src="js/odontograma.js"></script>
   <style>
@@ -18,7 +19,7 @@
     }
     .arch-separator {
       width: 2px;
-      background: rgba(43, 138, 247, 0.15);
+      background: rgba(var(--brand-primary-rgb), 0.15);
       align-self: stretch;
       margin: 0 10px;
     }
@@ -49,7 +50,7 @@
     <aside class="sidebar">
       <div class="brand-section">
         <div class="brand-logo">CR</div>
-        <div class="brand-name">Cre<span class="acc">dental</span></div>
+        <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
 
       <nav>
@@ -170,7 +171,7 @@
             </div>
           </div>
 
-          <div style="height: 40px; border-bottom: 2px dashed rgba(43, 138, 247, 0.12); width: 100%; margin: 20px 0;"></div>
+          <div style="height: 40px; border-bottom: 2px dashed rgba(var(--brand-primary-rgb), 0.12); width: 100%; margin: 20px 0;"></div>
 
           <!-- ARCADA INFERIOR (Lower Arch) -->
           <span class="odontogram-arch-title">Arcada Inferior (Mandibular)</span>
@@ -235,7 +236,7 @@
           </div>
 
           <!-- Nota de Instrucción de Uso -->
-          <div class="card" style="background: rgba(43, 138, 247, 0.03);">
+          <div class="card" style="background: rgba(var(--brand-primary-rgb), 0.03);">
             <h3 class="card-title" style="font-size: 0.85rem; color: var(--color-blue-mid); margin-bottom: 8px;">Guía Rápida de Dibujo</h3>
             <ul style="font-size: 0.76rem; color: var(--color-gray); padding-left: 15px; line-height: 1.5; display: flex; flex-direction: column; gap: 4px;">
               <li>Para pintar <strong>Caries o Resinas</strong>, elija la herramienta e interactúe directamente sobre los trapecios (caras) individuales.</li>

@@ -17,10 +17,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Valores por defecto (esqueleto de ejemplo, contexto hondureño)
   const defaultFiscal = {
     rtn: '08019995123456',
-    nombreLegal: 'Credental Clínica Dental S. de R.L.',
-    direccionFiscal: 'Col. Palmira, Ave. República de Argentina, Tegucigalpa, Honduras',
-    telefono: '+504 2234-5678',
-    correo: 'facturacion@credental.hn'
+    nombreLegal: 'CREDental Clínica Dental',
+    direccionFiscal: 'Barrio Río Piedras, 26-29 avenida, 4 calle, San Pedro Sula, Cortés',
+    telefono: '+504 3243-3050',
+    correo: ''
   };
   const defaultCai = {
     cai: 'A1B2C3-D4E5F6-7890AB-CDEF12-3456GH-78',

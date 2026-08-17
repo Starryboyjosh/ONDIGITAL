@@ -464,12 +464,12 @@ document.addEventListener('DOMContentLoaded', function() {
         let textColor = '#ffb800';
 
         if (appt.status === 'confirmed') {
-          pillColor = 'rgba(43, 138, 247, 0.15)'; // Azul
-          pillBorder = '1px solid rgba(43, 138, 247, 0.3)';
+          pillColor = 'rgba(var(--brand-primary-rgb), 0.15)'; // Azul
+          pillBorder = '1px solid rgba(var(--brand-primary-rgb), 0.3)';
           textColor = 'var(--color-blue-mid)';
         } else if (appt.status === 'completed') {
-          pillColor = 'rgba(0, 229, 176, 0.12)'; // Teal
-          pillBorder = '1px solid rgba(0, 229, 176, 0.25)';
+          pillColor = 'rgba(var(--brand-purple-rgb), 0.12)'; // Teal
+          pillBorder = '1px solid rgba(var(--brand-purple-rgb), 0.25)';
           textColor = 'var(--color-teal)';
         } else if (appt.status === 'canceled') {
           pillColor = 'rgba(255, 74, 90, 0.12)'; // Rojo

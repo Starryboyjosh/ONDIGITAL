@@ -108,7 +108,7 @@
 }
 
 .autocomplete-item mark {
-  background: rgba(37, 99, 235, 0.16);
+  background: rgba(var(--brand-primary-rgb), 0.16);
   color: var(--color-blue-dark);
   border-radius: 2px;
   padding: 0 2px;

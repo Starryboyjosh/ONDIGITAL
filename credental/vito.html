@@ -3,58 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vito — Credental</title>
+  <title>Vito — CREDental</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/vito/seed-demo.js"></script>
   <script src="js/main.js"></script>
   <script src="js/data-hybrid.js"></script>
   <script src="js/modkit.js"></script>
-  <script src="js/vito/seed-demo.js"></script>
   <script src="js/vito/module.js"></script>
   <style>
-    .vito-page { max-width: 920px; margin: 0 auto; padding: 1.25rem; }
-    .vito-grid { display: grid; grid-template-columns: 1fr minmax(200px, 260px); gap: 16px; align-items: start; }
+    .vito-page { max-width: 920px; margin: 0 auto; padding: 1.25rem; min-width: 0; }
+    .vito-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(200px, 260px); gap: 16px; align-items: start; }
+    .vito-grid > * { min-width: 0; }
     @media (max-width: 800px) { .vito-grid { grid-template-columns: 1fr; } }
     .vito-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 1rem; flex-wrap: wrap; }
     .vito-head h1 { margin: 0; font-size: 1.4rem; }
     .vito-pill {
       font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
-      background: rgba(0, 184, 148, 0.15); color: #00b894;
+      background: rgba(203, 108, 230, 0.15); color: var(--brand-purple);
     }
-    .vito-pill.off { background: #f1f5f9; color: #64748b; }
+    .vito-pill.off { background: var(--surface-muted); color: var(--color-gray); }
     .vito-log {
       min-height: 300px; max-height: 52vh; overflow-y: auto;
-      border: 1px solid var(--border-color, #e2e8f0); border-radius: 14px;
-      padding: 12px; background: var(--bg-card, #fff); margin-bottom: 12px;
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 12px; background: var(--bg-accent); margin-bottom: 12px;
       display: flex; flex-direction: column; gap: 10px;
     }
-    .vito-bubble { padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.45; max-width: 92%; white-space: pre-wrap; }
-    .vito-bubble.user { align-self: flex-end; background: #2b8af7; color: #fff; }
-    .vito-bubble.bot { align-self: flex-start; background: #f1f5f9; color: #0f172a; }
-    .vito-cites { font-size: 11px; color: #64748b; margin-top: 6px; }
-    .vito-form { display: flex; gap: 8px; }
+    .vito-bubble { padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.45; max-width: 92%; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .vito-bubble.user { align-self: flex-end; background: var(--color-blue-mid); color: #fff; }
+    .vito-bubble.bot { align-self: flex-start; background: var(--surface-muted); color: var(--text-primary); }
+    .vito-cites { font-size: 11px; color: var(--color-gray); margin-top: 6px; }
+    .vito-form { display: flex; gap: 8px; align-items: stretch; }
     .vito-form input {
-      flex: 1; padding: 10px 12px; border-radius: 10px;
-      border: 1px solid var(--border-color, #e2e8f0); font: inherit;
+      flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-primary); font: inherit;
     }
     .vito-form button {
       padding: 10px 16px; border: none; border-radius: 10px;
-      background: #2b8af7; color: #fff; font-weight: 700; cursor: pointer;
+      background: var(--color-blue-mid); color: #fff; font-weight: 700; cursor: pointer;
     }
     .vito-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
     .vito-chips button {
-      border: 1px solid #e2e8f0; background: #fff; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-primary); border-radius: 999px;
       padding: 6px 10px; font-size: 12px; cursor: pointer;
     }
     .vito-side {
-      border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; background: #fff;
-      font-size: 13px; color: #475569;
+      border: 1px solid var(--border); border-radius: 14px; padding: 14px; background: var(--bg-accent);
+      font-size: 13px; color: var(--color-gray);
     }
-    .vito-side h2 { margin: 0 0 8px; font-size: 14px; color: #0f172a; }
+    .vito-side h2 { margin: 0 0 8px; font-size: 14px; color: var(--text-primary); }
     .vito-side ul { margin: 0; padding-left: 18px; line-height: 1.45; }
-    .vito-cap { font-size: 11px; margin: 4px 0; padding: 4px 6px; background: #f8fafc; border-radius: 6px; }
-    .vito-note { font-size: 12px; color: #64748b; margin-top: 12px; }
+    .vito-cap { font-size: 11px; margin: 4px 0; padding: 4px 6px; background: var(--surface-muted); border-radius: 6px; }
+    .vito-note { font-size: 12px; color: var(--color-gray); margin-top: 12px; }
+    .vito-subtitle { margin: 4px 0 0; color: var(--color-gray); font-size: 14px; }
+    @media (max-width: 520px) {
+      .vito-page { padding: 1rem 0; }
+      .vito-form { flex-wrap: wrap; }
+      .vito-form button { width: 100%; }
+      .vito-bubble { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -62,7 +70,7 @@
     <aside class="sidebar">
       <div class="brand-section">
         <div class="brand-logo">CR</div>
-        <div class="brand-name">Cre<span class="acc">dental</span></div>
+        <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
       <nav>
         <ul class="nav-menu">
@@ -72,6 +80,17 @@
           <li class="nav-item active"><a href="vito.html"><span>Vito</span></a></li>
         </ul>
       </nav>
+      <div class="user-profile">
+        <div class="user-avatar" id="sidebar-user-avatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-user-name">Usuario</div>
+          <div class="user-role" id="sidebar-user-role">Clínica</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="sidebar-logout-btn" type="button" aria-label="Cerrar sesión">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 3v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Cerrar sesión</span>
+      </button>
     </aside>
 
     <main class="main-content">
@@ -79,7 +98,7 @@
         <div class="vito-head">
           <div>
             <h1>Vito</h1>
-            <p style="margin:4px 0 0;color:#64748b;font-size:14px;">Asistente de la clínica · módulo Credental</p>
+            <p class="vito-subtitle">Asistente de la clínica · módulo CREDental</p>
           </div>
           <span class="vito-pill" id="vito-pill">…</span>
         </div>
@@ -95,13 +114,13 @@
             </div>
             <div class="vito-log" id="vito-log" role="log" aria-live="polite"></div>
             <form class="vito-form" id="vito-form">
-              <input id="vito-input" type="text" placeholder="Pregúntale a Vito…" autocomplete="off" maxlength="500">
+              <input id="vito-input" type="text" aria-label="Pregunta para Vito" placeholder="Pregúntale a Vito…" autocomplete="off" maxlength="500">
               <button type="submit">Enviar</button>
             </form>
             <p class="vito-note" id="vito-seed-note"></p>
           </div>
           <aside class="vito-side">
-            <h2>Módulo Credental</h2>
+            <h2>Módulo CREDental</h2>
             <div id="mod-info">Cargando…</div>
             <h2 style="margin-top:14px">Datos</h2>
             <div id="data-info"></div>
@@ -146,7 +165,6 @@
 
       // Panel módulo
       const mod = window.VitoCredental && window.VitoCredental.module;
-      const infos = window.Modkit && window.Modkit.catalog ? window.Modkit.catalog.infos() : [];
       document.getElementById('mod-info').innerHTML = mod
         ? '<strong>' + mod.name + '</strong> v' + mod.version + '<br>' + (mod.description || '')
         : 'Módulo no registrado';

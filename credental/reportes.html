@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reportes — Credental</title>
+  <title>Reportes — CREDental</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/vito/seed-demo.js"></script>
   <script src="js/main.js"></script>
   <script src="js/reportes.js"></script>
 </head>
@@ -16,7 +17,7 @@
     <aside class="sidebar">
       <div class="brand-section">
         <div class="brand-logo">CR</div>
-        <div class="brand-name">Cre<span class="acc">dental</span></div>
+        <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
       <nav>
         <ul class="nav-menu">
@@ -92,11 +93,11 @@
           <div class="metric-info"><span class="metric-title">Ventas del periodo</span><span class="metric-value" id="rep-ventas">L 0.00</span></div>
         </div>
         <div class="card metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(15, 157, 138, 0.1); color: var(--color-teal);"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg></div>
+          <div class="metric-icon-wrap" style="background: rgba(var(--brand-teal-rgb), 0.1); color: var(--color-teal);"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg></div>
           <div class="metric-info"><span class="metric-title">Pacientes nuevos</span><span class="metric-value" id="rep-nuevos">0</span></div>
         </div>
         <div class="card metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
           <div class="metric-info"><span class="metric-title">Citas del periodo</span><span class="metric-value" id="rep-citas">0</span></div>
         </div>
         <div class="card metric-card">
@@ -119,7 +120,7 @@
 
       <!-- Tratamientos más vendidos -->
       <div class="section-divider">
-        <div class="section-divider-icon" style="background: rgba(15, 157, 138, 0.1); color: var(--color-teal);"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div>
+        <div class="section-divider-icon" style="background: rgba(var(--brand-teal-rgb), 0.1); color: var(--color-teal);"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></div>
         <span class="section-divider-text">Tratamientos más vendidos</span>
         <div class="section-divider-line"></div>
       </div>
@@ -134,7 +135,7 @@
 
       <!-- Productividad por odontólogo -->
       <div class="section-divider">
-        <div class="section-divider-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+        <div class="section-divider-icon" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
         <span class="section-divider-text">Productividad por odontólogo</span>
         <div class="section-divider-line"></div>
       </div>

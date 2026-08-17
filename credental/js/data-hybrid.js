@@ -1,6 +1,7 @@
 /* ==========================================================================
-   Capa híbrida Credental (Fase 2.3) — documentación operativa en código
-   Política: local-first (sessionStorage) + sync opcional Firebase (db.js).
+   Capa de datos Credental — documentación operativa en código
+   Política de la demo: local-first (sessionStorage). Firebase no se carga
+   en las páginas actuales y requiere una configuración explícita futura.
    ========================================================================== */
 (function (global) {
   'use strict';
@@ -18,16 +19,16 @@
     } catch (_) { /* */ }
 
     return {
-      mode: 'hybrid',
+      mode: 'local-first',
       local_first: true,
       storage: 'sessionStorage',
       prefix: 'credental_',
       db_ready: hasDB,
-      cloud_sync: firebaseReady ? 'optional' : 'unavailable',
+      cloud_sync: firebaseReady ? 'explicit' : 'disabled',
       notes: [
         'Lectura/escritura siempre locales primero.',
-        'Si Firebase está configurado, db.js sincroniza en segundo plano.',
-        'Sin red o sin Firebase la clínica sigue operando (demo / Starter).'
+        'La demo no carga un conector cloud por defecto.',
+        'La clínica sigue operando sin red en este prototipo.'
       ]
     };
   }

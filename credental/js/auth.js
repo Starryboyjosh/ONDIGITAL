@@ -118,6 +118,9 @@
       return null;
     },
 
+    // Compatibilidad con sesiones antiguas que guardaban el rol como "admin".
+    isAdmin: (user) => Boolean(user && ['Administración', 'admin'].includes(user.role)),
+
     // Cierra la sesión activa y redirige al login
     logout: () => {
       sessionStorage.removeItem(SESSION_KEY);

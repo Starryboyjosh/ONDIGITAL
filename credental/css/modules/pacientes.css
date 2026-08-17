@@ -14,7 +14,7 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(var(--brand-primary-rgb), 0.1);
   color: var(--color-blue-mid);
   display: flex;
   align-items: center;
@@ -170,8 +170,8 @@
   background: var(--surface-muted);
 }
 .record-callout.info {
-  background: rgba(37, 99, 235, 0.05);
-  border-color: rgba(37, 99, 235, 0.2);
+  background: rgba(var(--brand-primary-rgb), 0.05);
+  border-color: rgba(var(--brand-primary-rgb), 0.2);
 }
 .record-callout.danger {
   background: rgba(220, 38, 38, 0.05);

@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Facturación — Credental</title>
+  <title>Facturación — CREDental</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/vito/seed-demo.js"></script>
   <script src="js/main.js"></script>
   <script src="js/facturacion.js"></script>
 </head>
@@ -17,7 +18,7 @@
     <aside class="sidebar">
       <div class="brand-section">
         <div class="brand-logo">CR</div>
-        <div class="brand-name">Cre<span class="acc">dental</span></div>
+        <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
 
       <nav>
@@ -84,7 +85,7 @@
           </div>
         </div>
         <div class="card metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);">
+          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);">
             <svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
           </div>
           <div class="metric-info">
@@ -123,7 +124,7 @@
 
       <!-- DOCUMENTOS EMITIDOS -->
       <div class="section-divider">
-        <div class="section-divider-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);">
+        <div class="section-divider-icon" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);">
           <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
         </div>
         <span class="section-divider-text">Documentos emitidos</span>
@@ -154,7 +155,7 @@
 
       <!-- CONFIGURACIÓN FISCAL -->
       <div class="section-divider">
-        <div class="section-divider-icon" style="background: rgba(15, 157, 138, 0.1); color: var(--color-teal);">
+        <div class="section-divider-icon" style="background: rgba(var(--brand-teal-rgb), 0.1); color: var(--color-teal);">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </div>
         <span class="section-divider-text">Configuración fiscal</span>
@@ -168,6 +169,10 @@
           <div class="card-title-area">
             <h2 class="card-title">Datos fiscales de la clínica</h2>
           </div>
+          <div class="alert-item warn" style="margin-bottom: 18px;">
+            <span class="alert-dot"></span>
+            <span class="alert-text"><strong>Modo demostración:</strong> RTN, CAI, rangos y documentos son sintéticos; no tienen validez ante SAR.</span>
+          </div>
           <form id="fiscal-data-form">
             <div class="form-group">
               <label class="form-label" for="fiscal-rtn">RTN</label>
@@ -175,20 +180,20 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="fiscal-nombre-legal">Nombre legal</label>
-              <input type="text" id="fiscal-nombre-legal" class="form-control" placeholder="Ej. Credental Clínica Dental S. de R.L." required>
+              <input type="text" id="fiscal-nombre-legal" class="form-control" placeholder="Ej. CREDental Clínica Dental S. de R.L." required>
             </div>
             <div class="form-group">
               <label class="form-label" for="fiscal-direccion">Dirección fiscal</label>
-              <input type="text" id="fiscal-direccion" class="form-control" placeholder="Ej. Col. Palmira, Ave. República de Argentina, Tegucigalpa" required>
+              <input type="text" id="fiscal-direccion" class="form-control" placeholder="Ej. Barrio Río Piedras, San Pedro Sula" required>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label" for="fiscal-telefono">Teléfono</label>
-                <input type="tel" id="fiscal-telefono" class="form-control" placeholder="Ej. +504 2234-5678" required>
+              <input type="tel" id="fiscal-telefono" class="form-control" placeholder="Ej. +504 3243-3050" required>
               </div>
               <div class="form-group">
                 <label class="form-label" for="fiscal-correo">Correo</label>
-                <input type="email" id="fiscal-correo" class="form-control" placeholder="Ej. facturacion@credental.hn" required>
+              <input type="email" id="fiscal-correo" class="form-control" placeholder="Ej. correo@suclinica.hn" required>
               </div>
             </div>
             <div style="display: flex; justify-content: flex-end; margin-top: 6px;">

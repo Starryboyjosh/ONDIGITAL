@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laboratorios — Credental</title>
+  <title>Laboratorios — CREDental</title>
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/vito/seed-demo.js"></script>
   <script src="js/main.js"></script>
   <script src="js/laboratorios.js"></script>
 </head>
@@ -16,7 +17,7 @@
     <aside class="sidebar">
       <div class="brand-section">
         <div class="brand-logo">CR</div>
-        <div class="brand-name">Cre<span class="acc">dental</span></div>
+        <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
       <nav>
         <ul class="nav-menu">
@@ -59,11 +60,11 @@
           <div class="metric-info"><span class="metric-title">Pendientes</span><span class="metric-value" id="lab-pendientes">0</span></div>
         </div>
         <div class="card metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg></div>
+          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg></div>
           <div class="metric-info"><span class="metric-title">En tránsito / proceso</span><span class="metric-value" id="lab-transito">0</span></div>
         </div>
         <div class="card metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(15, 157, 138, 0.1); color: var(--color-teal);"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg></div>
+          <div class="metric-icon-wrap" style="background: rgba(var(--brand-teal-rgb), 0.1); color: var(--color-teal);"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg></div>
           <div class="metric-info"><span class="metric-title">Recibidas</span><span class="metric-value" id="lab-recibidas">0</span></div>
         </div>
         <div class="card metric-card">
