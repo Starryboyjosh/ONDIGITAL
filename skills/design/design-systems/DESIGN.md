@@ -31,18 +31,43 @@
 
 Definimos esquemas de color para diferentes tipos de negocios e identidades visuales. Los colores principales se gestionan mediante propiedades personalizadas CSS.
 
-### 1. Paleta Dark Premium (SaaS, Tecnología, Lujo)
+### 1. Paleta ONDIGITAL · Jade & Arena (marca propia: sitio, OnStock, OnServe)
+
+Es la identidad de ONDIGITAL. Jade manda: botones, degradados del logo y foco.
+Arena es el acento escaso y de alto impacto: etiquetas, precios y los ojos de Vito.
+Cielo queda reservado a estados "en vivo / conectado"; Ember a riesgos y errores.
+
 ```css
 :root {
-  --color-bg-primary: #050b1a;      /* Azul espacial profundo */
-  --color-bg-secondary: #0a1128;    /* Azul medianoche */
-  --color-bg-card: rgba(255, 255, 255, 0.03);
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-text-primary: #ffffff;
-  --color-text-secondary: rgba(255, 255, 255, 0.7);
-  --color-accent-primary: #a78bfa;  /* Violeta */
+  /* Primario · Jade */
+  --jade: #12B886;                  /* botones, degradados del logo, foco */
+  --jade-light: #2ED8A7;
+  --jade-soft: #6FEFC8;             /* bordes de vidrio, brillos */
+  --jade-deep: #08573F;             /* final de degradados */
+
+  /* Acento · Arena */
+  --arena: #F2C879;                 /* etiquetas, precios, ojos de Vito */
+  --arena-light: #FBE0AC;
+  --ember: #FF9B6A;                 /* riesgos, errores */
+  --cielo: #7FDBFF;                 /* estados "en vivo" / conectado */
+
+  /* Tinta · fondos */
+  --ink-1: #04100C;
+  --ink-2: #06160F;
+  --ink-3: #081D15;
+  --ink-4: #0C2A1F;
+  --ink-5: #12382A;
+  --glass: rgb(10 32 24 / 0.55);
+
+  /* Texto */
+  --text-1: #EFFBF5;
+  --text-2: rgb(214 240 228 / 0.72);
+  --text-3: rgb(186 216 202 / 0.5);
 }
 ```
+
+> Credental **no** usa esta paleta: es un producto de cliente y conserva la
+> paleta de Salud e Higiene de la sección siguiente.
 
 ### 2. Paleta Salud e Higiene (Clínicas, Consultorios, Farmacias)
 ```css

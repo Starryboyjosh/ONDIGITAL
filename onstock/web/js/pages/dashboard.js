@@ -57,8 +57,8 @@ export async function render(page) {
       <h2>Ventas últimos 12 meses <span class="muted">netas de ISV</span></h2>
       <div class="chart-wrap" id="chart"></div>
       <div class="chart-legend">
-        <span><span class="dot" style="background:#4f46e5"></span>Ventas netas</span>
-        <span><span class="dot" style="background:#10b981"></span>Utilidad bruta</span>
+        <span><span class="dot" style="background:#12b886"></span>Ventas netas</span>
+        <span><span class="dot" style="background:#f2c879"></span>Utilidad bruta</span>
       </div>
     </div>
 

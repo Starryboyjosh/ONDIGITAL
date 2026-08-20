@@ -34,10 +34,10 @@ export async function render(page) {
           <svg viewBox="88 54 184 188" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="100" y="92" width="160" height="140" rx="16" fill="var(--primary)"/>
             <path d="M148 92 C148 62 212 62 212 92" stroke="var(--primary)" stroke-width="14" fill="none" stroke-linecap="round"/>
-            <rect x="112" y="110" width="136" height="108" rx="12" fill="#050f2c"/>
-            <ellipse cx="153" cy="154" rx="13" ry="13" fill="#00e5b0"/>
-            <ellipse cx="207" cy="154" rx="13" ry="13" fill="#00e5b0"/>
-            <path d="M140 178 Q180 200 220 178" stroke="#00e5b0" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <rect x="112" y="110" width="136" height="108" rx="12" fill="#0c2a1f"/>
+            <ellipse cx="153" cy="154" rx="13" ry="13" fill="#f2c879"/>
+            <ellipse cx="207" cy="154" rx="13" ry="13" fill="#f2c879"/>
+            <path d="M140 178 Q180 200 220 178" stroke="#f2c879" stroke-width="5" fill="none" stroke-linecap="round"/>
           </svg>
         </span>
         <div>
