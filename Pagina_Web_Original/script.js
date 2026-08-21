@@ -327,8 +327,8 @@
                 if (p.x > w + 10) p.x = -10;
                 ctx.beginPath();
                 ctx.fillStyle = p.hue > 180
-                    ? `rgba(43, 138, 247, ${p.a})`
-                    : `rgba(0, 229, 176, ${p.a})`;
+                    ? `rgba(216, 162, 74, ${p.a})`
+                    : `rgba(155, 140, 255, ${p.a})`;
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                 ctx.fill();
             }
@@ -369,7 +369,7 @@
                 title: "Webs y plataformas",
                 description: "Portales, e-commerce y SaaS con arquitectura clara, carga rápida y SEO que rinde.",
                 tags: ["Next.js", "React", "SEO"],
-                accent: "#2B8AF7",
+                accent: "#D8A24A",
                 metric: "Carga < 1 s"
             },
             {
@@ -377,7 +377,7 @@
                 title: "Apps móviles",
                 description: "Aplicaciones iOS y Android con flujos simples y una base técnica lista para crecer.",
                 tags: ["Flutter", "iOS", "Android"],
-                accent: "#00E5B0",
+                accent: "#9B8CFF",
                 metric: "Una sola base"
             },
             {
@@ -385,7 +385,7 @@
                 title: "Automatización",
                 description: "APIs, reportes y procesos conectados que quitan trabajo manual y reducen errores.",
                 tags: ["APIs", "Webhooks", "RPA"],
-                accent: "#8B5CF6",
+                accent: "#9B8CFF",
                 metric: "Menos tareas repetidas"
             },
             {
@@ -393,7 +393,7 @@
                 title: "Sistemas a medida",
                 description: "Paneles internos e integraciones diseñadas alrededor de la operación, no al revés.",
                 tags: ["UX", "Cloud", "Integraciones"],
-                accent: "#F59E0B",
+                accent: "#D8A24A",
                 metric: "Hecho para tu flujo"
             },
             {
@@ -401,7 +401,7 @@
                 title: "IA aplicada · Vito",
                 description: "Asistentes y clasificación sobre inventario, citas, ventas y otros módulos del negocio.",
                 tags: ["Vito", "LLMs", "Python"],
-                accent: "#EC4899",
+                accent: "#C77DFF",
                 metric: "Nube o servidor local"
             }
         ];
@@ -507,9 +507,9 @@
             const ctx = texCanvas.getContext("2d");
 
             const bg = ctx.createLinearGradient(0, 0, 1024, 640);
-            bg.addColorStop(0, "#10192d");
-            bg.addColorStop(.55, "#081121");
-            bg.addColorStop(1, "#040915");
+            bg.addColorStop(0, "#101C16");
+            bg.addColorStop(.55, "#0A130E");
+            bg.addColorStop(1, "#070D09");
             roundedRect(ctx, 4, 4, 1016, 632, 42);
             ctx.fillStyle = bg;
             ctx.fill();
@@ -536,7 +536,7 @@
             });
 
             ctx.textAlign = "right";
-            ctx.fillStyle = "rgba(220,232,255,.42)";
+            ctx.fillStyle = "rgba(232, 223, 252,.42)";
             ctx.font = "700 25px ui-monospace, monospace";
             ctx.fillText(String(index + 1).padStart(2, "0"), 950, 64);
 
@@ -545,11 +545,11 @@
             ctx.font = "800 21px ui-monospace, monospace";
             ctx.fillText(service.kicker.toUpperCase(), 58, 145);
 
-            ctx.fillStyle = "#F6F8FF";
+            ctx.fillStyle = "#F2EFE4";
             ctx.font = "800 54px system-ui, sans-serif";
             wrapText(ctx, service.title, 58, 220, 790, 62, 2);
 
-            ctx.fillStyle = "rgba(206,219,242,.72)";
+            ctx.fillStyle = "rgba(218, 208, 240,.72)";
             ctx.font = "400 27px system-ui, sans-serif";
             wrapText(ctx, service.description, 58, 345, 850, 40, 3);
 
@@ -563,7 +563,7 @@
                 ctx.strokeStyle = "rgba(255,255,255,.12)";
                 ctx.lineWidth = 2;
                 ctx.stroke();
-                ctx.fillStyle = "rgba(235,242,255,.74)";
+                ctx.fillStyle = "rgba(242, 236, 253,.74)";
                 ctx.fillText(tag, tx + 17, 534);
                 tx += width + 12;
             });
@@ -623,12 +623,12 @@
             const key = new THREE.DirectionalLight(0xffffff, 2.4);
             key.position.set(7, 10, 12);
             scene.add(key);
-            const blue = new THREE.PointLight(0x2B8AF7, 4.2, 26);
-            blue.position.set(-8, 5, 4);
-            scene.add(blue);
-            const mint = new THREE.PointLight(0x00E5B0, 3.4, 24);
-            mint.position.set(7, -5, 5);
-            scene.add(mint);
+            const laton = new THREE.PointLight(0xD8A24A, 4.2, 26);
+            laton.position.set(-8, 5, 4);
+            scene.add(laton);
+            const violeta = new THREE.PointLight(0x9B8CFF, 3.4, 24);
+            violeta.position.set(7, -5, 5);
+            scene.add(violeta);
 
             const cardWidth = window.innerWidth < 640 ? 3.55 : 4.65;
             const cardHeight = cardWidth * .625;

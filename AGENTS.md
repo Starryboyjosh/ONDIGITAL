@@ -9,6 +9,28 @@
 - `onstock/` is a Go 1.22+ local mini-ERP with an embedded vanilla JS web UI and SQLite storage.
 - `Pagina_Web_Original/`, `design-system/`, `firebase/`, `skills/`, and `docs/` support the site, design language, deployment config, internal skills, and product documentation.
 
+## Brand Palette
+
+- The official ONDIGITAL palette is **"Pulso Vital"**: verdigris ink `#0B1410` /
+  `#12201A`, parchment `#F2EFE4`, brass `#D8A24A`, violet `#9B8CFF`, warn
+  `#E0A83D`, danger `#E85D4E`. It replaced the previous navy `#070d18` + blue
+  `#2B8AF7` + mint `#00E5B0` palette; do not reintroduce those hexes.
+- Typography: Fraunces (display), Inter (body), JetBrains Mono (data/labels),
+  each with a local fallback chain so the UI survives without network.
+- On light backgrounds, brass and violet at full strength fail WCAG AA (2.29:1
+  and 2.77:1 on white). Use the darkened variants `#8C6A2A` (4.99:1) and
+  `#6C35ED` (6.23:1) instead — this is what the white default theme in OnStock
+  and OnServe does.
+- **Credental is excluded** and keeps its own palette (`--brand-primary:
+  #004aad`, `--brand-teal: #004d66`, `--brand-purple: #cb6ce6`). Do not merge
+  the ONDIGITAL brand colors into it.
+- Third-party brand colors (React `#61DAFB`, Node `#68A063`, MySQL `#4479A1`,
+  AWS `#FF9900`) are data, not decoration: never recolor them.
+- The palette lives in tokens. See `skills/design/design-systems/DESIGN.md`
+  section 0 and `design-system/tokens/colors.html`; per-product sources are
+  `Pagina_Web_Original/styles.css`, `onstock/web/css/app.css`, and
+  `onserve/web/css/app.css`.
+
 ## Agent Workflow
 
 - Read the relevant README/docs before changing a product area. For ONDIGITAL product/UI work, start with `skills/SKILL.md` and then the closest product or domain skill that applies.

@@ -16,7 +16,7 @@
 - Validar contraste, responsive, foco visible, tamaño táctil y texto largo antes de entregar.
 
 ## 📋 Índice
-1. [Tokens de Color (Paletas Temáticas)](#tokens-de-color-paletas-temáticas)
+1. [Tokens de Color (Paleta de marca + paletas temáticas)](#tokens-de-color-paletas-temáticas)
 2. [Tipografía y Escala de Texto](#tipografía-y-escala-de-texto)
 3. [Escala de Espaciado (Base 4px)](#escala-de-espaciado-base-4px)
 4. [Efectos Visuales: Receta de Glassmorphism Premium](#efectos-visuales-receta-de-glassmorphism-premium)
@@ -30,6 +30,54 @@
 ## Tokens de Color (Paletas Temáticas)
 
 Definimos esquemas de color para diferentes tipos de negocios e identidades visuales. Los colores principales se gestionan mediante propiedades personalizadas CSS.
+
+> **La paleta de marca ONDIGITAL es la 0.** Las paletas 1–3 son plantillas por
+> vertical para trabajo de cliente; no son la identidad de ONDIGITAL.
+
+### 0. Paleta de Marca ONDIGITAL — "Pulso Vital" (OFICIAL)
+
+Verdigris ink + latón + violeta. Es la paleta obligatoria en las piezas propias:
+landing (`Pagina_Web_Original/`), pantalla de sala, OnStock y OnServe.
+**Credental queda fuera:** mantiene su paleta propia (`--brand-primary: #004aad`).
+
+```css
+:root {
+  --bg: #0B1410;        /* verdigris ink   */
+  --bg-2: #12201A;
+  --surface: #16241E;
+  --fg: #F2EFE4;        /* pergamino       */
+  --accent: #D8A24A;    /* latón           */
+  --accent-2: #9B8CFF;  /* violeta         */
+  --warn: #E0A83D;
+  --danger: #E85D4E;
+
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+}
+```
+
+**Sobre fondo claro, el latón y el violeta puros NO pasan AA** (2.29:1 y 2.77:1
+sobre blanco). En temas claros usar las variantes oscurecidas:
+
+```css
+:root {
+  --primary: #8C6A2A;    /* latón AA    — 4.99:1 sobre blanco */
+  --primary-600: #6B4E1E;
+  --accent-2: #6C35ED;   /* violeta AA  — 6.23:1 sobre blanco */
+  --sidebar-bg: #101C16;
+}
+```
+
+Reglas de marca:
+
+- El wordmark se lee como una sola palabra en dos materiales: `ON` en latón
+  macizo, `DIGITAL` en pergamino con letterspacing. Nunca dos colores compitiendo.
+- Vito: casco achaflanado de latón, visor violeta, cuenta de contacto violeta
+  en la antena.
+- Los colores reales de terceros (React `#61DAFB`, Node `#68A063`, MySQL
+  `#4479A1`, AWS `#FF9900`) **no se recolorean**: son datos, no decoración.
+
 
 ### 1. Paleta Dark Premium (SaaS, Tecnología, Lujo)
 ```css
@@ -45,16 +93,19 @@ Definimos esquemas de color para diferentes tipos de negocios e identidades visu
 ```
 
 ### 2. Paleta Salud e Higiene (Clínicas, Consultorios, Farmacias)
+
+> Plantilla de vertical para cliente. No confundir con Credental, que tiene su
+> propia identidad, ni con la marca ONDIGITAL (sección 0).
 ```css
 :root {
-  --color-bg-primary: #050f2c;      /* Navy profundo */
-  --color-bg-secondary: #0a1a3a;    /* Navy secundario */
+  --color-bg-primary: #04141A;      /* Petróleo clínico */
+  --color-bg-secondary: #082430;    /* Petróleo secundario */
   --color-bg-card: rgba(255, 255, 255, 0.02);
   --color-border: rgba(255, 255, 255, 0.08);
   --color-text-primary: #ffffff;
-  --color-text-secondary: rgba(0, 229, 176, 0.85); /* Tinte verde-azul */
-  --color-accent-primary: #00e5b0;  /* Verde azulado curativo */
-  --color-accent-secondary: #2b8af7;/* Azul digital */
+  --color-text-secondary: rgba(190, 226, 232, 0.85); /* Tinte aqua */
+  --color-accent-primary: #2FBFA8;  /* Verde azulado curativo */
+  --color-accent-secondary: #7FD4E8;/* Aqua suave */
 }
 ```
 

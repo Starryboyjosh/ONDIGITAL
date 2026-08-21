@@ -52,7 +52,7 @@ function renderFloor(root, floor) {
   root.innerHTML = floor.map(z => `
     <div class="zone-block">
       <div class="zone-head">
-        <span class="zone-dot" style="background:${esc(z.zone.color || '#2b8af7')}"></span>
+        <span class="zone-dot" style="background:${esc(z.zone.color || '#d8a24a')}"></span>
         <h2>${esc(z.zone.name)}</h2>
         <span class="muted">${z.tables.length} mesa${z.tables.length === 1 ? '' : 's'}</span>
       </div>

@@ -14,12 +14,14 @@
   --text-2: #5a5f7a;
   --text-3: #9298b3;
 
-  /* Marca ONDIGITAL: azul + verde-azulado */
-  --primary: #2b8af7;          /* azul de marca (cuerpo del robot) */
-  --primary-600: #1668d6;
-  --primary-soft: #e7f1fe;
-  --primary-ring: rgba(43, 138, 247, .18);
-  --accent-2: #00b894;         /* verde-azulado de marca */
+  /* Marca ONDIGITAL: latón + violeta ("Pulso Vital").
+     Sobre blanco se usan las variantes oscurecidas: el latón puro (#D8A24A)
+     da 2.29:1 y el violeta puro (#9B8CFF) 2.77:1, ambos por debajo de AA. */
+  --primary: #8c6a2a;          /* latón oscuro — 4.99:1 sobre blanco */
+  --primary-600: #6b4e1e;
+  --primary-soft: #f7efdd;
+  --primary-ring: rgba(140, 106, 42, .18);
+  --accent-2: #6c35ed;         /* violeta de marca — 6.23:1 sobre blanco */
 
   /* Estados */
   --green: #0d9d6c;  --green-soft: #e3f7ef;
@@ -27,15 +29,15 @@
   --amber: #b45309;  --amber-soft: #fdf2e0;
 
   /* Sidebar (oscuro en ambos temas) */
-  --sidebar-bg: #14162b;
-  --sidebar-text: #a3a8c9;
-  --wm-accent: #2b8af7;        /* acento del logotipo "On" */
+  --sidebar-bg: #101c16;
+  --sidebar-text: #a8b0a2;
+  --wm-accent: #d8a24a;        /* acento del logotipo "On" — 7.65:1 sobre el sidebar */
 
   /* Tokens utilitarios derivados (antes hardcodeados) */
   --row-hover: #f8f9fe;
   --table-head-bg: #fafbfd;
   --badge-gray-bg: #eef0f5;
-  --selection: #bcd9ff;
+  --selection: #efdcb4;
 
   --radius: 12px;
   --shadow: 0 1px 2px rgba(22, 24, 43, .05), 0 4px 16px rgba(22, 24, 43, .05);
@@ -48,53 +50,53 @@
   /* Robot: BLANCO por defecto (monocromo limpio) */
   --robot-body: #ffffff;
   --robot-handle: #e2e6f0;
-  --robot-screen: #1a1d36;
+  --robot-screen: #101c16;
   --robot-eye: #ffffff;
-  --robot-pupil: #1a1d36;
+  --robot-pupil: #101c16;
 
   font-size: 15px;
 }
 
-/* ── Tema "colores de la empresa" (ONDIGITAL navy premium) ─────────── */
+/* ── Tema "colores de la empresa" (ONDIGITAL verdigris + latón) ────── */
 [data-theme="company"] {
-  --bg: oklch(13% 0.045 255);
-  --bg-2: oklch(17% 0.055 252);
-  --surface: oklch(21% 0.05 252 / 0.82);
+  --bg: oklch(18% 0.016 165);
+  --bg-2: oklch(23% 0.023 166);
+  --surface: oklch(25% 0.022 166 / 0.82);
   --surface-2: oklch(100% 0 0 / 0.03);
-  --border: oklch(42% 0.055 250 / 0.5);
-  --border-strong: oklch(54% 0.06 250 / 0.55);
-  --text: oklch(97% 0.01 250);
-  --text-2: oklch(78% 0.035 248);
-  --text-3: oklch(62% 0.04 248);
+  --border: oklch(42% 0.03 164 / 0.5);
+  --border-strong: oklch(54% 0.035 164 / 0.55);
+  --text: oklch(95% 0.015 94);
+  --text-2: oklch(78% 0.02 96);
+  --text-3: oklch(62% 0.022 98);
 
-  --primary: oklch(64% 0.2 254);
-  --primary-600: oklch(73% 0.17 250);
-  --primary-soft: oklch(62% 0.22 254 / 0.16);
-  --primary-ring: oklch(62% 0.22 254 / 0.4);
-  --accent-2: oklch(75% 0.17 184);
+  --primary: oklch(75% 0.122 77);
+  --primary-600: oklch(84% 0.099 86);
+  --primary-soft: oklch(75% 0.122 77 / 0.16);
+  --primary-ring: oklch(75% 0.122 77 / 0.4);
+  --accent-2: oklch(70% 0.164 287);
 
   --green: oklch(74% 0.16 158);  --green-soft: oklch(72% 0.15 155 / 0.16);
-  --red: oklch(68% 0.18 25);     --red-soft: oklch(66% 0.18 28 / 0.16);
-  --amber: oklch(80% 0.14 80);   --amber-soft: oklch(78% 0.14 78 / 0.16);
+  --red: oklch(65% 0.176 29);    --red-soft: oklch(65% 0.176 29 / 0.16);
+  --amber: oklch(77% 0.136 80);  --amber-soft: oklch(77% 0.136 80 / 0.16);
 
-  --sidebar-bg: oklch(15% 0.05 255 / 0.92);
-  --sidebar-text: oklch(74% 0.035 248);
-  --wm-accent: oklch(75% 0.17 184);
+  --sidebar-bg: oklch(21% 0.021 162 / 0.92);
+  --sidebar-text: oklch(74% 0.022 98);
+  --wm-accent: oklch(75% 0.122 77);
 
   --row-hover: oklch(100% 0 0 / 0.04);
   --table-head-bg: oklch(100% 0 0 / 0.03);
   --badge-gray-bg: oklch(100% 0 0 / 0.07);
-  --selection: oklch(62% 0.22 254 / 0.4);
+  --selection: oklch(75% 0.122 77 / 0.4);
 
-  --shadow: 0 1px 2px oklch(0% 0 0 / 0.3), 0 12px 40px oklch(5% 0.03 255 / 0.42);
-  --shadow-lg: 0 24px 80px oklch(5% 0.03 255 / 0.55);
+  --shadow: 0 1px 2px oklch(0% 0 0 / 0.3), 0 12px 40px oklch(8% 0.02 165 / 0.42);
+  --shadow-lg: 0 24px 80px oklch(8% 0.02 165 / 0.55);
 
-  /* Robot a TODO COLOR (marca) */
-  --robot-body: #2b8af7;
-  --robot-handle: #2b8af7;
-  --robot-screen: #050f2c;
-  --robot-eye: #00e5b0;
-  --robot-pupil: #bffff3;
+  /* Robot a TODO COLOR (marca): carcasa de latón, visor violeta */
+  --robot-body: #d8a24a;
+  --robot-handle: #d8a24a;
+  --robot-screen: #0a130e;
+  --robot-eye: #9b8cff;
+  --robot-pupil: #d7c8fb;
 }
 
 * { box-sizing: border-box; }
@@ -107,12 +109,12 @@ body {
 }
 ::selection { background: var(--selection); }
 
-/* Fondo de marca con halos azul/teal en el tema de empresa */
+/* Fondo de marca con halos violeta/latón en el tema de empresa */
 [data-theme="company"] body {
   background:
-    radial-gradient(circle at 78% -4%, oklch(44% 0.18 254 / 0.22), transparent 32rem),
-    radial-gradient(circle at 8% 12%, oklch(70% 0.15 184 / 0.10), transparent 24rem),
-    linear-gradient(180deg, var(--bg), oklch(9% 0.035 255) 80%);
+    radial-gradient(circle at 78% -4%, oklch(52% 0.251 288 / 0.22), transparent 32rem),
+    radial-gradient(circle at 8% 12%, oklch(70% 0.164 287 / 0.10), transparent 24rem),
+    linear-gradient(180deg, var(--bg), oklch(14% 0.014 163) 80%);
   background-attachment: fixed;
 }
 
@@ -131,7 +133,7 @@ body {
 }
 [data-theme="company"] .sidebar {
   backdrop-filter: blur(18px);
-  border-right: 1px solid oklch(75% 0.17 184 / 0.14);
+  border-right: 1px solid oklch(75% 0.122 77 / 0.14);
 }
 
 /* Marca: robot ONDIGITAL + logotipo */
@@ -312,9 +314,9 @@ textarea.input { resize: vertical; min-height: 64px; }
 .theme-option-label { display: flex; flex-direction: column; line-height: 1.25; text-align: left; }
 .theme-option-label small { color: var(--text-3); font-weight: 500; font-size: 11.5px; }
 .theme-swatch { width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0; border: 1px solid var(--border); position: relative; overflow: hidden; }
-.theme-swatch::after { content: ''; position: absolute; left: 7px; bottom: 7px; width: 9px; height: 9px; border-radius: 50%; background: #2b8af7; box-shadow: 13px 0 0 var(--sw-2, #00b894); }
-.theme-swatch-light { background: #ffffff; --sw-2: #00b894; }
-.theme-swatch-company { background: linear-gradient(135deg, oklch(22% 0.06 255), oklch(13% 0.045 255)); --sw-2: #00e5b0; }
+.theme-swatch::after { content: ''; position: absolute; left: 7px; bottom: 7px; width: 9px; height: 9px; border-radius: 50%; background: #d8a24a; box-shadow: 13px 0 0 var(--sw-2, #6c35ed); }
+.theme-swatch-light { background: #ffffff; --sw-2: #6c35ed; }
+.theme-swatch-company { background: linear-gradient(135deg, oklch(25% 0.022 166), oklch(18% 0.016 165)); --sw-2: #9b8cff; }
 
 /* ── Tables ─────────────────────────────────────────────── */
 .table-wrap { overflow-x: auto; border-radius: 0 0 var(--radius) var(--radius); }

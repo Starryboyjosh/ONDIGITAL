@@ -245,7 +245,7 @@ func (s *Store) seedFloor() error {
 	if n > 0 {
 		return nil
 	}
-	res, err := s.db.Exec(`INSERT INTO zones(name, sort, color) VALUES ('Salón Principal', 0, '#2b8af7')`)
+	res, err := s.db.Exec(`INSERT INTO zones(name, sort, color) VALUES ('Salón Principal', 0, '#d8a24a')`)
 	if err != nil {
 		return err
 	}
