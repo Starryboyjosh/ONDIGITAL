@@ -1,0 +1,7 @@
+# La generación de capturas rasteriza pantallas completas y tarda minutos.
+# Es una herramienta de revisión visual, no una prueba de regresión, así que
+# queda fuera de la corrida por defecto. Para invocarla:
+#   flutter test test/captura_test.dart --run-skipped
+tags:
+  captura:
+    skip: "solo bajo demanda: flutter test test/captura_test.dart --run-skipped"

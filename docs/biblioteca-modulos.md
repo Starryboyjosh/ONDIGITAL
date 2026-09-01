@@ -10,7 +10,6 @@ Contrato técnico: [contrato-modulo.md](contrato-modulo.md) · Go: `modules/modk
 | ID | Nombre | Runtime | Capacidades (resumen) | Vito |
 |----|--------|---------|----------------------|------|
 | `onstock` | OnStock | Go + SQLite + SPA | Inventario, ventas, compras, reportes HN | Sí (tools + UI `#/vito`) |
-| `onserve` | OnServe | Go + SQLite + UI embebida | Salón, comandas, cocina, caja y facturación local | No (pendiente de integración) |
 | `credental` | Credental | HTML/JS local-first (+ Firebase opcional) | Agenda, pacientes, presupuestos, cobranzas | Sí (tools + `vito.html`) |
 | `vito` | Vito (capa IA) | Go lib / JS tools | Ask, confirm, providers mock/OpenAI-compatible | — (se enchufa a los demás) |
 
@@ -61,14 +60,13 @@ La app **nunca** depende de Vito para operar (Starter/Business).
 
 - Industria / procesos (tienda, clínica, otro).
 - Plan: Starter / Business / Enterprise AI.
-- Módulos base (hoy: `onstock`, `onserve` y/o `credental`; luego más de la biblioteca).
+- Módulos base (hoy: `onstock` y/o `credental`; luego más de la biblioteca).
 
 ### 2. Provisionar la suite
 
 | Módulo | Cómo se entrega |
 |--------|-----------------|
 | OnStock | Binario Go (`make build`) + carpeta `data/` + opcional `make seed-demo` para demos |
-| OnServe | Binario Go (`make build`) + carpeta `data/` + opcional `make seed-demo` para demos |
 | Credental | Estáticos `credental/` servidos (nginx / Pi) + sessionStorage; seed en primera visita a Vito |
 | Vito (Enterprise) | `.env` con `VITO_*` en el host Go; en Credental tools locales (backend híbrido opcional después) |
 

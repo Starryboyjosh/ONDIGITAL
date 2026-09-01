@@ -7,6 +7,10 @@
 >
 > Este documento no autoriza implementar todo el repositorio de una sola vez. Su función es
 > obligar a trabajar en cortes pequeños, verificables y aprobados explícitamente.
+>
+> **Nota (2026-08-28):** OnServe fue retirado del repositorio por ser redundante con OnStock.
+> Las menciones a OnServe en este documento son historia del análisis original y ya no
+> reflejan el estado del repo; no se reescribieron línea por línea para preservar el registro.
 
 ---
 

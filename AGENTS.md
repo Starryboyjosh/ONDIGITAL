@@ -20,7 +20,7 @@
 - On light backgrounds, brass and violet at full strength fail WCAG AA (2.29:1
   and 2.77:1 on white). Use the darkened variants `#8C6A2A` (4.99:1) and
   `#6C35ED` (6.23:1) instead — this is what the white default theme in OnStock
-  and OnServe does.
+  does.
 - **Credental is excluded** and keeps its own palette (`--brand-primary:
   #004aad`, `--brand-teal: #004d66`, `--brand-purple: #cb6ce6`). Do not merge
   the ONDIGITAL brand colors into it.
@@ -28,8 +28,7 @@
   AWS `#FF9900`) are data, not decoration: never recolor them.
 - The palette lives in tokens. See `skills/design/design-systems/DESIGN.md`
   section 0 and `design-system/tokens/colors.html`; per-product sources are
-  `Pagina_Web_Original/styles.css`, `onstock/web/css/app.css`, and
-  `onserve/web/css/app.css`.
+  `Pagina_Web_Original/styles.css` and `onstock/web/css/app.css`.
 
 ## Agent Workflow
 

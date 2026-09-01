@@ -37,7 +37,7 @@ Definimos esquemas de color para diferentes tipos de negocios e identidades visu
 ### 0. Paleta de Marca ONDIGITAL — "Pulso Vital" (OFICIAL)
 
 Verdigris ink + latón + violeta. Es la paleta obligatoria en las piezas propias:
-landing (`Pagina_Web_Original/`), pantalla de sala, OnStock y OnServe.
+landing (`Pagina_Web_Original/`) y OnStock.
 **Credental queda fuera:** mantiene su paleta propia (`--brand-primary: #004aad`).
 
 ```css

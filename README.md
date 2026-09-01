@@ -60,8 +60,6 @@ niveles de acompañamiento tecnológico:
 - **OnStock** (`onstock/`): mini-ERP local para tiendas y microempresas (POS, productos,
   inventario, compras, proveedores, gastos, reportes, exportaciones, SQLite). Fuente de
   módulos reutilizables de inventario y ventas.
-- **OnServe** (`onserve/`): operación local para restaurantes (salón, comandas, cocina, caja,
-  facturación local y reportes), también con interfaz embebida y SQLite.
 - **Design System** (`design-system/`): tokens y componentes visuales de apoyo.
 - **Graphify ONDIGITAL** (`design-system/graphify/` y `graphify-out/`): mapa visual del repo,
   reporte y grafo navegable para orientar implementaciones grandes.
@@ -117,17 +115,6 @@ make dev
 ```
 
 La app corre en `http://localhost:8080`.
-
-### OnServe
-
-```bash
-cd onserve
-make seed-demo-force
-make dev
-```
-
-La app corre en `http://localhost:8090`. La semilla muestra una sesión de caja, comandas
-cobradas y abierta, cocina e invoices locales sintéticos.
 
 ## Trabajo Con Agentes AI
 

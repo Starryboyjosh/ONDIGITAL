@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tinta de la paleta Pulso Vital. El fondo del ícono adaptativo es un
+         color liso y no una imagen: Android lo estira con el efecto de
+         paralaje del launcher, y un dibujo ahí se deforma. -->
+    <color name="ic_launcher_background">#12201A</color>
+</resources>

@@ -84,7 +84,6 @@ flowchart TD
   Root["ONDIGITAL repo"] --> Site["Pagina_Web_Original/ landing institucional"]
   Root --> Credental["credental/ prototipo clínica dental"]
   Root --> OnStock["onstock/ mini-ERP local"]
-  Root --> OnServe["onserve/ operación local de restaurante"]
   Root --> Design["design-system/ tokens y componentes"]
   Root --> Firebase["firebase/ Firestore rules/indexes"]
   Root --> Skills["skills/ guías internas"]
@@ -108,12 +107,6 @@ flowchart TD
   GoMain --> WebUI["web/ SPA vanilla JS/CSS"]
   WebUI --> APIJS["web/js/api.js cliente API"]
   APIJS --> HTTPAPI
-
-  OnServe --> ServeMain["main.go servidor HTTP + embed"]
-  ServeMain --> ServeAPI["internal/httpapi/ API operativa"]
-  ServeAPI --> ServeStore["internal/store/ SQLite y reglas de salón/caja"]
-  ServeStore --> ServeSQLite["data/onserve.db local"]
-  ServeMain --> ServeWeb["web/ UI salón, caja, cocina"]
 
   Skills --> ProductSkills["product/ Credental, SaaS, POS"]
   Skills --> CoreSkills["core/ HTML y frontend quality"]

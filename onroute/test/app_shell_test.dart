@@ -1,0 +1,121 @@
+/// El armazón tiene una sola promesa que vale la pena blindar: las cuatro
+/// pantallas miran el MISMO día. Si Bodega y Ruta terminaran con repositorios
+/// distintos, todo se vería bien y la app estaría mintiendo —cobrar en una
+/// pantalla no vaciaría la parrilla de la otra.
+library;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:onroute/ui/app_shell.dart';
+import 'package:onroute/ui/features/bodega/views/bodega_view.dart';
+import 'package:onroute/ui/features/identidad/views/identidad_view.dart';
+import 'package:onroute/ui/features/liquidacion/views/liquidacion_view.dart';
+import 'package:onroute/ui/features/ruta/views/ruta_view.dart';
+import 'package:onroute/ui/features/torre/views/torre_view.dart';
+
+Widget _app({required Size tam}) => MediaQuery(
+      data: MediaQueryData(size: tam, disableAnimations: true),
+      child: const MaterialApp(home: AppShell(conTiles: false)),
+    );
+
+Future<void> _montar(WidgetTester tester, Size tam) async {
+  tester.view.physicalSize = tam;
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(_app(tam: tam));
+  // Nunca `pumpAndSettle`: el simulador de la flota corre en un timer
+  // periódico a propósito, así que el árbol jamás queda quieto.
+  await tester.pump();
+}
+
+/// Una pestaña de la barra inferior, buscada dentro de la barra: el nombre
+/// suelto aparece también en el texto de otras pantallas.
+Finder _pestana(String etiqueta) => find.descendant(
+      of: find.byType(NavigationBar),
+      matching: find.text(etiqueta),
+    );
+
+Future<void> _desmontar(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox());
+  await tester.pump();
+}
+
+void main() {
+  testWidgets('en teléfono la navegación va abajo y llega a las cinco',
+      (WidgetTester tester) async {
+    await _montar(tester, const Size(390, 844));
+
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(NavigationRail), findsNothing);
+    expect(find.byType(TorreView), findsOneWidget);
+
+    for (final (String etiqueta, Type pantalla) in <(String, Type)>[
+      ('Bodega', BodegaView),
+      ('Ruta', RutaView),
+      ('Cierre', LiquidacionView),
+      ('Identidad', IdentidadView),
+      ('Torre', TorreView),
+    ]) {
+      // Por el nombre dentro de la barra, no en toda la pantalla: la de
+      // identidad también habla de "torre" y "calle" en su propio texto.
+      await tester.tap(find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text(etiqueta),
+      ));
+      await tester.pump();
+      expect(find.byType(pantalla), findsOneWidget,
+          reason: 'la pestaña $etiqueta no llevó a su pantalla');
+    }
+
+    expect(tester.takeException(), isNull);
+    await _desmontar(tester);
+  });
+
+  testWidgets('en escritorio la navegación va en riel lateral',
+      (WidgetTester tester) async {
+    await _montar(tester, const Size(1440, 900));
+
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    await _desmontar(tester);
+  });
+
+  testWidgets('bodega y ruta comparten el mismo día de trabajo',
+      (WidgetTester tester) async {
+    await _montar(tester, const Size(390, 1600));
+
+    await tester.tap(_pestana('Ruta'));
+    await tester.pump();
+    final RutaView ruta = tester.widget<RutaView>(find.byType(RutaView));
+
+    await tester.tap(_pestana('Bodega'));
+    await tester.pump();
+    final BodegaView bodega = tester.widget<BodegaView>(find.byType(BodegaView));
+
+    expect(identical(ruta.repo, bodega.repo), isTrue,
+        reason: 'cada pantalla se quedó con su propio repositorio');
+
+    await _desmontar(tester);
+  });
+
+  testWidgets('cambiar de pestaña no congela la flota',
+      (WidgetTester tester) async {
+    await _montar(tester, const Size(390, 844));
+
+    await tester.tap(_pestana('Bodega'));
+    await tester.pump();
+    // El reloj sigue corriendo con la torre fuera de pantalla: media hora
+    // simulada mientras nadie la mira.
+    await tester.pump(const Duration(seconds: 2));
+
+    await tester.tap(_pestana('Torre'));
+    await tester.pump();
+
+    expect(find.byType(TorreView), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await _desmontar(tester);
+  });
+}

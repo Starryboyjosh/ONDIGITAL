@@ -4,6 +4,11 @@
 **Alcance:** revisión estática del ZIP entregado; documentación, estructura Git y código crítico.
 **No ejecutado:** aplicaciones, suites de tests, migraciones, Firebase Emulator y builds.
 
+> **Nota (2026-08-28):** OnServe fue retirado del repositorio por ser redundante con OnStock.
+> Las menciones a OnServe en esta auditoría son historia del análisis original del 2026-07-21
+> y ya no reflejan el estado del repo; no se reescribieron línea por línea para preservar el
+> registro de auditoría.
+
 ## 1. Material revisado
 
 - Documentación raíz: `README.md`, `AGENTS.md`, `CLAUDE.md`.
