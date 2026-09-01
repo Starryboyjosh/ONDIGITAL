@@ -31,11 +31,13 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/palette.dart';
 import 'core/theme/tokens.dart';
 import 'features/bodega/views/bodega_view.dart';
+import 'core/marca/marca_onroute.dart';
 import 'features/identidad/views/identidad_view.dart';
 import 'features/liquidacion/views/liquidacion_view.dart';
 import 'features/ruta/views/ruta_view.dart';
 import 'features/torre/torre_controller.dart';
 import 'features/torre/views/torre_view.dart';
+import 'features/vito/views/vito_chat_view.dart';
 
 /// Una pestaña del armazón. El orden es el del día de trabajo: primero se ve
 /// la flota, después se carga, después se vende, y al final se cuadra.
@@ -44,6 +46,7 @@ enum Destino {
   bodega('Bodega', Icons.grid_view_outlined, Icons.grid_view),
   ruta('Ruta', Icons.route_outlined, Icons.route),
   liquidacion('Cierre', Icons.calculate_outlined, Icons.calculate),
+  vito('Vito', Icons.chat_bubble_outline, Icons.chat_bubble),
   identidad('Identidad', Icons.palette_outlined, Icons.palette);
 
   const Destino(this.etiqueta, this.icono, this.iconoActivo);
@@ -103,6 +106,8 @@ class _AppShellState extends State<AppShell> {
         return RutaView(repo: _repo);
       case Destino.liquidacion:
         return LiquidacionView(repo: _repo);
+      case Destino.vito:
+        return VitoChatView(repo: _repo);
       case Destino.identidad:
         return IdentidadView(
           esTorre: esTorre,
@@ -128,6 +133,30 @@ class _AppShellState extends State<AppShell> {
           if (compacto) {
             return Scaffold(
               backgroundColor: c.bg,
+              appBar: AppBar(
+                backgroundColor: c.bg,
+                surfaceTintColor: Colors.transparent,
+                elevation: 0,
+                toolbarHeight: 48,
+                titleSpacing: Space.lg,
+                title: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    MarcaOnRoute(
+                      tamano: 22,
+                      sobreOscuro: esTorre,
+                    ),
+                    const SizedBox(width: Space.xs),
+                    Text(
+                      'OnRoute',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: c.ink,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
               body: cuerpo,
               bottomNavigationBar: NavigationBar(
                 selectedIndex: _destino.index,
@@ -155,6 +184,13 @@ class _AppShellState extends State<AppShell> {
                       setState(() => _destino = Destino.values[i]),
                   labelType: NavigationRailLabelType.all,
                   backgroundColor: c.surface,
+                  // El isotipo va acá, en el riel, y no en un `AppBar`
+                  // aparte: en escritorio la marca vive donde vive la
+                  // navegación, no encima del contenido.
+                  leading: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: Space.lg),
+                    child: MarcaOnRoute(tamano: 32, sobreOscuro: esTorre),
+                  ),
                   destinations: <NavigationRailDestination>[
                     for (final Destino d in Destino.values)
                       NavigationRailDestination(
