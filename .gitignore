@@ -33,3 +33,6 @@ graphify-out/manifest.json
 # Salidas de corridas puntuales: cambian en cada ejecución y por máquina.
 test-results/
 .impeccable/
+
+# Firebase Hosting deploy cache
+.firebase/

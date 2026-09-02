@@ -1,0 +1,27 @@
+<svg viewBox="88 54 184 188" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vito, el asistente de ONDIGITAL">
+    <path d="M116 92 H244 L260 108 V216 L244 232 H116 L100 216 V108 Z" fill="url(#vitoBodyGradient)"></path>
+    <path d="M116 92 H244 L260 108 V216 L244 232 H116 L100 216 V108 Z" stroke="#E0B368" stroke-opacity=".35" stroke-width="2" fill="none"></path>
+    <path d="M152 92 C152 64 208 64 208 92" stroke="url(#vitoHandleGradient)" stroke-width="13" fill="none" stroke-linecap="round"></path>
+    <circle cx="180" cy="70" r="6" fill="#9B8CFF"></circle>
+    <path d="M124 110 H236 L248 122 V206 L236 218 H124 L112 206 V122 Z" fill="#0A130E"></path>
+    <g>
+        <circle cx="153" cy="154" r="13" fill="none" stroke="#9B8CFF" stroke-width="4"></circle>
+        <circle cx="153" cy="154" r="4.5" fill="#9B8CFF"></circle>
+    </g>
+    <g>
+        <circle cx="207" cy="154" r="13" fill="none" stroke="#9B8CFF" stroke-width="4"></circle>
+        <circle cx="207" cy="154" r="4.5" fill="#9B8CFF"></circle>
+    </g>
+    <path d="M140 178 Q180 200 220 178" stroke="#9B8CFF" stroke-width="5" fill="none" stroke-linecap="round"></path>
+    <defs>
+        <linearGradient id="vitoBodyGradient" x1="100" y1="92" x2="260" y2="232" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#E8C77E"></stop>
+            <stop offset=".42" stop-color="#B98A3E"></stop>
+            <stop offset="1" stop-color="#4A3616"></stop>
+        </linearGradient>
+        <linearGradient id="vitoHandleGradient" x1="148" y1="60" x2="212" y2="92" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#D8A24A"></stop>
+            <stop offset="1" stop-color="#B98A3E"></stop>
+        </linearGradient>
+    </defs>
+</svg>
