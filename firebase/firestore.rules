@@ -1,18 +1,126 @@
-rules_version='2'
+rules_version = '2';
+
+// ONDIGITAL — reglas de seguridad de Firestore
+//
+// Postura: denegar por defecto. Ningún cliente lee ni escribe nada salvo que
+// esté autenticado, su token pertenezca a la clínica que pide, y su rol lo
+// permita.
+//
+// Estado real hoy (beta): ningún producto de este repositorio habla con
+// Firestore. Credental es local-first sobre sessionStorage
+// (`credental/js/data-hybrid.js`), OnStock usa SQLite y OnRoute guarda en el
+// dispositivo. Estas reglas por tanto no rompen nada: dibujan la frontera
+// antes de que exista tráfico.
+//
+// Antes de que un dato clínico real toque Firestore hace falta, además:
+//   1. Firebase Authentication de verdad en Credental (hoy la sesión es demo).
+//   2. Que los claims `clinicaId` y `rol` los firme un backend de confianza
+//      (Admin SDK). Un claim que el cliente pueda escribir no aísla nada.
+//   3. Alta y baja de clínicas y usuarios fuera del navegador: las reglas de
+//      abajo lo prohíben a propósito.
+//
+// Modelo de datos: /clinicas/{clinicaId}/<colección>/{documento}. Cada clínica
+// es un inquilino cerrado; no hay colecciones globales.
+//
+// Verificación: ./pruebas/ejecutar.sh (emulador de Firestore, sin tocar ningún
+// proyecto real).
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function autenticado() {
+      return request.auth != null;
+    }
+
+    // `.get(clave, defecto)` y no `token.clave`: si el claim falta, la lectura
+    // directa revienta la regla en vez de denegarla limpiamente.
+    function claim(nombre, defecto) {
+      return request.auth.token.get(nombre, defecto);
+    }
+
+    // El claim lo firma el backend, no el cliente. Sin él, no hay clínica.
+    function esDeLaClinica(clinicaId) {
+      return autenticado() && claim('clinicaId', '') == clinicaId;
+    }
+
+    // Vocabulario de roles de `modules/tenant/plan.go` (RolePermissions):
+    //   admin    → todo
+    //   gerente  → leer, escribir, reportes, usuarios
+    //   empleado → leer, escribir
+    //   viewer   → leer
+    // Un rol ausente o desconocido cae a solo lectura, igual que el `default`
+    // de esa función en Go. Las reglas no inventan un modelo propio: espejan
+    // el que ya existe en código.
+    function rol() {
+      return claim('rol', 'viewer');
+    }
+
+    function puedeEscribir() {
+      return rol() in ['admin', 'gerente', 'empleado'];
+    }
+
+    function administraUsuarios() {
+      return rol() in ['admin', 'gerente'];
+    }
+
+    // Colecciones operativas de una clínica. La lista es explícita: crear una
+    // colección nueva no la deja accesible por accidente.
+    // `usuarios` NO está aquí y no debe estarlo — tiene su propia regla más
+    // abajo, y en Firestore los permisos se SUMAN entre reglas que coinciden
+    // con la misma ruta, así que incluirla aquí anularía esa restricción.
+    // (`pruebas/probar_reglas.py` lo comprueba: meterla tumba 2 casos.)
+    function coleccionOperativa(nombre) {
+      return nombre in [
+        'pacientes',
+        'citas',
+        'procedimientos',
+        'presupuestos',
+        'facturas',
+        'cobranzas',
+        'laboratorios',
+        'comunicaciones',
+        'inventario',
+        'odontogramas',
+        'periodontogramas'
+      ];
+    }
+
+    match /clinicas/{clinicaId} {
+
+      // El perfil de la clínica se lee; se administra fuera del navegador.
+      allow get: if esDeLaClinica(clinicaId);
+      allow list, create, update, delete: if false;
+
+      match /usuarios/{usuarioId} {
+        // Cada quien ve su ficha; quien administra usuarios ve el directorio.
+        allow get: if esDeLaClinica(clinicaId)
+          && (usuarioId == request.auth.uid || administraUsuarios());
+        allow list: if esDeLaClinica(clinicaId) && administraUsuarios();
+
+        // Nadie escribe usuarios desde el navegador, ni el admin. Si un
+        // gerente pudiera tocar esta colección podría ascenderse a admin, que
+        // es exactamente la escalada que estas reglas existen para impedir.
+        // El alta y baja va por el Admin SDK.
+        allow write: if false;
+      }
+
+      match /{coleccion}/{documentoId} {
+        allow read: if esDeLaClinica(clinicaId)
+          && coleccionOperativa(coleccion);
+
+        allow create, update: if esDeLaClinica(clinicaId)
+          && coleccionOperativa(coleccion)
+          && puedeEscribir();
+
+        // Historia clínica: no se borra desde el cliente. Los módulos anulan
+        // por estado, igual que OnStock con las ventas.
+        allow delete: if false;
+      }
+    }
+
+    // Todo lo demás, incluido cualquier documento fuera de /clinicas.
     match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2026, 7, 1);
+      allow read, write: if false;
     }
   }
 }

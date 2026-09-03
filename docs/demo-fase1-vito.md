@@ -10,15 +10,18 @@ make seed-demo-force   # carga "Abarrotes El Progreso" (reemplaza productos exis
 make dev               # http://localhost:8080
 ```
 
-Opcional (OpenCode en vivo):
+Opcional (motor en la nube):
 
 ```bash
 cp .env.example .env
-# VITO_PROVIDER=opencode
-# VITO_OPENCODE_API_KEY=...
+# VITO_PROVIDER=nube
+# VITO_API_KEY=...
 ```
 
-Sin key, Vito usa **mock** anclado a tools reales (sigue citando inventario/ventas).
+Sin clave, Vito corre en **modo local** anclado a tools reales (sigue citando
+inventario/ventas). Las variables no nombran al proveedor a propósito: el motor
+es intercambiable y este mensaje se lee en la misma ventana que mira el dueño
+del negocio.
 
 ## Abrir
 
@@ -47,7 +50,7 @@ Sin key, Vito usa **mock** anclado a tools reales (sigue citando inventario/vent
 
 ## Datos del seed (resumen)
 
-- **Empresa:** Abarrotes El Progreso (Tegucigalpa)
+- **Empresa:** Abarrotes El Progreso (San Pedro Sula)
 - **~20 productos** · 4 categorías · 2 proveedores
 - **~16 ventas** repartidas en ~25 días
 - **4 gastos** del mes
