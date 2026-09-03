@@ -1,70 +1,148 @@
 <!-- @dsCard group="Tokens" -->
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-HN">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tokens de color | Sistema de diseño ONDIGITAL</title>
+<link rel="stylesheet" href="../tokens.css">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #0B1410; font-family: 'DM Sans', sans-serif; padding: 24px; }
-  h2 { font-family: 'Outfit', sans-serif; color: #fff; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; margin-bottom: 16px; }
-  .palette { display: flex; flex-direction: column; gap: 24px; }
-  .palette-section { display: flex; flex-wrap: wrap; gap: 8px; }
-  .swatch { width: 80px; }
-  .swatch-color { height: 48px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
-  .swatch-label { color: rgba(255,255,255,0.6); font-size: 10px; margin-top: 6px; word-break: break-all; }
+  /* Las muestras llevan el hex visible: una ficha de color sin el valor
+     obliga a abrir el inspector para copiarlo, que es justo lo que la ficha
+     debería evitar. `word-break: break-all` quedaba partiendo los números de
+     contraste a mitad ("6.23: 1"), así que la etiqueta ya no lo usa. */
+  .palette-section { display: flex; flex-wrap: wrap; gap: 12px; }
+  .swatch { width: 132px; }
+  .swatch-color {
+    height: 56px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .swatch-name {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--fg);
+  }
+  .swatch-hex {
+    display: block;
+    margin-top: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .swatch-meta {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+  /* Damero bajo las muestras traslúcidas: sobre fondo liso se veían idénticas
+     al fondo y parecían muestras vacías. */
+  .is-alpha {
+    background-image:
+      linear-gradient(45deg, rgba(255,255,255,.06) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255,255,255,.06) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgba(255,255,255,.06) 75%),
+      linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.06) 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  }
 </style>
 </head>
 <body>
-  <div class="palette">
-    <div>
-      <h2>ONDIGITAL — Marca oficial ("Pulso Vital")</h2>
+  <div class="ds-stack">
+    <section>
+      <h2 class="ds-heading">ONDIGITAL — Marca oficial ("Pulso Vital")</h2>
+      <p class="ds-note">
+        Paleta obligatoria en las piezas propias: landing, OnStock y OnRoute.
+        Reemplazó al azul marino + azul + menta; esos hexes no vuelven.
+      </p>
       <div class="palette-section">
-        <div class="swatch"><div class="swatch-color" style="background:#0B1410"></div><div class="swatch-label">bg / verdigris ink</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#12201A"></div><div class="swatch-label">bg-2</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#F2EFE4"></div><div class="swatch-label">fg / pergamino</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#D8A24A"></div><div class="swatch-label">accent / latón</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#9B8CFF"></div><div class="swatch-label">accent-2 / violeta</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#E0A83D"></div><div class="swatch-label">warn</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#E85D4E"></div><div class="swatch-label">danger</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#0B1410"></div>
+          <span class="swatch-name">bg</span><span class="swatch-hex">#0B1410</span><span class="swatch-meta">verdigris ink</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#12201A"></div>
+          <span class="swatch-name">bg-2</span><span class="swatch-hex">#12201A</span><span class="swatch-meta">superficie elevada</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#16241E"></div>
+          <span class="swatch-name">surface</span><span class="swatch-hex">#16241E</span><span class="swatch-meta">tarjetas y paneles</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F2EFE4"></div>
+          <span class="swatch-name">fg</span><span class="swatch-hex">#F2EFE4</span><span class="swatch-meta">pergamino · 16.4:1</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#D8A24A"></div>
+          <span class="swatch-name">accent</span><span class="swatch-hex">#D8A24A</span><span class="swatch-meta">latón · 8.5:1 sobre bg</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#9B8CFF"></div>
+          <span class="swatch-name">accent-2</span><span class="swatch-hex">#9B8CFF</span><span class="swatch-meta">violeta · 6.9:1 sobre bg</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E0A83D"></div>
+          <span class="swatch-name">warn</span><span class="swatch-hex">#E0A83D</span><span class="swatch-meta">aviso</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E85D4E"></div>
+          <span class="swatch-name">danger</span><span class="swatch-hex">#E85D4E</span><span class="swatch-meta">error y destructivo</span></div>
       </div>
-    </div>
-    <div>
-      <h2>ONDIGITAL — Variantes para fondo claro (AA)</h2>
+    </section>
+
+    <section>
+      <h2 class="ds-heading">ONDIGITAL — Variantes para fondo claro (AA)</h2>
+      <p class="ds-note">
+        Sobre blanco el latón puro da 2.29:1 y el violeta puro 2.77:1: ninguno
+        pasa AA. En tema claro se usan estas variantes oscurecidas — es lo que
+        hace el tema blanco por defecto de OnStock.
+      </p>
       <div class="palette-section">
-        <div class="swatch"><div class="swatch-color" style="background:#8C6A2A"></div><div class="swatch-label">latón AA · 4.99:1</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#6B4E1E"></div><div class="swatch-label">latón-600</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#6C35ED"></div><div class="swatch-label">violeta AA · 6.23:1</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#101C16"></div><div class="swatch-label">sidebar</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#8C6A2A"></div>
+          <span class="swatch-name">latón AA</span><span class="swatch-hex">#8C6A2A</span><span class="swatch-meta">4.99:1 sobre blanco</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#6B4E1E"></div>
+          <span class="swatch-name">latón-600</span><span class="swatch-hex">#6B4E1E</span><span class="swatch-meta">hover y pulsado</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#6C35ED"></div>
+          <span class="swatch-name">violeta AA</span><span class="swatch-hex">#6C35ED</span><span class="swatch-meta">6.23:1 sobre blanco</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#101C16"></div>
+          <span class="swatch-name">sidebar</span><span class="swatch-hex">#101C16</span><span class="swatch-meta">oscuro en ambos temas</span></div>
       </div>
-    </div>
-    <div>
-      <h2>Dark Premium (SaaS)</h2>
+    </section>
+
+    <section>
+      <h2 class="ds-heading">Salud (Credental) — paleta propia, fuera de la marca</h2>
+      <p class="ds-note">
+        Credental está excluido de "Pulso Vital" a propósito y conserva su
+        identidad. No mezclar los hexes de ONDIGITAL en este producto.
+      </p>
       <div class="palette-section">
-        <div class="swatch"><div class="swatch-color" style="background:#050b1a"></div><div class="swatch-label">bg-primary</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#0a1128"></div><div class="swatch-label">bg-secondary</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:rgba(255,255,255,0.03)"></div><div class="swatch-label">bg-card</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#a78bfa"></div><div class="swatch-label">accent-primary</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#004aad"></div>
+          <span class="swatch-name">brand-primary</span><span class="swatch-hex">#004AAD</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#004d66"></div>
+          <span class="swatch-name">brand-teal</span><span class="swatch-hex">#004D66</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#cb6ce6"></div>
+          <span class="swatch-name">brand-purple</span><span class="swatch-hex">#CB6CE6</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#fff6e7"></div>
+          <span class="swatch-name">brand-cream</span><span class="swatch-hex">#FFF6E7</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#071a2b"></div>
+          <span class="swatch-name">bg oscuro</span><span class="swatch-hex">#071A2B</span></div>
       </div>
-    </div>
-    <div>
-      <h2>Salud (Credental) — paleta propia, NO sigue la marca ONDIGITAL</h2>
+    </section>
+
+    <section>
+      <h2 class="ds-heading">Plantillas por vertical — trabajo de cliente</h2>
+      <p class="ds-note">
+        Puntos de partida para plataformas a medida de terceros. <strong>No son
+        la identidad de ONDIGITAL</strong> y no deben aparecer en las piezas
+        propias.
+      </p>
       <div class="palette-section">
-        <div class="swatch"><div class="swatch-color" style="background:#004aad"></div><div class="swatch-label">brand-primary</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#004d66"></div><div class="swatch-label">brand-teal</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#cb6ce6"></div><div class="swatch-label">brand-purple</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#fff6e7"></div><div class="swatch-label">brand-cream</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#071a2b"></div><div class="swatch-label">bg-primary (oscuro)</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#050b1a"></div>
+          <span class="swatch-name">SaaS · fondo</span><span class="swatch-hex">#050B1A</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#0a1128"></div>
+          <span class="swatch-name">SaaS · panel</span><span class="swatch-hex">#0A1128</span></div>
+        <div class="swatch"><div class="swatch-color is-alpha"></div>
+          <span class="swatch-name">SaaS · tarjeta</span><span class="swatch-hex">rgba(255,255,255,.03)</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#a78bfa"></div>
+          <span class="swatch-name">SaaS · acento</span><span class="swatch-hex">#A78BFA</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#0f0a0a"></div>
+          <span class="swatch-name">Comercio · fondo</span><span class="swatch-hex">#0F0A0A</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1a1212"></div>
+          <span class="swatch-name">Comercio · panel</span><span class="swatch-hex">#1A1212</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#ff7a59"></div>
+          <span class="swatch-name">Comercio · acento</span><span class="swatch-hex">#FF7A59</span></div>
+        <div class="swatch"><div class="swatch-color" style="background:#ffb859"></div>
+          <span class="swatch-name">Comercio · acento 2</span><span class="swatch-hex">#FFB859</span></div>
       </div>
-    </div>
-    <div>
-      <h2>Comercial (E-commerce)</h2>
-      <div class="palette-section">
-        <div class="swatch"><div class="swatch-color" style="background:#0f0a0a"></div><div class="swatch-label">bg-primary</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#1a1212"></div><div class="swatch-label">bg-secondary</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#ff7a59"></div><div class="swatch-label">accent-primary</div></div>
-        <div class="swatch"><div class="swatch-color" style="background:#ffb859"></div><div class="swatch-label">accent-secondary</div></div>
-      </div>
-    </div>
+    </section>
   </div>
 </body>
 </html>

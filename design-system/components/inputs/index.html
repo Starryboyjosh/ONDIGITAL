@@ -1,74 +1,102 @@
 <!-- @dsCard group="Components" -->
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-HN">
 <head>
 <meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campos de formulario | Sistema de diseño ONDIGITAL</title>
+<link rel="stylesheet" href="../../tokens.css">
 <style>
-  :root {
-    --color-bg-primary: #050b1a;
-    --color-accent-primary: #a78bfa;
-    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --duration-normal: 250ms;
+  /* Los ejemplos usaban "RUT" con formato chileno (18.452.129-K) en productos
+     que operan en Honduras. Ahora son DNI y RTN reales del país, con teléfono
+     +504 y lempiras. */
+  body { display: flex; flex-direction: column; gap: 18px; }
+  .field { display: flex; flex-direction: column; gap: 6px; max-width: 340px; }
+  .field-label { font-size: 0.8rem; font-weight: 500; color: var(--fg); }
+  .field-label .req { color: var(--accent); margin-left: 2px; }
+  .input-shell { position: relative; display: flex; align-items: center; }
+  .input-icon {
+    position: absolute; left: 12px;
+    font-family: var(--font-mono); font-size: 13px;
+    color: var(--soft); pointer-events: none;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--color-bg-primary); font-family: 'DM Sans', sans-serif; padding: 32px; display: flex; flex-direction: column; gap: 20px; }
-
-  .input-wrapper { display: flex; flex-direction: column; gap: 6px; max-width: 320px; }
-  .input-label { color: rgba(255,255,255,0.6); font-size: 0.8rem; font-weight: 500; }
-  .input-container { position: relative; display: flex; align-items: center; }
-  .input-icon { position: absolute; left: 12px; font-size: 14px; opacity: 0.5; }
-  .glass-input {
-    width: 100%; padding: 10px 14px 10px 36px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    color: #fff; font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
-    outline: none;
-    transition: border-color var(--duration-normal) var(--ease-out), background var(--duration-normal) var(--ease-out);
-    backdrop-filter: blur(16px);
+  .input {
+    width: 100%; min-height: 40px;
+    padding: 10px 14px 10px 34px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    color: var(--fg);
+    font-family: inherit; font-size: 0.875rem;
+    transition: border-color var(--duration) var(--ease-out),
+                background var(--duration) var(--ease-out);
   }
-  .glass-input::placeholder { color: rgba(255,255,255,0.3); }
-  .glass-input:focus { border-color: var(--color-accent-primary); background: rgba(167,139,250,0.06); }
-  .glass-input.no-icon { padding-left: 14px; }
-  .input-hint { color: rgba(255,255,255,0.3); font-size: 0.75rem; }
-  .input-error .glass-input { border-color: rgba(239,68,68,0.5); }
-  .input-error .input-hint { color: #f87171; }
+  .input::placeholder { color: var(--soft); }
+  .input:focus { border-color: var(--accent-2); background: rgba(155, 140, 255, 0.07); }
+  .input.is-plain { padding-left: 14px; }
+  .input.is-mono { font-family: var(--font-mono); letter-spacing: 0.02em; }
+  .field-hint { font-size: 0.75rem; color: var(--muted); }
+  /* El error se anuncia con aria-invalid + aria-describedby, no solo con el
+     borde rojo: el borde no llega al lector de pantalla. */
+  .is-invalid .input { border-color: var(--danger); background: rgba(232, 93, 78, 0.07); }
+  .is-invalid .field-hint { color: var(--danger); }
 </style>
 </head>
 <body>
-  <div class="input-wrapper">
-    <label class="input-label">Correo Electrónico</label>
-    <div class="input-container">
-      <span class="input-icon">✉</span>
-      <input type="email" class="glass-input" placeholder="correo@empresa.com">
+  <div class="field">
+    <label class="field-label" for="f-correo">Correo electrónico</label>
+    <div class="input-shell">
+      <span class="input-icon" aria-hidden="true">@</span>
+      <input id="f-correo" class="input" type="email" autocomplete="email" placeholder="contacto@empresa.hn">
     </div>
   </div>
 
-  <div class="input-wrapper">
-    <label class="input-label">RUT / Cédula</label>
-    <div class="input-container">
-      <span class="input-icon">#</span>
-      <input type="text" class="glass-input" placeholder="18.452.129-K">
+  <div class="field">
+    <label class="field-label" for="f-dni">Identidad (DNI)<span class="req" aria-hidden="true">*</span></label>
+    <div class="input-shell">
+      <span class="input-icon" aria-hidden="true">#</span>
+      <input id="f-dni" class="input is-mono" type="text" inputmode="numeric"
+             placeholder="0801-1990-04567" aria-describedby="h-dni">
     </div>
-    <span class="input-hint">Formato: 00.000.000-X</span>
+    <span class="field-hint" id="h-dni">13 dígitos — municipio, año de nacimiento y correlativo.</span>
   </div>
 
-  <div class="input-wrapper">
-    <label class="input-label">Contraseña</label>
-    <div class="input-container">
-      <span class="input-icon">🔒</span>
-      <input type="password" class="glass-input" placeholder="••••••••">
+  <div class="field">
+    <label class="field-label" for="f-rtn">RTN</label>
+    <div class="input-shell">
+      <span class="input-icon" aria-hidden="true">#</span>
+      <input id="f-rtn" class="input is-mono" type="text" inputmode="numeric"
+             placeholder="0801-1990-045671" aria-describedby="h-rtn">
     </div>
+    <span class="field-hint" id="h-rtn">14 dígitos. Obligatorio para facturar con crédito fiscal.</span>
   </div>
 
-  <div class="input-wrapper input-error">
-    <label class="input-label">Nombre del Paciente</label>
-    <div class="input-container">
-      <span class="input-icon">👤</span>
-      <input type="text" class="glass-input" value="María G" placeholder="Nombre completo">
+  <div class="field">
+    <label class="field-label" for="f-tel">Teléfono</label>
+    <div class="input-shell">
+      <span class="input-icon" aria-hidden="true">+</span>
+      <input id="f-tel" class="input is-mono" type="tel" autocomplete="tel"
+             placeholder="504 9812-4471" aria-describedby="h-tel">
     </div>
-    <span class="input-hint">Este campo es obligatorio</span>
+    <span class="field-hint" id="h-tel">Ocho dígitos. Los móviles empiezan en 3, 7, 8 o 9.</span>
+  </div>
+
+  <div class="field">
+    <label class="field-label" for="f-monto">Monto</label>
+    <div class="input-shell">
+      <span class="input-icon" aria-hidden="true">L</span>
+      <input id="f-monto" class="input is-mono" type="text" inputmode="decimal" value="12,480.00">
+    </div>
+    <span class="field-hint">Lempiras. El ISV (15%) se calcula aparte.</span>
+  </div>
+
+  <div class="field is-invalid">
+    <label class="field-label" for="f-nombre">Nombre del paciente<span class="req" aria-hidden="true">*</span></label>
+    <div class="input-shell">
+      <span class="input-icon" aria-hidden="true">·</span>
+      <input id="f-nombre" class="input" type="text" value="María G" aria-invalid="true" aria-describedby="h-nombre">
+    </div>
+    <span class="field-hint" id="h-nombre">Escribe el nombre completo como aparece en la identidad.</span>
   </div>
 </body>
 </html>

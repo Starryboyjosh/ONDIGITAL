@@ -1,30 +1,26 @@
 :root {
-  --bg: #071018;
-  --surface: #101923;
-  --surface-2: #162231;
-  --surface-3: #1d2b3b;
-  --border: rgba(231, 238, 247, 0.12);
-  --border-strong: rgba(231, 238, 247, 0.22);
-  --text: #f5f8fb;
-  --muted: #a7b4c2;
-  --subtle: #748396;
-  --accent: #35c2a6;
-  --accent-2: #5aa7ff;
-  --warn: #f2b84b;
-  --danger: #ee6f6f;
-  --ok: #7bd88f;
-  --site: #7aa2ff;
-  --credental: #32c6b3;
-  --onstock: #f0a64a;
-  --design: #d784ff;
-  --docs: #8bd071;
-  --security: #ff7c8a;
-  --firebase: #ffcc66;
+  /* Paleta "Pulso Vital". El bloque anterior era el sistema azul marino con
+     acento menta, retirado de la marca, y ademas repetia el color de cada area
+     en siete variables que ya nadie leia y que habian quedado en desacuerdo con
+     las de graphify-map.js, la unica fuente real de esos colores. */
+  --bg: #0B1410;
+  --surface: #12201A;
+  --surface-2: #16241E;
+  --surface-3: #1B2C24;
+  --border: rgba(216, 162, 74, 0.16);
+  --border-strong: rgba(216, 162, 74, 0.34);
+  --text: #F2EFE4;
+  --muted: rgba(214, 208, 190, 0.72);
+  --subtle: rgba(200, 190, 165, 0.5);
+  --accent: #D8A24A;
+  --accent-2: #9B8CFF;
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
-  --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
   --font: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: Fraunces, "Iowan Old Style", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
 }
 
 * {
@@ -72,7 +68,7 @@ input {
   padding: 0.6rem 0.8rem;
   border-radius: var(--radius-sm);
   background: var(--accent);
-  color: #03100d;
+  color: #0B1410;
   font-weight: 700;
 }
 
@@ -88,7 +84,7 @@ input {
   min-height: 84px;
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border);
-  background: rgba(7, 16, 24, 0.92);
+  background: rgba(11, 20, 16, 0.92);
   backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
@@ -98,8 +94,9 @@ input {
 .eyebrow {
   margin: 0 0 0.25rem;
   color: var(--accent);
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -112,7 +109,9 @@ p {
 
 h1 {
   margin-bottom: 0;
-  font-size: 1.45rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
   line-height: 1.1;
 }
 
@@ -205,8 +204,9 @@ h2 {
 
 .metric-value {
   display: block;
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 600;
   line-height: 1;
 }
 
@@ -230,7 +230,7 @@ h2 {
   min-height: 42px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: #071018;
+  background: var(--bg);
   color: var(--text);
   padding: 0 0.8rem;
 }
@@ -255,7 +255,7 @@ h2 {
 
 .filter-chip.is-active {
   border-color: var(--accent);
-  background: rgba(53, 194, 166, 0.12);
+  background: rgba(216, 162, 74, 0.14);
 }
 
 .chip-dot {
@@ -355,16 +355,16 @@ h2 {
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    #0a141e;
+    var(--bg);
   background-size: 36px 36px;
 }
 
 #repo-graph {
   display: block;
   width: 100%;
-  min-width: 880px;
+  min-width: 940px;
   height: 100%;
-  min-height: 620px;
+  min-height: 700px;
 }
 
 .edge {
@@ -398,11 +398,11 @@ h2 {
 .node-group:hover .node-ring,
 .node-group.is-selected .node-ring {
   stroke: var(--accent);
-  fill: rgba(53, 194, 166, 0.13);
+  fill: rgba(216, 162, 74, 0.14);
 }
 
 .node-group.is-muted {
-  opacity: 0.22;
+  opacity: 0.34;
 }
 
 .node-dot {

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es-HN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema de diseño ONDIGITAL</title>
+<meta name="description" content="Catálogo de tokens y componentes del sistema de diseño ONDIGITAL: paleta Pulso Vital, tipografía de marca y patrones de interfaz.">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* La carpeta no tenía índice: había que conocer las rutas de memoria para
+     abrir cualquier ficha. Las vistas previas son iframes de las fichas
+     reales, así que el catálogo no puede quedar desincronizado del código. */
+  body { padding: 0; }
+  .wrap { width: min(1180px, calc(100% - 48px)); margin: 0 auto; padding: 48px 0 72px; }
+
+  header { border-bottom: 1px solid var(--border); }
+  .head-inner { width: min(1180px, calc(100% - 48px)); margin: 0 auto; padding: 40px 0 28px; }
+  .eyebrow {
+    margin: 0 0 8px;
+    font-family: var(--font-mono); font-size: 0.7rem;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
+  }
+  h1 { margin: 0; font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 600; }
+  .lede { margin: 12px 0 0; max-width: 64ch; color: var(--muted); }
+
+  .group-title {
+    margin: 44px 0 4px;
+    font-family: var(--font-mono); font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+  }
+  .group-note { margin: 0 0 20px; max-width: 64ch; font-size: 0.85rem; color: var(--muted); }
+
+  .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+  .card {
+    display: flex; flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color var(--duration) var(--ease-out), transform var(--duration) var(--ease-out);
+  }
+  .card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+  .preview { height: 210px; background: var(--bg); border-bottom: 1px solid var(--border); overflow: hidden; }
+  /* Se reduce a escala para que quepa la ficha completa; `pointer-events:none`
+     evita que la vista previa robe el clic destinado al enlace. */
+  .preview iframe {
+    width: 200%; height: 420px; border: 0;
+    transform: scale(0.5); transform-origin: 0 0;
+    pointer-events: none;
+  }
+  .card-body { padding: 16px 18px 18px; }
+  .card-title { margin: 0; font-size: 0.98rem; font-weight: 600; }
+  .card-title a { color: var(--fg); text-decoration: none; }
+  .card-title a::after { content: ''; position: absolute; inset: 0; }
+  .card { position: relative; }
+  .card-desc { margin: 6px 0 0; font-size: 0.82rem; color: var(--muted); }
+  .card-path { display: block; margin-top: 10px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--soft); }
+
+  .footnote {
+    margin-top: 52px; padding-top: 22px;
+    border-top: 1px solid var(--border);
+    max-width: 74ch; font-size: 0.85rem; color: var(--muted);
+  }
+  .footnote code { font-family: var(--font-mono); font-size: 0.95em; color: var(--accent); }
+  .footnote a { color: var(--accent-2); }
+</style>
+</head>
+<body>
+  <header>
+    <div class="head-inner">
+      <p class="eyebrow">ONDIGITAL</p>
+      <h1>Sistema de diseño</h1>
+      <p class="lede">
+        Tokens y componentes de la paleta oficial <strong>"Pulso Vital"</strong>.
+        Cada ficha es HTML y CSS sin build ni dependencias de red: se abre en el
+        navegador y se copia tal cual al producto.
+      </p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h2 class="group-title">Tokens</h2>
+    <p class="group-note">La base. Antes de escribir un color o una familia tipográfica a mano, viene de aquí.</p>
+    <div class="grid">
+      <article class="card">
+        <div class="preview"><iframe src="tokens/colors.html" title="Vista previa de los tokens de color" loading="lazy" tabindex="-1"></iframe></div>
+        <div class="card-body">
+          <h3 class="card-title"><a href="tokens/colors.html">Color</a></h3>
+          <p class="card-desc">Paleta de marca, variantes AA para fondo claro, la paleta propia de Credental y las plantillas por vertical.</p>
+          <code class="card-path">tokens/colors.html</code>
+        </div>
+      </article>
+      <article class="card">
+        <div class="preview"><iframe src="tokens/typography.html" title="Vista previa de los tokens de tipografía" loading="lazy" tabindex="-1"></iframe></div>
+        <div class="card-body">
+          <h3 class="card-title"><a href="tokens/typography.html">Tipografía</a></h3>
+          <p class="card-desc">Fraunces para display, Inter para interfaz y JetBrains Mono para datos, con su cadena de respaldo local.</p>
+          <code class="card-path">tokens/typography.html</code>
+        </div>
+      </article>
+    </div>
+
+    <h2 class="group-title">Componentes</h2>
+    <p class="group-note">Patrones de interfaz con su contrato de accesibilidad y ejemplos en convenciones hondureñas (DNI, RTN, +504, lempiras).</p>
+    <div class="grid">
+      <article class="card">
+        <div class="preview"><iframe src="components/buttons/index.html" title="Vista previa de los botones" loading="lazy" tabindex="-1"></iframe></div>
+        <div class="card-body">
+          <h3 class="card-title"><a href="components/buttons/index.html">Botones</a></h3>
+          <p class="card-desc">Primario, secundario, fantasma y destructivo en tres tamaños, con objetivo táctil mínimo de 40 px.</p>
+          <code class="card-path">components/buttons/</code>
+        </div>
+      </article>
+      <article class="card">
+        <div class="preview"><iframe src="components/inputs/index.html" title="Vista previa de los campos de formulario" loading="lazy" tabindex="-1"></iframe></div>
+        <div class="card-body">
+          <h3 class="card-title"><a href="components/inputs/index.html">Campos</a></h3>
+          <p class="card-desc">Entradas con etiqueta, pista y estado de error anunciado por <code>aria-invalid</code>.</p>
+          <code class="card-path">components/inputs/</code>
+        </div>
+      </article>
+      <article class="card">
+        <div class="preview"><iframe src="components/badges/index.html" title="Vista previa de las insignias" loading="lazy" tabindex="-1"></iframe></div>
+        <div class="card-body">
+          <h3 class="card-title"><a href="components/badges/index.html">Insignias</a></h3>
+          <p class="card-desc">Estados de cita, pago e inventario. El color acompaña al texto, nunca lo sustituye.</p>
+          <code class="card-path">components/badges/</code>
+        </div>
+      </article>
+      <article class="card">
+        <div class="preview"><iframe src="components/tables/index.html" title="Vista previa de las tablas" loading="lazy" tabindex="-1"></iframe></div>
+        <div class="card-body">
+          <h3 class="card-title"><a href="components/tables/index.html">Tablas</a></h3>
+          <p class="card-desc">Tabla densa con desbordamiento horizontal propio, cifras alineadas y acciones etiquetadas por fila.</p>
+          <code class="card-path">components/tables/</code>
+        </div>
+      </article>
+      <article class="card">
+        <div class="preview"><iframe src="components/search/index.html" title="Vista previa de la búsqueda" loading="lazy" tabindex="-1"></iframe></div>
+        <div class="card-body">
+          <h3 class="card-title"><a href="components/search/index.html">Búsqueda</a></h3>
+          <p class="card-desc">Autocompletado con el contrato ARIA de <em>combobox</em> completo.</p>
+          <code class="card-path">components/search/</code>
+        </div>
+      </article>
+    </div>
+
+    <h2 class="group-title">Herramientas</h2>
+    <p class="group-note">Vistas de apoyo que no son parte de la librería de componentes.</p>
+    <div class="grid">
+      <article class="card">
+        <div class="preview"><iframe src="graphify/index.html" title="Vista previa del mapa Graphify" loading="lazy" tabindex="-1"></iframe></div>
+        <div class="card-body">
+          <h3 class="card-title"><a href="graphify/index.html">Mapa Graphify</a></h3>
+          <p class="card-desc">Mapa operativo del repositorio: productos, entrypoints, capas de datos, riesgos y verificaciones.</p>
+          <code class="card-path">graphify/</code>
+        </div>
+      </article>
+    </div>
+
+    <p class="footnote">
+      Los tokens viven en <code>tokens.css</code> y son un espejo de
+      <code>skills/design/design-systems/DESIGN.md</code> §0. Las fuentes de cada
+      producto son <code>Pagina_Web_Original/styles.css</code> y
+      <code>onstock/web/css/app.css</code>; al cambiar un token hay que cambiarlo
+      en los tres sitios. Para revisar en local:
+      <code>python3 -m http.server 4173</code> y abrir
+      <code>http://localhost:4173/design-system/</code>.
+    </p>
+  </main>
+</body>
+</html>

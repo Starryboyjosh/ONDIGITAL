@@ -1,74 +1,85 @@
 <!-- @dsCard group="Components" -->
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-HN">
 <head>
 <meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Botones | Sistema de diseño ONDIGITAL</title>
+<link rel="stylesheet" href="../../tokens.css">
 <style>
-  :root {
-    --color-bg-primary: #050b1a;
-    --color-accent-primary: #a78bfa;
-    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-    --duration-normal: 250ms;
-    --radius-lg: 12px;
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    /* 40px de alto mínimo: por debajo de eso el objetivo táctil se queda corto
+       en móvil, y estos botones se copian tal cual a los productos. */
+    min-height: 40px;
+    padding: 10px 20px;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    font-family: inherit; font-size: 0.875rem; font-weight: 600;
+    cursor: pointer;
+    transition: background var(--duration) var(--ease-out),
+                border-color var(--duration) var(--ease-out),
+                transform var(--duration) var(--ease-out);
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--color-bg-primary); font-family: 'DM Sans', sans-serif; padding: 32px; display: flex; flex-direction: column; gap: 24px; }
-  h3 { color: rgba(255,255,255,0.35); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
-  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
-  .glass-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 20px; border-radius: var(--radius-lg);
-    font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500;
-    cursor: pointer; border: none;
-    background: var(--color-accent-primary);
-    color: #fff;
-    transition: all var(--duration-normal) var(--ease-out);
+  /* Primario en latón con texto oscuro: el blanco sobre #D8A24A da 2.1:1 y no
+     pasa AA; la tinta verdigris da 8.5:1. */
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-primary:hover { background: #E4B160; }
+
+  .btn-outline {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border-strong);
+    color: var(--fg);
   }
-  .glass-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-outline:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--accent); }
 
-  .glass-btn-outline {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: rgba(255,255,255,0.8);
-    backdrop-filter: blur(16px);
+  .btn-ghost { background: transparent; color: var(--muted); }
+  .btn-ghost:hover { background: rgba(255, 255, 255, 0.06); color: var(--fg); }
+
+  .btn-danger {
+    background: rgba(232, 93, 78, 0.14);
+    border-color: rgba(232, 93, 78, 0.4);
+    color: var(--danger);
   }
-  .glass-btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); transform: translateY(-1px); }
+  .btn-danger:hover { background: rgba(232, 93, 78, 0.24); }
 
-  .glass-btn-danger {
-    background: rgba(239,68,68,0.15);
-    border: 1px solid rgba(239,68,68,0.3);
-    color: #f87171;
-  }
-  .glass-btn-danger:hover { background: rgba(239,68,68,0.25); }
-
-  .glass-btn-sm { padding: 6px 14px; font-size: 0.8rem; }
-  .glass-btn-lg { padding: 14px 28px; font-size: 1rem; }
+  .btn-sm { min-height: 32px; padding: 6px 14px; font-size: 0.8rem; }
+  .btn-lg { min-height: 48px; padding: 14px 28px; font-size: 1rem; }
 </style>
 </head>
 <body>
-  <div>
-    <h3>Primary</h3>
-    <div class="row">
-      <button class="glass-btn glass-btn-sm">Pequeño</button>
-      <button class="glass-btn">Registrar Paciente</button>
-      <button class="glass-btn glass-btn-lg">Guardar Cambios</button>
-    </div>
-  </div>
-  <div>
-    <h3>Secondary (Outline Glass)</h3>
-    <div class="row">
-      <button class="glass-btn glass-btn-outline glass-btn-sm">Cancelar</button>
-      <button class="glass-btn glass-btn-outline">Ver Expediente</button>
-      <button class="glass-btn glass-btn-outline glass-btn-lg">Exportar PDF</button>
-    </div>
-  </div>
-  <div>
-    <h3>Danger</h3>
-    <div class="row">
-      <button class="glass-btn glass-btn-danger">Eliminar Registro</button>
-    </div>
+  <div class="ds-stack">
+    <section>
+      <h2 class="ds-heading">Primario — una sola acción por pantalla</h2>
+      <div class="ds-row">
+        <button class="btn btn-primary btn-sm" type="button">Pequeño</button>
+        <button class="btn btn-primary" type="button">Registrar paciente</button>
+        <button class="btn btn-primary btn-lg" type="button">Guardar cambios</button>
+      </div>
+    </section>
+    <section>
+      <h2 class="ds-heading">Secundario</h2>
+      <div class="ds-row">
+        <button class="btn btn-outline btn-sm" type="button">Cancelar</button>
+        <button class="btn btn-outline" type="button">Ver expediente</button>
+        <button class="btn btn-ghost" type="button">Descartar</button>
+      </div>
+    </section>
+    <section>
+      <h2 class="ds-heading">Destructivo y deshabilitado</h2>
+      <div class="ds-row">
+        <button class="btn btn-danger" type="button">Eliminar registro</button>
+        <button class="btn btn-primary" type="button" disabled>Sin cambios que guardar</button>
+      </div>
+      <p class="ds-note">
+        Toda acción destructiva pide confirmación antes de ejecutarse; el estilo
+        rojo advierte, no protege.
+      </p>
+    </section>
   </div>
 </body>
 </html>

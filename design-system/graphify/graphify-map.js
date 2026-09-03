@@ -1,44 +1,60 @@
 const graphData = {
+  // Los colores salen de la paleta "Pulso Vital" o se separan a proposito de
+  // ella. Antes "Todo" (#35c2a6) y "Credental" (#32c6b3) eran practicamente el
+  // mismo verde: en la leyenda no habia forma de distinguir un punto del otro.
   areas: [
-    { id: "all", label: "Todo", color: "#35c2a6" },
-    { id: "site", label: "Sitio", color: "#7aa2ff" },
-    { id: "credental", label: "Credental", color: "#32c6b3" },
-    { id: "onstock", label: "OnStock", color: "#f0a64a" },
-    { id: "design", label: "Design system", color: "#d784ff" },
-    { id: "docs", label: "Docs y skills", color: "#8bd071" },
-    { id: "risk", label: "Riesgos", color: "#ff7c8a" },
+    { id: "all", label: "Todo", color: "#F2EFE4" },
+    { id: "site", label: "Sitio", color: "#D8A24A" },
+    { id: "credental", label: "Credental", color: "#4E9BE0" },
+    { id: "onstock", label: "OnStock", color: "#6FC59B" },
+    { id: "onroute", label: "OnRoute", color: "#E58FC0" },
+    { id: "vito", label: "Vito (IA)", color: "#9B8CFF" },
+    { id: "design", label: "Design system", color: "#B09A86" },
+    { id: "docs", label: "Docs y skills", color: "#B3CE5B" },
+    { id: "risk", label: "Riesgos", color: "#E85D4E" },
   ],
   nodes: [
-    { id: "root", area: "all", label: "ONDIGITAL", kind: "Repo", x: 590, y: 96, size: 68, subtitle: "multi-producto", detail: "Raiz del repositorio: sitio institucional, productos Micro-Empresa, prototipos, docs, skills y configuracion." },
-    { id: "site", area: "site", label: "Pagina Web", kind: "Landing", x: 170, y: 205, size: 48, subtitle: "institucional", detail: "Sitio principal de ONDIGITAL en Pagina_Web_Original/ con propuesta de servicios, equipo y contacto." },
-    { id: "credental", area: "credental", label: "Credental", kind: "Producto", x: 410, y: 215, size: 58, subtitle: "clinica dental", detail: "Prototipo HTML/CSS/JS para gestion clinica dental en Honduras. Demo-grade en auth y almacenamiento." },
-    { id: "onstock", area: "onstock", label: "OnStock", kind: "Producto", x: 760, y: 215, size: 58, subtitle: "mini ERP", detail: "Go 1.22+, SQLite y UI vanilla embebida para POS, inventario, compras, ventas y reportes." },
-    { id: "design", area: "design", label: "Design System", kind: "Soporte", x: 1010, y: 205, size: 48, subtitle: "tokens UI", detail: "Tokens, componentes y guias visuales compartidas para interfaces ONDIGITAL." },
-    { id: "docs", area: "docs", label: "Docs", kind: "Conocimiento", x: 255, y: 470, size: 46, subtitle: "arquitectura", detail: "Documentacion funcional y tecnica: arquitectura, roadmap, colaboracion y Graphify." },
-    { id: "skills", area: "docs", label: "Skills", kind: "Agentes", x: 505, y: 520, size: 44, subtitle: "instrucciones", detail: "Guias internas para productos, UI, datos, seguridad, QA, Flutter y backend." },
-    { id: "firebase", area: "risk", label: "Firebase", kind: "Persistencia opcional", x: 950, y: 480, size: 44, subtitle: "rules/indexes", detail: "Config de Firestore. Requiere validacion con emulator o dry-run antes de cambios reales." },
-    { id: "graphify", area: "docs", label: "Graphify", kind: "Mapa repo", x: 610, y: 650, size: 46, subtitle: "graphify-out", detail: "Artefactos generados: graph.html, GRAPH_TREE.html, GRAPH_REPORT.md y graph.json." },
+    { id: "root", area: "all", label: "ONDIGITAL", kind: "Repo", x: 670, y: 95, size: 68, subtitle: "multi-producto", detail: "Raiz del repositorio: sitio institucional, los cuatro productos, prototipos, docs, skills y configuracion." },
+    { id: "site", area: "site", label: "Pagina Web", kind: "Landing", x: 120, y: 265, size: 48, subtitle: "institucional", detail: "Sitio principal de ONDIGITAL en Pagina_Web_Original/. Es lo que publica Firebase Hosting en ondigital-landing y lo que abre el QR impreso: la URL no cambia." },
+    { id: "credental", area: "credental", label: "Credental", kind: "Producto", x: 350, y: 265, size: 58, subtitle: "clinica dental", detail: "Prototipo HTML/CSS/JS para gestion clinica dental en Honduras. Conserva su paleta propia y queda fuera de la marca Pulso Vital. Auth y almacenamiento son demo-grade." },
+    { id: "onstock", area: "onstock", label: "OnStock", kind: "Producto", x: 700, y: 265, size: 58, subtitle: "mini ERP", detail: "Go y SQLite con UI vanilla embebida para POS, inventario, compras, ventas, ISV y reportes. Corre en el equipo del negocio, sin nube." },
+    { id: "onroute", area: "onroute", label: "OnRoute", kind: "Producto", x: 1055, y: 265, size: 56, subtitle: "autoventa", detail: "App Flutter de autoventa y reparto en San Pedro Sula: carga de bodega, ruta del dia, cobro en sitio, liquidacion y torre de control." },
+    { id: "design", area: "design", label: "Design System", kind: "Soporte", x: 1215, y: 760, size: 46, subtitle: "tokens UI", detail: "Tokens y componentes compartidos en design-system/. tokens.css es el espejo de DESIGN.md seccion 0; las fichas se abren sin build y sin red." },
+    { id: "docs", area: "docs", label: "Docs", kind: "Conocimiento", x: 150, y: 760, size: 46, subtitle: "arquitectura", detail: "Documentacion funcional y tecnica: modelo de negocio, plan maestro, arquitectura, seguridad demo/prod y Graphify." },
+    { id: "skills", area: "docs", label: "Skills", kind: "Agentes", x: 305, y: 765, size: 44, subtitle: "instrucciones", detail: "Guias internas para productos, UI, datos, seguridad, QA, Flutter y backend." },
+    { id: "firebase", area: "risk", label: "Firebase", kind: "Persistencia opcional", x: 490, y: 775, size: 44, subtitle: "rules/indexes", detail: "Reglas de Firestore en firebase/. Ya no es la plantilla de consola con temporizador: hoy deniega por defecto, aisla por clinica con el claim clinicaId y refleja la matriz de roles de modules/tenant. Se verifica con 30 pruebas contra el emulador (firebase/pruebas/ejecutar.sh)." },
+    { id: "graphify", area: "docs", label: "Graphify", kind: "Mapa repo", x: 235, y: 880, size: 46, subtitle: "graphify-out", detail: "Artefactos generados: graph.html, GRAPH_TREE.html, GRAPH_REPORT.md y graph.json. Este mapa se escribe a mano y es una vista curada, no una salida del generador." },
+    { id: "vito", area: "vito", label: "Vito", kind: "Asistente IA", x: 700, y: 770, size: 46, subtitle: "modulo comun", detail: "Asistente de marca blanca en modules/vito. El motor es intercambiable (nube o equipo local) y nunca se nombra al proveedor en pantalla. Trabaja sobre los datos reales del negocio y es opcional (plan Enterprise AI)." },
 
-    { id: "cred-html", area: "credental", label: "*.html", kind: "Entrypoints", x: 240, y: 335, size: 34, subtitle: "pantallas", detail: "Pantallas por modulo que cargan db.js, auth.js, main.js y el JS del modulo." },
-    { id: "cred-css", area: "credental", label: "CSS parciales", kind: "Sistema visual", x: 395, y: 365, size: 36, subtitle: "styles.css", detail: "Manifest CSS dividido en base, layout, components, modules y themes." },
-    { id: "cred-main", area: "credental", label: "main.js", kind: "Shell UI", x: 535, y: 335, size: 36, subtitle: "nav + tema", detail: "Navegacion central, tema, helpers, branding multiempresa y formato HNL." },
-    { id: "cred-db", area: "risk", label: "db.js", kind: "Datos demo", x: 430, y: 445, size: 42, subtitle: "sessionStorage", detail: "API repositorio consumida por toda la app. Hoy usa sessionStorage/localStorage y sync opcional." },
-    { id: "cred-auth", area: "risk", label: "auth.js", kind: "Auth demo", x: 575, y: 440, size: 34, subtitle: "roles UI", detail: "Login y guardas de ruta de demostracion. No es frontera de seguridad productiva." },
+    { id: "cred-html", area: "credental", label: "*.html", kind: "Entrypoints", x: 215, y: 425, size: 34, subtitle: "pantallas", detail: "Pantallas por modulo que cargan db.js, auth.js, main.js y el JS del modulo." },
+    { id: "cred-css", area: "credental", label: "CSS parciales", kind: "Sistema visual", x: 355, y: 445, size: 40, subtitle: "styles.css", detail: "Manifest CSS dividido en base, layout, components, modules y themes." },
+    { id: "cred-main", area: "credental", label: "main.js", kind: "Shell UI", x: 500, y: 425, size: 36, subtitle: "nav + tema", detail: "Navegacion central, tema, helpers, branding multiempresa y formato HNL." },
+    { id: "cred-db", area: "risk", label: "db.js", kind: "Datos demo", x: 280, y: 585, size: 42, subtitle: "sessionStorage", detail: "API de repositorio que consume toda la app. Es local-first sobre sessionStorage: ninguna pantalla carga hoy el SDK de Firebase, asi que no hay sincronizacion en curso. No es almacenamiento clinico duradero." },
+    { id: "cred-auth", area: "risk", label: "auth.js", kind: "Auth demo", x: 435, y: 600, size: 34, subtitle: "roles UI", detail: "Login y guardas de ruta de demostracion, resueltas en el navegador. No es una frontera de seguridad productiva." },
 
-    { id: "go-main", area: "onstock", label: "main.go", kind: "Servidor", x: 690, y: 340, size: 34, subtitle: "HTTP embed", detail: "Arranca servidor local, rutas HTTP y UI embebida." },
-    { id: "httpapi", area: "onstock", label: "httpapi", kind: "API REST", x: 815, y: 350, size: 40, subtitle: "handlers", detail: "Endpoints para ventas, compras, productos, reportes, exports y codigos de barra." },
-    { id: "store", area: "onstock", label: "store", kind: "Negocio", x: 785, y: 470, size: 42, subtitle: "SQLite", detail: "Persistencia SQLite y reglas de inventario, costo promedio, reversos y reportes." },
-    { id: "on-web", area: "onstock", label: "web SPA", kind: "Frontend", x: 645, y: 455, size: 38, subtitle: "vanilla JS", detail: "UI embebida con api.js, paginas, charts, theme y componentes." },
+    { id: "go-main", area: "onstock", label: "main.go", kind: "Servidor", x: 625, y: 425, size: 34, subtitle: "HTTP embed", detail: "Arranca el servidor local, las rutas HTTP y la UI embebida." },
+    { id: "httpapi", area: "onstock", label: "httpapi", kind: "API REST", x: 765, y: 425, size: 40, subtitle: "handlers", detail: "Endpoints de ventas, compras, productos, reportes, exports y codigos de barra." },
+    { id: "store", area: "onstock", label: "store", kind: "Negocio", x: 758, y: 590, size: 42, subtitle: "SQLite", detail: "Persistencia SQLite y reglas de inventario, costo promedio ponderado, reversos, ISV/ISR y reportes." },
+    { id: "on-web", area: "onstock", label: "web SPA", kind: "Frontend", x: 612, y: 585, size: 38, subtitle: "vanilla JS", detail: "UI embebida con api.js, paginas, charts, tema blanco por defecto y componentes." },
+
+    { id: "or-ui", area: "onroute", label: "features", kind: "Pantallas", x: 950, y: 425, size: 36, subtitle: "Flutter", detail: "bodega, ruta, liquidacion, torre, identidad y Vito, cada una con sus vistas y widgets bajo lib/ui/features." },
+    { id: "or-datos", area: "onroute", label: "repositorio", kind: "Datos en equipo", x: 1105, y: 420, size: 36, subtitle: "en el equipo", detail: "ruta_repository.dart guarda la ruta, las visitas y el cuadre en el propio telefono: el vendedor trabaja sin senal y sincroniza despues." },
+    { id: "or-semilla", area: "onroute", label: "semilla", kind: "Datos precargados", x: 1080, y: 590, size: 38, subtitle: "San Pedro Sula", detail: "semilla_san_pedro_sula.dart trae clientes, productos y una ruta real de la ciudad, para que la app abra con datos desde el primer arranque." },
+    { id: "or-ruteo", area: "onroute", label: "ruteo", kind: "Servicios", x: 928, y: 590, size: 32, subtitle: "OSRM + flota", detail: "osrm_service.dart calcula el recorrido y simulador_flota.dart mueve la flota cuando no hay backend, para que la torre de control tenga que mostrar." },
   ],
   edges: [
-    ["root", "site", "contiene"], ["root", "credental", "contiene"], ["root", "onstock", "contiene"], ["root", "design", "contiene"],
-    ["root", "docs", "documenta"], ["root", "skills", "guia"], ["root", "firebase", "configura"], ["root", "graphify", "mapea"],
+    ["root", "site", "contiene"], ["root", "credental", "contiene"], ["root", "onstock", "contiene"], ["root", "onroute", "contiene"],
+    ["root", "design", "contiene"], ["root", "docs", "documenta"], ["root", "skills", "guia"], ["root", "firebase", "configura"], ["root", "graphify", "mapea"],
     ["credental", "cred-html", "renderiza"], ["credental", "cred-css", "estiliza"], ["credental", "cred-main", "coordina"],
-    ["cred-html", "cred-db", "consume"], ["cred-main", "cred-auth", "protege"], ["cred-db", "firebase", "sync opcional"],
+    ["cred-html", "cred-db", "consume"], ["cred-main", "cred-auth", "protege"], ["cred-db", "firebase", "sin conexion hoy"],
     ["onstock", "go-main", "arranca"], ["go-main", "httpapi", "sirve"], ["httpapi", "store", "muta"], ["onstock", "on-web", "embebe"],
     ["on-web", "httpapi", "consume"], ["store", "firebase", "sin dependencia"],
+    ["onroute", "or-ui", "pinta"], ["onroute", "or-datos", "persiste"], ["or-datos", "or-semilla", "arranca con"],
+    ["or-ui", "or-ruteo", "consulta"], ["or-ruteo", "or-datos", "alimenta"],
+    ["onstock", "vito", "integra"], ["onroute", "vito", "integra"], ["vito", "store", "consulta"],
+    ["site", "firebase", "publica el QR"],
     ["docs", "graphify", "define"], ["skills", "graphify", "obliga"], ["design", "graphify", "visualiza"],
-    ["cred-auth", "cred-db", "riesgo"], ["store", "httpapi", "verificar"], ["firebase", "cred-db", "riesgo"],
+    ["cred-auth", "cred-db", "riesgo"], ["firebase", "cred-db", "riesgo"],
   ],
 };
 
@@ -60,7 +76,7 @@ const stageTitle = document.getElementById("stage-title");
 const nodeById = new Map(graphData.nodes.map((node) => [node.id, node]));
 
 function colorFor(area) {
-  return graphData.areas.find((item) => item.id === area)?.color || "#35c2a6";
+  return graphData.areas.find((item) => item.id === area)?.color || "#F2EFE4";
 }
 
 function visibleNode(node) {

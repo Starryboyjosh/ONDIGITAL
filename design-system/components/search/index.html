@@ -1,57 +1,79 @@
 <!-- @dsCard group="Components" -->
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-HN">
 <head>
 <meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Space+Grotesk:wght@400&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Búsqueda con autocompletado | Sistema de diseño ONDIGITAL</title>
+<link rel="stylesheet" href="../../tokens.css">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #050b1a; font-family: 'DM Sans', sans-serif; padding: 32px; }
-  .autocomplete-wrapper { position: relative; max-width: 340px; }
-  .search-container { position: relative; display: flex; align-items: center; }
-  .search-icon { position: absolute; left: 12px; color: rgba(255,255,255,0.35); font-size: 14px; }
-  .glass-input {
-    width: 100%; padding: 10px 36px 10px 36px;
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; color: #fff;
-    font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
-    outline: none; backdrop-filter: blur(16px);
+  /* El patrón declara el contrato ARIA de combobox (aria-expanded,
+     aria-activedescendant, role="listbox"). Sin él la lista es invisible para
+     un lector de pantalla y no hay forma de recorrerla con teclado. */
+  body { min-height: 340px; }
+  .autocomplete { position: relative; max-width: 360px; }
+  .search-shell { position: relative; display: flex; align-items: center; }
+  .search-icon { position: absolute; left: 12px; color: var(--soft); font-size: 13px; pointer-events: none; }
+  .input {
+    width: 100%; min-height: 40px;
+    padding: 10px 36px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    color: var(--fg); font-family: inherit; font-size: 0.875rem;
   }
-  .glass-input:focus { border-color: #a78bfa; background: rgba(167,139,250,0.06); }
-  .glass-input::placeholder { color: rgba(255,255,255,0.3); }
-  .btn-clear { position: absolute; right: 10px; background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 18px; line-height: 1; }
-  .autocomplete-results {
+  .input::placeholder { color: var(--soft); }
+  .input:focus { border-color: var(--accent-2); background: rgba(155, 140, 255, 0.07); }
+  .btn-clear {
+    position: absolute; right: 6px;
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    background: none; border: none; border-radius: var(--radius-sm);
+    color: var(--muted); font-size: 17px; line-height: 1; cursor: pointer;
+  }
+  .btn-clear:hover { background: rgba(255, 255, 255, 0.08); color: var(--fg); }
+  .results {
     position: absolute; top: calc(100% + 6px); left: 0; right: 0;
-    background: #0a1128; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; overflow: hidden;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
-    backdrop-filter: blur(16px);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    z-index: 10;
   }
-  .autocomplete-item { padding: 10px 14px; cursor: pointer; transition: background 0.15s; }
-  .autocomplete-item:hover, .autocomplete-item.highlighted { background: rgba(167,139,250,0.08); }
-  .item-title { display: block; color: #fff; font-size: 0.875rem; }
-  .item-subtitle { display: block; color: rgba(255,255,255,0.4); font-size: 0.75rem; font-family: 'Space Grotesk', sans-serif; margin-top: 2px; }
+  .result { padding: 10px 14px; cursor: pointer; }
+  .result:hover, .result[aria-selected="true"] { background: rgba(155, 140, 255, 0.12); }
+  .result-title { display: block; color: var(--fg); font-size: 0.875rem; }
+  .result-meta {
+    display: block; margin-top: 2px;
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted);
+  }
+  .results-empty { padding: 14px; font-size: 0.8rem; color: var(--muted); }
 </style>
 </head>
 <body>
-  <div class="autocomplete-wrapper">
-    <div class="search-container">
-      <span class="search-icon">🔍</span>
-      <input type="text" class="glass-input" value="María" placeholder="Buscar paciente por nombre o RUT...">
-      <button class="btn-clear">×</button>
+  <div class="autocomplete">
+    <label class="ds-heading" for="q">Buscar paciente</label>
+    <div class="search-shell">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input id="q" class="input" type="text" value="María"
+             role="combobox" aria-expanded="true" aria-controls="lista"
+             aria-activedescendant="op-2" aria-autocomplete="list" autocomplete="off"
+             placeholder="Nombre, identidad o expediente">
+      <button class="btn-clear" type="button" aria-label="Limpiar búsqueda">×</button>
     </div>
-    <div class="autocomplete-results">
-      <div class="autocomplete-item">
-        <span class="item-title">María González Ruiz</span>
-        <span class="item-subtitle">12.548.963-2 — Limpieza dental</span>
+    <div class="results" id="lista" role="listbox" aria-label="Resultados">
+      <div class="result" id="op-1" role="option" aria-selected="false">
+        <span class="result-title">María González Ruiz</span>
+        <span class="result-meta">0801-1990-04567 · Limpieza dental</span>
       </div>
-      <div class="autocomplete-item highlighted">
-        <span class="item-title">María Fernández López</span>
-        <span class="item-subtitle">16.321.874-5 — Ortodoncia</span>
+      <div class="result" id="op-2" role="option" aria-selected="true">
+        <span class="result-title">María Fernanda López</span>
+        <span class="result-meta">0501-1996-01284 · Ortodoncia</span>
       </div>
-      <div class="autocomplete-item">
-        <span class="item-title">María José Castillo</span>
-        <span class="item-subtitle">19.004.512-8 — Implante</span>
+      <div class="result" id="op-3" role="option" aria-selected="false">
+        <span class="result-title">María José Castillo</span>
+        <span class="result-meta">0801-2001-11902 · Implante</span>
       </div>
     </div>
   </div>

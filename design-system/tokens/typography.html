@@ -1,23 +1,90 @@
 <!-- @dsCard group="Tokens" -->
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-HN">
 <head>
 <meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=Outfit:wght@400;600&family=DM+Sans:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tokens de tipografía | Sistema de diseño ONDIGITAL</title>
+<link rel="stylesheet" href="../tokens.css">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #050b1a; padding: 24px; }
-  .type-row { display: flex; align-items: baseline; gap: 16px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-  .type-label { color: rgba(255,255,255,0.35); font-family: 'DM Sans', sans-serif; font-size: 11px; width: 120px; flex-shrink: 0; }
-  .type-sample { color: #fff; }
+  /* La ficha mostraba Syne, Outfit, DM Sans y Space Grotesk — ninguna es de la
+     marca — y las pedía a Google Fonts, así que sin red la referencia
+     tipográfica se caía justo cuando había que consultarla. Ahora usa las tres
+     familias reales con su cadena de respaldo local. */
+  .type-row {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-label {
+    flex: 0 0 168px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  .type-label b { display: block; color: var(--accent); font-weight: 500; }
+  .type-sample { color: var(--fg); min-width: 0; }
 </style>
 </head>
 <body>
-  <div class="type-row"><div class="type-label">Syne / Hero 48px</div><div class="type-sample" style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:700">OnDigital</div></div>
-  <div class="type-row"><div class="type-label">Outfit / Heading 36px</div><div class="type-sample" style="font-family:'Outfit',sans-serif;font-size:2.25rem;font-weight:600">Sistema Dental</div></div>
-  <div class="type-row"><div class="type-label">Outfit / Title 24px</div><div class="type-sample" style="font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:600">Expediente del Paciente</div></div>
-  <div class="type-row"><div class="type-label">DM Sans / Body 16px</div><div class="type-sample" style="font-family:'DM Sans',sans-serif;font-size:1rem">Descripción general del tratamiento odontológico.</div></div>
-  <div class="type-row"><div class="type-label">DM Sans / Small 14px</div><div class="type-sample" style="font-family:'DM Sans',sans-serif;font-size:0.875rem;color:rgba(255,255,255,0.7)">Texto de tablas, botones e inputs</div></div>
-  <div class="type-row"><div class="type-label">Space Grotesk / Mono</div><div class="type-sample" style="font-family:'Space Grotesk',sans-serif;font-size:1rem">18.452.129-K — #PAC-0042</div></div>
+  <div class="ds-stack">
+    <section>
+      <h2 class="ds-heading">Display — Fraunces</h2>
+      <p class="ds-note">Titulares y cifras destacadas. Nunca en tablas, paneles ni tarjetas compactas.</p>
+      <div class="type-row">
+        <div class="type-label"><b>display/hero</b>48px · 700</div>
+        <div class="type-sample" style="font-family:var(--font-display);font-size:3rem;font-weight:700;line-height:1.05">ONDIGITAL</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label"><b>display/h1</b>36px · 600</div>
+        <div class="type-sample" style="font-family:var(--font-display);font-size:2.25rem;font-weight:600;line-height:1.15">Tu departamento de tecnología</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label"><b>display/h2</b>24px · 600</div>
+        <div class="type-sample" style="font-family:var(--font-display);font-size:1.5rem;font-weight:600">Expediente del paciente</div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="ds-heading">Cuerpo — Inter</h2>
+      <p class="ds-note">Todo el texto de interfaz: párrafos, etiquetas, botones, formularios y tablas.</p>
+      <div class="type-row">
+        <div class="type-label"><b>body/lg</b>18px · 400</div>
+        <div class="type-sample" style="font-size:1.125rem">Plataformas de negocio a la medida, bajo suscripción.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label"><b>body/base</b>16px · 400</div>
+        <div class="type-sample" style="font-size:1rem">Descripción general del tratamiento odontológico programado.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label"><b>body/sm</b>14px · 400</div>
+        <div class="type-sample" style="font-size:0.875rem;color:var(--muted)">Texto de tablas, botones e inputs.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label"><b>body/xs</b>12px · 500</div>
+        <div class="type-sample" style="font-size:0.75rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">Encabezado de columna</div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="ds-heading">Datos — JetBrains Mono</h2>
+      <p class="ds-note">
+        Identificadores, montos y fechas. La cifra alineada evita que dos RTN de
+        igual longitud se lean como distintos.
+      </p>
+      <div class="type-row">
+        <div class="type-label"><b>mono/base</b>16px · 400</div>
+        <div class="type-sample" style="font-family:var(--font-mono);font-size:1rem">0801-1990-04567 — #PAC-0042</div>
+      </div>
+      <div class="type-row">
+        <div class="type-label"><b>mono/sm</b>14px · 400</div>
+        <div class="type-sample" style="font-family:var(--font-mono);font-size:0.875rem">L 12,480.00 · ISV 15% · +504 9812-4471</div>
+      </div>
+    </section>
+  </div>
 </body>
 </html>

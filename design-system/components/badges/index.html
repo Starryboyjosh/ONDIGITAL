@@ -1,46 +1,73 @@
 <!-- @dsCard group="Components" -->
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-HN">
 <head>
 <meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Insignias de estado | Sistema de diseño ONDIGITAL</title>
+<link rel="stylesheet" href="../../tokens.css">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #050b1a; font-family: 'DM Sans', sans-serif; padding: 32px; display: flex; flex-direction: column; gap: 20px; }
-  h3 { color: rgba(255,255,255,0.35); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  /* Los colores de estado eran los de Tailwind (#34d399, #f87171, #ffb859).
+     Ahora salen de los tokens de marca, así que un cambio de paleta llega
+     también a las insignias en vez de dejarlas descolgadas. */
   .badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 10px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 11px; border-radius: var(--radius-pill);
     font-size: 0.75rem; font-weight: 500;
+    border: 1px solid currentColor;
+    white-space: nowrap;
   }
-  .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.8; }
-  .badge-success { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
-  .badge-warning { background: rgba(255,184,89,0.12); color: #ffb859; border: 1px solid rgba(255,184,89,0.2); }
-  .badge-danger  { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
-  .badge-info    { background: rgba(155,140,255,0.12); color: #9b8cff; border: 1px solid rgba(155,140,255,0.2); }
-  .badge-neutral { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.1); }
+  /* El punto es decorativo: el estado ya está escrito en el texto, así que no
+     se anuncia a lectores de pantalla. */
+  .badge::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; flex-shrink: 0;
+  }
+  .badge-success { color: var(--ok);      background: rgba(123, 196, 154, 0.12); }
+  .badge-warning { color: var(--warn);    background: rgba(224, 168, 61, 0.12); }
+  .badge-danger  { color: var(--danger);  background: rgba(232, 93, 78, 0.12); }
+  .badge-info    { color: var(--accent-2);background: rgba(155, 140, 255, 0.12); }
+  .badge-neutral { color: var(--muted);   background: rgba(255, 255, 255, 0.05); }
 </style>
 </head>
 <body>
-  <div>
-    <h3>Estados de Cita</h3>
-    <div class="row">
-      <span class="badge badge-success">Confirmada</span>
-      <span class="badge badge-warning">Pendiente</span>
-      <span class="badge badge-danger">Cancelada</span>
-      <span class="badge badge-info">En Curso</span>
-      <span class="badge badge-neutral">Completada</span>
-    </div>
-  </div>
-  <div>
-    <h3>Estados de Pago</h3>
-    <div class="row">
-      <span class="badge badge-success">Pagado</span>
-      <span class="badge badge-warning">Parcial</span>
-      <span class="badge badge-danger">Adeudado</span>
-      <span class="badge badge-neutral">Sin cargo</span>
-    </div>
+  <div class="ds-stack">
+    <section>
+      <h2 class="ds-heading">Estados de cita</h2>
+      <div class="ds-row">
+        <span class="badge badge-success">Confirmada</span>
+        <span class="badge badge-warning">Pendiente</span>
+        <span class="badge badge-danger">Cancelada</span>
+        <span class="badge badge-info">En curso</span>
+        <span class="badge badge-neutral">Completada</span>
+      </div>
+    </section>
+    <section>
+      <h2 class="ds-heading">Estados de pago</h2>
+      <div class="ds-row">
+        <span class="badge badge-success">Pagado</span>
+        <span class="badge badge-warning">Abono parcial</span>
+        <span class="badge badge-danger">Vencido</span>
+        <span class="badge badge-neutral">Sin cargo</span>
+      </div>
+    </section>
+    <section>
+      <h2 class="ds-heading">Estados de inventario</h2>
+      <div class="ds-row">
+        <span class="badge badge-success">En existencia</span>
+        <span class="badge badge-warning">Bajo mínimo</span>
+        <span class="badge badge-danger">Agotado</span>
+        <span class="badge badge-neutral">Descontinuado</span>
+      </div>
+    </section>
+    <section>
+      <h2 class="ds-heading">Uso</h2>
+      <p class="ds-note">
+        La insignia nunca es el único portador del estado: el color acompaña al
+        texto, no lo sustituye. Un usuario con daltonismo lee "Vencido" igual
+        que lee el rojo.
+      </p>
+    </section>
   </div>
 </body>
 </html>
