@@ -11,7 +11,7 @@
 ///
 /// De ahí la regla de diseño de este archivo: **la red nunca es obligatoria**.
 /// Si OSRM no contesta, la app no se cae ni se queda cargando: dibuja el trazo
-/// de punto a punto y sigue. El vendedor en Comayagüela con señal intermitente
+/// de punto a punto y sigue. El vendedor en San Pedro Sula con señal intermitente
 /// es el caso normal, no el caso de error.
 library;
 
@@ -57,7 +57,7 @@ class OsrmService {
   final Duration tiempoLimite;
 
   /// Velocidad de reserva para estimar tiempos cuando no hubo red. 22 km/h es
-  /// un promedio urbano honesto para un camión de reparto en Tegucigalpa con
+  /// un promedio urbano honesto para un camión de reparto en San Pedro Sula con
   /// tráfico y paradas, no la velocidad de crucero de la carretera.
   static const double _kmhUrbano = 22;
 

@@ -1,9 +1,9 @@
-/// El armazón de la app: una ruta, cinco pantallas, un solo repositorio.
+/// El armazón de la app: una ruta, seis pantallas, un solo repositorio.
 ///
 /// ## Por qué el estado se crea acá y no en cada pantalla
 ///
-/// [RutaRepository] es el único dueño del estado de negocio, y las cinco
-/// pantallas son vistas distintas del **mismo día de trabajo**: lo que el
+/// [RutaRepository] es el único dueño del estado de negocio, y las pantallas
+/// operativas son vistas distintas del **mismo día de trabajo**: lo que el
 /// vendedor cobra en Ruta vacía la parrilla que Bodega dibuja y mueve las
 /// cifras que Liquidación cuadra. Si cada pantalla creara su propio
 /// repositorio, la app se vería igual y estaría mintiendo: cuatro días
@@ -26,7 +26,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../data/repositories/ruta_repository.dart';
-import '../data/semilla/semilla_tegucigalpa.dart';
+import '../data/semilla/semilla_san_pedro_sula.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/palette.dart';
 import 'core/theme/tokens.dart';
@@ -41,13 +41,19 @@ import 'features/vito/views/vito_chat_view.dart';
 
 /// Una pestaña del armazón. El orden es el del día de trabajo: primero se ve
 /// la flota, después se carga, después se vende, y al final se cuadra.
+///
+/// Las etiquetas son cortas porque la barra inferior reparte el ancho en
+/// partes iguales entre las seis: en un teléfono de 360 px cada pestaña se
+/// queda con 60 px, y una palabra más larga que eso no se acorta con puntos
+/// suspensivos —se vuelve ilegible. Por eso la pantalla de identidad de marca
+/// se anuncia como "Marca" y no como "Identidad", que a 360 px salía cortada.
 enum Destino {
   torre('Torre', Icons.map_outlined, Icons.map),
   bodega('Bodega', Icons.grid_view_outlined, Icons.grid_view),
   ruta('Ruta', Icons.route_outlined, Icons.route),
   liquidacion('Cierre', Icons.calculate_outlined, Icons.calculate),
   vito('Vito', Icons.chat_bubble_outline, Icons.chat_bubble),
-  identidad('Identidad', Icons.palette_outlined, Icons.palette);
+  identidad('Marca', Icons.palette_outlined, Icons.palette);
 
   const Destino(this.etiqueta, this.icono, this.iconoActivo);
 

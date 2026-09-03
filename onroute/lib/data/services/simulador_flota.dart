@@ -31,6 +31,11 @@ import '../../domain/models/parada.dart';
 import '../../domain/models/ruta.dart';
 import 'recorrido.dart';
 
+/// Margen para dar por llegado el final del trazo. Medio metro: la geodesia
+/// acumula redondeos y exigir igualdad exacta dejaría al camión eternamente a
+/// un centímetro de la base.
+const double _metroDeGracia = 0.5;
+
 /// Estado de simulación de un camión: dónde va sobre su recorrido.
 class CamionSimulado {
   CamionSimulado({
@@ -58,7 +63,20 @@ class CamionSimulado {
   /// Segundos simulados que le faltan de atención en la parada actual.
   double esperaRestante = 0;
 
-  bool get termino => proximaParada >= distanciaParadas.length;
+  /// Ya no le queda ninguna parada por visitar. No es lo mismo que haber
+  /// terminado: todavía le falta manejar de vuelta a la base.
+  bool get paradasCompletas => proximaParada >= distanciaParadas.length;
+
+  /// Terminó de verdad: visitó todas las paradas **y** llegó al final del
+  /// trazo, que es la base. Antes bastaba con la última parada, y el camión se
+  /// quedaba clavado ahí con la barra de avance a media asta y el rótulo "De
+  /// regreso" encima de un camión que no se movía.
+  bool get termino =>
+      paradasCompletas && avance >= recorrido.largo - _metroDeGracia;
+
+  /// Volviendo a la base, pero todavía en la calle.
+  bool get regresando => paradasCompletas && !termino;
+
   bool get atendiendo => esperaRestante > 0;
 
   double get fraccionRecorrida =>
@@ -76,7 +94,7 @@ class SimuladorFlota extends ChangeNotifier {
   /// ocho horas en poco más de cinco minutos.
   double factorTiempo;
 
-  /// Velocidad de crucero urbana de un camión de reparto en Tegucigalpa.
+  /// Velocidad de crucero urbana de un camión de reparto en San Pedro Sula.
   final double velocidadKmH;
 
   /// Cuánto se queda el vendedor en cada pulpería.
@@ -157,8 +175,18 @@ class SimuladorFlota extends ChangeNotifier {
         continue;
       }
 
-      final double falta = c.distanciaParadas[c.proximaParada] - c.avance;
+      // Mientras queden paradas, la meta es la próxima. Cuando ya no quedan,
+      // la meta es el final del trazo: el regreso a la base.
+      final bool volviendo = c.paradasCompletas;
+      final double meta =
+          volviendo ? c.recorrido.largo : c.distanciaParadas[c.proximaParada];
+      final double falta = meta - c.avance;
+
       if (falta <= 0) {
+        if (volviendo) {
+          c.avance = meta;
+          break;
+        }
         // El trazo ya pasó por esta parada: se llega sin rodar más.
         _llegar(c);
         continue;
@@ -169,9 +197,9 @@ class SimuladorFlota extends ChangeNotifier {
         c.avance += restante * metrosPorSegundo;
         restante = 0;
       } else {
-        c.avance = c.distanciaParadas[c.proximaParada];
+        c.avance = meta;
         restante -= segundosHastaMeta;
-        _llegar(c);
+        if (!volviendo) _llegar(c);
       }
     }
 
@@ -200,6 +228,8 @@ class SimuladorFlota extends ChangeNotifier {
       ),
     );
     if (c.termino) {
+      c.camion = c.camion.conEstado(EstadoCamion.enBase);
+    } else if (c.regresando) {
       c.camion = c.camion.conEstado(EstadoCamion.regresando);
     } else if (detenido) {
       c.camion = c.camion.conEstado(EstadoCamion.enParada);

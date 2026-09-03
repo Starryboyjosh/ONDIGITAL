@@ -6,7 +6,7 @@
 /// físicas distintas**, no a una preferencia:
 ///
 /// - **Calle** (claro) — el vendedor, a las 11 a.m., bajo sol directo de
-///   Comayagüela, el teléfono al brillo máximo y una mano ocupada. Pide
+///   San Pedro Sula, el teléfono al brillo máximo y una mano ocupada. Pide
 ///   contraste alto y superficies francas, no sutilezas.
 /// - **Torre** (oscuro) — el dueño o despachador, frente a una pantalla grande,
 ///   viendo la flota moverse sobre el mapa. Aquí el fondo se retira para que el

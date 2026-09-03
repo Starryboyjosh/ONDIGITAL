@@ -8,7 +8,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:onroute/data/repositories/ruta_repository.dart';
-import 'package:onroute/data/semilla/semilla_tegucigalpa.dart';
+import 'package:onroute/data/semilla/semilla_san_pedro_sula.dart';
 import 'package:onroute/domain/models/dinero.dart';
 import 'package:onroute/ui/core/theme/app_theme.dart';
 import 'package:onroute/ui/features/liquidacion/views/liquidacion_view.dart';
@@ -79,11 +79,17 @@ void main() {
 
   testWidgets('contar el sobre corto muestra el hallazgo de caja corta de Vito',
       (WidgetTester tester) async {
-    final RutaRepository repo = RutaRepository(rutaDelDia(variante: 0));
+    // Variante 1 y no 0: con la ruta recién cargada el efectivo esperado es
+    // cero, y "L 100 menos que cero" es un sobre negativo, que el repositorio
+    // rechaza con razón. El caso que esta prueba quiere es el real: una ruta
+    // con cobros de verdad y un sobre que llega corto.
+    final RutaRepository repo = RutaRepository(rutaDelDia(variante: 1));
     // Se cuenta la parrilla completa para que la única brecha activa sea la
     // de caja, y se calcula cuánto debería traer el sobre.
     repo.aceptarConteoTeorico();
     final Dinero esperado = repo.liquidacion.efectivoEsperado;
+    expect(esperado > const Dinero(10000), isTrue,
+        reason: 'el sobre corto tiene que seguir siendo un monto positivo');
     final Dinero corto = esperado - const Dinero(10000); // L 100 de menos.
 
     await _fijarTamano(tester, const Size(390, 2200));

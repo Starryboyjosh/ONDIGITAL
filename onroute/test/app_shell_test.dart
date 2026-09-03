@@ -1,10 +1,14 @@
-/// El armazón tiene una sola promesa que vale la pena blindar: las cuatro
-/// pantallas miran el MISMO día. Si Bodega y Ruta terminaran con repositorios
+/// El armazón tiene una sola promesa que vale la pena blindar: las pantallas
+/// operativas miran el MISMO día. Si Bodega y Ruta terminaran con repositorios
 /// distintos, todo se vería bien y la app estaría mintiendo —cobrar en una
 /// pantalla no vaciaría la parrilla de la otra.
 library;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:onroute/ui/app_shell.dart';
 import 'package:onroute/ui/features/bodega/views/bodega_view.dart';
@@ -12,6 +16,7 @@ import 'package:onroute/ui/features/identidad/views/identidad_view.dart';
 import 'package:onroute/ui/features/liquidacion/views/liquidacion_view.dart';
 import 'package:onroute/ui/features/ruta/views/ruta_view.dart';
 import 'package:onroute/ui/features/torre/views/torre_view.dart';
+import 'package:onroute/ui/features/vito/views/vito_chat_view.dart';
 
 Widget _app({required Size tam}) => MediaQuery(
       data: MediaQueryData(size: tam, disableAnimations: true),
@@ -41,7 +46,7 @@ Future<void> _desmontar(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('en teléfono la navegación va abajo y llega a las cinco',
+  testWidgets('en teléfono la navegación va abajo y llega a las seis',
       (WidgetTester tester) async {
     await _montar(tester, const Size(390, 844));
 
@@ -53,7 +58,8 @@ void main() {
       ('Bodega', BodegaView),
       ('Ruta', RutaView),
       ('Cierre', LiquidacionView),
-      ('Identidad', IdentidadView),
+      ('Vito', VitoChatView),
+      ('Marca', IdentidadView),
       ('Torre', TorreView),
     ]) {
       // Por el nombre dentro de la barra, no en toda la pantalla: la de
@@ -117,5 +123,38 @@ void main() {
     expect(tester.takeException(), isNull);
 
     await _desmontar(tester);
+  });
+
+  /// La barra inferior reparte el ancho en partes iguales entre las seis
+  /// pestañas. Si una etiqueta no cabe, Flutter no se queja: la corta con
+  /// puntos suspensivos y la app se ve inacabada sin que nada falle. Esta
+  /// prueba mide con la fuente real —`flutter_test` usa por defecto una
+  /// fuente de ancho fijo que no se parece a Inter— y falla si alguna
+  /// etiqueta necesita más espacio del que tiene.
+  testWidgets('ninguna etiqueta de la barra sale cortada en teléfono',
+      (WidgetTester tester) async {
+    final FontLoader inter = FontLoader('Inter')
+      ..addFont(Future<ByteData>.value(
+        File('assets/fonts/Inter.ttf').readAsBytesSync().buffer.asByteData(),
+      ));
+    await inter.load();
+
+    // 320 = iPhone SE de primera generación; 360 = el Android barato más
+    // común en Honduras; 390 = iPhone moderno.
+    for (final double ancho in <double>[320, 360, 390]) {
+      await _montar(tester, Size(ancho, 900));
+
+      for (final Destino d in Destino.values) {
+        final RenderParagraph etiqueta =
+            tester.renderObject<RenderParagraph>(_pestana(d.etiqueta));
+        expect(
+          etiqueta.getMaxIntrinsicWidth(double.infinity),
+          lessThanOrEqualTo(etiqueta.size.width + 0.5),
+          reason: '"${d.etiqueta}" no cabe en su pestaña a $ancho px de ancho',
+        );
+      }
+
+      await _desmontar(tester);
+    }
   });
 }

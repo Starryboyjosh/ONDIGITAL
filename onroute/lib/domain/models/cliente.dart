@@ -4,7 +4,7 @@ library;
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
-/// Los cuatro tipos de cliente que ve un vendedor de ruta en Tegucigalpa, en
+/// Los cuatro tipos de cliente que ve un vendedor de ruta en San Pedro Sula, en
 /// orden de tamaño. Importa para la app porque el tamaño predice el ticket y el
 /// riesgo de crédito: a la pulpería se le fía, a la distribuidora no hace falta.
 enum TipoCliente {

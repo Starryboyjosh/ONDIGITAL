@@ -49,8 +49,8 @@ Cliente cliente(String id) => Cliente(
       id: id,
       nombre: 'Pulpería $id',
       tipo: TipoCliente.pulperia,
-      direccion: 'Comayagüela',
-      posicion: const LatLng(14.09, -87.22),
+      direccion: 'San Pedro Sula',
+      posicion: const LatLng(15.50, -88.03),
     );
 
 Bodega bodega({
@@ -90,9 +90,9 @@ Bodega bodega({
 Ruta ruta({required List<Parada> paradas, required Bodega carga}) => Ruta(
       id: 'R-1',
       camionId: 'CAM-2',
-      nombre: 'Comayagüela Sur',
+      nombre: 'Centro',
       fecha: DateTime(2026, 8, 28),
-      base: const LatLng(14.09, -87.22),
+      base: const LatLng(15.50, -88.03),
       horaSalida: DateTime(2026, 8, 28, 7, 30),
       paradas: paradas,
       bodega: carga,

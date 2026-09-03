@@ -19,6 +19,7 @@ import 'package:flutter/services.dart';
 import '../../../../data/repositories/ruta_repository.dart';
 import '../../../../domain/logic/cuadre.dart';
 import '../../../../domain/models/bodega.dart';
+import '../../../../domain/models/cliente.dart';
 import '../../../../domain/models/dinero.dart';
 import '../../../../domain/models/parada.dart';
 import '../../../../domain/models/producto.dart';
@@ -83,10 +84,8 @@ class _HojaCobroState extends State<HojaCobro> {
   Dinero get _credito => _leer(_creditoCtrl);
 
   Dinero _leer(TextEditingController ctrl) {
-    final String texto = ctrl.text.trim();
-    if (texto.isEmpty) return Dinero.cero;
-    final num? valor = num.tryParse(texto.replaceAll(',', '.'));
-    if (valor == null) return Dinero.cero;
+    final num? valor = Formatos.monto(ctrl.text);
+    if (valor == null || valor < 0) return Dinero.cero;
     return Dinero.desdeDecimal(valor);
   }
 
@@ -173,6 +172,79 @@ class _HojaCobroState extends State<HojaCobro> {
     );
   }
 
+  /// Quién es el cliente, con los datos que el vendedor usa parado en la
+  /// puerta.
+  ///
+  /// La referencia va acá y no escondida: en Honduras la dirección formal rara
+  /// vez alcanza para llegar —"del puente peatonal, dos cuadras al sur" sí—, y
+  /// el modelo [Cliente] la guarda justo por eso. El RTN aparece solo cuando
+  /// el negocio factura, que es cuando el vendedor lo necesita para llenar la
+  /// factura ahí mismo; en la mayoría de pulperías no existe y mostrar un
+  /// campo vacío sería ruido.
+  Widget _encabezadoCliente(BuildContext context, Parada p) {
+    final OnRouteColors c = context.colors;
+    final Cliente cliente = p.cliente;
+    final TextStyle? menor =
+        Theme.of(context).textTheme.bodySmall?.copyWith(color: c.ink2);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(cliente.nombre, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: Space.xs),
+        Text('${cliente.tipo.etiqueta} · ${cliente.direccion}', style: menor),
+        if (cliente.referencia != null) ...<Widget>[
+          const SizedBox(height: Space.xs),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Icon(Icons.place_outlined, size: 14, color: c.ink3),
+              const SizedBox(width: Space.xs),
+              Expanded(child: Text(cliente.referencia!, style: menor)),
+            ],
+          ),
+        ],
+        if (cliente.telefono != null || cliente.facturaConRtn) ...<Widget>[
+          const SizedBox(height: Space.sm),
+          Wrap(
+            spacing: Space.sm,
+            runSpacing: Space.xs,
+            children: <Widget>[
+              if (cliente.telefono != null)
+                _datoCliente(context, Icons.phone_outlined, cliente.telefono!),
+              if (cliente.facturaConRtn)
+                _datoCliente(context, Icons.receipt_long_outlined,
+                    'RTN ${cliente.rtn}'),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _datoCliente(BuildContext context, IconData icono, String texto) {
+    final OnRouteColors c = context.colors;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: Space.sm,
+        vertical: Space.xs,
+      ),
+      decoration: BoxDecoration(
+        color: c.bgSunk,
+        borderRadius: Radii.pill,
+        border: Border.all(color: c.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(icono, size: 13, color: c.ink3),
+          const SizedBox(width: Space.xs),
+          Text(texto, style: AppText.dataSm.copyWith(color: c.ink2)),
+        ],
+      ),
+    );
+  }
+
   Widget _filaMonto(BuildContext context, String etiqueta, Dinero monto, {Color? color}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Space.xs),
@@ -195,11 +267,7 @@ class _HojaCobroState extends State<HojaCobro> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(p.cliente.nombre, style: Theme.of(context).textTheme.titleLarge),
-          Text(
-            p.cliente.direccion,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.ink2),
-          ),
+          _encabezadoCliente(context, p),
           const SizedBox(height: Space.xl),
 
           Text('Pedido', style: Theme.of(context).textTheme.labelMedium),
@@ -429,6 +497,9 @@ class _HojaCobroState extends State<HojaCobro> {
         return 'Esta parada ya no está en la ruta de hoy.';
       case FalloEntrega.montoNegativo:
         return 'Alguno de los montos quedó en negativo. Revisa el cobro.';
+      case FalloEntrega.bultosInvalidos:
+        return 'Hay una cantidad inválida en el pedido. Revisa los bultos '
+            'antes de registrar.';
     }
   }
 

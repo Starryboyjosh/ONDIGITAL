@@ -29,6 +29,12 @@ enum FalloEntrega {
   paradaYaCerrada,
   sinExistencia,
   montoNegativo,
+
+  /// Se pidió entregar cero o menos bultos de algún producto. Un bulto
+  /// negativo pasaría la prueba de existencia sin problema —"hay 12, se piden
+  /// -3"— y entraría tal cual a `entregado`, inflando el valor de lo entregado
+  /// y abriendo una brecha de venta que nadie causó.
+  bultosInvalidos,
 }
 
 /// Resultado de intentar registrar una entrega.
@@ -86,6 +92,21 @@ class RutaRepository extends ChangeNotifier {
     }
     if (efectivo.esNegativo || transferencia.esNegativo || credito.esNegativo) {
       return const ResultadoEntrega.error(FalloEntrega.montoNegativo);
+    }
+    for (final MapEntry<String, int> e in items.entries) {
+      if (e.value <= 0) {
+        return ResultadoEntrega.error(
+          FalloEntrega.bultosInvalidos,
+          skuFaltante: e.key,
+          bultosFaltantes: e.value,
+        );
+      }
+      if (!_ruta.bodega.catalogo.containsKey(e.key)) {
+        return ResultadoEntrega.error(
+          FalloEntrega.bultosInvalidos,
+          skuFaltante: e.key,
+        );
+      }
     }
 
     // Primero se verifica que alcance TODO, y solo después se toca nada. Una
@@ -190,9 +211,14 @@ class RutaRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  void entregarEfectivo(Dinero contado) {
+  /// Registra lo que caja contó en el sobre. Devuelve `false` y no cambia nada
+  /// si el monto es negativo: un sobre con menos de cero lempiras no existe, y
+  /// aceptarlo fabricaría una brecha de caja que nadie causó.
+  bool entregarEfectivo(Dinero contado) {
+    if (contado.esNegativo) return false;
     _efectivoEntregado = contado;
     notifyListeners();
+    return true;
   }
 
   /// Liquidación con lo que se sepa hasta ahora. Si caja todavía no contó el

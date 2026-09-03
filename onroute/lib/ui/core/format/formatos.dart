@@ -19,6 +19,22 @@ abstract final class Formatos {
   /// Español de Latinoamérica: coma de millar, punto decimal.
   static const String locale = 'es_419';
 
+  /// Lee un monto tecleado por una persona, en la misma convención en que
+  /// esta clase los imprime: coma de millar, punto decimal.
+  ///
+  /// Importa que sea el inverso exacto de [lempiras]: la pantalla de cierre
+  /// muestra "L 6,847.50" y lo primero que hace quien cuenta el sobre es
+  /// teclear ese mismo número. Con la lectura ingenua (`replaceAll(',', '.')`)
+  /// "6,847.50" quedaba en "6.847.50", que no parsea, y el botón no hacía
+  /// nada. Devuelve `null` cuando el texto no es un número: quien llame tiene
+  /// que **decirlo**, no tragárselo.
+  static num? monto(String crudo) {
+    final String limpio =
+        crudo.trim().replaceAll(',', '').replaceAll('\u00A0', '').replaceAll(' ', '');
+    if (limpio.isEmpty) return null;
+    return num.tryParse(limpio);
+  }
+
   static final NumberFormat _conCentavos =
       NumberFormat.currency(locale: locale, symbol: 'L ', decimalDigits: 2);
   static final NumberFormat _sinCentavos =

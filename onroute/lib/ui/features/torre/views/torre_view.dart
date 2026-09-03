@@ -1,4 +1,4 @@
-/// La torre: la flota sobre el mapa real de Tegucigalpa.
+/// La torre: la flota sobre el mapa real de San Pedro Sula.
 ///
 /// ## Por qué el mapa es de verdad y por qué eso obliga a cosas
 ///
@@ -153,7 +153,7 @@ class _TorreViewState extends State<TorreView>
 
   Widget _mapa(OnRouteColors c) => FlutterMap(
         options: MapOptions(
-          initialCenter: _centro(),
+          initialCenter: _c.centro,
           initialZoom: 12.6,
           // La torre se mira, no se explora: sin rotación, que solo desorienta
           // a quien está buscando un camión.
@@ -183,9 +183,6 @@ class _TorreViewState extends State<TorreView>
           MarkerLayer(markers: <Marker>[..._paradas(c), ..._camiones()]),
         ],
       );
-
-  LatLng _centro() =>
-      _c.rutas.isEmpty ? const LatLng(14.0995, -87.2190) : _c.rutas.first.base;
 
   /// Las paradas se dibujan chiquitas y sin etiqueta: son el escenario. Lo que
   /// se sigue es el camión.
@@ -331,10 +328,12 @@ class _FichaCamion extends StatelessWidget {
     final Ruta r = simulado.ruta;
 
     final String estado = simulado.termino
-        ? 'Terminó la ruta'
-        : simulado.atendiendo
-            ? 'Atendiendo parada ${simulado.proximaParada} de ${r.total}'
-            : 'Camino a la parada ${simulado.proximaParada + 1} de ${r.total}';
+        ? 'Terminó la ruta, ya en base'
+        : simulado.regresando
+            ? 'De regreso a la base'
+            : simulado.atendiendo
+                ? 'Atendiendo parada ${simulado.proximaParada} de ${r.total}'
+                : 'Camino a la parada ${simulado.proximaParada + 1} de ${r.total}';
 
     return GlassPanel(
       padding: EdgeInsets.zero,

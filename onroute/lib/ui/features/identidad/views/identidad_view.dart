@@ -1,8 +1,12 @@
-/// Pantalla de identidad visual: el entregable revisable de la Fase 1.
+/// Pantalla de identidad visual: el sistema de diseño puesto a la vista.
 ///
-/// No es una pantalla de producto; es el sistema puesto a la vista para que se
-/// pueda juzgar antes de construir encima. Cuando la Fase 2 esté completa esta
-/// pantalla se queda como referencia viva del sistema, no se borra.
+/// No es una pantalla operativa; es la referencia viva del sistema —color,
+/// tipografía, componentes, movimiento— para poder juzgarlo y mantenerlo sin
+/// abrir el código. Se queda en el producto a propósito.
+///
+/// El texto que sale acá habla del producto, nunca del plan de trabajo
+/// interno: un "Fase 1" en pantalla le cuenta al cliente en qué sprint
+/// andamos, que no es asunto suyo.
 library;
 
 import 'dart:math' as math;
@@ -177,8 +181,8 @@ class _Cabecera extends StatelessWidget {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
             child: Text(
-              'Fase 1. Los dos temas no son una preferencia: son dos escenas. '
-              'Calle es el vendedor bajo el sol de Comayagüela; Torre es quien '
+              'Los dos temas no son una preferencia: son dos escenas. '
+              'Calle es el vendedor bajo el sol de San Pedro Sula; Torre es quien '
               'mira la flota moverse en una pantalla grande.',
               style: AppText.body.copyWith(color: c.ink2),
             ),
@@ -372,7 +376,7 @@ class _SeccionTipografia extends StatelessWidget {
           ),
           const SizedBox(height: Space.sm),
           Text(
-            'Ruta Comayagüela Sur · 14 paradas',
+            'Ruta Centro · 14 paradas',
             style: AppText.body.copyWith(color: c.ink2),
           ),
           const SizedBox(height: Space.lg),
@@ -383,7 +387,7 @@ class _SeccionTipografia extends StatelessWidget {
           for (final (String etiqueta, double monto) in <(String, double)>[
             ('Pulpería La Esperanza', 1180),
             ('Distribuidora El Puente', 11840.5),
-            ('Súper Mini Kennedy', 940.25),
+            ('Súper Mini El Trébol', 940.25),
           ])
             Padding(
               padding: const EdgeInsets.only(bottom: Space.sm),
@@ -509,10 +513,10 @@ class _SeccionRoute extends StatelessWidget {
 
   static const List<(String, String, double)> _paradas =
       <(String, String, double)>[
-    ('Pulpería La Esperanza', 'Col. Kennedy, bloque 4', 1180),
-    ('Súper Mini Kennedy', 'Bulevar Kennedy', 940.25),
-    ('Distribuidora El Puente', 'Comayagüela, 6a avenida', 11840.5),
-    ('Bodega San Miguel', 'Mercado Zonal Belén', 2340),
+    ('Pulpería La Esperanza', 'Barrio El Centro, cerca del Parque Central', 1180),
+    ('Súper Mini El Trébol', '3a Avenida NO esquina 6 Calle NO', 940.25),
+    ('Distribuidora El Puente', 'Barrio Río de Piedras', 11840.5),
+    ('Bodega San Miguel', 'Mercado Guamilito', 2340),
   ];
 
   @override
@@ -623,14 +627,14 @@ class _SeccionCristal extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          'Camión 2 · Marvin Padilla',
+                          'El Rojo · Marvin Aguilar',
                           style: AppText.titleSm.copyWith(color: c.ink),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: Space.xs),
                         Text(
-                          'Bulevar Kennedy, en movimiento',
+                          'Barrio Río de Piedras, en movimiento',
                           style: AppText.bodySm.copyWith(color: c.ink2),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

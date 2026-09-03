@@ -379,6 +379,18 @@ class _FilaParada extends StatelessWidget {
                         style: AppText.data,
                         color: c.ink2,
                       ),
+                      // El fiado va en su propia línea y no sumado al cobrado:
+                      // la pastilla dice "Con fiado" pero no cuánto, y sin
+                      // esta cifra la fila se lee como si el cliente hubiera
+                      // pagado todo. Es la misma regla de los tres montos de
+                      // la hoja de cobro, aplicada a la lista.
+                      if (!parada.credito.esCero) ...<Widget>[
+                        const SizedBox(height: 2),
+                        Text(
+                          'fiado ${Formatos.lempirasCorto(parada.credito.enLempiras)}',
+                          style: AppText.dataSm.copyWith(color: c.pending),
+                        ),
+                      ],
                     ],
                   ],
                 ),

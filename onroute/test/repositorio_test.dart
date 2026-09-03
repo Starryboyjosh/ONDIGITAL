@@ -5,7 +5,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:onroute/data/repositories/ruta_repository.dart';
-import 'package:onroute/data/semilla/semilla_tegucigalpa.dart';
+import 'package:onroute/data/semilla/semilla_san_pedro_sula.dart';
 import 'package:onroute/domain/logic/cuadre.dart';
 import 'package:onroute/domain/logic/vito_analista.dart';
 import 'package:onroute/domain/models/bodega.dart';
@@ -108,6 +108,64 @@ void main() {
     expect(r.fallo, FalloEntrega.sinExistencia);
     expect(r.bultosFaltantes, 5);
     expect(r.skuFaltante, t.sku);
+  });
+
+  test('un bulto negativo se rechaza y no toca la parrilla', () {
+    // La regresión: un negativo pasaba la prueba de existencia sin problema
+    // ("hay 12, se piden -3"), `despachar` no hacía nada por ser <= 0, y el
+    // -3 entraba tal cual a `entregado`. El valor de lo entregado bajaba, y el
+    // cuadre abría una brecha de venta que nadie causó.
+    final ({String paradaId, String sku}) t = primerPendiente(repo);
+    final Map<String, int> antes = <String, int>{
+      for (final Casilla x in repo.ruta.bodega.casillas) x.id: x.enCamion,
+    };
+
+    final ResultadoEntrega r = repo.registrarEntrega(
+      paradaId: t.paradaId,
+      items: <String, int>{t.sku: -3},
+    );
+
+    expect(r.exito, isFalse);
+    expect(r.fallo, FalloEntrega.bultosInvalidos);
+    expect(r.skuFaltante, t.sku);
+    expect(repo.ruta.porId(t.paradaId)!.estado, EstadoVisita.pendiente);
+    for (final Casilla x in repo.ruta.bodega.casillas) {
+      expect(x.enCamion, antes[x.id], reason: 'casilla ${x.id} se movió');
+    }
+    expect(repo.liquidacion.brechaVenta, Dinero.cero);
+  });
+
+  test('entregar cero bultos de un producto también se rechaza', () {
+    final ({String paradaId, String sku}) t = primerPendiente(repo);
+    final ResultadoEntrega r = repo.registrarEntrega(
+      paradaId: t.paradaId,
+      items: <String, int>{t.sku: 0},
+    );
+
+    expect(r.exito, isFalse);
+    expect(r.fallo, FalloEntrega.bultosInvalidos);
+  });
+
+  test('un SKU que no va en el camión se rechaza en vez de fallar después', () {
+    final ({String paradaId, String sku}) t = primerPendiente(repo);
+    final ResultadoEntrega r = repo.registrarEntrega(
+      paradaId: t.paradaId,
+      items: <String, int>{'NO-EXISTE-001': 1},
+    );
+
+    expect(r.exito, isFalse);
+    expect(r.fallo, FalloEntrega.bultosInvalidos);
+    expect(repo.ruta.porId(t.paradaId)!.estado, EstadoVisita.pendiente);
+  });
+
+  test('un sobre negativo no se acepta ni fabrica una brecha de caja', () {
+    repo.aceptarConteoTeorico();
+    final bool ok = repo.entregarEfectivo(Dinero.desdeDecimal(-500));
+
+    expect(ok, isFalse);
+    expect(repo.efectivoEntregado, isNull,
+        reason: 'no contar es distinto de contar un número imposible');
+    expect(repo.listaParaCerrar, isFalse);
   });
 
   test('una entrega rechazada no deja la parrilla a medio vaciar', () {

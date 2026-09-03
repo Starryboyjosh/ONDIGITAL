@@ -10,7 +10,8 @@
 /// Va etiquetada como `captura` y excluida de la corrida normal (ver
 /// `dart_test.yaml`): rasterizar cuatro pantallas grandes tarda minutos y esto
 /// es una herramienta de revisión visual, no una prueba que pueda fallar.
-/// Para correrla a propósito: `flutter test --tags captura`.
+/// Para correrla a propósito: `flutter test test/captura_test.dart --run-skipped`.
+/// Ojo: `--tags captura` **no** basta —el `skip:` de `dart_test.yaml` manda.
 @Tags(<String>['captura'])
 library;
 
@@ -23,7 +24,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:onroute/ui/core/theme/app_theme.dart';
 import 'package:onroute/data/repositories/ruta_repository.dart';
-import 'package:onroute/data/semilla/semilla_tegucigalpa.dart';
+import 'package:onroute/data/semilla/semilla_san_pedro_sula.dart';
 import 'package:onroute/domain/models/bodega.dart';
 import 'package:onroute/domain/models/dinero.dart';
 import 'package:onroute/ui/features/bodega/views/bodega_view.dart';

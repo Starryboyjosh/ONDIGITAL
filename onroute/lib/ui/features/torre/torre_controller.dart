@@ -4,7 +4,7 @@
 ///
 /// La torre pide a OSRM el trazo real de calles, y esa llamada puede fallar:
 /// el servidor público no tiene SLA, y la oficina de una micro empresa en
-/// Tegucigalpa no siempre tiene internet estable. Si la app dependiera de esa
+/// San Pedro Sula no siempre tiene internet estable. Si la app dependiera de esa
 /// respuesta, un lunes sin red sería un lunes sin operación.
 ///
 /// Por eso [preparar] nunca lanza: `OsrmService` ya cae a línea recta por su
@@ -16,7 +16,7 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../../../data/semilla/semilla_tegucigalpa.dart';
+import '../../../data/semilla/semilla_san_pedro_sula.dart';
 import '../../../data/services/osrm_service.dart';
 import '../../../data/services/simulador_flota.dart';
 import '../../../domain/models/parada.dart';
@@ -36,17 +36,29 @@ class TorreController extends ChangeNotifier {
   bool _listo = false;
   bool get listo => _listo;
 
+  /// Se marca en [dispose]. `preparar` puede tardar varios segundos esperando a
+  /// OSRM, y en ese rato la pantalla se puede cerrar: sin esta bandera, el
+  /// `notifyListeners` de la respuesta tardía cae sobre un `ChangeNotifier` ya
+  /// desechado y tumba la app con un error de framework.
+  bool _desechado = false;
+
   /// Cuántas de las rutas se dibujan sobre calle real. Menos que [rutas.length]
   /// significa que hubo que estimar, y la pantalla lo dice.
   int trazosReales = 0;
 
   String? camionSeleccionado;
 
-  Future<void> preparar() async {
-    if (_listo) return;
+  /// Dónde abre el mapa: sobre la base de operaciones mientras no haya rutas
+  /// armadas, y sobre la base de la primera ruta apenas la haya.
+  LatLng get centro => rutas.isEmpty ? baseOperaciones : rutas.first.base;
 
-    for (int i = 0; i < camionesFlota.length; i++) {
-      final Ruta ruta = rutaDelDia(variante: i);
+  Future<void> preparar() async {
+    if (_listo || _desechado) return;
+
+    final List<Ruta> delDia = rutasDeLaFlota();
+
+    for (int i = 0; i < camionesFlota.length && i < delDia.length; i++) {
+      final Ruta ruta = delDia[i];
       // Base → cada parada en orden → base. El regreso importa: el camión que
       // ya entregó todo sigue existiendo y sigue en el mapa hasta que llega.
       final List<LatLng> paradas = <LatLng>[
@@ -56,6 +68,7 @@ class TorreController extends ChangeNotifier {
       ];
 
       final TrazoRuta trazo = await _osrm.trazar(paradas);
+      if (_desechado) return;
       if (trazo.esReal) trazosReales++;
 
       rutas.add(ruta);
@@ -98,8 +111,13 @@ class TorreController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _desechado = true;
     simulador.pausar();
     simulador.dispose();
+    // El cliente HTTP del ruteador es nuestro mientras viva la torre. Sin este
+    // cierre queda una conexión abierta por cada vez que se entra a la
+    // pantalla.
+    _osrm.cerrar();
     super.dispose();
   }
 }

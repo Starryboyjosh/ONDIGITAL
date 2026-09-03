@@ -1,4 +1,11 @@
 /// La ruta del día: un camión, una parrilla cargada y una lista de paradas.
+///
+/// La geometría de calle **no** vive aquí. La ruta es un hecho de negocio —a
+/// quién se visita, con qué carga, qué se cobró— y sobrevive sin red; el trazo
+/// es un dibujo que depende del ruteador y puede ser real o estimado. Quien lo
+/// pide (`TorreController`) lo guarda por su cuenta junto con la bandera que
+/// dice de cuál de los dos se trata, para que ninguna pantalla pueda hacer
+/// pasar una línea recta por una ruta de calle.
 library;
 
 import 'package:latlong2/latlong.dart';
@@ -19,13 +26,12 @@ final class Ruta {
     required this.horaSalida,
     required this.paradas,
     required this.bodega,
-    this.trazo = const <LatLng>[],
   });
 
   final String id;
   final String camionId;
 
-  /// Como la nombra la gente: "Comayagüela Sur", "Anillo Periférico".
+  /// Como la nombra la gente: "Centro", "Rivera Hernández".
   final String nombre;
 
   final DateTime fecha;
@@ -36,12 +42,6 @@ final class Ruta {
 
   final List<Parada> paradas;
   final Bodega bodega;
-
-  /// Geometría real de calle, de OSRM. Vacía si no hubo red: la app sigue
-  /// funcionando, solo que el trazo se dibuja de punto a punto.
-  final List<LatLng> trazo;
-
-  bool get tieneTrazoReal => trazo.length > paradas.length;
 
   int get total => paradas.length;
 
@@ -110,7 +110,6 @@ final class Ruta {
   Ruta copyWith({
     List<Parada>? paradas,
     Bodega? bodega,
-    List<LatLng>? trazo,
   }) =>
       Ruta(
         id: id,
@@ -121,7 +120,6 @@ final class Ruta {
         horaSalida: horaSalida,
         paradas: paradas ?? this.paradas,
         bodega: bodega ?? this.bodega,
-        trazo: trazo ?? this.trazo,
       );
 
   @override

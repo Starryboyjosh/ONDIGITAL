@@ -150,5 +150,20 @@ void main() {
       expect(Formatos.distancia(380), '380 m');
       expect(Formatos.distancia(4200), '4.2 km');
     });
+
+    test('leer un monto es el inverso exacto de imprimirlo', () {
+      // Lo primero que hace quien cuenta el sobre es teclear la cifra que la
+      // pantalla le está mostrando. Si la lectura no acepta la coma de millar,
+      // el botón no hace nada y nadie entiende por qué.
+      expect(Formatos.monto(Formatos.lempiras(6847.5).substring(2)), 6847.5);
+      expect(Formatos.monto('6,847.50'), 6847.5);
+      expect(Formatos.monto('6847.50'), 6847.5);
+      expect(Formatos.monto(' 1,234 '), 1234);
+      expect(Formatos.monto('-500'), -500);
+      expect(Formatos.monto(''), isNull);
+      expect(Formatos.monto('  '), isNull);
+      expect(Formatos.monto('mil quinientos'), isNull);
+      expect(Formatos.monto('1.2.3'), isNull);
+    });
   });
 }

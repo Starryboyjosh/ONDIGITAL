@@ -18,6 +18,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../data/repositories/ruta_repository.dart';
 import '../../../../domain/logic/cuadre.dart';
@@ -69,14 +70,37 @@ class _LiquidacionViewState extends State<LiquidacionView> {
     super.dispose();
   }
 
+  /// Qué salió mal con lo que se tecleó en el sobre. `null` mientras no haya
+  /// nada que contestar.
+  String? _errorSobre;
+
   void _alCambiar() => setState(() {});
 
+  /// Cuenta el sobre. Igual que en `hoja_cobro.dart`: todos los fallos se
+  /// contestan. Un botón "Entregar" que no hace nada al tocarlo deja a quien
+  /// cierra sin saber si el sobre quedó registrado, y esa duda es exactamente
+  /// lo que esta pantalla existe para eliminar.
   void _contarSobre() {
-    final String texto = _sobreCtrl.text.trim();
-    if (texto.isEmpty) return;
-    final num? valor = num.tryParse(texto.replaceAll(',', '.'));
-    if (valor == null) return;
-    _repo.entregarEfectivo(Dinero.desdeDecimal(valor));
+    final num? valor = Formatos.monto(_sobreCtrl.text);
+    if (valor == null) {
+      setState(
+        () => _errorSobre = _sobreCtrl.text.trim().isEmpty
+            ? 'Escribe cuánto trae el sobre antes de entregarlo.'
+            : 'No se entiende ese monto. Escribe solo la cifra, '
+                  'por ejemplo 6,847.50.',
+      );
+      return;
+    }
+
+    if (!_repo.entregarEfectivo(Dinero.desdeDecimal(valor))) {
+      setState(
+        () => _errorSobre =
+            'El sobre no puede traer menos de cero lempiras. Cuenta otra vez.',
+      );
+      return;
+    }
+
+    setState(() => _errorSobre = null);
     if (_repo.listaParaCerrar) widget.alCerrar?.call();
   }
 
@@ -91,6 +115,7 @@ class _LiquidacionViewState extends State<LiquidacionView> {
       sobreCtrl: _sobreCtrl,
       efectivoEntregado: _repo.efectivoEntregado,
       onEntregarSobre: _contarSobre,
+      errorSobre: _errorSobre,
     );
 
     final Widget vito = VitoPanel(
@@ -151,12 +176,14 @@ class _Cuadre extends StatelessWidget {
     required this.sobreCtrl,
     required this.efectivoEntregado,
     required this.onEntregarSobre,
+    required this.errorSobre,
   });
 
   final Liquidacion liquidacion;
   final TextEditingController sobreCtrl;
   final Dinero? efectivoEntregado;
   final VoidCallback onEntregarSobre;
+  final String? errorSobre;
 
   @override
   Widget build(BuildContext context) {
@@ -168,6 +195,7 @@ class _Cuadre extends StatelessWidget {
         _Brechas(liquidacion: liquidacion),
         const SizedBox(height: Space.lg),
         _HojaSobre(
+          error: errorSobre,
           ctrl: sobreCtrl,
           efectivoEntregado: efectivoEntregado,
           onEntregar: onEntregarSobre,
@@ -394,11 +422,13 @@ class _HojaSobre extends StatelessWidget {
     required this.ctrl,
     required this.efectivoEntregado,
     required this.onEntregar,
+    required this.error,
   });
 
   final TextEditingController ctrl;
   final Dinero? efectivoEntregado;
   final VoidCallback onEntregar;
+  final String? error;
 
   @override
   Widget build(BuildContext context) {
@@ -431,6 +461,9 @@ class _HojaSobre extends StatelessWidget {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                  ],
                   style: AppText.data,
                   decoration: const InputDecoration(
                     labelText: 'Efectivo del sobre',
@@ -445,6 +478,23 @@ class _HojaSobre extends StatelessWidget {
               ),
             ],
           ),
+          if (error != null) ...<Widget>[
+            const SizedBox(height: Space.md),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(Space.md),
+              decoration: BoxDecoration(
+                color: c.dangerSoft,
+                borderRadius: Radii.allMd,
+              ),
+              child: Text(
+                error!,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: c.danger),
+              ),
+            ),
+          ],
         ],
       ),
     );

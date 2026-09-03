@@ -5,7 +5,7 @@
 /// [VitoProvider] no sabe qué es una [Ruta] ni una [Liquidacion]: solo sabe
 /// mandar texto y recibir texto. Este archivo es el punto donde el estado
 /// real del día —la misma [RutaRepository] que ven Bodega, Ruta y Cierre— se
-/// convierte en el resumen de una página que el modelo recibe como sistema.
+/// convierte en el resumen de una página que Vito recibe como contexto.
 /// Así el proveedor se queda genérico y reusable, y el conocimiento de
 /// dominio queda donde debe: en la capa que ya conoce el dominio.
 library;
@@ -13,7 +13,9 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../../../data/repositories/ruta_repository.dart';
+import '../../../../data/semilla/semilla_san_pedro_sula.dart' show camionPorId;
 import '../../../../data/services/vito_provider.dart';
+import '../../../../domain/models/camion.dart';
 import '../../../../domain/models/ruta.dart';
 import '../../../core/format/formatos.dart';
 import '../../../core/marca/marca_onroute.dart' show MarcaOnRoute;
@@ -21,14 +23,23 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/panel.dart';
 
-/// Resume el día en un párrafo corto que un modelo de lenguaje puede leer de
-/// una pasada. Ninguna cifra la calcula Vito: todas salen de [RutaRepository],
-/// la misma fuente que usan las pantallas operativas.
+/// Resume el día en un párrafo corto que Vito puede leer de una pasada.
+/// Ninguna cifra la calcula Vito: todas salen de [RutaRepository], la misma
+/// fuente que usan las pantallas operativas.
+///
+/// El camión se nombra como lo nombra la gente —"El Rojo, con Marvin
+/// Aguilar"— y nunca por su `camionId`. Este texto no es solo para el motor:
+/// termina citado dentro de la respuesta que el vendedor lee, así que un
+/// `cam-01` acá sale en pantalla.
 String contextoDelDia(RutaRepository repo) {
   final Ruta r = repo.ruta;
   final String cobrado = Formatos.lempiras(r.cobradoTotal.enLempiras);
   final String credito = Formatos.lempiras(r.creditoTotal.enLempiras);
-  return 'Ruta "${r.nombre}", camión ${r.camionId}. '
+  final Camion? camion = camionPorId(r.camionId);
+  final String quien = camion == null
+      ? ''
+      : ', en ${camion.apodo} con ${camion.conductor}';
+  return 'Ruta "${r.nombre}"$quien. '
       '${r.cerradas} de ${r.total} paradas visitadas, ${r.atendidas} cobradas. '
       'Cobrado hasta ahora: $cobrado (crédito: $credito). '
       '${repo.enLiquidacion ? "La ruta ya está en liquidación." : "La ruta sigue en curso."}';

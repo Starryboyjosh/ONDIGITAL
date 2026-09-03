@@ -7,7 +7,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:onroute/data/repositories/ruta_repository.dart';
-import 'package:onroute/data/semilla/semilla_tegucigalpa.dart';
+import 'package:onroute/data/semilla/semilla_san_pedro_sula.dart';
 import 'package:onroute/domain/models/bodega.dart';
 import 'package:onroute/ui/core/format/formatos.dart';
 import 'package:onroute/ui/core/theme/app_theme.dart';
