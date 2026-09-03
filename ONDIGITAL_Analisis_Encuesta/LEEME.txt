@@ -7,7 +7,6 @@ ARCHIVOS PRINCIPALES
 - ONDIGITAL_Analisis_Completo.xlsx: libro ejecutivo renovado con portada, dashboard, decisiones, base enriquecida, frecuencias, cruces, diccionario y visuales.
 - Informe_Visual_ONDIGITAL.pdf: informe visual de 14 paginas de la primera entrega.
 - dashboard_ondigital.html: dashboard ejecutivo autocontenido, con filtros, visualizaciones intercambiables, simulador, exportacion CSV y modo claro/oscuro.
-- dashboard_ondigital(1).html: copia compatible con el nombre de la entrega original.
 - explorador_respuestas.html: explorador responsive con filtros, paginacion, detalle por respuesta y exportacion CSV.
 - infografia_resumen.png: resumen visual de los indicadores principales.
 - datos_limpios_y_enriquecidos.csv: base original mas scores e indices derivados.
@@ -15,9 +14,28 @@ ARCHIVOS PRINCIPALES
 - informe_ejecutivo.md: interpretacion ejecutiva en texto.
 
 REGENERAR ENTREGABLES
-- Requiere Python 3 y openpyxl.
-- Desde esta carpeta ejecutar: python3 scripts/mejorar_reporte.py
-- El script vuelve a generar ONDIGITAL_Analisis_Completo.xlsx y explorador_respuestas.html a partir de datos_limpios_y_enriquecidos.csv y resumen_metricas.json.
+- Hay dos generadores y el orden importa: primero los visuales, despues el Excel
+  (el Excel incrusta cuatro de los PNG en la hoja 07_Visuales).
+
+  1) python3 -m venv .venv && .venv/bin/pip install pandas matplotlib pillow reportlab
+     .venv/bin/python scripts/generar_visuales.py
+     -> graficos/01..15_*.png, infografia_resumen.png e Informe_Visual_ONDIGITAL.pdf
+     Recalcula cada cifra desde datos_limpios_y_enriquecidos.csv y la contrasta contra
+     resumen_metricas.json: si algo no coincide falla en vez de dibujar un numero inventado.
+     Los PNG son deterministas (dos corridas dan archivos identicos); el PDF no, porque
+     ReportLab estampa la fecha de creacion.
+
+  2) python3 scripts/mejorar_reporte.py            (solo necesita openpyxl)
+     -> ONDIGITAL_Analisis_Completo.xlsx y explorador_respuestas.html
+
+- QUE NO REGENERA NINGUN SCRIPT: dashboard_ondigital.html, informe_ejecutivo.md,
+  resumen_metricas.json, tablas/*.csv y datos_limpios_y_enriquecidos.csv se mantienen a
+  mano; no existe generador en el repositorio. Si se editan, hay que revisar que sigan
+  coincidiendo entre si y con raw/.
+
+- Tipografias: los scripts piden Fraunces / Inter / JetBrains Mono y caen a una cadena de
+  respaldo (DejaVu Serif / Noto Sans / DejaVu Sans Mono) si no estan instaladas, asi que la
+  salida nunca se rompe. generar_visuales.py imprime que fuente resolvio cada familia.
 
 ABRIR EL REPORTE
 - Para que los enlaces entre dashboard y explorador funcionen, servir esta carpeta con: python3 -m http.server 4180
@@ -39,7 +57,7 @@ CARPETAS
 - tablas/: frecuencias, asociaciones estadisticas, segmentos, metricas y cruces.
 - raw/: CSV original extraido del ZIP entregado.
 
-LECTURA RAPIDA PARA ONDIGITAL
+LECTURA RAPIDA PARA ONDIGITAL (todos los porcentajes sobre n = 321 respuestas)
 - 73.2% usa papel y/o Excel.
 - 61.1% esta dispuesto o muy dispuesto a un sistema a la medida.
 - 61.4% quiere o considera un equipo tecnologico externo continuo.
@@ -47,6 +65,39 @@ LECTURA RAPIDA PARA ONDIGITAL
 - El freno mas frecuente es el desconocimiento de opciones (35.8%), por encima del costo (26.2%).
 - La demanda de automatizacion esta repartida en muchos procesos, lo que favorece una arquitectura modular.
 - Vito tiene mas sentido como capa sobre datos ya centralizados que como primera venta.
+- Las preguntas 3 (almacenamiento) y 9 (factores de decision) son de multiseleccion: sus
+  porcentajes se calculan sobre personas, no sobre menciones, y suman mas de 100%.
+- Ojo al comparar dos vistas de la Q3. El grafico 03 la muestra
+  "explotada" (una persona con libreta + Excel cuenta en ambas: 136 / 120 / 110 menciones,
+  114.0% en total), mientras que tablas/frecuencias_completas.csv la lista por combinaciones
+  exclusivas (112 / 93 / 86 mas las combinaciones, 100% en total). Las dos son correctas y el
+  bloque del CSV ya lo dice en su etiqueta; no son cifras contradictorias.
+- Las cabeceras de tablas/*.csv nombran el denominador ("% de 321 respuestas") para que
+  ningun porcentaje viaje sin su tamano de muestra.
+
+MARCA Y ACCESIBILIDAD DE LOS ENTREGABLES
+- Paleta oficial "Pulso Vital": tinta verdigris #0B1410 / #12201A, pergamino #F2EFE4,
+  laton #D8A24A y violeta #9B8CFF. Sobre fondo claro se usan las variantes que cumplen
+  WCAG AA: laton #8C6A2A y violeta #6C35ED.
+- Tipografias: Fraunces (titulares), Inter (texto) y JetBrains Mono (cifras y etiquetas),
+  cada una con cadena de respaldo local para que la pieza funcione sin red.
+- Series de datos categoricas (6 tonos + neutro) y rampas ordinales de un solo tono,
+  verificadas para daltonismo (protanopia/deuteranopia) y para lectura en escala de grises.
+- dashboard_ondigital.html y explorador_respuestas.html son autocontenidos: no cargan
+  fuentes, scripts ni imagenes externas, asi que funcionan sin conexion en la feria.
+- Los PNG del PDF usan fondo blanco (la superficie contra la que se calcularon las variantes
+  AA), laton #8C6A2A para series nominales y la rampa ordinal de laton para las preguntas
+  con orden. El mapa de calor usa un solo tono y cambia el color del rotulo a pergamino en
+  las celdas oscuras, para que ningun numero quede ilegible.
+
+LIMITES ESTADISTICOS
+- tablas/asociaciones_estadisticas.csv indica en cada fila que prueba se uso: la V de Cramer
+  corregida por sesgo mide fuerza de asociacion y nunca es negativa; la rho de Spearman mide
+  la tendencia monotona y si lleva signo. Por eso "madurez vs disposicion" aparece dos veces
+  con valores distintos: no es una contradiccion.
+- La fila "Almacenamiento vs percepcion de perdida" no cumple el supuesto de chi-cuadrado
+  (20 de 35 celdas con frecuencia esperada menor a 5, minimo 0.45). Se conserva como indicio,
+  no debe citarse como resultado significativo.
 
 ADVERTENCIA METODOLOGICA
 La estructura temporal y textual del archivo sugiere datos simulados o altamente guiados. Los resultados describen esta base y sirven para exploracion, presentacion y formulacion de hipotesis; no deben extrapolarse como representativos del mercado hondureno sin una recoleccion real y documentada.

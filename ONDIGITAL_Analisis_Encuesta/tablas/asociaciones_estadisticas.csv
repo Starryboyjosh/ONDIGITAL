@@ -1,12 +1,12 @@
-﻿Relacion,Efecto (V o rho),p_value
-Madurez tecnologica vs disposicion,0.442,2.7413209974729543e-37
-Tiempo perdido vs disposicion,0.453,3.223824434937886e-39
-Freno principal vs disposicion,0.434,7.007242926808732e-36
-Equipo externo vs disposicion,0.419,2.7209227673381574e-33
-Aprendizaje vs disposicion,0.418,4.277273854137304e-33
-Almacenamiento vs percepcion de perdida,0.236,2.432552318059986e-10
-Madurez vs disposicion (Spearman),-0.201,0.00029570583263715405
-Horas perdidas vs dolor (Spearman),0.177,0.0014139575970666387
-Disposicion vs equipo externo (Spearman),0.144,0.00959895555569453
-Disposicion vs aprendizaje (Spearman),0.218,8.253256188566585e-05
-Equipo externo vs aprendizaje (Spearman),0.638,4.1617810216990873e-38
+﻿Relacion,Prueba,Efecto,p_value,n,Nota
+Madurez tecnológica vs disposición,V de Cramér corregida (sin signo),0.442,< 0.001,321,"Mide fuerza de asociación, no dirección. Tabla 4x4, todas las frecuencias esperadas >= 9."
+Tiempo perdido vs disposición,V de Cramér corregida (sin signo),0.453,< 0.001,321,"Asociación moderada. Tabla 4x4, frecuencias esperadas >= 11."
+Freno principal vs disposición,V de Cramér corregida (sin signo),0.434,< 0.001,321,"Asociación moderada. Tabla 4x4, frecuencias esperadas >= 9."
+Equipo externo vs disposición,V de Cramér corregida (sin signo),0.419,< 0.001,321,"Asociación moderada. Tabla 4x4, frecuencias esperadas >= 10."
+Aprendizaje vs disposición,V de Cramér corregida (sin signo),0.418,< 0.001,321,"Asociación moderada. Tabla 4x4, frecuencias esperadas >= 9."
+Almacenamiento vs percepción de pérdida,V de Cramér corregida (sin signo),0.236,no fiable,321,"ADVERTENCIA: tabla 7x5 con 20 de 35 celdas de frecuencia esperada < 5 (mínimo 0.45). La aproximación chi-cuadrado no se sostiene; tomar solo como indicio y reagrupar categorías antes de citarla."
+Madurez vs disposición (Spearman),rho de Spearman (con signo),-0.201,< 0.001,321,"Negativa: a mayor madurez declarada, menor disposición. No contradice la fila 1: la V mide asociación total y esta rho mide solo la tendencia monótona."
+Horas perdidas vs dolor (Spearman),rho de Spearman (con signo),0.177,0.001,321,Efecto pequeño; sirve como hipótesis a validar en entrevistas.
+Disposición vs equipo externo (Spearman),rho de Spearman (con signo),0.144,0.010,321,Efecto pequeño; el más débil del archivo.
+Disposición vs aprendizaje (Spearman),rho de Spearman (con signo),0.218,< 0.001,321,Efecto pequeño a moderado.
+Equipo externo vs aprendizaje (Spearman),rho de Spearman (con signo),0.638,< 0.001,321,Asociación más fuerte del archivo; coherente con el argumento comercial del plan Business.
