@@ -23,7 +23,7 @@
 window.ONDIGITAL_PRESENTACION = Object.freeze({
 
     /** Sí / no. El interruptor. Solo se cambia aquí, en el servidor. */
-    autoScroll: true,
+    autoScroll: false,
 
     /** Velocidad de recorrido. 42 px/s recorre la landing completa en ~4 min. */
     velocidadPxPorSegundo: 102,

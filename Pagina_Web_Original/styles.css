@@ -1,5 +1,9 @@
 /* ONDIGITAL Landing PRO — rediseño "Pulso Vital" */
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+/* Las fuentes NO se piden con @import: eso obliga al navegador a bajar y
+   parsear esta hoja antes de enterarse de que existen, encadenando dos viajes
+   de red antes de pintar texto. El <link> con preconnect vive en el <head> de
+   index.html y arranca en paralelo. Las cadenas de respaldo de --font,
+   --font-display y --font-mono sostienen la pagina si no hay red. */
 :root {
     /* Verdigris ink + brass + violeta: se aleja del azul/menta genérico de IA */
     --bg: #0B1410;

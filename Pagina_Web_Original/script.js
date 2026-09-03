@@ -823,7 +823,37 @@
         }
     };
 
-    initServicesParallax();
+    /* three.js son ~600 KB (≈150 KB comprimidos) que no pintan un solo píxel de
+       la primera pantalla: la escena vive en #servicios, un scroll más abajo.
+       Pedirlo junto al resto retrasa el héroe justo en el caso que más importa,
+       el visitante que llega desde el QR impreso con datos móviles. Se carga en
+       cuanto el navegador termina lo urgente (`load`) o al primer gesto, lo que
+       ocurra antes: llega mucho antes de que nadie alcance la sección. Si no
+       llega —red caída, archivo perdido— `initServicesParallax` ya sabe caer a
+       la versión estática, igual que cuando el equipo no tiene WebGL. */
+    let servicesBooted = false;
+    const bootServices = () => {
+        if (servicesBooted) return;
+        servicesBooted = true;
+        // Con movimiento reducido la sección es estática por CSS y por JS, así
+        // que el motor 3D ni se descarga.
+        if (prefersReduced || window.THREE) {
+            initServicesParallax();
+            return;
+        }
+        const engine = document.createElement("script");
+        engine.src = "vendor/three.min.js";
+        engine.addEventListener("load", initServicesParallax);
+        engine.addEventListener("error", () => {
+            console.warn("Motor 3D no disponible; se usa la versión estática.");
+            initServicesParallax();
+        });
+        document.head.appendChild(engine);
+    };
+    window.addEventListener("scroll", bootServices, { passive: true, once: true });
+    window.addEventListener("pointerdown", bootServices, { once: true });
+    if (document.readyState === "complete") setTimeout(bootServices, 0);
+    else window.addEventListener("load", () => setTimeout(bootServices, 0), { once: true });
 
     /* ─── Tecnología: slider horizontal y transición de Vito al dock ─── */
     const initTechJourney = () => {
@@ -1225,7 +1255,7 @@
     if (planPromise) planPromise.textContent = PLAN_PROMISE;
 
     /* ─── Formulario ─── */
-    form?.addEventListener("submit", (e) => {
+    form?.addEventListener("submit", async (e) => {
         e.preventDefault();
         const data = new FormData(form);
         const name = String(data.get("name") || "").trim();
@@ -1249,20 +1279,38 @@
             return;
         }
 
-        if (note) note.textContent = "";
-        if (successText) {
-            successText.textContent = `Plan ${plan.name} (${plan.price}). Se abrirá tu correo para enviar la solicitud; si no se abre, escríbenos al +504 8777-5824.`;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        if (note) {
+            note.textContent = "Enviando…";
+            note.style.color = "";
         }
-        if (success) success.hidden = false;
+
+        data.set("_subject", `ONDIGITAL · Plan ${plan.name}`);
+        data.set("plan_seleccionado", `${plan.name} (${plan.price})`);
 
         try {
-            const subject = encodeURIComponent(`ONDIGITAL · Plan ${plan.name}`);
-            const body = encodeURIComponent(
-                `Hola ONDIGITAL,\n\nSoy ${name} (${email}).\n\nPlan de interés: ${plan.name} (${plan.price})\n\nProyecto:\n${message}`
-            );
-            form.dataset.mailto = `mailto:hola@ondigital.hn?subject=${subject}&body=${body}`;
-            window.location.href = form.dataset.mailto;
-        } catch (_) { /* ignore */ }
+            const res = await fetch(form.action, {
+                method: "POST",
+                body: data,
+                headers: { Accept: "application/json" }
+            });
+            if (!res.ok) throw new Error("form submit failed");
+
+            if (note) note.textContent = "";
+            if (successText) {
+                successText.textContent = `Plan ${plan.name} (${plan.price}). Recibimos tu mensaje, pronto te contactamos. Si prefieres, también puedes escribirnos a ondigital.hn@proton.me o al +504 8777-5824.`;
+            }
+            if (success) success.hidden = false;
+            form.reset();
+        } catch (_) {
+            if (note) {
+                note.textContent = "No se pudo enviar. Escríbenos directo a ondigital.hn@proton.me o al +504 8777-5824.";
+                note.style.color = "var(--warn)";
+            }
+        } finally {
+            if (submitBtn) submitBtn.disabled = false;
+        }
     });
 
     /* ─── Anclas suaves ─── */

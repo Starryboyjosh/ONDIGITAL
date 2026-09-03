@@ -33,6 +33,15 @@
         return;
     }
 
+    /* Red de seguridad: el modo presentación es para un monitor de exhibición.
+       Si el archivo se despliega encendido por error, un visitante que llega
+       desde el QR en su teléfono no debe encontrarse la página moviéndose sola
+       bajo el dedo. Un monitor de feria nunca mide menos de 900 px. */
+    if (window.innerWidth < 900) {
+        console.info("[ONDIGITAL] Modo presentación omitido: pantalla angosta (visita normal).");
+        return;
+    }
+
     const raiz = document.documentElement;
     raiz.classList.add("modo-presentacion");
     if (OCULTAR_CURSOR) raiz.classList.add("modo-presentacion--sin-cursor");

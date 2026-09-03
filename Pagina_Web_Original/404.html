@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#0B1410">
+    <title>Página no encontrada — ONDIGITAL</title>
+    <link rel="icon" href="assets/brand/vito.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/brand/apple-touch-icon.png">
+    <!-- Misma URL exacta que index.html: quien cae aqui casi siempre viene del
+         sitio, asi que la hoja y las fuentes ya estan en cache y no cuestan una
+         sola peticion. Con `display=swap` el texto se pinta igual desde el
+         primer instante si no lo estuvieran. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+    <!-- Firebase Hosting sirve este archivo ante cualquier ruta que no existe.
+         Sin él aparece la pantalla genérica de Firebase, que en el sitio al que
+         apunta un QR impreso se lee como "esto está roto".
+         Va con estilos propios y sin JS a propósito: son 2 KB que cargan aunque
+         styles.css (95 KB) sea justo lo que falló. Los colores están copiados
+         de :root en styles.css; si allí cambia la paleta, cambian aquí. -->
+    <style>
+        :root {
+            --bg: #0B1410;
+            --fg: #F2EFE4;
+            --muted: rgba(214, 208, 190, 0.68);
+            --accent: #D8A24A;
+            --accent-2: #9B8CFF;
+            --border: rgba(216, 162, 74, 0.16);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 32px 24px;
+            color: var(--fg);
+            background:
+                radial-gradient(circle at 70% 0%, rgba(108, 53, 237, 0.12), transparent 32rem),
+                radial-gradient(circle at 14% 22%, rgba(216, 162, 74, 0.08), transparent 26rem),
+                var(--bg);
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+        main { width: min(560px, 100%); text-align: center; }
+        .mark { width: 92px; height: 92px; margin: 0 auto 26px; display: block; }
+        .code {
+            margin: 0 0 10px;
+            font-family: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--accent-2);
+        }
+        h1 {
+            margin: 0 0 14px;
+            font-family: "Fraunces", "Iowan Old Style", Georgia, serif;
+            font-weight: 800;
+            font-size: clamp(30px, 6vw, 46px);
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+        h1 em { font-style: normal; color: var(--accent); }
+        p { margin: 0 auto 28px; max-width: 42ch; color: var(--muted); line-height: 1.6; }
+        .acciones { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+        a {
+            display: inline-block;
+            padding: 13px 22px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            color: var(--fg);
+            transition: border-color 200ms ease, transform 200ms ease;
+        }
+        a.primario {
+            background: linear-gradient(135deg, #E4B767, var(--accent));
+            border-color: transparent;
+            /* Tinta sobre latón: el blanco daría 2.26:1 y no pasa AA. */
+            color: #0B1410;
+        }
+        a:hover, a:focus-visible { transform: translateY(-2px); border-color: var(--accent); }
+        a:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 3px; }
+    </style>
+</head>
+<body>
+    <main>
+        <svg class="mark" viewBox="88 54 184 188" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vito, el asistente de ONDIGITAL">
+            <path d="M116 92 H244 L260 108 V216 L244 232 H116 L100 216 V108 Z" fill="#12201A" stroke="#D8A24A" stroke-width="9" stroke-linejoin="round"></path>
+            <path d="M158 78 Q180 58 202 78" stroke="#D8A24A" stroke-width="9" stroke-linecap="round" fill="none"></path>
+            <circle cx="180" cy="66" r="7" fill="#9B8CFF"></circle>
+            <circle cx="152" cy="150" r="13" stroke="#9B8CFF" stroke-width="8" fill="none"></circle>
+            <circle cx="208" cy="150" r="13" stroke="#9B8CFF" stroke-width="8" fill="none"></circle>
+            <!-- Boca recta: Vito no encontró lo que buscabas. -->
+            <path d="M150 194 H210" stroke="#9B8CFF" stroke-width="9" stroke-linecap="round"></path>
+        </svg>
+        <p class="code">Error 404</p>
+        <h1>Esta página <em>no existe</em>.</h1>
+        <p>Puede que el enlace esté incompleto o que hayamos movido el contenido. Desde el inicio llegas a todo: servicios, Vito, planes y contacto.</p>
+        <div class="acciones">
+            <a class="primario" href="/">Ir al inicio</a>
+            <a href="/#contacto">Escribirnos</a>
+        </div>
+    </main>
+</body>
+</html>

@@ -6,6 +6,37 @@
     <meta name="description" content="ONDIGITAL — Plataformas web, apps, automatización e IA a medida desde Honduras.">
     <meta name="theme-color" content="#0B1410">
     <title>ONDIGITAL — Todo lo Vital es Digital</title>
+
+    <link rel="icon" href="assets/brand/vito.svg" type="image/svg+xml">
+    <!-- iOS pide 180x180; el maestro de 1024 (assets/brand/vito.png) se queda
+         en el repo pero fuera del despliegue: eran 100 KB para un icono. -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/brand/apple-touch-icon.png">
+
+    <!-- Vista previa al compartir el enlace: el QR impreso trae a la gente
+         aqui, y de aqui el enlace pasa a WhatsApp. Sin esto viaja pelado.
+         Las URL van absolutas a proposito: WhatsApp y Facebook no resuelven
+         rutas relativas en og:image y dejarian la tarjeta sin imagen. El host
+         es el del QR impreso (proyecto `ondigital-landing`) y no se cambia. -->
+    <link rel="canonical" href="https://ondigital-landing.web.app/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ONDIGITAL">
+    <meta property="og:url" content="https://ondigital-landing.web.app/">
+    <meta property="og:title" content="ONDIGITAL — Todo lo Vital es Digital">
+    <meta property="og:description" content="Somos el departamento de tecnología de tu empresa: plataformas a medida, automatización e IA, por suscripción. Desde San Pedro Sula, Honduras.">
+    <meta property="og:image" content="https://ondigital-landing.web.app/assets/brand/og-ondigital.jpg">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="ONDIGITAL — Todo lo Vital es Digital">
+    <meta property="og:locale" content="es_HN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ONDIGITAL — Todo lo Vital es Digital">
+    <meta name="twitter:description" content="Plataformas a medida, automatización e IA por suscripción. San Pedro Sula, Honduras.">
+    <meta name="twitter:image" content="https://ondigital-landing.web.app/assets/brand/og-ondigital.jpg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -381,7 +412,7 @@
                 </div>
                 <div class="team-grid reveal" role="region" aria-label="Equipo ONDIGITAL">
                     <article class="team-card team-card--lead" tabindex="0">
-                        <div class="team-photo"><img src="equipo/cueva.jpg" alt="Mario Cueva" loading="lazy" width="400" height="400"></div>
+                        <div class="team-photo"><img src="equipo/cueva.webp" alt="Mario Cueva" loading="lazy" width="600" height="725"></div>
                         <div class="team-id">
                             <span class="team-role">Dirección técnica · Fundador</span>
                             <h3 class="team-name">Mario Cueva</h3>
@@ -389,7 +420,7 @@
                         </div>
                     </article>
                     <article class="team-card" tabindex="0">
-                        <div class="team-photo"><img src="equipo/josh.png" alt="Joshua Isaula" loading="lazy" width="400" height="400"></div>
+                        <div class="team-photo"><img src="equipo/josh.webp" alt="Joshua Isaula" loading="lazy" width="600" height="685"></div>
                         <div class="team-id">
                             <span class="team-role">Full stack · Principal</span>
                             <h3 class="team-name">Joshua Isaula</h3>
@@ -397,7 +428,7 @@
                         </div>
                     </article>
                     <article class="team-card" tabindex="0">
-                        <div class="team-photo"><img src="equipo/escoto.jpg" alt="Danniel Escoto" loading="lazy" width="400" height="400"></div>
+                        <div class="team-photo"><img src="equipo/escoto.webp" alt="Danniel Escoto" loading="lazy" width="600" height="338"></div>
                         <div class="team-id">
                             <span class="team-role">Mobile e IA</span>
                             <h3 class="team-name">Danniel Escoto</h3>
@@ -405,7 +436,7 @@
                         </div>
                     </article>
                     <article class="team-card" tabindex="0">
-                        <div class="team-photo"><img src="equipo/victor.png" alt="Victor Mendez" loading="lazy" width="400" height="400"></div>
+                        <div class="team-photo"><img src="equipo/victor.webp" alt="Victor Mendez" loading="lazy" width="378" height="360"></div>
                         <div class="team-id">
                             <span class="team-role">Diseño UX</span>
                             <h3 class="team-name">Victor Mendez</h3>
@@ -413,7 +444,7 @@
                         </div>
                     </article>
                     <article class="team-card" tabindex="0">
-                        <div class="team-photo"><img src="equipo/jorge.png" alt="Jorge Portillo" loading="lazy" width="400" height="400"></div>
+                        <div class="team-photo"><img src="equipo/jorge.webp" alt="Jorge Portillo" loading="lazy" width="467" height="517"></div>
                         <div class="team-id">
                             <span class="team-role">Backend y datos</span>
                             <h3 class="team-name">Jorge Portillo</h3>
@@ -489,7 +520,7 @@
                         <p>Elige un plan, revisa sus ventajas y cuéntanos tu idea. Definimos alcance y te damos una ruta realista.</p>
 
                         <div class="contact-links">
-                            <a class="btn btn-secondary" href="mailto:hola@ondigital.hn">hola@ondigital.hn</a>
+                            <a class="btn btn-secondary" href="mailto:ondigital.hn@proton.me">ondigital.hn@proton.me</a>
                             <a class="btn btn-secondary" href="tel:+50487775824">+504 8777-5824</a>
                         </div>
 
@@ -514,7 +545,7 @@
                         </div>
 
                     </div>
-                    <form class="contact-form" id="lead-form" novalidate>
+                    <form class="contact-form" id="lead-form" novalidate action="https://formspree.io/f/mgaeyaab" method="POST">
                         <div class="field">
                             <span class="field-label" id="plan-picker-label">Plan</span>
                             <div class="plan-picker" role="radiogroup" aria-labelledby="plan-picker-label">
@@ -579,7 +610,9 @@
     </footer>
 
     <div class="tip-bubble" id="tip-bubble" role="tooltip" hidden></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- three.js NO se pide aqui. Vive en vendor/ y script.js lo carga cuando el
+         navegador queda libre: son ~600 KB que no pintan nada en la primera
+         pantalla y la escena que mueven empieza un scroll mas abajo. -->
     <script src="script.js"></script>
     <!-- Modo presentación: el interruptor vive en presentacion.config.js (servidor).
          Con autoScroll: false el motor sale sin registrar nada. -->
