@@ -267,21 +267,26 @@ func (s *Service) ConfirmAction(ctx context.Context, toolName string, args map[s
 	}, nil
 }
 
+// brandGuard es la última línea de la marca blanca: si el proveedor ignora el
+// prompt y se presenta por su nombre, el nombre no llega a pantalla.
+//
+// Va compilada una sola vez —antes se recompilaba una expresión por término en
+// cada respuesta— y cubre familias enteras (`gpt-4`, `gpt-5`, `gpt`) en lugar de
+// una versión concreta, porque el modelo de mañana no está en ninguna lista de
+// hoy. "Llama" queda fuera a propósito: en español es un verbo corriente ("se
+// llama Ana") y sustituirlo rompería el texto en vez de protegerlo.
+var brandGuard = regexp.MustCompile(`(?i)\b(claude|chatgpt|openai|opencode|anthropic|gpt-?[0-9]+|gpt|gemini|nemotron|deepseek|mistral|qwen|copilot|grok)\b`)
+
 // sanitizeReply enforces the white-label boundary even when a provider ignores its prompt.
 func (s *Service) sanitizeReply(reply string) string {
-	terms := []string{
-		"Claude", "ChatGPT", "OpenAI", "OpenCode", "Anthropic", "GPT-4", "Nemotron",
-	}
+	reply = brandGuard.ReplaceAllString(reply, "Vito")
+	// El proveedor activo puede llamarse de cualquier forma, así que su nombre
+	// se tapa además del catálogo fijo.
 	if s.provider != nil {
-		terms = append(terms, s.provider.Name())
-	}
-	for _, term := range terms {
-		term = strings.TrimSpace(term)
-		if term == "" {
-			continue
+		if name := strings.TrimSpace(s.provider.Name()); name != "" {
+			own := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(name) + `\b`)
+			reply = own.ReplaceAllString(reply, "Vito")
 		}
-		pattern := regexp.MustCompile(`(?i)\b` + regexp.QuoteMeta(term) + `\b`)
-		reply = pattern.ReplaceAllString(reply, "Vito")
 	}
 	return reply
 }

@@ -8,14 +8,30 @@ import (
 )
 
 // Env keys (server-side only — never expose to the browser).
+//
+// El nombre del proveedor no aparece en las variables que edita quien instala
+// el producto: el motor es intercambiable y el mensaje de error que sale al
+// arrancar se lee en la misma ventana que mira el dueño del negocio. Las
+// variables VITO_OPENCODE_* / OPENCODE_API_KEY siguen funcionando como alias
+// para no romper los .env que ya existen.
 const (
-	EnvEnabled        = "VITO_ENABLED"
-	EnvProvider       = "VITO_PROVIDER" // mock | opencode
+	EnvEnabled  = "VITO_ENABLED"
+	EnvProvider = "VITO_PROVIDER" // local | nube (alias: mock | opencode)
+	EnvAPIKey   = "VITO_API_KEY"
+	EnvBaseURL  = "VITO_BASE_URL"
+	EnvModel    = "VITO_MODEL"
+	EnvLocale   = "VITO_LOCALE"
+
+	// Alias aceptados: se leen si los de arriba vienen vacíos.
+	// Los VITO_OPENCODE_* / OPENCODE_API_KEY son los nombres históricos y siguen
+	// valiendo para no romper los .env ya escritos. VITO_MODELO existe porque
+	// OnRoute lo adoptó en español antes de que el nombre canónico se fijara:
+	// así un mismo .env sirve para los dos productos.
 	EnvOpenCodeKey    = "VITO_OPENCODE_API_KEY"
-	EnvOpenCodeKeyAlt = "OPENCODE_API_KEY" // alias
+	EnvOpenCodeKeyAlt = "OPENCODE_API_KEY"
 	EnvOpenCodeBase   = "VITO_OPENCODE_BASE_URL"
 	EnvOpenCodeModel  = "VITO_OPENCODE_MODEL"
-	EnvLocale         = "VITO_LOCALE"
+	EnvModelAlt       = "VITO_MODELO"
 )
 
 // Default OpenCode Zen endpoint (OpenAI-compatible chat completions).
@@ -41,10 +57,11 @@ func LoadEnvConfig() EnvConfig {
 		Enabled:         envBool(EnvEnabled, true),
 		Provider:        strings.ToLower(strings.TrimSpace(os.Getenv(EnvProvider))),
 		Locale:          strings.TrimSpace(os.Getenv(EnvLocale)),
-		OpenCodeAPIKey:  firstNonEmpty(os.Getenv(EnvOpenCodeKey), os.Getenv(EnvOpenCodeKeyAlt)),
-		OpenCodeBaseURL: strings.TrimSpace(os.Getenv(EnvOpenCodeBase)),
-		OpenCodeModel:   strings.TrimSpace(os.Getenv(EnvOpenCodeModel)),
+		OpenCodeAPIKey:  firstNonEmpty(os.Getenv(EnvAPIKey), os.Getenv(EnvOpenCodeKey), os.Getenv(EnvOpenCodeKeyAlt)),
+		OpenCodeBaseURL: firstNonEmpty(os.Getenv(EnvBaseURL), os.Getenv(EnvOpenCodeBase)),
+		OpenCodeModel:   firstNonEmpty(os.Getenv(EnvModel), os.Getenv(EnvModelAlt), os.Getenv(EnvOpenCodeModel)),
 	}
+	cfg.Provider = normalizeProvider(cfg.Provider)
 	// Reject copy-paste placeholders from .env.example
 	if isPlaceholderKey(cfg.OpenCodeAPIKey) {
 		cfg.OpenCodeAPIKey = ""
@@ -80,7 +97,8 @@ func NewProvider(cfg EnvConfig) (Provider, error) {
 	case "opencode":
 		if cfg.OpenCodeAPIKey == "" || isPlaceholderKey(cfg.OpenCodeAPIKey) {
 			return nil, fmt.Errorf(
-				"vito: falta una API key real. En onstock/.env pon VITO_OPENCODE_API_KEY=tu_key (no dejes el texto pega_tu_key_aqui del ejemplo). Key en https://opencode.ai/auth",
+				"falta la clave del motor. En el archivo .env del producto pon %s=<tu clave> en una sola línea y sin comillas (no dejes el texto de ejemplo). Sin ella Vito sigue funcionando en modo local",
+				EnvAPIKey,
 			)
 		}
 		return NewOpenCodeProvider(OpenCodeConfig{
@@ -89,7 +107,7 @@ func NewProvider(cfg EnvConfig) (Provider, error) {
 			Model:   cfg.OpenCodeModel,
 		}), nil
 	default:
-		return nil, fmt.Errorf("vito: unknown provider %q (use mock or opencode)", cfg.Provider)
+		return nil, fmt.Errorf("motor %q desconocido (usa \"local\" o \"nube\")", cfg.Provider)
 	}
 }
 
@@ -109,12 +127,30 @@ func isPlaceholderKey(k string) bool {
 		"sk-...",
 		"replace_me",
 	}
+	if strings.Contains(k, "pega_tu") || strings.Contains(k, "your_key") {
+		return true
+	}
 	for _, p := range placeholders {
-		if k == p || strings.Contains(k, "pega_tu") || strings.Contains(k, "your_key") {
+		if k == p {
 			return true
 		}
 	}
 	return false
+}
+
+// normalizeProvider acepta los nombres neutros que se documentan ("local" y
+// "nube") y los históricos ("mock" y "opencode"), que siguen siendo los valores
+// internos. Así el .env del cliente no menciona a ningún proveedor y los
+// archivos que ya estaban escritos siguen arrancando igual.
+func normalizeProvider(p string) string {
+	switch p {
+	case "local", "offline", "mock":
+		return "mock"
+	case "nube", "cloud", "api", "opencode":
+		return "opencode"
+	default:
+		return p
+	}
 }
 
 // NewServiceFromEnv constructs a Service using environment configuration.
@@ -134,7 +170,7 @@ func NewServiceFromEnv(tools *Registry) (*Service, EnvConfig, error) {
 		if nerr != nil {
 			return nil, cfg, nerr
 		}
-		return svc, cfg, fmt.Errorf("vito: using mock fallback: %w", err)
+		return svc, cfg, fmt.Errorf("Vito quedó en modo local: %w", err)
 	}
 	svc, err := New(Config{
 		Enabled: cfg.Enabled,

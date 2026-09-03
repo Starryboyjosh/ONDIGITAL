@@ -12,19 +12,19 @@ import (
 type Plan string
 
 const (
-	PlanStarter       Plan = "starter"        // $19 — app only, client infra
-	PlanBusiness      Plan = "business"       // $49 — + managed infra + module library
-	PlanEnterpriseAI  Plan = "enterprise_ai"  // $99 — + Vito
+	PlanStarter      Plan = "starter"       // $19 — app only, client infra
+	PlanBusiness     Plan = "business"      // $49 — + managed infra + module library
+	PlanEnterpriseAI Plan = "enterprise_ai" // $99 — + Vito
 )
 
 // Role is a suite user role (not ONDIGITAL staff).
 type Role string
 
 const (
-	RoleAdmin    Role = "admin"    // full tenant admin
-	RoleManager  Role = "gerente"  // ops + reports
-	RoleStaff    Role = "empleado" // day-to-day
-	RoleViewer   Role = "viewer"   // read-only
+	RoleAdmin   Role = "admin"    // full tenant admin
+	RoleManager Role = "gerente"  // ops + reports
+	RoleStaff   Role = "empleado" // day-to-day
+	RoleViewer  Role = "viewer"   // read-only
 )
 
 // Tenant is one client organization (isolation boundary).

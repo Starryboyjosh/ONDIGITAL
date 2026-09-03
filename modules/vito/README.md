@@ -22,11 +22,19 @@ replace ondigital.hn/vito => ../modules/vito
 | Variable | Rol |
 |----------|-----|
 | `VITO_ENABLED` | `true`/`false` — la app debe funcionar **con Vito apagado** |
-| `VITO_PROVIDER` | `mock` \| `opencode` (auto: key → opencode, si no → mock) |
-| `VITO_OPENCODE_API_KEY` / `OPENCODE_API_KEY` | Solo servidor, nunca en el browser |
-| `VITO_OPENCODE_BASE_URL` | Default `https://opencode.ai/zen/v1` |
-| `VITO_OPENCODE_MODEL` | Default free: `big-pickle` |
+| `VITO_PROVIDER` | `local` \| `nube` (auto: con clave → nube, si no → local) |
+| `VITO_API_KEY` | Solo servidor, nunca en el browser |
+| `VITO_BASE_URL` | Vacío = endpoint por defecto del proveedor activo |
+| `VITO_MODEL` | Vacío = modelo por defecto del proveedor activo |
 | `VITO_LOCALE` | Default `es-HN` |
+
+Las variables que edita el cliente no nombran al proveedor: el motor es
+intercambiable y el mensaje de arranque se lee en la misma ventana que mira el
+dueño del negocio. Los nombres antiguos (`VITO_OPENCODE_API_KEY`,
+`OPENCODE_API_KEY`, `VITO_OPENCODE_BASE_URL`, `VITO_OPENCODE_MODEL`), el
+`VITO_MODELO` en español que adoptó OnRoute, y los valores `mock`/`opencode`
+siguen aceptándose como alias; ganan los nuevos si están puestos. Dentro del código, la capa de providers sí nombra al proveedor
+—es su trabajo—: ver `opencode_provider.go`.
 
 ### 3. Ciclo de vida en el host
 

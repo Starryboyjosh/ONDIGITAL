@@ -225,6 +225,46 @@ func TestAsk_SanitizesProviderBranding(t *testing.T) {
 	}
 }
 
+// La guarda de marca tapaba una sola aparicion por termino y solo conocia
+// "gpt-4". Estas son las dos formas reales en que se filtraba un nombre.
+func TestAsk_SanitizesEveryMentionAndModelFamilies(t *testing.T) {
+	svc, err := vito.New(vito.Config{Enabled: true}, namedReplyProvider{
+		name:  "internal-engine",
+		reply: "Soy Claude. Claude puede ayudarte. Corro sobre GPT-5, Gemini y DeepSeek.",
+	}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := svc.Ask(context.Background(), vito.AskRequest{Message: "quien eres"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, forbidden := range []string{"claude", "gpt-5", "gemini", "deepseek"} {
+		if strings.Contains(strings.ToLower(res.Reply), forbidden) {
+			t.Errorf("la respuesta filtro %q: %q", forbidden, res.Reply)
+		}
+	}
+}
+
+// "llama" es un verbo corriente en espanol: la guarda no puede comerselo.
+func TestAsk_SanitizeKeepsOrdinarySpanish(t *testing.T) {
+	const frase = "El paciente se llama Ana y la cita se llama control."
+	svc, err := vito.New(vito.Config{Enabled: true}, namedReplyProvider{
+		name:  "internal-engine",
+		reply: frase,
+	}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := svc.Ask(context.Background(), vito.AskRequest{Message: "resumen"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Reply != frase {
+		t.Errorf("la guarda altero texto legitimo:\n  esperado: %q\n  obtenido: %q", frase, res.Reply)
+	}
+}
+
 func mustService(t *testing.T, enabled bool, reg *vito.Registry) *vito.Service {
 	t.Helper()
 	svc, err := vito.New(vito.Config{Enabled: enabled}, vito.NewMockProvider(), reg)
