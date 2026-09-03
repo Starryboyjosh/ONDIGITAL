@@ -1,0 +1,25 @@
+# Sin este archivo git trata el PDF del informe como texto: `git diff --check`
+# lo recorre entero y reporta "trailing whitespace" sobre flujos comprimidos,
+# que enterraba los avisos reales del resto del repo.
+* text=auto eol=lf
+
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.gif   binary
+*.ico   binary
+*.ttf   binary
+*.otf   binary
+*.woff  binary
+*.woff2 binary
+*.db    binary
+*.sqlite binary
+
+# El SVG es texto y se revisa como tal, pero no se toca su fin de linea.
+*.svg   text eol=lf
+
+# Los .sh y .bat dependen del fin de linea para arrancar.
+*.sh    text eol=lf
+*.bat   text eol=crlf

@@ -36,3 +36,11 @@ test-results/
 
 # Firebase Hosting deploy cache
 .firebase/
+# Bitacoras que deja la CLI/el emulador de Firebase: se regeneran en cada
+# corrida, cambian por maquina y ademas se colarian al despliegue (viven en la
+# carpeta publicada). Se ignoran aqui y tambien en `hosting.ignore`.
+firebase-debug.log
+firestore-debug.log
+database-debug.log
+ui-debug.log
+pubsub-debug.log
