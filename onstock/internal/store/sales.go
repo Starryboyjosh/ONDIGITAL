@@ -42,7 +42,8 @@ func (s *Store) ListSales(f SaleFilter) ([]Sale, error) {
 	args = append(args, limit)
 	rows, err := s.db.Query(`SELECT id, sale_number, customer_name, customer_rtn, sale_date, subtotal,
 	  discount, discount_net, isv, total, cost_total, payment_method, status, notes, created_at
-	  FROM sales WHERE `+strings.Join(where, " AND ")+` ORDER BY id DESC LIMIT ?`, args...)
+	  FROM sales WHERE `+strings.Join(where, " AND ")+`
+	  ORDER BY sale_date DESC, id DESC LIMIT ?`, args...)
 	if err != nil {
 		return nil, err
 	}

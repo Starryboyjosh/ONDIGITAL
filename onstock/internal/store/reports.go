@@ -79,6 +79,13 @@ func (s *Store) IncomeStatement(from, to string) (IncomeStatement, error) {
 	if err := rows.Err(); err != nil {
 		return st, err
 	}
+	// Se redondea antes de derivar los totales: SUM() sobre montos con dos
+	// decimales arrastra ruido binario y ese ruido terminaba escrito tal cual en
+	// la celda del Excel (-869.5699999999999 en la barra de fórmulas).
+	st.GastosVentas = round2(st.GastosVentas)
+	st.GastosAdministrativos = round2(st.GastosAdministrativos)
+	st.GastosFinancieros = round2(st.GastosFinancieros)
+	st.OtrosGastos = round2(st.OtrosGastos)
 
 	st.UtilidadBruta = st.VentasNetas - st.CostoVentas
 	st.GastosOperativos = st.GastosVentas + st.GastosAdministrativos
@@ -112,12 +119,25 @@ func (s *Store) TopProducts(from, to string, limit int) ([]TopProduct, error) {
 	if limit <= 0 {
 		limit = 10
 	}
+	// sale_items.unit_price es el precio neto ANTES del descuento de la venta y
+	// viene redondeado a dos decimales, así que sumar las líneas nunca da el
+	// mismo número que sales.subtotal. Para que este reporte cuadre exactamente
+	// con VentasNetas/UtilidadBruta del Estado de Resultados, repartimos el
+	// subtotal real de cada venta entre sus líneas en proporción a lo que pesa
+	// cada una: k = subtotal / SUM(qty*unit_price).
 	rows, err := s.db.Query(`SELECT i.product_id, p.name, p.sku,
-	    SUM(i.qty), SUM(i.qty*i.unit_price), SUM(i.qty*(i.unit_price-i.unit_cost))
+	    SUM(i.qty),
+	    SUM(i.qty*i.unit_price*f.k),
+	    SUM(i.qty*i.unit_price*f.k - i.qty*i.unit_cost)
 	  FROM sale_items i
 	  JOIN sales v ON v.id=i.sale_id AND v.status='completada' AND date(v.sale_date) BETWEEN ? AND ?
 	  JOIN products p ON p.id=i.product_id
-	  GROUP BY i.product_id ORDER BY SUM(i.qty*i.unit_price) DESC LIMIT ?`, from, to, limit)
+	  JOIN (SELECT s2.id AS sid,
+	          COALESCE(s2.subtotal/NULLIF(SUM(i2.qty*i2.unit_price),0),1) AS k
+	        FROM sales s2 JOIN sale_items i2 ON i2.sale_id=s2.id
+	        WHERE s2.status='completada' AND date(s2.sale_date) BETWEEN ? AND ?
+	        GROUP BY s2.id) f ON f.sid=v.id
+	  GROUP BY i.product_id ORDER BY 5 DESC LIMIT ?`, from, to, from, to, limit)
 	if err != nil {
 		return nil, err
 	}

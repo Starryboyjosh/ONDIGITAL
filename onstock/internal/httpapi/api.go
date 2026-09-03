@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"ondigital.hn/modkit"
 	"ondigital.hn/vito"
@@ -156,7 +157,7 @@ func (a *API) getSettingsCaja(w http.ResponseWriter, r *http.Request) {
 	out := map[string]string{}
 	for _, k := range []string{
 		"company_name", "company_rtn", "currency_symbol",
-		"isv_rate", "prices_include_isv",
+		"isv_rate_default", "prices_include_isv", "allow_negative_stock",
 	} {
 		if v, ok := m[k]; ok {
 			out[k] = v
@@ -184,11 +185,27 @@ func cajaStaticHandler(webFS fs.FS) http.Handler {
 	})
 }
 
+// statusRecorder recuerda el código de respuesta para poder registrar solo lo
+// que salió mal.
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (w *statusRecorder) WriteHeader(code int) {
+	w.status = code
+	w.ResponseWriter.WriteHeader(code)
+}
+
+// logMiddleware solo registra las peticiones que fallan. La consola del
+// operador es donde se ven los problemas del negocio (respaldos, errores de
+// arranque); llenarla con una línea por clic escondía justamente eso.
 func logMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		next.ServeHTTP(w, r)
-		if r.URL.Path != "/" && len(r.URL.Path) > 4 && r.URL.Path[:5] == "/api/" {
-			log.Printf("%s %s", r.Method, r.URL.Path)
+		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(rec, r)
+		if rec.status >= 400 && strings.HasPrefix(r.URL.Path, "/api/") {
+			log.Printf("%s %s → %d", r.Method, r.URL.Path, rec.status)
 		}
 	})
 }

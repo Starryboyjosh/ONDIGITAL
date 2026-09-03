@@ -35,6 +35,7 @@ func main() {
 		seedDemo      = flag.Bool("seed-demo", false, "cargar datos demostrativos y salir (falla si ya hay productos)")
 		seedDemoForce = flag.Bool("seed-demo-force", false, "reemplazar datos con el set demostrativo y salir")
 		backupDir     = flag.String("backup", "", "crear respaldo de la BD en este directorio y salir")
+		vacio         = flag.Bool("vacio", false, "primer arranque sin datos de ejemplo (sistema en blanco)")
 	)
 	flag.Parse()
 
@@ -69,13 +70,29 @@ func main() {
 		fmt.Printf("│  Categorías:  %-32d │\n", rep.Categories)
 		fmt.Printf("│  Proveedores: %-32d │\n", rep.Suppliers)
 		fmt.Printf("│  Productos:   %-32d │\n", rep.Products)
+		fmt.Printf("│  Compras:     %-32d │\n", rep.Purchases)
 		fmt.Printf("│  Ventas:      %-32d │\n", rep.Sales)
 		fmt.Printf("│  Gastos:      %-32d │\n", rep.Expenses)
 		fmt.Printf("│  Stock bajo:  %-32d │\n", rep.LowStock)
-		fmt.Println("│  Empresa: Abarrotes El Progreso (TGU)          │")
+		fmt.Println("│  Empresa: Abarrotes El Progreso (SPS)          │")
 		fmt.Println("└────────────────────────────────────────────────┘")
 		fmt.Println("Siguiente: make dev  →  http://localhost:8080/#/vito")
 		return
+	}
+
+	// Primer arranque: una base recién creada no tiene nada que mostrar, así que
+	// cargamos el set de ejemplo (Abarrotes El Progreso) para que el sistema abra
+	// con inventario, ventas, compras y reportes reales. Con -vacio se omite, y
+	// si ya hay productos no se toca absolutamente nada.
+	if !*vacio {
+		if empty, err := st.IsEmpty(); err == nil && empty {
+			if rep, err := st.SeedDemo(false); err != nil {
+				log.Printf("datos de ejemplo: %v", err)
+			} else {
+				fmt.Printf("Primer arranque: se cargaron datos de ejemplo (%d productos, %d ventas, %d compras).\n", rep.Products, rep.Sales, rep.Purchases)
+				fmt.Println("Para empezar con el sistema en blanco: borre la carpeta de datos y ejecute con -vacio.")
+			}
+		}
 	}
 
 	webFS, err := fs.Sub(webFiles, "web")
@@ -123,7 +140,7 @@ func main() {
 		}
 
 		fmt.Println("┌────────────────────────────────────────────────┐")
-		fmt.Println("│     OnStock — Administración (sistema completo)│")
+		fmt.Println("│   OnStock — Administración (sistema completo)  │")
 		fmt.Println("├────────────────────────────────────────────────┤")
 		fmt.Printf("│  Interfaz:  %-34s │\n", openURL)
 		if *host != "127.0.0.1" && *host != "localhost" {

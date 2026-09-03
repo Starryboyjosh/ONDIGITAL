@@ -78,11 +78,19 @@ export async function render(page) {
       </div>
 
       <aside class="card vito-side card-pad">
-        <h2>Cómo usar a Vito</h2>
+        <h2>Qué puede hacer Vito</h2>
+        <ul class="vito-caps" id="vito-caps"><li class="muted">Cargando capacidades…</li></ul>
+
+        <p class="vito-side-note vito-readonly">
+          Vito <b>solo consulta</b> los datos de este OnStock. La única acción que
+          puede ejecutar es crear una orden de compra en borrador, y siempre te
+          pide confirmación antes de guardarla. Nunca cobra, anula ni borra nada.
+        </p>
+
+        <h2>Cómo preguntarle</h2>
         <ul class="vito-help">
-          <li>Pregunta en español sobre stock, ventas o rotación.</li>
-          <li>Vito responde con datos de <b>este</b> OnStock y te dice la fuente.</li>
-          <li>Si propone una acción (p. ej. crear una orden de compra), <b>tú confirmas</b> antes de que se ejecute.</li>
+          <li>Escribe en español, como se lo dirías a un empleado.</li>
+          <li>Cada respuesta indica de dónde salió el dato.</li>
           <li>El sistema funciona igual si Vito está apagado.</li>
         </ul>
         ${status && status.message ? `<p class="vito-side-note muted">${esc(status.message)}</p>` : ''}
@@ -94,9 +102,18 @@ export async function render(page) {
   const form = $('#vito-form', page);
   const input = $('#vito-input', page);
 
+  // La lista de capacidades sale del catálogo de módulos del servidor, no de un
+  // texto escrito a mano: si mañana Vito gana o pierde una herramienta, la
+  // pantalla lo dice sola.
+  loadCapabilities($('#vito-caps', page));
+
   if (!enabled) {
     appendSystem(messagesEl,
-      status?.message || 'Vito no está activo. Puedes seguir usando OnStock con normalidad.');
+      status?.message || 'Vito no está activo en este equipo.');
+    appendSystem(messagesEl,
+      'Puedes seguir usando OnStock con normalidad: el inventario, la caja y los '
+      + 'reportes no dependen del asistente. Para encenderlo, configura el motor '
+      + 'de Vito (en la nube o en el servidor del negocio) y reinicia el sistema.');
     return;
   }
 
@@ -299,7 +316,60 @@ function appendAssistant(root, { content, citations, pending, onConfirm, error }
   }
 }
 
+async function loadCapabilities(root) {
+  if (!root) return;
+  let data;
+  try {
+    data = await api.get('/api/modules');
+  } catch {
+    root.innerHTML = '<li class="muted">No se pudo cargar la lista de capacidades.</li>';
+    return;
+  }
+  const caps = (data.modules || []).flatMap((m) => m.capabilities || []);
+  if (!caps.length) {
+    root.innerHTML = '<li class="muted">Este equipo no tiene módulos conectados a Vito.</li>';
+    return;
+  }
+  root.innerHTML = caps.map((c) => `
+    <li>
+      <span class="vito-cap-head">
+        <span class="vito-cap-name">${esc(c.name)}</span>
+        <span class="badge ${c.read_only ? 'badge-gray' : 'badge-amber'} badge-plain">
+          ${c.read_only ? 'solo consulta' : 'pide confirmación'}
+        </span>
+      </span>
+      <span class="vito-cap-desc">${esc(c.description || '')}</span>
+    </li>`).join('');
+}
+
+// Formato ligero: el motor responde en texto con marcas tipo markdown. Se
+// escapa primero y luego se aplican solo negritas, código y viñetas —nada que
+// pueda inyectar HTML.
 function formatReply(text) {
-  // Escape then light formatting: newlines → <br>, bullets stay readable
-  return esc(text || '').replaceAll('\n', '<br>');
+  let html = esc(text || '');
+  html = html.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  const lines = html.split('\n');
+  const out = [];
+  let lista = null; // 'ul' | 'ol' | null
+  const cerrar = () => { if (lista) { out.push(`</${lista}>`); lista = null; } };
+  for (const raw of lines) {
+    const linea = raw.trim();
+    const vinieta = linea.match(/^[-*•]\s+(.*)$/);
+    const numerada = linea.match(/^\d+[.)]\s+(.*)$/);
+    if (vinieta) {
+      if (lista !== 'ul') { cerrar(); out.push('<ul>'); lista = 'ul'; }
+      out.push(`<li>${vinieta[1]}</li>`);
+    } else if (numerada) {
+      if (lista !== 'ol') { cerrar(); out.push('<ol>'); lista = 'ol'; }
+      out.push(`<li>${numerada[1]}</li>`);
+    } else if (!linea) {
+      cerrar();
+    } else {
+      cerrar();
+      out.push(`<p>${raw}</p>`);
+    }
+  }
+  cerrar();
+  return out.join('');
 }

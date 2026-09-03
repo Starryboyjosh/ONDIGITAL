@@ -101,13 +101,23 @@ export async function render(page) {
       </div>
     </div>
 
-    <div class="card mt card-pad" style="font-size:13px; color:var(--text-2); line-height:1.7">
-      <b style="color:var(--text)">Acerca del sistema</b><br>
-      OnStock · Sistema local de inventario, ventas y reportes.
-      La base de datos (SQLite) se guarda en la carpeta <span class="mono">data/</span> junto al ejecutable —
-      respáldala periódicamente copiando esa carpeta. El sistema también es accesible desde otras
-      computadoras de la red local usando la dirección IP que se muestra al iniciar el programa.
+    <div class="card mt">
+      <h2>Acerca del sistema</h2>
+      <div class="card-pad" style="padding-top:0">
+        <dl class="about-grid">
+          <dt>Versión</dt><dd id="ab-version" class="mono">—</dd>
+          <dt>Asistente Vito</dt><dd id="ab-vito">—</dd>
+          <dt>Base de datos</dt><dd>SQLite, en la carpeta <span class="mono">data/</span> junto al ejecutable.
+            Para respaldar, copia esa carpeta con el sistema cerrado.</dd>
+          <dt>Otros equipos</dt><dd>De fábrica el sistema solo atiende a esta computadora. Para que la
+            caja o la oficina entren desde la red local, inícialo con
+            <span class="mono">onstock -host 0.0.0.0</span>: al arrancar mostrará la dirección IP que
+            deben escribir los demás equipos.</dd>
+        </dl>
+      </div>
     </div>`;
+
+  cargarAcerca(page);
 
   // Apariencia (solo visual, se aplica al instante y se guarda por equipo)
   const syncTheme = () => $$('.theme-option', page)
@@ -138,4 +148,24 @@ export async function render(page) {
       toast('Configuración guardada');
     } catch (err) { toastErr(err); }
   });
+}
+
+// Datos reales del sistema: la versión sale del catálogo de módulos y el estado
+// del asistente de su propio endpoint. Antes esta tarjeta era un párrafo fijo.
+async function cargarAcerca(page) {
+  const ver = $('#ab-version', page);
+  const vito = $('#ab-vito', page);
+  try {
+    const mods = await api.get('/api/modules');
+    const m = (mods.modules || []).find((x) => x.id === 'onstock') || (mods.modules || [])[0];
+    if (ver && m) ver.textContent = `${m.name} ${m.version}`;
+  } catch { if (ver) ver.textContent = 'OnStock'; }
+  try {
+    const st = await api.get('/api/vito/status');
+    if (vito) {
+      vito.innerHTML = st.enabled
+        ? '<span class="badge badge-green">Activo</span> Consulta tus datos y prepara órdenes de compra.'
+        : '<span class="badge badge-gray">Desactivado</span> El sistema funciona igual; el asistente es opcional.';
+    }
+  } catch { if (vito) vito.textContent = 'No disponible'; }
 }

@@ -64,11 +64,17 @@ async function loadTable(page) {
     sales = await api.get('/api/sales?' + p.toString());
   } catch (err) { toastErr(err); return; }
 
+  // Se muestran las dos cifras a propósito: lo facturado (con ISV) es lo que
+  // entró a la caja, y las ventas netas son las que aparecen en el Dashboard y
+  // en el Estado de Resultados. Sin ambas, las pantallas parecen contradecirse.
   const completed = sales.filter(v => v.status === 'completada');
-  const totV = completed.reduce((a, v) => a + v.total, 0);
+  const totFact = completed.reduce((a, v) => a + v.total, 0);
+  const totNeto = completed.reduce((a, v) => a + v.subtotal, 0);
   const totU = completed.reduce((a, v) => a + (v.subtotal - v.cost_total), 0);
   $('#totals', page).innerHTML =
-    `${completed.length} ventas · Total: <b>${money(totV)}</b> · Utilidad: <b class="text-green">${money(totU)}</b>`;
+    `${completed.length} venta${completed.length === 1 ? '' : 's'} · Facturado: <b>${money(totFact)}</b>`
+    + ` · Netas de ISV: <b>${money(totNeto)}</b>`
+    + ` · Utilidad: <b class="text-green">${money(totU)}</b>`;
 
   if (!sales.length) {
     root.innerHTML = '<div class="empty-state"><b>Sin ventas en este período</b>Ajusta los filtros o registra una nueva venta.</div>';
@@ -104,7 +110,11 @@ async function loadTable(page) {
       </tbody>
     </table></div>`;
 
-  root.addEventListener('click', async (e) => {
+  // La tabla se vuelve a pintar en cada filtro, pero el contenedor es el mismo:
+  // sin quitar el manejador anterior, un clic terminaría disparándose una vez
+  // por cada búsqueda hecha en la sesión.
+  if (root._rowClick) root.removeEventListener('click', root._rowClick);
+  root._rowClick = async (e) => {
     const row = e.target.closest('tr[data-id]');
     if (!row) return;
     const id = +row.dataset.id;
@@ -114,7 +124,8 @@ async function loadTable(page) {
       return;
     }
     detailModal(id, page);
-  });
+  };
+  root.addEventListener('click', root._rowClick);
 }
 
 async function voidSale(id, page) {

@@ -1,7 +1,7 @@
 // Caja / Registradora (POS): solo cobro. En modo cajero no hay acceso a finanzas.
 import { api } from '../api.js';
 import {
-  $, $$, esc, money, num, icons, toast, toastErr,
+  $, $$, esc, money, qty, icons, toast, toastErr,
   openModal, productPicker, state,
 } from '../ui.js';
 import { isCajero, checkExitPin, enterCajeroMode, exitCajeroMode } from '../access.js';
@@ -66,6 +66,14 @@ export async function render(page, opts = {}) {
           <input class="input price-input" id="t-disc" type="number" min="0" step="0.01" value="0">
         </div>
         <div class="pos-total-row grand"><span>Total a cobrar</span><span id="t-total">${money(0)}</span></div>
+        <!-- Vuelto: en una pulpería el 90% de los cobros son en efectivo y el
+             cajero hace la resta de cabeza. Solo se muestra para efectivo y no
+             se guarda: es una calculadora del mostrador. -->
+        <div class="pos-total-row" id="row-cash" style="align-items:center">
+          <label for="t-cash">Recibe (${esc(state.settings.currency_symbol || 'L')})</label>
+          <input class="input price-input" id="t-cash" type="number" min="0" step="0.01" placeholder="0">
+        </div>
+        <div class="pos-total-row pos-change" id="row-change"><span>Vuelto</span><span id="t-change">—</span></div>
 
         <hr class="sep">
         <div class="form-grid" style="grid-template-columns:1fr">
@@ -98,6 +106,8 @@ export async function render(page, opts = {}) {
   productPicker(searchInput, (p) => addToCart(p, page));
 
   $('#t-disc', page).addEventListener('input', () => updateTotals(page));
+  $('#t-cash', page).addEventListener('input', () => updateTotals(page));
+  $('#c-pay', page).addEventListener('change', () => updateTotals(page));
   $('#btn-charge', page).addEventListener('click', () => charge(page));
 
   const lockBtn = $('#btn-lock-caja', page);
@@ -188,7 +198,7 @@ function renderCart(page) {
           <tr data-i="${i}">
             <td>
               <div class="cell-main">${esc(l.product.name)}</div>
-              <div class="cell-sub mono">${esc(l.product.sku)} · stock ${num(l.product.stock)}</div>
+              <div class="cell-sub mono">${esc(l.product.sku)} · stock ${qty(l.product.stock)}</div>
             </td>
             <td class="num"><input class="input price-input" data-price type="number" min="0" step="0.01" value="${l.unitPrice}"></td>
             <td class="num"><input class="input qty-input" data-qty type="number" min="0.01" step="any" value="${l.qty}"></td>
@@ -251,6 +261,24 @@ function updateTotals(page) {
   $('#t-isv', page).textContent = money(isv);
   $('#t-total', page).textContent = money(total);
   $('#btn-charge', page).disabled = cart.length === 0 || total < 0 || cart.some(l => l.qty <= 0);
+
+  const efectivo = $('#c-pay', page).value === 'efectivo';
+  $('#row-cash', page).hidden = !efectivo;
+  $('#row-change', page).hidden = !efectivo;
+  if (efectivo) {
+    const recibe = +$('#t-cash', page).value || 0;
+    const chg = $('#t-change', page);
+    if (!recibe) {
+      chg.textContent = '—';
+      chg.className = 'muted';
+    } else if (recibe >= total) {
+      chg.textContent = money(recibe - total);
+      chg.className = 'text-green';
+    } else {
+      chg.textContent = `Faltan ${money(total - recibe)}`;
+      chg.className = 'text-red';
+    }
+  }
 }
 
 async function charge(page) {
@@ -259,6 +287,7 @@ async function charge(page) {
   if (btn.disabled) return;
   btn.disabled = true;
 
+  const recibido = $('#c-pay', page).value === 'efectivo' ? (+$('#t-cash', page).value || 0) : 0;
   const body = {
     customer_name: $('#c-name', page).value.trim(),
     customer_rtn: $('#c-rtn', page).value.trim(),
@@ -281,6 +310,9 @@ async function charge(page) {
           <div style="font-size:14px; color:var(--text-2)">Venta <b class="mono">${esc(sale.sale_number)}</b></div>
           <div style="font-size:34px; font-weight:800; margin:8px 0">${money(sale.total)}</div>
           <div class="muted">Subtotal ${money(sale.subtotal)} · ISV ${money(sale.isv)}</div>
+          ${recibido >= sale.total && recibido > 0
+            ? `<div style="margin-top:10px; font-size:15px">Recibió ${money(recibido)} · Vuelto <b class="text-green">${money(recibido - sale.total)}</b></div>`
+            : ''}
         </div>`,
       footer: `
         ${isStandalone || isCajero() ? '' : '<a href="#/ventas" class="btn btn-outline">Ver historial</a>'}
@@ -295,6 +327,8 @@ async function charge(page) {
     renderCart(page);
     ['c-name', 'c-rtn', 'c-notes'].forEach(id => { $('#' + id, page).value = ''; });
     $('#t-disc', page).value = '0';
+    $('#t-cash', page).value = '';
+    updateTotals(page);
   } catch (err) {
     toastErr(err);
     btn.disabled = false;

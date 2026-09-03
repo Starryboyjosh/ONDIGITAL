@@ -95,23 +95,32 @@ type isRow struct {
 	indent bool
 }
 
+// neg devuelve el monto con signo contrario, pero deja el cero en cero: sin
+// esto una línea sin movimiento se imprimía como "-0.00".
+func neg(v float64) float64 {
+	if v == 0 {
+		return 0
+	}
+	return -v
+}
+
 func incomeStatementRows(st store.IncomeStatement) []isRow {
 	return []isRow{
 		{label: "INGRESOS", kind: "section"},
 		{label: "Ventas brutas", value: st.VentasBrutas, indent: true},
-		{label: "(-) Descuentos y rebajas", value: -st.Descuentos, indent: true},
+		{label: "(-) Descuentos y rebajas", value: neg(st.Descuentos), indent: true},
 		{label: "Ventas netas", value: st.VentasNetas, kind: "sub"},
-		{label: "(-) Costo de ventas", value: -st.CostoVentas, indent: true},
+		{label: "(-) Costo de ventas", value: neg(st.CostoVentas), indent: true},
 		{label: "UTILIDAD BRUTA", value: st.UtilidadBruta, kind: "total"},
 		{label: "GASTOS DE OPERACIÓN", kind: "section"},
-		{label: "Gastos de venta", value: -st.GastosVentas, indent: true},
-		{label: "Gastos administrativos", value: -st.GastosAdministrativos, indent: true},
-		{label: "Total gastos de operación", value: -st.GastosOperativos, kind: "sub"},
+		{label: "Gastos de venta", value: neg(st.GastosVentas), indent: true},
+		{label: "Gastos administrativos", value: neg(st.GastosAdministrativos), indent: true},
+		{label: "Total gastos de operación", value: neg(st.GastosOperativos), kind: "sub"},
 		{label: "UTILIDAD DE OPERACIÓN", value: st.UtilidadOperativa, kind: "total"},
-		{label: "Gastos financieros", value: -st.GastosFinancieros, indent: true},
-		{label: "Otros gastos", value: -st.OtrosGastos, indent: true},
+		{label: "Gastos financieros", value: neg(st.GastosFinancieros), indent: true},
+		{label: "Otros gastos", value: neg(st.OtrosGastos), indent: true},
 		{label: "UTILIDAD ANTES DE ISR", value: st.UtilidadAntesISR, kind: "total"},
-		{label: fmt.Sprintf("(-) ISR estimado (%.0f%%)", st.ISRRate), value: -st.ISR, indent: true},
+		{label: fmt.Sprintf("(-) ISR estimado (%.0f%%)", st.ISRRate), value: neg(st.ISR), indent: true},
 		{label: "UTILIDAD NETA", value: st.UtilidadNeta, kind: "final"},
 	}
 }

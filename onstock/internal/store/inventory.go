@@ -38,10 +38,12 @@ func (s *Store) ListMovements(f MovementFilter) ([]StockMovement, error) {
 		limit = 500
 	}
 	args = append(args, limit)
+	// Se ordena por fecha y no por id: el kardex es un libro cronológico y el id
+	// solo coincide con la fecha mientras nada se cargue con fecha retroactiva.
 	rows, err := s.db.Query(`SELECT m.id, m.product_id, p.name, p.sku, m.type, m.qty, m.unit_cost, m.reference, m.notes, m.created_at
 	  FROM stock_movements m JOIN products p ON p.id = m.product_id
 	  WHERE `+strings.Join(where, " AND ")+`
-	  ORDER BY m.id DESC LIMIT ?`, args...)
+	  ORDER BY m.created_at DESC, m.id DESC LIMIT ?`, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,6 +65,10 @@ func (s *Store) ListMovements(f MovementFilter) ([]StockMovement, error) {
 //   - tipo "salida":  resta qty del stock (qty > 0; merma, daño, uso interno)
 //   - tipo "ajuste":  fija el stock al valor contado qty (>= 0); registra la diferencia
 func (s *Store) AdjustStock(productID int64, movType string, qty float64, notes string) (Product, error) {
+	// Se lee antes de abrir la transacción: el pool tiene una sola conexión y
+	// consultar dentro del tx se bloquearía contra sí mismo.
+	allowNegative := s.settingBool("allow_negative_stock")
+
 	tx, err := s.db.Begin()
 	if err != nil {
 		return Product{}, err
@@ -85,6 +91,9 @@ func (s *Store) AdjustStock(productID int64, movType string, qty float64, notes 
 	case "salida":
 		if qty <= 0 {
 			return Product{}, errors.New("la cantidad debe ser mayor que cero")
+		}
+		if qty > stock && !allowNegative {
+			return Product{}, fmt.Errorf("stock insuficiente: hay %g y quiere sacar %g", stock, qty)
 		}
 		delta = -qty
 	case "ajuste":

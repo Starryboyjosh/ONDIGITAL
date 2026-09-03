@@ -64,11 +64,14 @@ export async function render(page) {
         <button class="btn btn-outline btn-sm" id="ms-xlsx">${icons.download} Excel</button>
         <button class="btn btn-outline btn-sm" id="ms-pdf">${icons.download} PDF</button>
       </div>
-      <div id="ms-result" class="card-pad" style="display:none"></div>
+      <div id="ms-result" class="card-pad"></div>
     </div>
 
     <div class="card">
       <h2>Otras exportaciones</h2>
+      <p class="muted card-pad" style="padding-bottom:0; font-size:13px">
+        El inventario se exporta al día de hoy; las ventas usan el período del Estado de Resultados.
+      </p>
       <div class="card-pad flex" style="flex-wrap:wrap">
         <button class="btn btn-outline" id="inv-xlsx">${icons.download} Inventario (Excel)</button>
         <button class="btn btn-outline" id="inv-pdf">${icons.download} Inventario (PDF)</button>
@@ -107,6 +110,7 @@ export async function render(page) {
     download(`/api/reports/sales/export?format=pdf&from=${$('#is-from', page).value}&to=${$('#is-to', page).value}`));
 
   await loadStatement(page);
+  await loadMonthly(page);
 }
 
 async function loadStatement(page) {
@@ -135,6 +139,7 @@ async function loadStatement(page) {
       ${section('GASTOS DE OPERACIÓN')}
       ${row('Gastos de venta', -st.gastos_ventas, '', true)}
       ${row('Gastos administrativos', -st.gastos_administrativos, '', true)}
+      ${row('Total gastos de operación', -st.gastos_operativos, 'is-sub')}
       ${row('UTILIDAD DE OPERACIÓN', st.utilidad_operativa, 'is-total')}
       ${row('Gastos financieros', -st.gastos_financieros, '', true)}
       ${row('Otros gastos', -st.otros_gastos, '', true)}

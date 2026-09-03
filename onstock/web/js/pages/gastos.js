@@ -69,7 +69,8 @@ async function loadTable(page) {
   } catch (err) { toastErr(err); return; }
 
   const total = list.reduce((a, e) => a + e.amount, 0);
-  $('#total', page).innerHTML = `${list.length} gastos · Total: <b>${money(total)}</b>`;
+  $('#total', page).innerHTML =
+    `${list.length} gasto${list.length === 1 ? '' : 's'} · Total: <b>${money(total)}</b>`;
 
   if (!list.length) {
     root.innerHTML = '<div class="empty-state"><b>Sin gastos en este período</b>Registra alquiler, planillas, energía, etc.</div>';
@@ -101,7 +102,11 @@ async function loadTable(page) {
       </tbody>
     </table></div>`;
 
-  root.addEventListener('click', async (ev) => {
+  // La tabla se vuelve a pintar en cada filtro, pero el contenedor es el mismo:
+  // sin quitar el manejador anterior, un clic terminaría disparándose una vez
+  // por cada búsqueda hecha en la sesión.
+  if (root._rowClick) root.removeEventListener('click', root._rowClick);
+  root._rowClick = async (ev) => {
     const btn = ev.target.closest('[data-act]');
     if (!btn) return;
     const id = +btn.closest('tr').dataset.id;
@@ -117,7 +122,8 @@ async function loadTable(page) {
         loadTable(page);
       } catch (err) { toastErr(err); }
     }
-  });
+  };
+  root.addEventListener('click', root._rowClick);
 }
 
 function expenseModal(e, page) {

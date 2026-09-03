@@ -83,7 +83,11 @@ async function loadTable(page) {
       </tbody>
     </table></div>`;
 
-  root.addEventListener('click', async (e) => {
+  // La tabla se vuelve a pintar en cada filtro, pero el contenedor es el mismo:
+  // sin quitar el manejador anterior, un clic terminaría disparándose una vez
+  // por cada búsqueda hecha en la sesión.
+  if (root._rowClick) root.removeEventListener('click', root._rowClick);
+  root._rowClick = async (e) => {
     const btn = e.target.closest('[data-act]');
     if (!btn) return;
     const id = +btn.closest('tr').dataset.id;
@@ -100,7 +104,8 @@ async function loadTable(page) {
         loadTable(page);
       } catch (err) { toastErr(err); }
     }
-  });
+  };
+  root.addEventListener('click', root._rowClick);
 }
 
 function supplierModal(s, page) {

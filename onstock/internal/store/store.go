@@ -181,8 +181,8 @@ func (s *Store) seedDefaults() error {
 		"prices_include_isv":   "1",
 		"allow_negative_stock": "0",
 		// Tenant / plan comercial (Fase 4)
-		"tenant_id": "",
-		"plan":      "starter",
+		"tenant_id":     "",
+		"plan":          "starter",
 		"modules":       "onstock",
 		"locale":        "es-HN",
 		"caja_exit_pin": "", // PIN para salir del modo cajero (UI)

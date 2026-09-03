@@ -26,7 +26,7 @@ export async function render(page) {
       <div class="page-actions">
         <button class="btn btn-outline" id="btn-cats">Categorías</button>
         <button class="btn btn-outline" id="btn-export">${icons.download} Excel</button>
-        <button class="btn btn-outline" id="btn-labels">${icons.printer} Etiquetas</button>
+        <button class="btn btn-outline" id="btn-labels">${icons.printer} Etiquetas<span id="sel-count"></span></button>
         <button class="btn btn-primary" id="btn-new">${icons.plus} Nuevo producto</button>
       </div>
     </div>
@@ -88,7 +88,7 @@ async function loadTable(page) {
   root.innerHTML = `
     <div class="table-wrap"><table class="table">
       <thead><tr>
-        <th style="width:30px"><input type="checkbox" id="sel-all"></th>
+        <th style="width:30px"><input type="checkbox" id="sel-all" aria-label="Seleccionar todos los productos de la lista"></th>
         <th>Producto</th><th>SKU</th><th>Categoría</th>
         <th class="num">Costo</th><th class="num">Precio</th><th class="num">Margen</th>
         <th class="num">Stock</th><th></th><th class="actions-cell"></th>
@@ -99,7 +99,7 @@ async function loadTable(page) {
           const low = p.stock <= p.min_stock;
           return `
           <tr data-id="${p.id}" ${p.active ? '' : 'style="opacity:.55"'}>
-            <td><input type="checkbox" class="sel-row" data-id="${p.id}" ${selected.has(p.id) ? 'checked' : ''}></td>
+            <td><input type="checkbox" class="sel-row" data-id="${p.id}" aria-label="Seleccionar ${esc(p.name)}" ${selected.has(p.id) ? 'checked' : ''}></td>
             <td>
               <div class="cell-main">${esc(p.name)}</div>
               <div class="cell-sub">${esc(p.supplier_name || '')}</div>
@@ -126,19 +126,36 @@ async function loadTable(page) {
       </tbody>
     </table></div>`;
 
+  // Sin esto las casillas parecían decorativas: se marcaban y no pasaba nada
+  // visible hasta abrir el modal de etiquetas.
+  const syncSel = () => {
+    $$('.sel-row', root).forEach(cb => {
+      cb.closest('tr').classList.toggle('is-selected', cb.checked);
+    });
+    const c = $('#sel-count', page);
+    if (c) c.textContent = selected.size ? ` (${selected.size})` : '';
+  };
+
   $('#sel-all', root).addEventListener('change', (e) => {
     $$('.sel-row', root).forEach(cb => {
       cb.checked = e.target.checked;
       const id = +cb.dataset.id;
       e.target.checked ? selected.add(id) : selected.delete(id);
     });
+    syncSel();
   });
   $$('.sel-row', root).forEach(cb => cb.addEventListener('change', () => {
     const id = +cb.dataset.id;
     cb.checked ? selected.add(id) : selected.delete(id);
+    syncSel();
   }));
+  syncSel();
 
-  root.addEventListener('click', async (e) => {
+  // La tabla se vuelve a pintar en cada filtro, pero el contenedor es el mismo:
+  // sin quitar el manejador anterior, un clic terminaría disparándose una vez
+  // por cada búsqueda hecha en la sesión.
+  if (root._rowClick) root.removeEventListener('click', root._rowClick);
+  root._rowClick = async (e) => {
     const btn = e.target.closest('[data-act]');
     if (!btn) return;
     const id = +btn.closest('tr').dataset.id;
@@ -156,7 +173,8 @@ async function loadTable(page) {
         loadTable(page);
       } catch (err) { toastErr(err); }
     }
-  });
+  };
+  root.addEventListener('click', root._rowClick);
 }
 
 // ── Modal de producto ───────────────────────────────────

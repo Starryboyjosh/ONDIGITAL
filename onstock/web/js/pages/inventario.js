@@ -2,10 +2,23 @@
 import { api } from '../api.js';
 import {
   $, esc, qty, money, fmtDate, icons, toast, toastErr,
-  openModal, movementBadge, productPicker, debounce,
+  openModal, movementBadge, productPicker, debounce, today,
 } from '../ui.js';
 
-let filters = { product: null, type: '', from: '', to: '' };
+// El kardex de un negocio con un año de historia pasa de los 5,000 movimientos.
+// Abrir en «todo» obligaba a desplazarse por 500 filas antes de encontrar lo de
+// hoy, así que la vista arranca en los últimos 30 días y el rango es editable.
+const DIAS_INICIALES = 30;
+function haceDias(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function filtrosIniciales() {
+  return { product: null, type: '', from: haceDias(DIAS_INICIALES), to: today() };
+}
+
+let filters = filtrosIniciales();
 
 export async function render(page) {
   page.innerHTML = `
@@ -36,6 +49,8 @@ export async function render(page) {
         <input class="input" type="date" id="f-from" value="${filters.from}">
         <input class="input" type="date" id="f-to" value="${filters.to}">
         <button class="btn btn-ghost btn-sm" id="f-clear">Limpiar</button>
+        <div class="spacer"></div>
+        <div id="mov-count" class="muted" style="font-size:13px"></div>
       </div>
       <div id="mov-table"></div>
     </div>`;
@@ -54,7 +69,7 @@ export async function render(page) {
   $('#f-from', page).addEventListener('change', () => { filters.from = $('#f-from', page).value; loadTable(page); });
   $('#f-to', page).addEventListener('change', () => { filters.to = $('#f-to', page).value; loadTable(page); });
   $('#f-clear', page).addEventListener('click', () => {
-    filters = { product: null, type: '', from: '', to: '' };
+    filters = filtrosIniciales();
     render(page);
   });
   $('#btn-mov', page).addEventListener('click', () => movementModal(page));
@@ -70,13 +85,30 @@ async function loadTable(page) {
   if (filters.from) p.set('from', filters.from);
   if (filters.to) p.set('to', filters.to);
 
+  // El servidor devuelve como máximo LIMITE movimientos. Se pide uno de más
+  // para saber si la lista quedó recortada y decírselo al usuario en vez de
+  // dejarlo creyendo que ese es todo el kardex.
+  const LIMITE = 500;
+  p.set('limit', String(LIMITE + 1));
+
   let movs;
   try {
     movs = await api.get('/api/movements?' + p.toString());
   } catch (err) { toastErr(err); return; }
 
+  const recortado = movs.length > LIMITE;
+  if (recortado) movs = movs.slice(0, LIMITE);
+
+  const contador = $('#mov-count', page);
+  if (contador) {
+    contador.textContent = recortado
+      ? `Más de ${LIMITE} movimientos`
+      : `${movs.length} movimiento${movs.length === 1 ? '' : 's'}`;
+  }
+
   if (!movs.length) {
-    root.innerHTML = '<div class="empty-state"><b>Sin movimientos</b>Los movimientos de stock aparecerán aquí.</div>';
+    root.innerHTML = `<div class="empty-state"><b>Sin movimientos en este período</b>
+      Amplía el rango de fechas o quita los filtros para ver el resto del kardex.</div>`;
     return;
   }
 
@@ -104,7 +136,10 @@ async function loadTable(page) {
             <td class="muted">${esc(mv.notes)}</td>
           </tr>`).join('')}
       </tbody>
-    </table></div>`;
+    </table></div>
+    ${recortado ? `<p class="muted card-pad" style="font-size:13px; margin:0">
+      Se muestran los ${LIMITE} movimientos más recientes del período. Filtra por producto o acorta el rango de fechas para ver el resto.
+    </p>` : ''}`;
 }
 
 function movementModal(page) {

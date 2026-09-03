@@ -31,9 +31,9 @@ export async function render(page) {
 
     <div class="grid grid-4 mb">
       <div class="card kpi">
-        <div class="kpi-label"><span class="kpi-icon ki-primary">${ic.sales}</span> Ventas del mes</div>
+        <div class="kpi-label"><span class="kpi-icon ki-primary">${ic.sales}</span> Ventas del mes <span class="muted">netas de ISV</span></div>
         <div class="kpi-value">${money(d.ventas_mes)}</div>
-        <div class="kpi-foot">${d.num_ventas_mes} ventas · ticket ${money(d.ticket_promedio)}</div>
+        <div class="kpi-foot">${d.num_ventas_mes} ventas · ticket ${money(d.ticket_promedio)} · facturado ${money(d.ventas_mes + d.isv_cobrado_mes)}</div>
       </div>
       <div class="card kpi">
         <div class="kpi-label"><span class="kpi-icon ki-green">${ic.profit}</span> Utilidad bruta</div>
@@ -57,17 +57,18 @@ export async function render(page) {
       <h2>Ventas últimos 12 meses <span class="muted">netas de ISV</span></h2>
       <div class="chart-wrap" id="chart"></div>
       <div class="chart-legend">
-        <span><span class="dot" style="background:#4f46e5"></span>Ventas netas</span>
-        <span><span class="dot" style="background:#10b981"></span>Utilidad bruta</span>
+        <span><span class="dot dot-ventas"></span>Ventas netas</span>
+        <span><span class="dot dot-utilidad"></span>Utilidad bruta</span>
+        <span><span class="dot dot-parcial"></span>Mes en curso (incompleto)</span>
       </div>
     </div>
 
     <div class="grid grid-2 mb">
       <div class="card">
-        <h2>Top productos del mes</h2>
+        <h2>Top productos del mes <span class="muted">netas de ISV</span></h2>
         ${d.top_products.length ? `
         <div class="table-wrap"><table class="table">
-          <thead><tr><th>Producto</th><th class="num">Cant.</th><th class="num">Ventas</th><th class="num">Utilidad</th></tr></thead>
+          <thead><tr><th>Producto</th><th class="num">Cant.</th><th class="num">Ventas netas</th><th class="num">Utilidad</th></tr></thead>
           <tbody>
             ${d.top_products.map(t => `
               <tr>

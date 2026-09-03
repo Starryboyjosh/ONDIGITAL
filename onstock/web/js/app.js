@@ -47,6 +47,7 @@ async function navigate() {
   }
 
   applyShellMode();
+  closeNav();
   $$('.nav a').forEach(a => a.classList.toggle('active', a.dataset.route === route.nav));
   $('#modal-root').innerHTML = '';
 
@@ -71,19 +72,39 @@ export async function refreshSettings() {
   if (el) el.textContent = state.settings.company_name || 'Mi Empresa';
 }
 
+// ── Menú lateral en móvil ───────────────────────────────
+// Debajo de 860px el sidebar es un cajón. Se cierra solo al navegar (arriba),
+// al tocar el fondo y con Escape, para que nunca quede tapando la pantalla.
+function setNav(open) {
+  document.body.classList.toggle('nav-open', open);
+  const btn = $('#nav-toggle');
+  const back = $('#nav-backdrop');
+  if (btn) {
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Cerrar el menú' : 'Abrir el menú');
+  }
+  if (back) back.hidden = !open;
+}
+function closeNav() { if (document.body.classList.contains('nav-open')) setNav(false); }
+
+function initNav() {
+  const btn = $('#nav-toggle');
+  const back = $('#nav-backdrop');
+  if (btn) btn.addEventListener('click', () => setNav(!document.body.classList.contains('nav-open')));
+  if (back) back.addEventListener('click', closeNav);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeNav(); });
+}
+
 window.addEventListener('hashchange', navigate);
 
 (async function init() {
   applyTheme();
   applyShellMode();
+  initNav();
   try { await refreshSettings(); } catch { /* el servidor mostrará el error en la página */ }
   // Si quedó en modo cajero de una sesión anterior, forzar caja
   if (isCajero() && !cajeroAllowed(location.hash || '#/')) {
     location.hash = '#/caja';
   }
   await navigate();
-
-  import('./firebase/sync.js').then(({ syncAllToFirebase }) => {
-    syncAllToFirebase().catch(err => console.error("Error en la sincronización inicial de Firebase:", err));
-  }).catch(err => console.error("No se pudo cargar el script de sincronización de Firebase:", err));
 })();
