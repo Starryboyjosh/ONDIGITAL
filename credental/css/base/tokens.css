@@ -1,4 +1,8 @@
 :root {
+  /* Tema claro por defecto: los controles nativos (date/time, scrollbars,
+     desplegables) se dibujan claros. `html.dark-theme` lo invierte. */
+  color-scheme: light;
+
   /* Identidad oficial CREDental: credentalhn.com */
   --brand-primary: #004aad;
   --brand-teal: #004d66;
@@ -27,17 +31,48 @@
   /* Texto */
   --text-primary: var(--brand-ink); /* Texto principal */
   --color-white: var(--text-primary); /* Alias heredado: texto principal */
-  --color-gray: #65717d;       /* Texto secundario */
-  --color-gray-dark: #8b949e;  /* Texto terciario / deshabilitado */
+  --color-gray: #65717d;       /* Texto secundario (4.65:1 sobre el crema) */
+  /* SOLO grafica: iconos, lineas de eje, thumbs. Como texto se queda en
+     2.87:1 sobre el crema y no llega al AA, asi que la jerarquia terciaria se
+     hace con tamano y peso, no aclarando mas el gris. */
+  --color-gray-dark: #8b949e;
 
-  /* Color de acción y semánticos */
-  --color-blue: var(--brand-primary);
-  --color-blue-mid: var(--brand-purple); /* Acción principal */
-  --color-blue-dark: #a94fc5;
+  /* Color de acción y semánticos.
+     La marca reparte los dos colores por función, no por jerarquía: el AZUL
+     (#004aad) es estructura — sidebar, cabecera del login, encabezado del
+     presupuesto — y el MORADO es la acción: botón primario, enlaces, iconos de
+     métrica, anillo de foco. Antes estos dos tokens se llamaban
+     `--action` / `--action-strong` y guardaban morado; el nombre
+     mentía sobre el color y sobre el papel. Había además un `--color-blue`
+     alias de `--brand-primary` con cero usos, ya retirado.
+     NO es `--brand-purple` a secas: el morado de identidad (#cb6ce6) da 3.08:1
+     con texto blanco encima y 2.87:1 como texto sobre el crema, así que ni el
+     botón primario ni los enlaces pasaban AA. Este es el mismo tono,
+     oscurecido hasta 5.58:1 / 5.2:1. `--brand-purple` se queda intacto para lo
+     decorativo (avatar, ítem activo, acento del logo). */
+  --action: #a723cd;
+  --action-strong: #8b1caa;
+  /* El azul de identidad usado como TINTA (texto, trazo, serie de gráfica).
+     `--brand-primary` es el azul de las superficies sólidas — sidebar, cabecera
+     del login — y no cambia entre temas; el mismo azul como texto sobre una
+     tarjeta oscura cae a 1.72:1. Ese uso pasa por aquí, que sí se aclara en
+     `html.dark-theme`. */
+  --ink-blue: var(--brand-primary);
+  /* Texto que va encima de --action en relleno sólido. */
+  --on-action: #ffffff;
   --color-teal: var(--brand-teal);        /* Acento secundario */
   --color-green: #198754;                 /* Estados positivos */
   --color-amber: #d97706;      /* Advertencias */
   --color-red: #dc2626;        /* Errores / estados críticos */
+
+  /* Variantes para TEXTO sobre fondo claro o sobre el relleno al 10% de las
+     insignias. Los tonos de arriba se quedan para iconos, bordes, barras y
+     líneas de gráfico (donde basta 3:1), pero como texto se quedaban entre
+     3.19:1 y 4.39:1 y no llegaban al AA de 4.5:1. Medido sobre el relleno
+     real de `.badge-*`: ámbar 4.8:1, verde 5.3:1, rojo 5.2:1. */
+  --color-green-text: #157347;
+  --color-amber-text: #b45309;
+  --color-red-text: #c81e1e;
 
   /* Estados Clínicos (odontograma) */
   --state-caries: #dc2626;

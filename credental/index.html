@@ -22,20 +22,22 @@
                 Sistema Inteligente de Gestión Dental e Historias Clínicas
             </p>
 
-            <p class="login-demo-hint" style="
+            <details class="login-demo-hint" style="
                 margin: 0 0 18px;
-                padding: 10px 12px;
+                padding: 6px 12px;
                 border-radius: 10px;
                 border: 1px solid rgba(203, 108, 230, 0.3);
                 background: rgba(203, 108, 230, 0.1);
                 color: var(--color-gray, #64748b);
-                font-size: 0.85rem;
+                font-size: 0.8rem;
                 line-height: 1.45;
                 text-align: left;
             ">
-                <strong style="color: var(--brand-purple);">Demo:</strong>
-                usuario <code>testing</code> · contraseña <code>1234</code>
-            </p>
+                <summary style="cursor: pointer; color: var(--action); font-weight: 600;">¿Es una demostración?</summary>
+                <p style="margin: 6px 0 4px;">
+                    usuario <code>testing</code> · contraseña <code>1234</code>
+                </p>
+            </details>
 
             <!-- Caja de alertas dinámicas -->
             <div id="login-alert" class="login-alert"></div>
@@ -112,12 +114,11 @@
 
             usernameInput.addEventListener("input", function () {
                 const username = this.value.trim().toLowerCase();
-                const validUsers = window.auth
-                    ? window.auth.getValidUsers()
-                    : [];
-                const user = validUsers.find((u) => u.username === username);
+                const marca = window.auth
+                    ? window.auth.lookupMarca(username)
+                    : null;
 
-                if (user) {
+                if (marca) {
                     const companies = {
                         credental: { name: "CREDental", accent: "#cb6ce6" },
                         "co_credental_demo": {
@@ -129,12 +130,14 @@
                             accent: "#cb6ce6",
                         },
                     };
-                    const company = companies[user.companyId];
+                    const company = companies[marca.empresa];
 
                     if (company) {
-                        // Cambiar color de acento principal
+                        // El acento decorativo se cambia por tenant; el color de
+                        // acción (--action) NO se toca: su valor en
+                        // tokens.css ya está calculado para pasar WCAG AA.
                         document.documentElement.style.setProperty(
-                            "--color-blue-mid",
+                            "--brand-purple",
                             company.accent,
                         );
 
@@ -157,7 +160,7 @@
 
                 // Restablecer al branding corporativo por defecto
                 document.documentElement.style.setProperty(
-                    "--color-blue-mid",
+                    "--brand-purple",
                     "#cb6ce6",
                 );
                 brandName.innerHTML = 'CRED<span class="acc">ental</span>';

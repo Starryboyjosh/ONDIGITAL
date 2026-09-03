@@ -16,8 +16,19 @@
 
 /* Ficha de Impresión Presupuesto (documento, colores fijos para impresión) */
 .invoice-container {
+  /* El presupuesto es un documento: se imprime siempre en papel blanco, así
+     que su tinta no sigue el tema de la app. Estos tokens existen para que el
+     documento tenga una paleta propia y ningún hex suelto quede en el HTML. */
+  --doc-ink: #1a202c;
+  --doc-ink-soft: #2d3748;
+  --doc-ink-mute: #4a5568;
+  --doc-muted: #65717d;
+  --doc-rule: #e2e8f0;
+  --doc-danger: #c0362c;
+  --doc-rule-strong: #cbd5e0;
+  --doc-surface: #f7fafc;
   background: #ffffff;
-  color: #1a202c;
+  color: var(--doc-ink);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 38px;
@@ -34,7 +45,7 @@
 .invoice-header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 2px solid var(--doc-rule);
   padding-bottom: 20px;
 }
 
@@ -58,7 +69,7 @@
   font-family: var(--font-title);
   font-weight: 800;
   font-size: 1.4rem;
-  color: #1e293b;
+  color: var(--doc-ink);
 }
 
 .invoice-brand span {
@@ -76,14 +87,14 @@
   font-family: var(--font-title);
   font-weight: 700;
   font-size: 1.2rem;
-  color: #1e293b;
+  color: var(--doc-ink);
 }
 
 .invoice-meta-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--doc-rule);
   padding-bottom: 15px;
 }
 
@@ -96,7 +107,7 @@
 .invoice-meta-label {
   font-weight: 700;
   font-size: 0.74rem;
-  color: #718096;
+  color: var(--doc-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -107,17 +118,17 @@
 }
 
 .invoice-table th {
-  background: #f7fafc;
-  border-bottom: 2px solid #e2e8f0;
+  background: var(--doc-surface);
+  border-bottom: 2px solid var(--doc-rule);
   padding: 10px;
   text-align: left;
   font-weight: 700;
-  color: #4a5568;
+  color: var(--doc-ink-mute);
 }
 
 .invoice-table td {
   padding: 10px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--doc-rule);
 }
 
 .invoice-totals {
@@ -136,7 +147,7 @@
 }
 
 .invoice-total-row.grand {
-  border-top: 2px solid #cbd5e0;
+  border-top: 2px solid var(--doc-rule-strong);
   padding-top: 8px;
   font-weight: 700;
   font-size: 1.05rem;
@@ -145,9 +156,9 @@
 
 .invoice-footer {
   margin-top: auto;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--doc-rule);
   padding-top: 15px;
   text-align: center;
   font-size: 0.74rem;
-  color: #718096;
+  color: var(--doc-muted);
 }

@@ -191,6 +191,61 @@ document.addEventListener('DOMContentLoaded', function() {
     renderFindingsHistory();
   }
 
+  // Nomenclatura clínica de las caras y de los estados. Son declaraciones de
+  // función (no const) a propósito: el primer render ocurre más arriba en el
+  // archivo y una const todavía sin inicializar reventaría la pantalla.
+  // El nombre anatómico de una cara depende del cuadrante FDI. En el esquema
+  // las arcadas se dibujan 18…11 | 21…28 arriba y 48…41 | 31…38 abajo, así que
+  // el lado que apunta a la línea media cambia de mitad: en los cuadrantes 1 y
+  // 4 la mesial queda a la derecha en pantalla; en los cuadrantes 2 y 3, a la
+  // izquierda. Vertical: en la arcada superior la vestibular va hacia arriba y
+  // la palatina hacia el centro; en la inferior es al revés.
+  function caraEs(cara, pieza) {
+    const cuadrante = parseInt(String(pieza || '').charAt(0), 10);
+    const conocido = cuadrante >= 1 && cuadrante <= 4;
+    const superior = cuadrante === 1 || cuadrante === 2;
+    const mesialDerecha = cuadrante === 1 || cuadrante === 4;
+    if (cara === 'center') return 'Oclusal';
+    if (!conocido) {
+      const genericos = {
+        top: 'Vestibular',
+        bottom: 'Lingual/Palatina',
+        left: 'Mesial',
+        right: 'Distal'
+      };
+      return genericos[cara] || 'Superficie ' + (cara || 'no especificada');
+    }
+    if (cara === 'top') return superior ? 'Vestibular' : 'Lingual';
+    if (cara === 'bottom') return superior ? 'Palatina' : 'Vestibular';
+    if (cara === 'left') return mesialDerecha ? 'Distal' : 'Mesial';
+    if (cara === 'right') return mesialDerecha ? 'Mesial' : 'Distal';
+    return 'Superficie ' + (cara || 'no especificada');
+  }
+
+  // Etiqueta corta para la insignia del hallazgo: si es larga se parte en dos
+  // líneas y empuja el número de pieza. El detalle va en el texto de abajo.
+  function condicionEs(cond) {
+    const nombres = {
+      caries: 'Caries',
+      restaurado: 'Restauración',
+      corona: 'Corona',
+      implante: 'Implante',
+      ausente: 'Ausente'
+    };
+    return nombres[cond] || 'Hallazgo';
+  }
+
+  function detalleCondicion(cond) {
+    const textos = {
+      caries: 'Caries activa pendiente de tratamiento.',
+      restaurado: 'Restauración de resina en buen estado.',
+      corona: 'Pieza rehabilitada con corona de cerámica.',
+      implante: 'Pieza sustituida por implante de titanio.',
+      ausente: 'Pieza ausente o extraída previamente.'
+    };
+    return textos[cond] || 'Condición clínica general de la pieza dental completa.';
+  }
+
   // Manejar clic en una cara del diente
   function handleFaceClick(toothNum, faceName) {
     if (!currentPatientId) return;
@@ -229,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Guardar en la base de datos local
     window.db.saveOdontogram(currentPatientId, odontogramData);
-    window.showToast(`Diente ${toothNum} (Cara ${faceName.toUpperCase()}): Estado actualizado`, 'success');
+    window.showToast(`Pieza ${toothNum} · cara ${caraEs(faceName, toothNum).toLowerCase()}: estado actualizado`, 'success');
 
     renderFindingsHistory();
   }
@@ -281,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.db.saveOdontogram(currentPatientId, odontogramData);
-    window.showToast(`Diente ${toothNum}: Estado clínico global modificado`, 'success');
+    window.showToast(`Pieza ${toothNum}: estado clínico actualizado`, 'success');
     renderFindingsHistory();
   }
 
@@ -300,14 +355,6 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    // Mapear nombres en español para las caras
-    const faceNamesEs = {
-      top: 'Vestibular',
-      bottom: 'Lingual/Palatina',
-      left: 'Mesial',
-      right: 'Distal',
-      center: 'Oclusal'
-    };
 
     activeEntries.sort().forEach(toothNum => {
       const state = odontogramData[toothNum];
@@ -319,14 +366,14 @@ document.addEventListener('DOMContentLoaded', function() {
           const div = document.createElement('div');
           div.className = `finding-item ${condition}`;
 
-          const condText = condition === 'caries' ? 'Caries Activa' : 'Restauración Resina';
+          const condText = condicionEs(condition);
           div.innerHTML = `
             <div class="finding-meta">
               <strong>Pieza ${toothNum}</strong>
               <span class="badge ${condition === 'caries' ? 'badge-canceled' : 'badge-confirmed'}">${condText}</span>
             </div>
             <div style="font-size: 0.78rem; margin-top: 4px;">
-              Superficie dental implicada: <strong>${faceNamesEs[faceName]}</strong>
+              Cara <strong>${caraEs(faceName, toothNum)}</strong> · ${detalleCondicion(condition)}
             </div>
           `;
           clinicalTimeline.appendChild(div);
@@ -338,11 +385,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const div = document.createElement('div');
         div.className = `finding-item ${state.condition}`;
 
-        let condText = 'Ausente / Extraído';
-        let badgeClass = 'badge-pending';
-        
-        if (state.condition === 'corona') { condText = 'Corona de Cerámica'; badgeClass = 'badge-confirmed'; }
-        if (state.condition === 'implante') { condText = 'Implante de Titanio'; badgeClass = 'badge-completed'; }
+        const BADGE_CONDICION = {
+          ausente: 'badge-pending',
+          corona: 'badge-confirmed',
+          implante: 'badge-completed'
+        };
+        const condText = condicionEs(state.condition);
+        const badgeClass = BADGE_CONDICION[state.condition] || 'badge-pending';
 
         div.innerHTML = `
           <div class="finding-meta">
@@ -350,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <span class="badge ${badgeClass}">${condText}</span>
           </div>
           <div style="font-size: 0.78rem; margin-top: 4px;">
-            Condición clínica general de la pieza dental completa.
+            ${detalleCondicion(state.condition)}
           </div>
         `;
         clinicalTimeline.appendChild(div);

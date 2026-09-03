@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('appt-id').value = ''; // Modo creación
       
       // Colocar por defecto la fecha de hoy en el input
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = window.todayISO();
       document.getElementById('appt-date').value = todayStr;
       document.getElementById('appt-time').value = '09:00';
 
@@ -148,10 +148,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     detailTime.textContent = `${dateFormatted} a las ${timeFormatted} hrs (${durationText})`;
-    detailPatient.innerHTML = `<strong>Paciente:</strong> <a href="pacientes.html?id=${patient.id}" style="color: var(--color-teal); text-decoration:none; font-weight:600;">${patient.name}</a>`;
-    detailDentist.innerHTML = `<strong>Dentista:</strong> ${dentist.name} (${dentist.specialty})`;
-    detailSpecialty.innerHTML = `<strong>Especialidad:</strong> <span class="tag">${appt.specialty}</span>`;
-    detailNotes.innerHTML = `<strong>Observaciones:</strong> ${appt.notes || 'Ninguna'}`;
+    detailPatient.innerHTML = `<strong>Paciente:</strong> <a href="pacientes.html?id=${encodeURIComponent(patient.id)}" style="color: var(--color-teal); text-decoration:none; font-weight:600;">${window.escapeHtml(patient.name)}</a>`;
+    detailDentist.innerHTML = `<strong>Dentista:</strong> ${window.escapeHtml(dentist.name)} (${window.escapeHtml(dentist.specialty)})`;
+    detailSpecialty.innerHTML = `<strong>Especialidad:</strong> <span class="tag">${window.escapeHtml(appt.specialty)}</span>`;
+    detailNotes.innerHTML = `<strong>Observaciones:</strong> ${window.escapeHtml(appt.notes || 'Ninguna')}`;
     
     // Mapear estado
     let badgeClass = 'badge-pending';
@@ -196,8 +196,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function deleteAppt(apptId) {
-    if (confirm('¿Está seguro de que desea eliminar permanentemente esta cita de la agenda?')) {
+  async function deleteAppt(apptId) {
+    const confirmado = await window.confirmarAccion('¿Está seguro de que desea eliminar permanentemente esta cita de la agenda?', { textoConfirmar: 'Eliminar' });
+    if (confirmado) {
       window.db.deleteAppointment(apptId);
       window.showToast('Cita eliminada correctamente', 'error');
       detailModal.classList.remove('active');
@@ -306,10 +307,17 @@ document.addEventListener('DOMContentLoaded', function() {
         let highlightedTitle = item.title;
         let highlightedSubtitle = item.subtitle || '';
         
+        // El texto se escapa SIEMPRE antes de insertarse; solo <mark> es markup.
+        // Además la consulta se escapa como regex: un nombre con '(' o '*'
+        // rompía el autocompletar con una excepción.
+        highlightedTitle = window.escapeHtml(highlightedTitle);
+        highlightedSubtitle = window.escapeHtml(highlightedSubtitle);
+
         if (query) {
-          const regex = new RegExp(`(${query})`, 'gi');
-          highlightedTitle = item.title.replace(regex, '<mark>$1</mark>');
-          highlightedSubtitle = item.subtitle ? item.subtitle.replace(regex, '<mark>$1</mark>') : '';
+          const patron = window.escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp('(' + patron + ')', 'gi');
+          highlightedTitle = highlightedTitle.replace(regex, '<mark>$1</mark>');
+          highlightedSubtitle = highlightedSubtitle ? highlightedSubtitle.replace(regex, '<mark>$1</mark>') : '';
         }
 
         row.innerHTML = `
@@ -459,32 +467,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const patient = window.db.getPatient(appt.patientId) || { name: 'S/N' };
         const timeStr = appt.dateTime.split('T')[1];
         
-        let pillColor = 'rgba(255, 184, 0, 0.15)'; // Pendiente por defecto (amarillo)
-        let pillBorder = '1px solid rgba(255, 184, 0, 0.3)';
-        let textColor = '#ffb800';
-
-        if (appt.status === 'confirmed') {
-          pillColor = 'rgba(var(--brand-primary-rgb), 0.15)'; // Azul
-          pillBorder = '1px solid rgba(var(--brand-primary-rgb), 0.3)';
-          textColor = 'var(--color-blue-mid)';
-        } else if (appt.status === 'completed') {
-          pillColor = 'rgba(var(--brand-purple-rgb), 0.12)'; // Teal
-          pillBorder = '1px solid rgba(var(--brand-purple-rgb), 0.25)';
-          textColor = 'var(--color-teal)';
-        } else if (appt.status === 'canceled') {
-          pillColor = 'rgba(255, 74, 90, 0.12)'; // Rojo
-          pillBorder = '1px solid rgba(255, 74, 90, 0.25)';
-          textColor = 'var(--state-caries)';
-        }
-
+        // El color de la píldora vive en CSS (appt-pill--<estado>): el amarillo
+        // #ffb800 que estaba aquí daba 1.9:1 sobre fondo claro y era ilegible.
         const pill = document.createElement('div');
-        pill.className = 'appt-pill';
-        pill.style.background = pillColor;
-        pill.style.border = pillBorder;
-        pill.style.color = textColor;
-        
+        pill.className = 'appt-pill appt-pill--' + (appt.status || 'pending');
+
         const firstName = patient.name.split(' ')[0];
-        pill.textContent = `${timeStr} - ${firstName}`;
+        pill.textContent = `${window.formatHora(timeStr)} · ${firstName}`;
+        pill.title = `${window.formatHora(timeStr)} · ${patient.name} · ${window.estadoCitaEs(appt.status)}`;
         
         pill.addEventListener('click', (e) => {
           e.stopPropagation(); // Evitar clics en la celda

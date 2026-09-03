@@ -20,10 +20,8 @@
         <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
       <nav>
-        <ul class="nav-menu">
-          <li class="nav-item"><a href="dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg><span>Dashboard</span></a></li>
-          <li class="nav-item active"><a href="inventario.html"><svg viewBox="0 0 24 24"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span>Inventario</span></a></li>
-        </ul>
+        <!-- El menu de navegacion se genera dinamicamente en js/main.js (ver el array navItems). -->
+        <ul class="nav-menu"></ul>
       </nav>
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
@@ -61,10 +59,10 @@
         </div>
         <div class="card metric-card">
           <div class="metric-icon-wrap" style="background: rgba(217, 119, 6, 0.1); color: var(--color-amber);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
-          <div class="metric-info"><span class="metric-title">Próximo vencimiento</span><span class="metric-value" id="inv-vencimiento">0</span></div>
+          <div class="metric-info"><span class="metric-title">Por vencer (60 días)</span><span class="metric-value" id="inv-vencimiento">0</span><span class="metric-sub" id="inv-vencidos">Sin lotes vencidos</span></div>
         </div>
         <div class="card metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="17" y1="11" x2="23" y2="11"></line></svg></div>
+          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--action);"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="17" y1="11" x2="23" y2="11"></line></svg></div>
           <div class="metric-info"><span class="metric-title">Sin proveedor</span><span class="metric-value" id="inv-sin-proveedor">0</span></div>
         </div>
         <div class="card metric-card">

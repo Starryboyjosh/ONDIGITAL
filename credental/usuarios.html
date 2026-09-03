@@ -30,44 +30,8 @@
       </div>
 
       <nav>
-        <ul class="nav-menu">
-          <li class="nav-item">
-            <a href="dashboard.html">
-              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="agenda.html">
-              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-              <span>Agenda Citas</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="pacientes.html">
-              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              <span>Pacientes</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="odontograma.html">
-              <svg viewBox="0 0 24 24"><path d="M12 2C10.5 2 9 3 8 4.5 7 6 6 8.5 6 10c0 4 2 6 2 9 0 2.5 1 3 2 3s1.5-1 2-2c0.5 1 1 2 2 2s2-0.5 2-3c0-3 2-5 2-9 0-1.5-1-4-2-5.5C15 3 13.5 2 12 2z"></path></svg>
-              <span>Odontograma</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="periodontograma.html">
-              <svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
-              <span>Periodontograma</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="presupuestos.html">
-              <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-              <span>Presupuestos</span>
-            </a>
-          </li>
-        </ul>
+        <!-- El menu de navegacion se genera dinamicamente en js/main.js (ver el array navItems). -->
+        <ul class="nav-menu"></ul>
       </nav>
 
       <!-- Perfil de usuario en el Sidebar -->
@@ -137,7 +101,7 @@
   <div class="modal-overlay" id="user-modal">
     <div class="modal-container" style="max-width: 500px;">
       <div class="modal-header">
-        <h3 class="modal-title">Registrar Nuevo Usuario</h3>
+        <h3 class="modal-title" id="user-modal-title">Registrar Nuevo Usuario</h3>
         <button class="modal-close-btn" id="user-modal-close">✕</button>
       </div>
       <form id="user-form">
@@ -157,7 +121,7 @@
               <label class="form-label" for="user-role">Rol / Cargo Clínico</label>
               <select id="user-role" class="form-control" required>
                 <option value="Dentista Principal">Dentista Principal</option>
-                <option value="Odontóloga General">Odontólogo(a) General</option>
+                <option value="Odontólogo(a) General">Odontólogo(a) General</option>
                 <option value="Cirujano Maxilofacial">Cirujano Maxilofacial</option>
                 <option value="Ortodoncista">Ortodoncista</option>
                 <option value="Recepcionista">Recepcionista</option>
@@ -170,12 +134,13 @@
             <div class="form-group">
               <label class="form-label" for="user-password">Contraseña</label>
               <input type="password" id="user-password" class="form-control" placeholder="Contraseña de acceso" required>
+              <small class="form-hint" id="user-password-hint" style="display:none;">Déjela vacía para conservar la contraseña actual.</small>
             </div>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Registrar Miembro</button>
+          <button type="submit" class="btn btn-primary" id="user-submit-btn">Registrar Miembro</button>
         </div>
       </form>
     </div>
@@ -201,11 +166,54 @@
       // Renderizar tabla al cargar
       renderUsersTable();
 
+      // El mismo modal sirve para alta y edición: sin esto la única acción
+      // posible sobre un miembro del equipo era eliminarlo.
+      let editandoUsuario = null;
+
+      const modalTitle = document.getElementById('user-modal-title');
+      const submitBtn = document.getElementById('user-submit-btn');
+      const passwordInput = document.getElementById('user-password');
+      const passwordHint = document.getElementById('user-password-hint');
+      const usernameInput = document.getElementById('user-username');
+
       // Control del Modal
       addBtn.addEventListener('click', () => {
+        editandoUsuario = null;
         userForm.reset();
+        modalTitle.textContent = 'Registrar Nuevo Usuario';
+        submitBtn.textContent = 'Registrar Miembro';
+        usernameInput.readOnly = false;
+        passwordInput.required = true;
+        passwordInput.placeholder = 'Contraseña de acceso';
+        passwordHint.style.display = 'none';
         userModal.classList.add('active');
       });
+
+      window.editUser = function(username) {
+        const user = window.db.getUser(username);
+        if (!user) {
+          window.showToast('No se encontró el usuario.', 'error');
+          return;
+        }
+        editandoUsuario = user.username;
+        userForm.reset();
+        document.getElementById('user-fullname').value = user.name || '';
+        usernameInput.value = user.username || '';
+        // El nombre de usuario es la llave del registro: se muestra pero no se
+        // edita, para no dejar sesiones ni citas apuntando a un login que ya no existe.
+        usernameInput.readOnly = true;
+        const roleSelect = document.getElementById('user-role');
+        if (user.role && Array.from(roleSelect.options).some(o => o.value === user.role)) {
+          roleSelect.value = user.role;
+        }
+        passwordInput.value = '';
+        passwordInput.required = false;
+        passwordInput.placeholder = 'Sin cambios';
+        passwordHint.style.display = '';
+        modalTitle.textContent = 'Editar Usuario';
+        submitBtn.textContent = 'Guardar Cambios';
+        userModal.classList.add('active');
+      };
 
       const closeModal = () => {
         userModal.classList.remove('active');
@@ -224,13 +232,13 @@
         e.preventDefault();
 
         const fullname = document.getElementById('user-fullname').value.trim();
-        const username = document.getElementById('user-username').value.trim().toLowerCase();
+        const username = editandoUsuario || document.getElementById('user-username').value.trim().toLowerCase();
         const role = document.getElementById('user-role').value;
         const password = document.getElementById('user-password').value;
 
-        // Validar si el usuario ya existe
+        // Validar si el usuario ya existe (solo al dar de alta)
         const existingUser = window.db.getUser(username);
-        if (existingUser) {
+        if (!editandoUsuario && existingUser) {
           window.showToast('El nombre de usuario ya está registrado.', 'error');
           return;
         }
@@ -253,21 +261,22 @@
           avatar = 'US';
         }
 
-        // Crear objeto de usuario
+        // Crear objeto de usuario. En edición se omite la contraseña cuando el
+        // campo va vacío: db.saveUser fusiona el registro y conserva la actual.
         const newUser = {
           username: username,
           name: fullname,
           role: role,
           avatar: avatar,
-          password: password,
           companyId: currentUser.companyId
         };
+        if (password) newUser.password = password;
 
         // Guardar en Base de Datos Local
         window.db.saveUser(newUser);
-        
-        // Si el usuario creado es un profesional clínico, también lo registramos en la lista de dentistas
-        const rolesClinicos = ['Dentista Principal', 'Odontóloga General', 'Cirujano Maxilofacial', 'Ortodoncista'];
+
+        // Si el usuario es un profesional clínico, también lo registramos en la lista de dentistas
+        const rolesClinicos = ['Dentista Principal', 'Odontólogo(a) General', 'Cirujano Maxilofacial', 'Ortodoncista'];
         if (rolesClinicos.includes(role)) {
           window.db.saveDentist({
             id: username,
@@ -275,9 +284,23 @@
             specialty: role === 'Dentista Principal' ? 'Implantología y Estética' : role,
             companyId: currentUser.companyId
           });
+        } else if (editandoUsuario && window.db.deleteDentist) {
+          // Dejó de ser rol clínico: no debe seguir apareciendo en la agenda.
+          window.db.deleteDentist(username);
         }
 
-        window.showToast('Usuario registrado con éxito.', 'success');
+        if (editandoUsuario && editandoUsuario === currentUser.username && window.auth.refreshSession) {
+          window.auth.refreshSession();
+          const nameEl = document.getElementById('sidebar-user-name');
+          const roleEl = document.getElementById('sidebar-user-role');
+          const avatarEl = document.getElementById('sidebar-user-avatar');
+          if (nameEl) nameEl.textContent = fullname;
+          if (roleEl) roleEl.textContent = role;
+          if (avatarEl) avatarEl.textContent = avatar;
+        }
+
+        window.showToast(editandoUsuario ? 'Usuario actualizado.' : 'Usuario registrado con éxito.', 'success');
+        editandoUsuario = null;
         closeModal();
         renderUsersTable();
       });
@@ -323,17 +346,30 @@
         roleCell.appendChild(roleTag);
 
         const actionCell = document.createElement('td');
-        actionCell.style.textAlign = 'right';
+        actionCell.style.cssText = 'text-align: right; white-space: nowrap;';
         if (user.username === currentUser.username) {
           const activeLabel = document.createElement('span');
           activeLabel.style.cssText = 'font-size: 0.8rem; color: var(--color-teal); font-weight: 600; padding-right: 15px;';
           activeLabel.textContent = 'Tú (Sesión Activa)';
           actionCell.appendChild(activeLabel);
+          const editSelf = document.createElement('button');
+          editSelf.type = 'button';
+          editSelf.className = 'btn btn-secondary btn-sm';
+          editSelf.textContent = 'Editar';
+          editSelf.addEventListener('click', () => window.editUser(user.username));
+          actionCell.appendChild(editSelf);
         } else {
+          const editButton = document.createElement('button');
+          editButton.type = 'button';
+          editButton.className = 'btn btn-secondary btn-sm';
+          editButton.style.marginRight = '8px';
+          editButton.textContent = 'Editar';
+          editButton.addEventListener('click', () => window.editUser(user.username));
+          actionCell.appendChild(editButton);
+
           const deleteButton = document.createElement('button');
           deleteButton.type = 'button';
-          deleteButton.className = 'btn btn-danger';
-          deleteButton.style.cssText = 'padding: 6px 12px; font-size: 0.8rem;';
+          deleteButton.className = 'btn btn-danger btn-sm';
           deleteButton.textContent = 'Eliminar';
           deleteButton.addEventListener('click', () => window.deleteUser(user.username));
           actionCell.appendChild(deleteButton);
@@ -345,10 +381,11 @@
     }
 
     // Función para eliminar usuario
-    window.deleteUser = function(username) {
-      if (confirm(`¿Está seguro de que desea eliminar al usuario clínico '${username}'?`)) {
+    window.deleteUser = async function(username) {
+      const confirmado = await window.confirmarAccion(`¿Está seguro de que desea eliminar al usuario clínico '${username}'?`, { textoConfirmar: 'Eliminar' });
+      if (confirmado) {
         window.db.deleteUser(username);
-        
+
         // También remover de la lista de dentistas si existía
         if (window.db.deleteDentist) window.db.deleteDentist(username);
 

@@ -54,9 +54,18 @@
   cursor: pointer;
   font-size: 0.7rem;
   padding: 6px;
+  min-width: 28px;
+  min-height: 28px;
   z-index: 5;
   line-height: 1;
   transition: color 0.15s ease;
+}
+
+@media (pointer: coarse) {
+  .btn-dropdown-toggle {
+    min-width: 34px;
+    min-height: 34px;
+  }
 }
 
 .btn-dropdown-toggle:hover {
@@ -109,7 +118,7 @@
 
 .autocomplete-item mark {
   background: rgba(var(--brand-primary-rgb), 0.16);
-  color: var(--color-blue-dark);
+  color: var(--action-strong);
   border-radius: 2px;
   padding: 0 2px;
 }
@@ -125,3 +134,70 @@
   display: none !important;
 }
 
+
+/* --- Tabla de laboratorios ---------------------------------------------- */
+/* Las fechas cortas ("27 ago") y los estados de una sola palabra se partían en
+   dos líneas y descuadraban el alto de la fila. */
+.lab-col-fecha,
+.lab-col-estado,
+.lab-col-accion {
+  white-space: nowrap;
+}
+.lab-col-costo {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.lab-col-accion {
+  text-align: right;
+}
+.lab-col-paciente {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.lab-cerrada {
+  color: var(--color-gray);
+  font-size: 0.8rem;
+}
+
+/* --- Vista preliminar del encabezado (Configuración) --------------------- */
+.cfg-preview {
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  padding: 22px;
+  border-radius: 12px;
+}
+.cfg-preview-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px 18px;
+  border-bottom: 2px solid var(--action);
+  padding-bottom: 15px;
+  margin-bottom: 10px;
+}
+/* El nombre y la dirección necesitan poder encogerse; el bloque de contacto,
+   quedarse en una línea por dato para no chocar con la dirección. */
+.cfg-preview-id {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+.cfg-preview-contact {
+  flex: 0 1 auto;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--color-gray);
+  white-space: nowrap;
+}
+
+/* Al envolverse en móvil, el bloque de contacto alineado a la derecha quedaba
+   descolgado bajo la dirección con el teléfono aparentemente centrado. */
+@media (max-width: 640px) {
+  .cfg-preview-contact {
+    text-align: left;
+    width: 100%;
+    white-space: normal;
+  }
+}

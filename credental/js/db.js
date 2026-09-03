@@ -145,6 +145,9 @@
     sessionStorage.setItem(DB_PREFIX + key, JSON.stringify(value));
   }
 
+  // Fecha en formato ISO (YYYY-MM-DD) usando la zona horaria del equipo.
+  // Nunca usar `toISOString()` para "hoy": en Honduras (UTC-6) devuelve el día
+  // siguiente a partir de las 18:00 y descuadra agenda, caja y reportes.
   function localDateISO(date) {
     const value = date || new Date();
     return value.getFullYear() + '-' +
@@ -152,22 +155,50 @@
       String(value.getDate()).padStart(2, '0');
   }
 
-  // Sincronización asíncrona hacia Firebase
+  // Identificador único aunque se creen varios registros en el mismo
+  // milisegundo (por ejemplo al cargar la semilla): Date.now() por sí solo
+  // repetía ids y dos abonos podían quedar con la misma clave.
+  let seq = 0;
+  function nuevoId(prefijo) {
+    seq = (seq + 1) % 1000;
+    return prefijo + '_' + Date.now() + String(seq).padStart(3, '0');
+  }
+
+  // Se exponen globalmente porque db.js es el primer script de todas las páginas.
+  window.localDateISO = localDateISO;
+  window.todayISO = () => localDateISO(new Date());
+  window.addDaysISO = (days, from) => {
+    const base = from ? new Date(from + 'T00:00:00') : new Date();
+    base.setDate(base.getDate() + days);
+    return localDateISO(base);
+  };
+
+  // Sincronización asíncrona opcional hacia Firestore.
+  // La ruta lleva la clínica activa (`clinicas/<clinicaId>/<colección>`) porque
+  // es el modelo que aíslan las reglas de firebase/firestore.rules. Una
+  // colección plana mezclaría los pacientes de todas las clínicas.
+  function cloudPath(localKey) {
+    const cid = getCurrentCompanyId();
+    if (!cid) return null;
+    return 'clinicas/' + cid + '/' + localKey;
+  }
+
   function syncSave(localKey, docId, data) {
-    if (window.firebaseConnector) {
-      const firestoreColl = 'credental_' + localKey;
-      window.firebaseConnector.saveDoc(firestoreColl, String(docId), data);
-    }
+    if (!window.firebaseConnector) return;
+    const path = cloudPath(localKey);
+    if (!path) return;
+    window.firebaseConnector.saveDoc(path, String(docId), data);
   }
 
   function syncDelete(localKey, docId) {
-    if (window.firebaseConnector) {
-      const firestoreColl = 'credental_' + localKey;
-      window.firebaseConnector.deleteDoc(firestoreColl, String(docId));
-    }
+    if (!window.firebaseConnector) return;
+    const path = cloudPath(localKey);
+    if (!path) return;
+    window.firebaseConnector.deleteDoc(path, String(docId));
   }
 
   async function syncCollection(localKey, firestoreColl, idField) {
+    if (!firestoreColl) return;
     const localData = get(localKey, []);
     const cloudData = await window.firebaseConnector.getDocs(firestoreColl);
     if (cloudData.length === 0 && localData.length > 0) {
@@ -192,6 +223,7 @@
   }
 
   async function syncObjectCollection(localKey, firestoreColl) {
+    if (!firestoreColl) return;
     const localObj = get(localKey, {});
     const cloudData = await window.firebaseConnector.getDocs(firestoreColl);
     if (cloudData.length === 0 && Object.keys(localObj).length > 0) {
@@ -215,18 +247,15 @@
     if (!window.firebaseConnector) return;
     try {
       await window.firebaseConnector.init();
-      console.log("Iniciando sincronización con Firebase...");
-      await syncCollection('companies', 'credental_companies', 'id');
-      await syncCollection('users', 'credental_users', 'username');
-      await syncCollection('dentists', 'credental_dentists', 'id');
-      await syncCollection('treatments', 'credental_treatments', 'code');
-      await syncCollection('patients', 'credental_patients', 'id');
-      await syncCollection('appointments', 'credental_appointments', 'id');
-      await syncCollection('budgets', 'credental_budgets', 'id');
-      await syncCollection('payments', 'credental_payments', 'id');
-      await syncObjectCollection('clinica_config', 'credental_clinica_config');
-      await syncObjectCollection('periodontograms', 'credental_periodontograms');
-      console.log("🔄 Base de datos sincronizada con Firebase Firestore.");
+      await syncCollection('users', cloudPath('users'), 'username');
+      await syncCollection('dentists', cloudPath('dentists'), 'id');
+      await syncCollection('treatments', cloudPath('treatments'), 'code');
+      await syncCollection('patients', cloudPath('patients'), 'id');
+      await syncCollection('appointments', cloudPath('appointments'), 'id');
+      await syncCollection('budgets', cloudPath('budgets'), 'id');
+      await syncCollection('payments', cloudPath('payments'), 'id');
+      await syncObjectCollection('clinica_config', cloudPath('clinica_config'));
+      await syncObjectCollection('periodontograms', cloudPath('periodontograms'));
     } catch (e) {
       console.error("Error en sincronización en segundo plano:", e);
     }
@@ -301,7 +330,7 @@
       const toSave = { ...dentist };
       if (cid && toSave.companyId && toSave.companyId !== cid) return null;
       if (cid) toSave.companyId = cid;
-      if (!toSave.id) toSave.id = 'den_' + Date.now();
+      if (!toSave.id) toSave.id = nuevoId('den');
 
       const index = dentists.findIndex(d => d.id === toSave.id && (!cid || d.companyId === cid));
       if (cid && index === -1 && dentists.some(d => d.id === toSave.id)) return null;
@@ -367,13 +396,16 @@
       // Fallback a los datos de la empresa si no hay config
       const company = window.db.getCompany(cid);
       const isCredentalDemo = cid === DEMO_COMPANY_ID;
+      // Para una empresa sin configurar se devuelven cadenas vacías: los
+      // campos del formulario deben mostrar su placeholder y el encabezado
+      // impreso debe omitir el dato, nunca imprimir "Teléfono no configurado".
       return {
         nombreClinica: company ? company.name : 'CREDental',
         direccion: isCredentalDemo
           ? 'Barrio Río Piedras, 26-29 avenida, 4 calle, San Pedro Sula, Cortés'
-          : 'Dirección no configurada',
-        telefono: isCredentalDemo ? '+504 3243-3050' : 'Teléfono no configurado',
-        correo: 'Correo no configurado'
+          : '',
+        telefono: isCredentalDemo ? '+504 3243-3050' : '',
+        correo: isCredentalDemo ? 'contacto@credentalhn.com' : ''
       };
     },
     saveClinicaConfig: (companyId, config) => {
@@ -410,9 +442,11 @@
       
       if (!toSave.id) {
         // Registrar Paciente Nuevo
-        toSave.id = 'pat_' + Date.now();
+        toSave.id = nuevoId('pat');
         toSave.odontogram = {};
         toSave.motivoConsulta = toSave.motivoConsulta || 'Consulta general preventiva.';
+        // Fecha de alta: la usan reportes para contar pacientes nuevos del periodo.
+        if (!toSave.createdAt) toSave.createdAt = window.todayISO();
         patients.push(toSave);
       } else {
         // Modificar Paciente Existente
@@ -465,7 +499,7 @@
       if (cid && toSave.dentistId && !window.db.getDentist(toSave.dentistId)) return null;
       
       if (!toSave.id) {
-        toSave.id = 'appt_' + Date.now();
+        toSave.id = nuevoId('appt');
         appts.push(toSave);
       } else {
         const index = appts.findIndex(a => a.id === toSave.id && (!cid || a.companyId === cid));
@@ -540,9 +574,21 @@
       if (!toSave.paymentStatus) {
         toSave.paymentStatus = 'pendiente';
       }
+
+      // Folio legible para el usuario. El id interno (bud_...) nunca debe
+      // mostrarse en pantalla ni en los comprobantes impresos.
+      if (!toSave.folio) {
+        const scope = cid ? budgets.filter(b => b.companyId === cid) : budgets;
+        let max = 0;
+        scope.forEach(b => {
+          const m = /^P-(\d+)$/.exec(b.folio || '');
+          if (m) max = Math.max(max, parseInt(m[1], 10));
+        });
+        toSave.folio = 'P-' + String(max + 1).padStart(4, '0');
+      }
       
       if (!toSave.id) {
-        toSave.id = 'bud_' + Date.now();
+        toSave.id = nuevoId('bud');
         budgets.push(toSave);
       } else {
         const index = budgets.findIndex(b => b.id === toSave.id && (!cid || b.companyId === cid));
@@ -575,8 +621,10 @@
       if (cid && payment.companyId && payment.companyId !== cid) return null;
 
       const toSave = { ...payment,
-        id: 'pay_' + Date.now(),
+        id: nuevoId('pay'),
         date: payment.date || localDateISO(),
+        // Hora del registro: la usa el libro de caja para ordenar el día.
+        time: payment.time || new Date().toTimeString().slice(0, 5),
         companyId: cid || budget.companyId || payment.companyId
       };
       payments.push(toSave);
@@ -694,9 +742,9 @@
             patientName: p.name,
             patientPhone: p.phone,
             type: 'recall',
-            title: 'Control Ausente',
-            desc: `Higiene periódica retrasada.`,
-            amount: 45000
+            title: 'Control preventivo pendiente',
+            desc: 'Sin citas en los últimos 3 meses. Corresponde agendar higiene y control.',
+            amount: null
           });
         }
       });

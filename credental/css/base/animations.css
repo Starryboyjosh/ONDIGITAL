@@ -23,15 +23,20 @@
   animation: pulse-shimmer 2s infinite ease-in-out;
 }
 
-/* Vista de Impresión del Presupuesto */
+/* Vista de impresión: solo se imprime la hoja pedida (el comprobante de
+   presupuesto o la hoja de reporte); el resto de la interfaz se oculta. */
 @media print {
   body * {
     visibility: hidden;
   }
-  .invoice-container, .invoice-container * {
+  .invoice-container, .invoice-container *,
+  .receipt-print-container, .receipt-print-container *,
+  .print-sheet, .print-sheet * {
     visibility: visible;
   }
-  .invoice-container {
+  .invoice-container,
+  .receipt-print-container,
+  .print-sheet {
     position: absolute;
     left: 0;
     top: 0;
@@ -40,6 +45,48 @@
     border: none;
     padding: 0;
     margin: 0;
+  }
+  .print-sheet {
+    display: block;
+    color: #111827;
+    font-family: var(--font-body);
+    font-size: 11pt;
+  }
+  .print-sheet .print-sheet-header {
+    border-bottom: 2px solid #111827;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+  }
+  .print-sheet h1 {
+    font-family: var(--font-title);
+    font-size: 17pt;
+    margin: 0 0 4px;
+  }
+  .print-sheet .print-sheet-header p {
+    margin: 2px 0;
+    font-size: 10pt;
+    color: #374151;
+  }
+  .print-sheet h3 {
+    font-family: var(--font-title);
+    font-size: 12pt;
+    margin: 18px 0 6px;
+  }
+  .print-sheet table {
+    width: 100%;
+    border-collapse: collapse;
+    page-break-inside: avoid;
+  }
+  .print-sheet th,
+  .print-sheet td {
+    border: 1px solid #d1d5db;
+    padding: 5px 8px;
+    text-align: left;
+    font-size: 10pt;
+  }
+  .print-sheet th {
+    background: #f3f4f6;
+    font-weight: 700;
   }
 }
 

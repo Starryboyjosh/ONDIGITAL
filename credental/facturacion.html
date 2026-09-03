@@ -22,20 +22,8 @@
       </div>
 
       <nav>
-        <ul class="nav-menu">
-          <li class="nav-item">
-            <a href="dashboard.html">
-              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item active">
-            <a href="facturacion.html">
-              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-              <span>Facturación</span>
-            </a>
-          </li>
-        </ul>
+        <!-- El menu de navegacion se genera dinamicamente en js/main.js (ver el array navItems). -->
+        <ul class="nav-menu"></ul>
       </nav>
 
       <!-- Perfil de usuario en el Sidebar -->
@@ -85,7 +73,7 @@
           </div>
         </div>
         <div class="card metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);">
+          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--action);">
             <svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>
           </div>
           <div class="metric-info">
@@ -124,7 +112,7 @@
 
       <!-- DOCUMENTOS EMITIDOS -->
       <div class="section-divider">
-        <div class="section-divider-icon" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);">
+        <div class="section-divider-icon" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--action);">
           <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
         </div>
         <span class="section-divider-text">Documentos emitidos</span>
@@ -149,7 +137,7 @@
           </table>
         </div>
         <p style="font-size: 0.76rem; color: var(--color-gray); margin-top: 12px;">
-          Datos de ejemplo para mostrar la estructura. La numeración real se asigna del rango CAI autorizado al emitir cada documento.
+          Los recibos se generan a partir de los abonos registrados en Cobranzas. Las facturas consumen un folio del rango CAI configurado abajo.
         </p>
       </div>
 
@@ -282,6 +270,49 @@
       </div>
 
     </main>
+  </div>
+
+  <!-- MODAL: EMITIR DOCUMENTO -->
+  <div class="modal-overlay" id="emit-modal">
+    <div class="modal-container" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Emitir documento fiscal</h3>
+        <button class="modal-close-btn" id="emit-modal-close">&#10005;</button>
+      </div>
+      <form id="emit-form">
+        <div class="modal-body">
+          <div class="alert-item warn" style="margin-bottom: 16px;">
+            <span class="alert-dot"></span>
+            <span class="alert-text">El documento se numera con el rango CAI cargado en esta instalaci&oacute;n. En modo demostraci&oacute;n no se transmite al SAR.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="emit-tipo">Tipo de documento</label>
+            <select id="emit-tipo" class="form-control">
+              <option value="Factura">Factura</option>
+              <option value="Nota de cr&eacute;dito">Nota de cr&eacute;dito</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="emit-presupuesto">Presupuesto a documentar</label>
+            <select id="emit-presupuesto" class="form-control" required></select>
+            <p class="form-hint" id="emit-detalle">&mdash;</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="emit-monto">Monto a documentar (L)</label>
+            <input type="number" id="emit-monto" class="form-control" min="1" step="0.01" required>
+            <p class="form-hint">Las tarifas del cat&aacute;logo cl&iacute;nico ya incluyen el ISV 15%.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="emit-numero">N&uacute;mero que se asignar&aacute;</label>
+            <input type="text" id="emit-numero" class="form-control" readonly>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('emit-modal').classList.remove('active')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Emitir documento</button>
+        </div>
+      </form>
+    </div>
   </div>
 
 </body>

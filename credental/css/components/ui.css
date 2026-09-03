@@ -17,15 +17,18 @@
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
   white-space: nowrap;
+  /* Varios botones son <a> (Nueva Cita, Ingresar Paciente...). Sin esto el
+     navegador les pone el subrayado de enlace encima del fondo del botón. */
+  text-decoration: none;
 }
 
 .btn-primary {
-  background: var(--color-blue-mid);
-  color: #ffffff;
+  background: var(--action);
+  color: var(--on-action);
   box-shadow: var(--shadow-sm);
 }
 .btn-primary:hover {
-  background: var(--color-blue-dark);
+  background: var(--action-strong);
 }
 
 .btn-secondary {
@@ -41,7 +44,7 @@
 .btn-success {
   background: rgba(22, 163, 74, 0.1);
   border: 1px solid rgba(22, 163, 74, 0.3);
-  color: var(--color-green);
+  color: var(--color-green-text);
 }
 .btn-success:hover {
   background: rgba(22, 163, 74, 0.16);
@@ -51,11 +54,58 @@
 .btn-danger {
   background: rgba(220, 38, 38, 0.1);
   border: 1px solid rgba(220, 38, 38, 0.3);
-  color: var(--color-red);
+  color: var(--color-red-text);
 }
 .btn-danger:hover {
   background: rgba(220, 38, 38, 0.16);
   border-color: var(--color-red);
+}
+
+/* Variante compacta: acciones secundarias dentro de la cabecera de una tarjeta. */
+.btn-sm {
+  padding: 6px 13px;
+  font-size: 0.82rem;
+}
+
+/* Los botones compactos de las tablas miden 29px de alto: bien con raton,
+   justo con el dedo. En pantallas tactiles se les da altura de objetivo. */
+@media (pointer: coarse) {
+  .btn-sm {
+    min-height: 34px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+/* Un botón deshabilitado debe leerse como deshabilitado (caja cerrada,
+   acción no disponible) y no aceptar el cursor de mano. */
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.btn:disabled:hover,
+.btn[disabled]:hover {
+  background: inherit;
+}
+
+/* --------------------------------------------------------------------------
+   Foco visible (WCAG 2.4.7)
+   Solo con :focus-visible, para que el anillo aparezca al navegar con teclado
+   y no al hacer clic con el ratón. Antes no había ningún indicador de foco en
+   botones, enlaces ni filas interactivas: era imposible operar con teclado.
+   -------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 3px solid var(--action);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Sobre el azul del sidebar el anillo morado se pierde; se usa el crema. */
+.sidebar :focus-visible,
+.logout-btn:focus-visible {
+  outline-color: var(--brand-cream);
 }
 
 /* Tarjetas */
@@ -73,10 +123,30 @@
   box-shadow: var(--shadow);
 }
 
+/* Texto solo para lectores de pantalla: rótulos de columnas de acción y
+   descripciones que no deben ocupar espacio visible. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Grid del Dashboard */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  /* auto-fill (no auto-fit) con pista mínima de 250px: a 1440px caben cuatro
+     tarjetas por fila con sitio de sobra para importes largos como
+     "L 44,752.50". Con 200px/auto-fit entraban cinco y el importe se salía
+     del borde de la tarjeta en Reportes y Dashboard; además auto-fill deja
+     que la quinta y la sexta conserven su ancho en vez de estirarse a lo
+     ancho de toda la fila. */
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 18px;
   margin-bottom: 28px;
 }
@@ -85,6 +155,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  min-width: 0;
 }
 
 .metric-icon-wrap {
@@ -110,6 +181,9 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  /* Sin min-width:0 el bloque de texto se niega a encogerse y desborda la
+     tarjeta en lugar de recortar el título. */
+  min-width: 0;
 }
 
 .metric-title {
@@ -126,6 +200,7 @@
   font-size: 1.55rem;
   line-height: 1.2;
   color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Dashboard Layout principal */
@@ -152,11 +227,69 @@
   }
 }
 
+/* En movil la pista minima de 250px deja una sola tarjeta por fila: las seis
+   metricas del Dashboard ocupaban media pantalla de scroll antes de llegar a
+   la agenda. A dos columnas caben en dos filas; el icono pasa arriba para que
+   el importe conserve el ancho completo de la tarjeta. */
+@media (max-width: 640px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .metric-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .metric-icon-wrap {
+    width: 38px;
+    height: 38px;
+  }
+
+  .metric-icon-wrap svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .metric-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.3px;
+  }
+
+  .metric-value {
+    font-size: 1.3rem;
+  }
+}
+
 .card-title-area {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
   margin-bottom: 18px;
+}
+
+/* En móvil el título del panel y su filtro compiten por la misma línea: el
+   título se partía en dos ("Historial de / envíos", "Órdenes de / laboratorio")
+   pegado al desplegable. Aquí el filtro baja a su propia línea. */
+@media (max-width: 640px) {
+  .card-title-area {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .card-title-area > .form-control,
+  .card-title-area > select,
+  .card-title-area > input {
+    width: 100%;
+    max-width: none;
+  }
 }
 
 .card-title {
@@ -181,6 +314,14 @@
   color: var(--color-gray);
 }
 
+/* Texto de ayuda bajo un campo (unidades, formato esperado, advertencias). */
+.form-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-gray);
+  line-height: 1.45;
+}
+
 .form-control {
   background: var(--bg-secondary);
   border: 1px solid var(--border-strong);
@@ -194,12 +335,12 @@
 }
 
 .form-control::placeholder {
-  color: var(--color-gray-dark);
+  color: var(--color-gray);
 }
 
 .form-control:focus {
   outline: none;
-  border-color: var(--color-blue-mid);
+  border-color: var(--action);
   box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.12);
 }
 
@@ -212,6 +353,11 @@
 /* Tablas */
 .custom-table-container {
   overflow-x: auto;
+  /* Bloque contenedor de la tabla: sin esto, un `.sr-only` (position:absolute)
+     dentro de una celda se posiciona contra el viewport y arrastra el ancho
+     del documento hasta el ancho real de la tabla. En movil eso hacia que
+     Cobranzas se abriera a 640px en vez de 390px. */
+  position: relative;
   min-width: 0;
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -246,6 +392,14 @@
   border-bottom: none;
 }
 
+/* Variante densa: para tablas con muchas columnas (laboratorios), donde el
+   relleno normal empuja la última columna fuera del contenedor. */
+.custom-table.table-densa th,
+.custom-table.table-densa td {
+  padding-left: 11px;
+  padding-right: 11px;
+}
+
 .custom-table tbody tr {
   transition: background 0.12s ease;
 }
@@ -260,7 +414,7 @@
   text-decoration: none;
 }
 .hover-link:hover {
-  color: var(--color-blue-mid);
+  color: var(--action);
 }
 
 /* Etiqueta genérica */
@@ -286,28 +440,136 @@
   border-radius: var(--radius-pill);
   letter-spacing: 0.3px;
   text-transform: uppercase;
+  /* Una insignia de dos palabras ("VENCE PRONTO") se partia en dos lineas y
+     la pastilla crecia por encima del alto de la fila, pisando el separador.
+     La columna se ensancha; la tabla ya vive dentro de su scroll horizontal. */
+  white-space: nowrap;
 }
 
 .badge-pending {
   background: rgba(217, 119, 6, 0.1);
-  color: var(--color-amber);
+  color: var(--color-amber-text);
   border: 1px solid rgba(217, 119, 6, 0.25);
 }
 
 .badge-confirmed {
+  /* Relleno azul y tinta azul. Antes el relleno era azul y el texto morado
+     (--action), así que la insignia se contradecía sola y, peor, la leyenda de
+     la agenda —que usa esta clase— salía morada mientras la cita del
+     calendario salía azul: la leyenda dejaba de explicar lo que señalaba. */
   background: rgba(var(--brand-primary-rgb), 0.1);
-  color: var(--color-blue-mid);
+  color: var(--ink-blue);
   border: 1px solid rgba(var(--brand-primary-rgb), 0.25);
 }
 
 .badge-completed {
   background: rgba(22, 163, 74, 0.1);
-  color: var(--color-green);
+  color: var(--color-green-text);
   border: 1px solid rgba(22, 163, 74, 0.25);
 }
 
 .badge-canceled {
   background: rgba(220, 38, 38, 0.1);
-  color: var(--color-red);
+  color: var(--color-red-text);
   border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+/* Insignia "Próximamente": marca visualmente las acciones que aún no están
+   integradas (mensajería real, exportación, emisión fiscal SAR) para que no
+   parezcan plenamente funcionales aunque respondan al clic con un aviso. */
+.badge-soon {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  background: rgba(var(--brand-purple-rgb), 0.12);
+  /* --brand-purple a plena intensidad queda en 3.06:1 sobre fondo claro y no
+     alcanza AA para texto pequeño; --action es la variante de acción
+     oscurecida justamente para esto. */
+  color: var(--action);
+  border: 1px solid rgba(var(--brand-purple-rgb), 0.3);
+  white-space: nowrap;
+  gap: 5px;
+}
+
+.badge-soon svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --------------------------------------------------------------------------
+   Utilidades transversales de tabla y reportería
+   -------------------------------------------------------------------------- */
+
+/* Subtítulo de una métrica (contexto: "3 abonos registrados"). */
+.metric-sub {
+  color: var(--color-gray);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Columnas numéricas: alineadas a la derecha y con cifras de ancho fijo para
+   que los montos queden en columna y sean comparables de un vistazo. */
+.custom-table td.num,
+.custom-table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  white-space: nowrap;
+}
+
+/* Segunda línea dentro de una celda (fecha bajo el nombre, DNI bajo el folio). */
+.cell-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--color-gray);
+}
+
+/* Celda de "sin registros" dentro de una tabla. */
+.table-empty-cell {
+  text-align: center;
+  color: var(--color-gray);
+  padding: 26px 14px;
+  font-size: 0.86rem;
+}
+
+/* Barras de reporte (citas por estado, presupuestos por estado). */
+.report-bar-row {
+  margin-bottom: 14px;
+}
+.report-bar-row:last-child {
+  margin-bottom: 0;
+}
+.report-bar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.82rem;
+  margin-bottom: 5px;
+  gap: 12px;
+}
+.report-bar-label {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.report-bar-value {
+  color: var(--color-gray);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hoja imprimible genérica: invisible en pantalla, se muestra al imprimir
+   (ver la regla @media print en base/animations.css). */
+.print-sheet {
+  display: none;
 }

@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const previewAddress = document.getElementById('preview-address');
   const previewPhone = document.getElementById('preview-phone');
   const previewEmail = document.getElementById('preview-email');
+  const previewFolio = document.getElementById('preview-folio');
+  const previewFecha = document.getElementById('preview-fecha');
 
   // Cargar configuración actual
   const config = window.db.getClinicaConfig(currentUser.companyId);
@@ -66,5 +68,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (previewAddress) previewAddress.textContent = inputAddress.value.trim() || 'Dirección de la Clínica';
     if (previewPhone) previewPhone.textContent = inputPhone.value.trim() || 'Teléfono';
     if (previewEmail) previewEmail.textContent = inputEmail.value.trim() || 'Correo Electrónico';
+
+    // El folio y la fecha del encabezado son los que realmente se imprimirían
+    // hoy, no un número de ejemplo escrito a mano.
+    if (previewFolio) {
+      let max = 0;
+      window.db.getBudgets().forEach(b => {
+        const m = /^P-(\d+)$/.exec(b.folio || '');
+        if (m) max = Math.max(max, parseInt(m[1], 10));
+      });
+      previewFolio.textContent = 'P-' + String(max + 1).padStart(4, '0');
+    }
+    if (previewFecha) previewFecha.textContent = window.formatDateEs(window.todayISO());
   }
 });

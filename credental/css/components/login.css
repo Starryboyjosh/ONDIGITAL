@@ -55,7 +55,7 @@
 .login-alert {
   background: rgba(220, 38, 38, 0.08);
   border: 1px solid rgba(220, 38, 38, 0.25);
-  color: var(--color-red);
+  color: var(--color-red-text);
   padding: 11px;
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
@@ -79,6 +79,6 @@
 }
 
 .login-demo-box code {
-  color: var(--color-blue-mid);
+  color: var(--action);
   font-weight: 600;
 }

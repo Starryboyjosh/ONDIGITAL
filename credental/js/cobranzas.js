@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const detailPendingAmount = document.getElementById('detail-pending-amount');
   
   const detailPaymentsTimeline = document.getElementById('detail-payments-timeline');
+  const detailNote = document.getElementById('cob-detail-note');
 
   // Botones de acción
   const btnConfirmPayment = document.getElementById('btn-confirm-payment');
@@ -41,6 +42,42 @@ document.addEventListener('DOMContentLoaded', function() {
   const paymentDateInput = document.getElementById('payment-date');
 
   let selectedBudgetId = null;
+
+  // Los métodos de pago se guardan en minúscula ('efectivo'); en pantalla van
+  // capitalizados y en español.
+  function metodoEs(metodo) {
+    const metodos = {
+      efectivo: 'Efectivo',
+      tarjeta: 'Tarjeta',
+      transferencia: 'Transferencia',
+      cheque: 'Cheque'
+    };
+    const key = String(metodo || '').toLowerCase();
+    return metodos[key] || (key ? key.charAt(0).toUpperCase() + key.slice(1) : 'Efectivo');
+  }
+
+  // Un presupuesto solo se cobra cuando el paciente lo aceptó. Los borradores y
+  // los rechazados siguen apareciendo en el listado para darles seguimiento,
+  // pero no generan saldo por cobrar ni admiten abonos: si se cobraran, el
+  // total de este módulo dejaría de cuadrar con "Pagos pendientes" del
+  // Dashboard y con Reportes, que solo suman los aceptados.
+  function esCobrable(budget) {
+    return (budget && budget.status || 'draft') === 'accepted';
+  }
+
+  function badgeComercial(budget) {
+    if (!budget) return '';
+    if (budget.status === 'rejected') return '<span class="badge badge-canceled">Rechazado</span>';
+    if (budget.status === 'draft') return '<span class="badge badge-pending">Borrador</span>';
+    return getStatusBadgeHtml(budget.paymentStatus);
+  }
+
+  function motivoNoCobrable(budget) {
+    if (budget.status === 'rejected') {
+      return 'El paciente rechazó este plan de tratamiento, así que no genera saldo por cobrar. Para reactivarlo, vuelva a emitirlo desde Presupuestos.';
+    }
+    return 'Este presupuesto sigue en borrador. Márquelo como aceptado en Presupuestos para poder registrar abonos.';
+  }
 
   // Registrar Cierre de Modales
   window.setupModalClosers(paymentModal, document.getElementById('payment-modal-close'));
@@ -61,6 +98,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const budget = window.db.getBudgets().find(b => b.id === selectedBudgetId);
     if (!budget) return;
+    if (!esCobrable(budget)) {
+      window.showToast(motivoNoCobrable(budget), 'warning');
+      return;
+    }
 
     const subtotal = budget.treatments.reduce((acc, t) => acc + (t.price * t.qty), 0);
     const total = subtotal * (1 - (budget.discount || 0) / 100);
@@ -78,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
     modalPendingLabel.textContent = formatCurrency(pending);
     paymentAmountInput.max = pending;
     paymentAmountInput.value = pending; // Por defecto sugiere liquidar la deuda
-    paymentDateInput.value = new Date().toISOString().split('T')[0];
+    paymentDateInput.value = window.todayISO();
 
     paymentModal.classList.add('active');
   });
@@ -111,9 +152,10 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // SUSPENDER PRESUPUESTO
-  btnSuspendBudget.addEventListener('click', function() {
+  btnSuspendBudget.addEventListener('click', async function() {
     if (!selectedBudgetId) return;
-    if (confirm('¿Está seguro de que desea suspender la cobranza de este presupuesto?')) {
+    const confirmado = await window.confirmarAccion('¿Está seguro de que desea suspender la cobranza de este presupuesto?', { textoConfirmar: 'Suspender' });
+    if (confirmado) {
       window.db.updateBudgetPaymentStatus(selectedBudgetId, 'suspendido');
       window.showToast('Cobranza suspendida temporalmente.', 'warning');
       renderTable();
@@ -122,9 +164,10 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // CANCELAR PRESUPUESTO
-  btnCancelBudget.addEventListener('click', function() {
+  btnCancelBudget.addEventListener('click', async function() {
     if (!selectedBudgetId) return;
-    if (confirm('¿Está seguro de que desea cancelar este presupuesto y sus deudas?')) {
+    const confirmado = await window.confirmarAccion('¿Está seguro de que desea cancelar este presupuesto y sus deudas?', { textoConfirmar: 'Cancelar presupuesto' });
+    if (confirmado) {
       window.db.updateBudgetPaymentStatus(selectedBudgetId, 'cancelado');
       window.showToast('Presupuesto cancelado permanentemente.', 'error');
       renderTable();
@@ -155,8 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('receipt-clinic-name').textContent = clinicaConfig.nombreClinica;
     document.getElementById('receipt-clinic-contact').innerHTML = `${clinicaConfig.direccion}<br>Contacto: ${clinicaConfig.correo} • ${clinicaConfig.telefono}`;
 
-    document.getElementById('receipt-budget-id').textContent = budget.id.toUpperCase();
-    document.getElementById('receipt-date').textContent = new Date().toLocaleDateString('es-HN', { day: 'numeric', month: 'numeric', year: 'numeric' });
+    document.getElementById('receipt-budget-id').textContent = window.folioPresupuesto(budget);
+    document.getElementById('receipt-date').textContent = window.formatDateEs(window.todayISO(), { day: '2-digit', month: '2-digit', year: 'numeric' });
     document.getElementById('receipt-patient-name').textContent = patient ? patient.name : 'Paciente';
     document.getElementById('receipt-patient-id').textContent = patient ? patient.rut : '-';
     document.getElementById('receipt-dentist-name').textContent = dentist.name;
@@ -168,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (payments.length === 0) {
       receiptTableBody.innerHTML = `
         <tr>
-          <td colspan="4" style="padding: 10px; text-align: center; color: #718096;">
+          <td colspan="4" style="padding: 10px; text-align: center; color: var(--color-gray);">
             No registra abonos cargados.
           </td>
         </tr>
@@ -177,9 +220,9 @@ document.addEventListener('DOMContentLoaded', function() {
       payments.forEach(p => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${p.date}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${p.method}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; color: #718096;">${p.notes}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${window.formatDateEs(p.date)}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${metodoEs(p.method)}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; color: var(--color-gray);">${window.escapeHtml(p.notes)}</td>
           <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 700;">${formatCurrency(p.amount)}</td>
         `;
         receiptTableBody.appendChild(tr);
@@ -214,11 +257,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (filtered.length === 0) {
       tableBody.innerHTML = `
         <tr>
-          <td colspan="6" style="text-align: center; color: var(--color-gray); padding: 30px;">
-            No se encontraron registros de cobros.
+          <td colspan="6" class="table-empty-cell">
+            ${query || filter !== 'todos'
+              ? 'Ningún presupuesto coincide con la búsqueda o el filtro aplicado.'
+              : 'Todavía no hay presupuestos con cobros asociados.'}
           </td>
         </tr>
       `;
+      renderDetalle(null);
       return;
     }
 
@@ -232,40 +278,61 @@ document.addEventListener('DOMContentLoaded', function() {
       const totalPaid = payments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
       const pending = total - totalPaid;
 
-      // Obtener insignia de estado
-      const badge = getStatusBadgeHtml(b.paymentStatus);
+      const cobrable = esCobrable(b);
+      const badge = badgeComercial(b);
+      const saldoCelda = cobrable
+        ? `<td class="num" style="font-weight: 700; color: ${pending > 0 ? 'var(--color-red-text)' : 'var(--color-green-text)'};">${formatCurrency(pending)}</td>`
+        : '<td class="num cob-no-cobrable" title="Sin saldo por cobrar: el presupuesto no está aceptado.">—</td>';
 
       const tr = document.createElement('tr');
-      tr.style.cursor = 'pointer';
+      // La fila completa abre la ficha; con tabindex y Enter/Espacio también
+      // se puede recorrer el listado sin ratón.
+      tr.tabIndex = 0;
+      tr.setAttribute('role', 'button');
+      tr.setAttribute('aria-label', `Abrir la ficha de cobro de ${patient.name}, presupuesto ${window.folioPresupuesto(b)}`);
       if (b.id === selectedBudgetId) tr.className = 'active-row';
 
       tr.innerHTML = `
-        <td><code class="tag">${b.id.toUpperCase()}</code></td>
-        <td style="font-weight: 600;">${patient.name}</td>
-        <td style="text-align: right; font-weight: 500;">${formatCurrency(total)}</td>
-        <td style="text-align: right; font-weight: 700; color: ${pending > 0 ? 'var(--state-caries)' : 'var(--color-teal)'};">${formatCurrency(pending)}</td>
+        <td><code class="tag">${window.folioPresupuesto(b)}</code></td>
+        <td style="font-weight: 600;">${window.escapeHtml(patient.name)}<div class="cell-sub">${window.formatDateEs(b.date)}</div></td>
+        <td class="num" style="font-weight: 500;">${formatCurrency(total)}</td>
+        ${saldoCelda}
         <td>${badge}</td>
-        <td style="text-align: right;">
-          <button onclick="event.stopPropagation(); window.selectBudget('${b.id}')" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem;">Gestionar</button>
-        </td>
+        <td class="cob-col-go" aria-hidden="true">&rsaquo;</td>
       `;
 
       tr.addEventListener('click', () => {
         window.selectBudget(b.id);
       });
+      tr.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          window.selectBudget(b.id);
+        }
+      });
 
       tableBody.appendChild(tr);
     });
+
+    // La pantalla nunca abre vacía: si no hay ficha activa (o la seleccionada
+    // quedó fuera del filtro) se muestra el primer presupuesto de la lista.
+    if (!selectedBudgetId || !filtered.some(b => b.id === selectedBudgetId)) {
+      selectedBudgetId = filtered[0].id;
+      const filaActiva = tableBody.querySelector('tr:first-child');
+      if (filaActiva) filaActiva.className = 'active-row';
+    }
+    renderDetalle(selectedBudgetId);
   }
 
   // CARGAR FICHA DE PRESUPUESTO
   window.selectBudget = function(budgetId) {
     selectedBudgetId = budgetId;
-    
-    // Refrescar tabla para marcar fila activa
+    // Refrescar tabla para marcar la fila activa; renderTable pinta la ficha.
     renderTable();
+  };
 
-    const budget = window.db.getBudgets().find(b => b.id === budgetId);
+  function renderDetalle(budgetId) {
+    const budget = budgetId ? window.db.getBudgets().find(b => b.id === budgetId) : null;
     if (!budget) {
       detailCard.style.display = 'none';
       detailEmpty.style.display = 'flex';
@@ -285,16 +352,38 @@ document.addEventListener('DOMContentLoaded', function() {
     const pending = total - totalPaid;
 
     // Ficha
-    detailTitle.textContent = `Presupuesto N° ${budget.id.toUpperCase()}`;
-    detailPatientName.textContent = `Paciente: ${patient.name} (${patient.rut})`;
-    
+    detailTitle.textContent = `Presupuesto ${window.folioPresupuesto(budget)}`;
+    detailPatientName.textContent = `Paciente: ${patient.name} · DNI ${patient.rut || '—'} · Emitido el ${window.formatDateEs(budget.date)}`;
+
     // Badge
-    detailStatusBadge.textContent = budget.paymentStatus.toUpperCase();
-    detailStatusBadge.className = 'badge ' + getBadgeClass(budget.paymentStatus);
+    const cobrable = esCobrable(budget);
+    if (budget.status === 'rejected') {
+      detailStatusBadge.textContent = 'Rechazado';
+      detailStatusBadge.className = 'badge badge-canceled';
+    } else if (budget.status === 'draft') {
+      detailStatusBadge.textContent = 'Borrador';
+      detailStatusBadge.className = 'badge badge-pending';
+    } else {
+      detailStatusBadge.textContent = window.estadoCobroEs(budget.paymentStatus);
+      detailStatusBadge.className = 'badge ' + getBadgeClass(budget.paymentStatus);
+    }
 
     detailTotalAmount.textContent = formatCurrency(total);
     detailPaidAmount.textContent = formatCurrency(totalPaid);
-    detailPendingAmount.textContent = formatCurrency(pending);
+    detailPendingAmount.textContent = cobrable ? formatCurrency(pending) : '—';
+
+    // Sin presupuesto aceptado no hay nada que cobrar: se apagan los botones y
+    // se explica por qué, en lugar de dejar acciones que fallarían al pulsar.
+    [btnConfirmPayment, btnSuspendBudget, btnCancelBudget].forEach(btn => {
+      if (!btn) return;
+      btn.disabled = !cobrable;
+      btn.style.opacity = cobrable ? '' : '0.45';
+      btn.style.cursor = cobrable ? '' : 'not-allowed';
+    });
+    if (detailNote) {
+      detailNote.textContent = cobrable ? '' : motivoNoCobrable(budget);
+      detailNote.style.display = cobrable ? 'none' : 'block';
+    }
 
     // Timeline de abonos
     detailPaymentsTimeline.innerHTML = '';
@@ -312,20 +401,20 @@ document.addEventListener('DOMContentLoaded', function() {
         item.style.borderLeftColor = 'var(--color-teal)';
         item.innerHTML = `
           <div class="finding-meta">
-            <span>${p.date}</span>
-            <span class="badge badge-completed" style="font-size: 0.65rem;">${p.method}</span>
+            <span>${window.formatDateEs(p.date)}</span>
+            <span class="badge badge-completed" style="font-size: 0.65rem;">${metodoEs(p.method)}</span>
           </div>
-          <div class="finding-desc" style="font-size: 0.82rem; margin-top: 4px; font-weight: 700; color: var(--color-white);">
+          <div class="finding-desc" style="font-size: 0.82rem; margin-top: 4px; font-weight: 700; color: var(--color-green-text);">
             + ${formatCurrency(p.amount)}
           </div>
           <div style="font-size: 0.75rem; color: var(--color-gray); margin-top: 4px; font-style: italic;">
-            Obs: ${p.notes}
+            ${window.escapeHtml(p.notes || 'Sin observaciones.')}
           </div>
         `;
         detailPaymentsTimeline.appendChild(item);
       });
     }
-  };
+  }
 
   // Helpers auxiliares
   function formReset() {
@@ -356,4 +445,6 @@ document.addEventListener('DOMContentLoaded', function() {
   function formatCurrency(value) {
     return window.formatMoney(value);
   }
+
+
 });

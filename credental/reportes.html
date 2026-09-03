@@ -20,10 +20,8 @@
         <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
       <nav>
-        <ul class="nav-menu">
-          <li class="nav-item"><a href="dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg><span>Dashboard</span></a></li>
-          <li class="nav-item active"><a href="reportes.html"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg><span>Reportes</span></a></li>
-        </ul>
+        <!-- El menu de navegacion se genera dinamicamente en js/main.js (ver el array navItems). -->
+        <ul class="nav-menu"></ul>
       </nav>
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
@@ -43,7 +41,7 @@
       <header class="page-header">
         <div class="page-title-area">
           <h1 class="page-title">Reportes</h1>
-          <p class="page-subtitle">Indicadores de gestión para administración. Exportación en preparación.</p>
+          <p class="page-subtitle" id="rep-rango">Indicadores de gestión para administración.</p>
         </div>
         <div class="header-actions">
           <button id="export-csv-btn" class="btn btn-secondary">Exportar CSV</button>
@@ -65,10 +63,6 @@
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" for="rep-dentist">Odontólogo</label>
             <select id="rep-dentist" class="form-control"><option value="all">Todos</option></select>
-          </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label" for="rep-clinic">Sucursal / Clínica</label>
-            <select id="rep-clinic" class="form-control"><option value="all">Clínica actual</option></select>
           </div>
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label" for="rep-status">Estado de cita</label>
@@ -97,8 +91,12 @@
           <div class="metric-info"><span class="metric-title">Pacientes nuevos</span><span class="metric-value" id="rep-nuevos">0</span></div>
         </div>
         <div class="card metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--action);"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
           <div class="metric-info"><span class="metric-title">Citas del periodo</span><span class="metric-value" id="rep-citas">0</span></div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(22, 163, 74, 0.1); color: var(--color-green);"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><line x1="6" y1="12" x2="6" y2="12.01"></line><line x1="18" y1="12" x2="18" y2="12.01"></line></svg></div>
+          <div class="metric-info"><span class="metric-title">Cobrado en el periodo</span><span class="metric-value" id="rep-cobrado">L 0.00</span><span class="metric-sub" id="rep-cobrado-count">0 abonos registrados</span></div>
         </div>
         <div class="card metric-card">
           <div class="metric-icon-wrap" style="background: rgba(220, 38, 38, 0.1); color: var(--color-red);"><svg viewBox="0 0 24 24"><path d="M12 2C10.5 2 9 3 8 4.5 7 6 6 8.5 6 10c0 4 2 6 2 9 0 2.5 1 3 2 3s1.5-1 2-2c0.5 1 1 2 2 2s2-0.5 2-3c0-3 2-5 2-9 0-1.5-1-4-2-5.5C15 3 13.5 2 12 2z"></path></svg></div>
@@ -135,7 +133,7 @@
 
       <!-- Productividad por odontólogo -->
       <div class="section-divider">
-        <div class="section-divider-icon" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+        <div class="section-divider-icon" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--action);"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
         <span class="section-divider-text">Productividad por odontólogo</span>
         <div class="section-divider-line"></div>
       </div>
@@ -159,6 +157,10 @@
 
     </main>
   </div>
+
+  <!-- Hoja imprimible: se rellena al pulsar "Exportar PDF" y solo es visible
+       en el diálogo de impresión (ver .print-sheet en base/animations.css). -->
+  <div id="rep-print-sheet" class="print-sheet" aria-hidden="true"></div>
 
 </body>
 </html>

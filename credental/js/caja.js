@@ -1,10 +1,10 @@
 /* ==========================================================================
-   CAJA.JS - ESQUELETO DE CAJA Y FINANZAS
-   Operación diaria: apertura/cierre, movimientos (ingresos/gastos/anulaciones),
-   resumen por método y placeholders de arqueo/conciliación.
+   CAJA.JS — CAJA DIARIA
+   Operación del día: apertura, movimientos (ingresos, gastos y anulaciones),
+   resumen por método de pago, arqueo de efectivo y cierre.
    Los ingresos por abonos se leen de Cobranzas (solo lectura). Los movimientos
-   manuales y el estado de caja se guardan localmente; no toca el storage clínico
-   ni realiza conciliación bancaria real.
+   manuales, el arqueo y el estado de caja se guardan localmente; no realiza
+   conciliación bancaria real ni toca el expediente clínico.
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const CAJA_KEY = 'credental_caja_' + companyId;
   const MOV_KEY = 'credental_caja_mov_' + companyId;
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = window.todayISO();
 
   // --- Estado de caja (local) ---
   function readCaja() {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const raw = JSON.parse(localStorage.getItem(CAJA_KEY));
       if (raw && raw.fecha === todayStr) return raw;
     } catch (e) { /* ignore */ }
-    return { fecha: todayStr, abierta: false, apertura: 0 };
+    return { fecha: todayStr, abierta: false, apertura: 0, arqueo: null };
   }
   function writeCaja(c) { localStorage.setItem(CAJA_KEY, JSON.stringify(c)); }
 
@@ -36,6 +36,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
   let caja = readCaja();
 
+  // La demostración llega con abonos cobrados hoy (Cobranzas). Si la caja
+  // apareciera "cerrada / sin apertura registrada", la pantalla se
+  // contradiría a sí misma: movimientos del día sobre una caja que nunca se
+  // abrió, y el botón de registrar movimiento inhabilitado. Se abre una sola
+  // vez con un fondo inicial sintético y a partir de ahí manda lo que haga el
+  // usuario (si la cierra, se queda cerrada).
+  if (!caja.abierta && localStorage.getItem(CAJA_KEY) === null && window.CredentalDemo) {
+    caja = { fecha: todayStr, abierta: true, apertura: 500, arqueo: null };
+    writeCaja(caja);
+  }
+
   // --- Método normalizado ---
   function normMetodo(m) {
     const s = (m || '').toLowerCase();
@@ -44,8 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
     return 'Efectivo';
   }
 
-  function horaFromId(id) {
-    const m = String(id || '').match(/(\d{10,})/);
+  function horaDeAbono(p) {
+    if (p.time) return p.time;
+    const m = String(p.id || '').match(/(\d{13})/);
     if (!m) return '—';
     const d = new Date(parseInt(m[1], 10));
     return isNaN(d.getTime()) ? '—' : d.toTimeString().slice(0, 5);
@@ -57,14 +69,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const budgetIds = new Set(budgets.map(b => b.id));
     const payments = window.db.getPayments().filter(p => budgetIds.has(p.budgetId) && p.date === todayStr);
 
-    const fromPayments = payments.map(p => ({
-      hora: horaFromId(p.id),
-      tipo: 'ingreso',
-      concepto: 'Abono ' + (p.budgetId ? p.budgetId.toUpperCase() : 'presupuesto'),
-      metodo: normMetodo(p.method),
-      monto: parseFloat(p.amount || 0),
-      origen: 'Cobranzas'
-    }));
+    const porId = {};
+    budgets.forEach(b => { porId[b.id] = b; });
+
+    const fromPayments = payments.map(p => {
+      const budget = porId[p.budgetId];
+      const paciente = budget ? window.db.getPatient(budget.patientId) : null;
+      const folio = budget ? window.folioPresupuesto(budget) : 'presupuesto';
+      return {
+        hora: horaDeAbono(p),
+        tipo: 'ingreso',
+        concepto: 'Abono presupuesto ' + folio + (paciente ? ' · ' + paciente.name : ''),
+        metodo: normMetodo(p.method),
+        monto: parseFloat(p.amount || 0),
+        origen: 'Cobranzas'
+      };
+    });
 
     const manual = readMovs().map(m => ({
       hora: m.hora,
@@ -87,8 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
       info.textContent = `Apertura del día: ${window.formatMoney(caja.apertura)}`;
     } else {
       label.innerHTML = '<span class="badge badge-canceled">Cerrada</span>';
-      info.textContent = caja.fecha === todayStr && caja.apertura
-        ? 'Caja cerrada para el día de hoy.'
+      info.textContent = caja.cierre
+        ? 'Caja cerrada a las ' + caja.cierre.hora + ' por ' + (caja.cierre.usuario || 'recepción') + '.'
         : 'Sin apertura registrada hoy.';
     }
     document.getElementById('btn-abrir-caja').disabled = caja.abierta;
@@ -125,12 +145,46 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('met-efectivo').textContent = window.formatMoney(porMetodo.Efectivo);
     document.getElementById('met-tarjeta').textContent = window.formatMoney(porMetodo.Tarjeta);
     document.getElementById('met-transferencia').textContent = window.formatMoney(porMetodo.Transferencia);
+
+    return { efectivoEnCaja, ingresos, gastos, anulaciones, porMetodo };
+  }
+
+  // --- Arqueo de efectivo ---
+  function renderArqueo(esperado) {
+    const cont = document.getElementById('arqueo-content');
+    const btn = document.getElementById('btn-arqueo');
+    if (btn) btn.disabled = !caja.abierta;
+
+    if (!caja.arqueo) {
+      cont.innerHTML = `
+        <div class="record-empty">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+          <div class="record-empty-title">Arqueo no realizado</div>
+          <div class="record-empty-desc">${caja.abierta
+            ? 'Registre el conteo físico de efectivo para compararlo con el saldo del sistema.'
+            : 'Abra la caja para poder registrar el conteo físico de efectivo.'}</div>
+        </div>`;
+      return;
+    }
+
+    const dif = caja.arqueo.contado - caja.arqueo.esperado;
+    const cuadra = Math.abs(dif) < 0.01;
+    const color = cuadra ? 'var(--color-green-text)' : (dif > 0 ? 'var(--color-amber-text)' : 'var(--color-red-text)');
+    const etiqueta = cuadra ? 'Caja cuadrada' : (dif > 0 ? 'Sobrante' : 'Faltante');
+    cont.innerHTML = `
+      <div class="record-field-grid">
+        <div><div class="record-field-label">Efectivo esperado</div><div class="record-field-value">${window.formatMoney(caja.arqueo.esperado)}</div></div>
+        <div><div class="record-field-label">Efectivo contado</div><div class="record-field-value">${window.formatMoney(caja.arqueo.contado)}</div></div>
+        <div><div class="record-field-label">Diferencia</div><div class="record-field-value" style="color: ${color};">${dif > 0 ? '+' : ''}${window.formatMoney(dif)}</div></div>
+        <div><div class="record-field-label">Resultado</div><div class="record-field-value"><span class="badge ${cuadra ? 'badge-completed' : 'badge-pending'}">${etiqueta}</span></div></div>
+      </div>
+      <p class="form-hint" style="margin-top: 12px;">Conteo registrado a las ${caja.arqueo.hora} por ${window.escapeHtml(caja.arqueo.usuario || 'recepción')}.</p>`;
   }
 
   function renderMovimientos(movs) {
     const tbody = document.getElementById('movimientos-body');
     if (movs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-gray); padding: 26px;">Sin movimientos registrados hoy.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="table-empty-cell">Sin movimientos registrados hoy. Los abonos cobrados en Cobranzas aparecen aquí automáticamente.</td></tr>';
       return;
     }
     const tipoBadge = {
@@ -141,14 +195,14 @@ document.addEventListener('DOMContentLoaded', function() {
     tbody.innerHTML = movs.map(m => {
       const [cls, txt] = tipoBadge[m.tipo] || ['badge-confirmed', m.tipo];
       const signo = m.tipo === 'ingreso' ? '' : '−';
-      const color = m.tipo === 'ingreso' ? 'var(--color-green)' : 'var(--color-red)';
+      const color = m.tipo === 'ingreso' ? 'var(--color-green-text)' : 'var(--color-red-text)';
       return `
         <tr>
           <td>${m.hora || '—'}</td>
           <td><span class="badge ${cls}">${txt}</span></td>
-          <td>${m.concepto} ${m.origen === 'Cobranzas' ? '<span class="tag">Cobranzas</span>' : ''}</td>
+          <td>${window.escapeHtml(m.concepto)} ${m.origen === 'Cobranzas' ? '<span class="tag">Cobranzas</span>' : ''}</td>
           <td>${m.metodo}</td>
-          <td style="text-align: right; font-weight: 700; color: ${color};">${signo}${window.formatMoney(m.monto)}</td>
+          <td class="num" style="font-weight: 700; color: ${color};">${signo}${window.formatMoney(m.monto)}</td>
         </tr>
       `;
     }).join('');
@@ -157,25 +211,76 @@ document.addEventListener('DOMContentLoaded', function() {
   function renderAll() {
     const movs = gatherMovements();
     renderEstado();
-    renderSummary(movs);
+    const resumen = renderSummary(movs);
     renderMovimientos(movs);
+    renderArqueo(resumen.efectivoEnCaja);
+    return resumen;
   }
 
   // --- Acciones ---
-  document.getElementById('btn-abrir-caja').addEventListener('click', function() {
-    const val = prompt('Monto de apertura de caja (efectivo inicial, en lempiras):', '0');
+  const usuarioActual = () => {
+    const u = window.auth && window.auth.getCurrentUser ? window.auth.getCurrentUser() : null;
+    return u ? (u.name || u.username) : 'recepción';
+  };
+
+  document.getElementById('btn-abrir-caja').addEventListener('click', async function() {
+    const val = await window.pedirDato('Monto de apertura', {
+      titulo: 'Abrir caja del día',
+      etiqueta: 'Efectivo inicial en caja (L)',
+      tipo: 'number',
+      valor: '0',
+      textoConfirmar: 'Abrir caja',
+      ayuda: 'Es el fondo con el que inicia el día. Se usa como base para el arqueo.'
+    });
     if (val === null) return;
-    const apertura = parseFloat(val) || 0;
-    caja = { fecha: todayStr, abierta: true, apertura };
+    caja = { fecha: todayStr, abierta: true, apertura: parseFloat(val) || 0, arqueo: null };
     writeCaja(caja);
     renderAll();
-    window.showToast('Caja abierta', 'success');
+    window.showToast('Caja abierta con ' + window.formatMoney(caja.apertura), 'success');
   });
 
-  document.getElementById('btn-cerrar-caja').addEventListener('click', function() {
+  const btnArqueo = document.getElementById('btn-arqueo');
+  if (btnArqueo) {
+    btnArqueo.addEventListener('click', async function() {
+      if (!caja.abierta) {
+        window.showToast('Abra la caja antes de registrar el arqueo.', 'warning');
+        return;
+      }
+      const esperado = renderAll().efectivoEnCaja;
+      const val = await window.pedirDato('Efectivo contado', {
+        titulo: 'Arqueo de efectivo',
+        etiqueta: 'Efectivo contado físicamente (L)',
+        tipo: 'number',
+        valor: esperado.toFixed(2),
+        textoConfirmar: 'Registrar arqueo',
+        ayuda: 'El sistema espera ' + window.formatMoney(esperado) + ' en efectivo.'
+      });
+      if (val === null) return;
+      caja.arqueo = {
+        esperado: esperado,
+        contado: parseFloat(val) || 0,
+        hora: new Date().toTimeString().slice(0, 5),
+        usuario: usuarioActual()
+      };
+      writeCaja(caja);
+      renderAll();
+      const dif = caja.arqueo.contado - caja.arqueo.esperado;
+      window.showToast(Math.abs(dif) < 0.01
+        ? 'Arqueo registrado: la caja cuadra.'
+        : 'Arqueo registrado: diferencia de ' + window.formatMoney(dif) + '.',
+        Math.abs(dif) < 0.01 ? 'success' : 'warning');
+    });
+  }
+
+  document.getElementById('btn-cerrar-caja').addEventListener('click', async function() {
     if (!caja.abierta) return;
-    if (!confirm('¿Cerrar la caja del día? No se podrán registrar más movimientos hasta la próxima apertura.')) return;
+    const ok = await window.confirmarAccion(
+      'No se podrán registrar más movimientos hasta la próxima apertura.',
+      { titulo: '¿Cerrar la caja del día?', textoConfirmar: 'Cerrar caja', peligroso: true }
+    );
+    if (!ok) return;
     caja.abierta = false;
+    caja.cierre = { hora: new Date().toTimeString().slice(0, 5), usuario: usuarioActual() };
     writeCaja(caja);
     renderAll();
     window.showToast('Caja cerrada', 'warning');

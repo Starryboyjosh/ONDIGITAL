@@ -13,7 +13,7 @@
   width: 260px;
   background: var(--brand-primary);
   border-right: 1px solid rgba(255, 255, 255, 0.16);
-  padding: 22px 18px;
+  padding: 18px 18px;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -27,7 +27,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   padding-left: 6px;
 }
 
@@ -67,27 +67,42 @@
   color: var(--brand-purple);
 }
 
-/* La navegación crece con los módulos: permitir scroll sin cortar ítems */
+/* La navegación crece con los módulos: permitir scroll sin cortar ítems.
+   La barra se deja siempre visible —y no en auto-ocultado— porque con 17
+   módulos el menú se corta en pantallas de portátil: sin barra, el ítem
+   partido a la mitad se lee como un fallo de maquetación en lugar de como
+   "hay más abajo". */
 .sidebar nav {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   margin-right: -6px;
   padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+.sidebar nav::-webkit-scrollbar { width: 6px; }
+.sidebar nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+.sidebar nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.48);
 }
 
 .nav-menu {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .nav-item a {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 8px 13px;
   color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
   border-radius: var(--radius);
@@ -114,8 +129,8 @@
 }
 
 .nav-item svg {
-  width: 19px;
-  height: 19px;
+  width: 18px;
+  height: 18px;
   stroke: currentColor;
   stroke-width: 2;
   fill: none;
@@ -193,7 +208,7 @@
   align-items: center;
   gap: 10px;
   padding: 0 4px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 .theme-toggle-label {
   font-size: 0.8rem;
@@ -296,10 +311,20 @@
   .sidebar {
     transform: translateX(-100%);
     transition: transform 0.25s ease;
-  box-shadow: 8px 0 26px rgba(0, 38, 92, 0.16);
+    box-shadow: 8px 0 26px rgba(0, 38, 92, 0.16);
   }
   .sidebar.open {
     transform: translateX(0);
+  }
+
+  /* En escritorio las filas van compactas para que quepan los 17 módulos.
+     Aquí el menú es un panel deslizante que ya desplaza, así que el alto
+     deja de ser el problema y manda el tamaño del objetivo táctil. */
+  .nav-item a {
+    padding: 11px 14px;
+  }
+  .nav-menu {
+    gap: 4px;
   }
 
   /* El contenido ocupa todo el ancho; espacio arriba para el botón flotante. */

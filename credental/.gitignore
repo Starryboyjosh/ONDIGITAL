@@ -1,0 +1,4 @@
+# Configuración real de Firebase para una clínica concreta. Se genera a partir
+# de js/firebase/config.example.js y NUNCA se versiona: identifica un proyecto
+# real (projectId, appId, authDomain...). La plantilla sí se versiona.
+js/firebase/config.local.js

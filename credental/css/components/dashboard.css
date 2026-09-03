@@ -94,7 +94,7 @@
 }
 
 .alert-item .alert-text a {
-  color: var(--color-blue-mid);
+  color: var(--action);
   text-decoration: none;
   font-weight: 600;
 }
@@ -123,7 +123,7 @@
   background: rgba(var(--brand-primary-rgb), 0.05);
 }
 .alert-item.info .alert-dot {
-  background: var(--color-blue-mid);
+  background: var(--action);
 }
 
 /* Estado vacío profesional reutilizable */
@@ -208,9 +208,25 @@
   color: var(--text-primary);
 }
 .op-item-count.zero {
-  color: var(--color-gray-dark);
+  color: var(--color-gray);
 }
 .op-item-count.alert {
-  color: var(--color-amber);
+  color: var(--color-amber-text);
 }
 
+
+/* --- Agenda del día ------------------------------------------------------ */
+/* La tarjeta ocupa 2fr de un grid: sin un ancho mínimo los nombres de los
+   pacientes se partían en tres líneas. Antes de eso, la tabla prefiere
+   desplazarse dentro de su contenedor. */
+.dash-agenda-table {
+  min-width: 640px;
+}
+.dash-agenda-table td:first-child,
+.dash-agenda-table th:first-child,
+.dash-agenda-table td:nth-child(2),
+.dash-agenda-table td:nth-child(3),
+.dash-agenda-table td:nth-child(5),
+.dash-agenda-table td:last-child {
+  white-space: nowrap;
+}

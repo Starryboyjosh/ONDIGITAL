@@ -9,7 +9,8 @@
    propio (deben ir todos aquí, antes que cualquier regla).
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+/* Tipografía autoalojada (sin CDN: la app debe funcionar sin red) */
+@import url('base/fonts.css');
 
 /* Base: tokens de diseño, reset y scrollbar */
 @import url('base/tokens.css');

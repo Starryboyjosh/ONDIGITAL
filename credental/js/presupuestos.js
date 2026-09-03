@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const budgetData = {
       patientId,
       dentistId,
-      date: new Date().toISOString().split('T')[0],
+      date: window.todayISO(),
       treatments: activeTreatmentsList,
       discount,
       status,
@@ -145,6 +145,8 @@ document.addEventListener('DOMContentLoaded', function() {
     discountInput.value = 0;
     treatmentQty.value = 1;
     renderInvoiceTable();
+    invIdEl.textContent = siguienteFolio();
+    renderBudgetList();
   });
 
   // --- MÉTODOS DE RENDERIZACIÓN ---
@@ -193,16 +195,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (pdfClinicaName) pdfClinicaName.textContent = clinicaConfig.nombreClinica;
       if (pdfClinicaContact) {
-        pdfClinicaContact.innerHTML = `${clinicaConfig.direccion}<br>Contacto: ${clinicaConfig.correo} • ${clinicaConfig.telefono}`;
+        // Solo se imprime lo que está configurado: un encabezado con huecos
+        // vacíos delata que el documento salió de un sistema a medio llenar.
+        const contacto = [clinicaConfig.correo, clinicaConfig.telefono]
+          .filter(Boolean)
+          .map(window.escapeHtml)
+          .join(' • ');
+        pdfClinicaContact.innerHTML =
+          window.escapeHtml(clinicaConfig.direccion || '') +
+          (contacto ? '<br>Contacto: ' + contacto : '');
       }
       if (pdfClinicaTagline) {
         pdfClinicaTagline.textContent = `${clinicaConfig.nombreClinica} - Especialidades Integrales`;
       }
     }
 
-    // Cargar metadatos por defecto de factura
-    invIdEl.textContent = 'CR-' + Math.floor(1000 + Math.random() * 9000);
-    invDateEl.textContent = new Date().toLocaleDateString('es-HN', { day: 'numeric', month: 'long', year: 'numeric' });
+    // Metadatos del documento. El folio es el que realmente se asignará al
+    // guardar (correlativo del inquilino), no un número aleatorio.
+    invIdEl.textContent = siguienteFolio();
+    invDateEl.textContent = window.formatDateEs(window.todayISO(), { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  // Correlativo que db.saveBudget asignará al siguiente presupuesto.
+  function siguienteFolio() {
+    let max = 0;
+    window.db.getBudgets().forEach(b => {
+      const m = /^P-(\d+)$/.exec(b.folio || '');
+      if (m) max = Math.max(max, parseInt(m[1], 10));
+    });
+    return 'P-' + String(max + 1).padStart(4, '0');
   }
 
   function updateInvoicePatient(patientId) {
@@ -221,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (activeTreatmentsList.length === 0) {
       invTableBody.innerHTML = `
         <tr>
-          <td colspan="4" style="text-align: center; color: #718096; padding: 25px;">
+          <td colspan="4" style="text-align: center; color: var(--doc-muted); padding: 25px;">
             Ningún tratamiento clínico cargado al listado.
           </td>
         </tr>
@@ -241,9 +262,9 @@ document.addEventListener('DOMContentLoaded', function() {
         <td style="font-weight: 600;">${item.name}</td>
         <td style="text-align: center;">${item.qty}</td>
         <td>${priceF}</td>
-        <td style="font-weight: 700; color: #2d3748;">
+        <td style="font-weight: 700; color: var(--doc-ink-soft);">
           ${subtotalF}
-          <span class="no-print" onclick="window.removeRow(${index})" style="color: var(--state-caries); cursor: pointer; font-size: 0.8rem; margin-left: 8px; font-weight: normal;">✕</span>
+          <span class="no-print" onclick="window.removeRow(${index})" style="color: var(--color-red-text); cursor: pointer; font-size: 0.8rem; margin-left: 8px; font-weight: normal;">✕</span>
         </td>
       `;
       invTableBody.appendChild(tr);
@@ -280,4 +301,54 @@ document.addEventListener('DOMContentLoaded', function() {
   function formatCurrency(value) {
     return window.formatMoney(value);
   }
+
+  // --- LISTADO DE PRESUPUESTOS REGISTRADOS ---
+
+  const listBody = document.getElementById('bud-list-body');
+  const listCount = document.getElementById('bud-list-count');
+
+  function totalPresupuesto(b) {
+    const bruto = (b.treatments || []).reduce((s, t) => s + (t.price || 0) * (t.qty || 1), 0);
+    return bruto - bruto * ((b.discount || 0) / 100);
+  }
+
+  function renderBudgetList() {
+    if (!listBody) return;
+    const budgets = window.db.getBudgets().slice().sort((a, b) =>
+      String(b.date || '').localeCompare(String(a.date || '')));
+
+    listCount.textContent = budgets.length === 1
+      ? '1 presupuesto'
+      : budgets.length + ' presupuestos';
+
+    if (budgets.length === 0) {
+      listBody.innerHTML = '<tr><td colspan="7" class="table-empty-cell">Todavía no hay presupuestos registrados.</td></tr>';
+      return;
+    }
+
+    const ESTADOS = {
+      draft: ['badge-pending', 'Borrador'],
+      accepted: ['badge-confirmed', 'Aceptado'],
+      rejected: ['badge-canceled', 'Rechazado']
+    };
+
+    listBody.innerHTML = budgets.map(b => {
+      const paciente = window.db.getPatient(b.patientId);
+      const total = totalPresupuesto(b);
+      const pagado = window.db.getPayments(b.id).reduce((s, p) => s + (p.amount || 0), 0);
+      const saldo = Math.max(total - pagado, 0);
+      const [cls, txt] = ESTADOS[b.status] || ['badge-pending', 'Borrador'];
+      return '<tr>' +
+        '<td><code class="tag">' + window.folioPresupuesto(b) + '</code></td>' +
+        '<td>' + window.escapeHtml(paciente ? paciente.name : 'Paciente dado de baja') + '</td>' +
+        '<td>' + window.formatDateEs(b.date) + '</td>' +
+        '<td><span class="badge ' + cls + '">' + txt + '</span></td>' +
+        '<td class="num">' + window.formatMoney(total) + '</td>' +
+        '<td class="num" style="font-weight:700;color:' + (saldo > 0 ? 'var(--color-red-text)' : 'var(--color-green-text)') + '">' + window.formatMoney(saldo) + '</td>' +
+        '<td class="num"><a class="btn btn-secondary btn-sm" href="cobranzas.html">Cobrar</a></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  renderBudgetList();
 });

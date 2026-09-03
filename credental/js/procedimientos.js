@@ -104,13 +104,18 @@ document.addEventListener('DOMContentLoaded', function() {
       const priceFormatted = window.formatMoney(p.price);
 
       tr.innerHTML = `
-        <td><code class="tag" style="font-weight: 700; font-size: 0.8rem;">${p.code}</code></td>
-        <td style="font-weight: 600;">${p.name}</td>
-        <td style="text-align: right; font-weight: 700; color: var(--color-teal);">${priceFormatted}</td>
-        <td style="font-size: 0.85rem; color: var(--color-gray); font-style: italic;">${p.description}</td>
-        <td style="text-align: right; display: flex; gap: 8px; justify-content: flex-end;">
-          <button onclick="window.editProcedure('${p.code}')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">Editar</button>
-          <button onclick="window.deleteProcedure('${p.code}')" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">Eliminar</button>
+        <td><code class="tag" style="font-weight: 700; font-size: 0.8rem; white-space: nowrap;">${window.escapeHtml(p.code)}</code></td>
+        <td style="font-weight: 600;">${window.escapeHtml(p.name)}</td>
+        <td class="num" style="font-weight: 700; color: var(--color-teal);">${priceFormatted}</td>
+        <td style="font-size: 0.85rem; color: var(--color-gray); font-style: italic;">${window.escapeHtml(p.description || '')}</td>
+        <td class="num">
+          <!-- El flex va en un contenedor interno: aplicarlo al propio <td>
+               saca la celda del layout de la tabla y desalinea el separador
+               de fila respecto al resto de las columnas. -->
+          <div style="display: flex; gap: 8px; justify-content: flex-end;">
+            <button onclick="window.editProcedure('${window.escapeHtml(p.code)}')" class="btn btn-secondary btn-sm">Editar</button>
+            <button onclick="window.deleteProcedure('${window.escapeHtml(p.code)}')" class="btn btn-danger btn-sm">Eliminar</button>
+          </div>
         </td>
       `;
 
@@ -135,8 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   // Función de eliminación expuesta globalmente
-  window.deleteProcedure = function(code) {
-    if (confirm(`¿Está seguro de que desea eliminar el procedimiento '${code}' del catálogo?`)) {
+  window.deleteProcedure = async function(code) {
+    const confirmado = await window.confirmarAccion(`¿Está seguro de que desea eliminar el procedimiento '${code}' del catálogo?`, { textoConfirmar: 'Eliminar' });
+    if (confirmado) {
       window.db.deleteProcedure(code);
       window.showToast('Procedimiento eliminado del catálogo.', 'warning');
       renderTable(searchInput.value);

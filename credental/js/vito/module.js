@@ -5,7 +5,16 @@
 (function (global) {
   'use strict';
 
-  const BANNED = /claude|chatgpt|openai|opencode|gpt-4|anthropic|nemotron/i;
+  // Ultima linea de la marca blanca: si el motor ignora su prompt y se presenta
+  // por su nombre, ese nombre no llega a pantalla. Espeja la guarda del backend
+  // en modules/vito/service.go y hay que mantenerlas juntas.
+  // El flag `g` no es un detalle: sin el, `replace` solo tapaba la PRIMERA
+  // aparicion y la segunda salia intacta. Los limites `\b` evitan comerse
+  // palabras que contengan el termino, y cubre familias enteras (`gpt-4`,
+  // `gpt-5`, `gpt`) porque el modelo de manana no esta en la lista de hoy.
+  // "Llama" queda fuera a proposito: en espanol es un verbo corriente
+  // ("se llama Ana") y sustituirlo romperia el texto en vez de protegerlo.
+  const BANNED = /\b(claude|chatgpt|openai|opencode|anthropic|gpt-?[0-9]+|gpt|gemini|nemotron|deepseek|mistral|qwen|copilot|grok)\b/gi;
 
   function money(n) {
     const v = Number(n) || 0;
@@ -26,6 +35,68 @@
     return d.getFullYear() + '-' +
       String(d.getMonth() + 1).padStart(2, '0') + '-' +
       String(d.getDate()).padStart(2, '0');
+  }
+
+  const MESES_ES = {
+    enero: 1, febrero: 2, marzo: 3, abril: 4, mayo: 5, junio: 6, julio: 7,
+    agosto: 8, septiembre: 9, setiembre: 9, octubre: 10, noviembre: 11, diciembre: 12
+  };
+
+  function isoDe(anio, mes, dia) {
+    if (!mes || !dia || dia < 1 || dia > 31 || mes < 1 || mes > 12) return null;
+    return anio + '-' + String(mes).padStart(2, '0') + '-' + String(dia).padStart(2, '0');
+  }
+
+  // Lee la fecha que pide la pregunta. Antes solo se distinguía «hoy» de
+  // «mañana» y cualquier otra fecha («el 15 de septiembre») devolvía la agenda
+  // de mañana: la respuesta contradecía la pregunta.
+  // Recibe el texto ya en minúsculas y sin acentos.
+  function fechaPedida(lower) {
+    if (/pasado\s+manana/.test(lower)) return addDaysISO(2);
+    if (/\bmanana\b/.test(lower)) return addDaysISO(1);
+    if (/\bhoy\b/.test(lower)) return todayISO();
+    if (/\bayer\b/.test(lower)) return addDaysISO(-1);
+
+    let m = lower.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) return isoDe(Number(m[1]), Number(m[2]), Number(m[3]));
+
+    m = lower.match(/\b(\d{1,2})\s+de\s+([a-z]+)(?:\s+(?:de|del)\s+(\d{4}))?/);
+    if (m && MESES_ES[m[2]]) {
+      const anio = m[3] ? Number(m[3]) : new Date().getFullYear();
+      return isoDe(anio, MESES_ES[m[2]], Number(m[1]));
+    }
+
+    m = lower.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);
+    if (m) {
+      let anio = m[3] ? Number(m[3]) : new Date().getFullYear();
+      if (anio < 100) anio += 2000;
+      return isoDe(anio, Number(m[2]), Number(m[1]));
+    }
+    return null;
+  }
+
+  // Vito habla como la clínica: fechas en español y estados en español.
+  // Si por algún motivo main.js no está cargado, hay respaldo local.
+  function fechaEs(iso) {
+    if (global.formatDateLargaEs) return global.formatDateLargaEs(iso);
+    return String(iso || '');
+  }
+
+  function fechaCorta(iso) {
+    if (global.formatDateEs) return global.formatDateEs(iso);
+    return String(iso || '');
+  }
+
+  const ESTADOS = {
+    pending: 'Pendiente',
+    confirmed: 'Confirmada',
+    completed: 'Completada',
+    canceled: 'Cancelada'
+  };
+
+  function estadoCita(status) {
+    if (global.estadoCitaEs) return global.estadoCitaEs(status);
+    return ESTADOS[status] || 'Pendiente';
   }
 
   function patientName(p) {
@@ -88,8 +159,9 @@
   const TOOLS = {
     list_appointments: {
       name: 'list_appointments',
-      description: 'Lista citas del día (YYYY-MM-DD). Default: mañana.',
+      description: 'Consulta la agenda de una fecha. Si no se indica, la de mañana.',
       read_only: true,
+      label: 'Citas del día',
       capability_id: 'credental.agenda.list_day',
       run: function (args) {
         const day = (args && args.date) || addDaysISO(1);
@@ -102,17 +174,17 @@
           return (i + 1) + '. ' + apptTime(a) + ' · ' + patientName(pat) +
             (den ? ' · ' + (den.name || '') : '') +
             (a.specialty ? ' · ' + a.specialty : '') +
-            (a.status ? ' (' + a.status + ')' : '');
+            ' · ' + estadoCita(a.status);
         });
         const summary = rows.length
-          ? 'Citas del ' + day + ' (' + rows.length + '):\n' + lines.join('\n')
-          : 'No hay citas registradas para el ' + day + '.';
+          ? 'Agenda del ' + fechaEs(day) + ' — ' + rows.length + (rows.length === 1 ? ' cita:' : ' citas:') + '\n' + lines.join('\n')
+          : 'No hay citas agendadas para el ' + fechaEs(day) + '.';
         return resultOK(summary, { date: day, count: rows.length, appointments: rows.map(function (a) {
           return { id: a.id, dateTime: a.dateTime, patientId: a.patientId, status: a.status, specialty: a.specialty };
         }) }, {
           source: 'credental.appointments',
           label: 'Agenda · citas',
-          detail: day + ' · ' + rows.length + ' cita(s)'
+          detail: fechaCorta(day) + ' · ' + rows.length + (rows.length === 1 ? ' cita' : ' citas')
         });
       }
     },
@@ -121,6 +193,7 @@
       name: 'list_patients_balance',
       description: 'Pacientes con saldo pendiente (presupuestos aceptados − abonos).',
       read_only: true,
+      label: 'Saldos por cobrar',
       capability_id: 'credental.billing.balances',
       run: function (args) {
         const limit = (args && args.limit) || 15;
@@ -145,21 +218,24 @@
         const lines = owed.map(function (p, i) {
           return (i + 1) + '. ' + p.name + ' · saldo ' + money(p.balance);
         });
+        const totalDeuda = owed.reduce(function (acc, p) { return acc + p.balance; }, 0);
         const summary = owed.length
-          ? 'Pacientes con saldo pendiente (' + owed.length + '):\n' + lines.join('\n')
-          : 'No hay saldos pendientes en presupuestos aceptados.';
+          ? 'Hay ' + owed.length + (owed.length === 1 ? ' paciente con saldo pendiente' : ' pacientes con saldo pendiente') +
+            ' por ' + money(totalDeuda) + ' en total:\n' + lines.join('\n')
+          : 'Ningún presupuesto aceptado tiene saldo pendiente: la cobranza está al día.';
         return resultOK(summary, { count: owed.length, patients: owed }, {
           source: 'credental.budgets.balance',
           label: 'Cobranzas · saldos',
-          detail: owed.length + ' paciente(s)'
+          detail: owed.length + (owed.length === 1 ? ' paciente' : ' pacientes')
         });
       }
     },
 
     patient_summary: {
       name: 'patient_summary',
-      description: 'Resume expediente de un paciente por nombre o id.',
+      description: 'Resume el expediente de un paciente por nombre o número de ficha.',
       read_only: true,
+      label: 'Resumen de expediente',
       capability_id: 'credental.patients.summary',
       run: function (args) {
         const q = String((args && (args.query || args.name || args.id)) || '').trim().toLowerCase();
@@ -186,12 +262,16 @@
             balance += Math.max(budgetTotal(b) - budgetPaid(b), 0);
           }
         });
+        const proxima = appts
+          .filter(function (a) { return apptDay(a) >= todayISO() && a.status !== 'canceled'; })
+          .sort(function (a, b) { return (apptDay(a) + apptTime(a)).localeCompare(apptDay(b) + apptTime(b)); })[0];
         const summary =
           'Paciente: ' + patientName(p) + (p.phone ? ' · ' + p.phone : '') + '\n' +
           '• Citas registradas: ' + appts.length + '\n' +
+          '• Próxima cita: ' + (proxima ? fechaEs(apptDay(proxima)) + ' a las ' + apptTime(proxima) : 'sin cita programada') + '\n' +
           '• Presupuestos: ' + budgets.length + '\n' +
           '• Saldo pendiente: ' + money(balance) +
-          (p.motivoConsulta ? '\n• Motivo: ' + p.motivoConsulta : '');
+          (p.motivoConsulta ? '\n• Motivo de consulta: ' + p.motivoConsulta : '');
         return resultOK(summary, {
           patient: { id: p.id, name: patientName(p) },
           appointments: appts.length,
@@ -200,15 +280,16 @@
         }, {
           source: 'credental.patients.summary',
           label: 'Expediente · resumen',
-          detail: p.id
+          detail: patientName(p)
         });
       }
     },
 
     clinic_snapshot: {
       name: 'clinic_snapshot',
-      description: 'Conteos de pacientes, citas y presupuestos del tenant local.',
+      description: 'Conteo de pacientes, citas y presupuestos de la clínica.',
       read_only: true,
+      label: 'Panorama de la clínica',
       capability_id: 'credental.ops.snapshot',
       run: function () {
         const patients = global.db.getPatients() || [];
@@ -217,11 +298,10 @@
         const today = todayISO();
         const todayAppts = appointments.filter(function (a) { return apptDay(a) === today; });
         const summary =
-          'Resumen de la clínica (datos locales / híbridos):\n' +
-          '• Pacientes: ' + patients.length + '\n' +
-          '• Citas totales: ' + appointments.length + ' (hoy: ' + todayAppts.length + ')\n' +
-          '• Presupuestos: ' + budgets.length + '\n' +
-          '• Fecha: ' + today;
+          'Resumen de la clínica al ' + fechaEs(today) + ':\n' +
+          '• Pacientes en el expediente: ' + patients.length + '\n' +
+          '• Citas agendadas: ' + appointments.length + ' (hoy: ' + todayAppts.length + ')\n' +
+          '• Presupuestos elaborados: ' + budgets.length;
         return resultOK(summary, {
           patients: patients.length,
           appointments: appointments.length,
@@ -229,8 +309,8 @@
           budgets: budgets.length
         }, {
           source: 'credental.local.snapshot',
-          label: 'CREDental · datos locales',
-          detail: 'local-first'
+          label: 'CREDental · expediente de la clínica',
+          detail: fechaCorta(today)
         });
       }
     }
@@ -240,6 +320,7 @@
     const t = TOOLS[k];
     return {
       id: t.capability_id,
+      label: t.label || t.name,
       name: t.name,
       description: t.description,
       kind: 'query',
@@ -284,20 +365,103 @@
       };
     }
 
-    const lower = q.toLowerCase();
-    let toolName = 'clinic_snapshot';
+    const lower = q.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    // Si la pregunta nombra a un paciente del expediente, gana el expediente:
+    // es lo que la persona está pidiendo, sin importar cómo redacte el resto.
+    const pacientesDelExpediente = global.db.getPatients() || [];
+    const normalizar = function (v) {
+      return String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    };
+    let pacienteMencionado = pacientesDelExpediente.find(function (p) {
+      const nombre = normalizar(patientName(p));
+      if (lower.indexOf(nombre) !== -1) return true;
+      const partes = nombre.split(' ').filter(function (t) { return t.length > 3; });
+      return partes.length > 1 && lower.indexOf(partes[0]) !== -1 && lower.indexOf(partes[1]) !== -1;
+    });
+
+    // Segunda pasada: en la clínica se habla por apellido («cuánto debe la
+    // señora Castro»). Solo vale si ese apellido identifica a un único
+    // paciente; con dos coincidencias es mejor no adivinar.
+    if (!pacienteMencionado) {
+      const candidatos = pacientesDelExpediente.filter(function (p) {
+        return normalizar(patientName(p)).split(' ').some(function (t) {
+          return t.length > 3 && new RegExp('\\b' + t + '\\b').test(lower);
+        });
+      });
+      if (candidatos.length === 1) pacienteMencionado = candidatos[0];
+    }
+
+    // Un saludo no es una consulta fallida: responderle con el aviso de «esa
+    // consulta se sale de lo que puedo revisar» hace que el asistente se sienta
+    // roto desde el primer mensaje.
+    if (/^(hola|buenas|buenos dias|buenas tardes|buenas noches|hey|que tal|saludos|buen dia)\b/.test(lower)) {
+      return {
+        reply: 'Hola. Puedo revisar la agenda de un día, los saldos pendientes, ' +
+          'el expediente de un paciente o el panorama de la clínica. ¿Qué necesitas?',
+        citations: [], tool_calls: [], mock: true, hybrid: 'local'
+      };
+    }
+    if (/^(gracias|muchas gracias|ok gracias|listo gracias)\b/.test(lower)) {
+      return {
+        reply: 'Con gusto. Aquí sigo si necesitas revisar algo más.',
+        citations: [], tool_calls: [], mock: true, hybrid: 'local'
+      };
+    }
+
+    // Preguntas sobre quién o qué es Vito. Se responden aquí, con la voz de la
+    // clínica: si cayeran en la búsqueda de pacientes, el usuario recibiría un
+    // «no encontré un paciente que coincida con inteligencia artificial».
+    const IDENTIDAD = /(quien|que|cual)\s+(eres|sos)\b|te\s+llamas|tu\s+nombre|que\s+(modelo|motor)\b|eres\s+(un|una)\s+(ia|inteligencia|robot|bot|modelo|humano|persona|maquina)|inteligencia\s+artificial|chatgpt|open\s*ai|anthropic|gemini|copilot|deepseek|mistral|grok|\bgpt\b|\bclaude\b|\bia\b/;
+    if (IDENTIDAD.test(lower)) {
+      return {
+        reply: sanitize('Soy Vito, el asistente de esta clínica dentro de CREDental. ' +
+          'Trabajo únicamente con los datos guardados en este equipo: reviso la agenda, ' +
+          'los saldos pendientes, el expediente de un paciente y el panorama general. ' +
+          'Solo consulto información, nunca modifico expedientes ni cobros.'),
+        citations: [],
+        tool_calls: [],
+        mock: true,
+        hybrid: 'local'
+      };
+    }
+
+    let toolName = null;
     let args = {};
 
-    if (/cita|agenda|mañana|manana|hoy/.test(lower)) {
-      toolName = 'list_appointments';
-      args = { date: /hoy/.test(lower) ? todayISO() : addDaysISO(1) };
-    } else if (/saldo|pendiente|debe|cobranza|pago|cobrar/.test(lower)) {
-      toolName = 'list_patients_balance';
-    } else if (/paciente|expediente|resume|resumen del|quién es|quien es/.test(lower)) {
+    if (pacienteMencionado && /paciente|expediente|resum|ficha|historia|quien es|saldo de|debe/.test(lower)) {
       toolName = 'patient_summary';
-      // extract rough name after "de" / "paciente"
-      const m = q.match(/(?:paciente|de|expediente de)\s+([A-Za-zÁÉÍÓÚáéíóúñÑ ]{2,40})/i);
-      args = { query: m ? m[1].trim() : q };
+      args = { query: patientName(pacienteMencionado) };
+    } else if (/saldo|pendiente|debe|cobranz|cobrar|mora|deuda/.test(lower)) {
+      toolName = 'list_patients_balance';
+    } else if (/cita|agenda|consulta de|manana|hoy|programad/.test(lower)) {
+      toolName = 'list_appointments';
+      args = { date: fechaPedida(lower) || addDaysISO(1) };
+    // El panorama va antes que el expediente: «resumen de la clínica» contiene
+    // «resum» y terminaba buscando un paciente llamado «la clínica».
+    } else if (/clinica|resumen general|panorama|como vamos|cuantos|cuantas|indicadores|estadistica/.test(lower)) {
+      toolName = 'clinic_snapshot';
+    } else if (/paciente|expediente|resum|ficha|historia|quien es/.test(lower)) {
+      toolName = 'patient_summary';
+      const m = q.match(/(?:paciente|expediente de|ficha de|de)\s+([A-Za-zÁÉÍÓÚáéíóúñÑ ]{2,40})/i);
+      args = { query: pacienteMencionado ? patientName(pacienteMencionado) : (m ? m[1].trim() : q) };
+    }
+
+    // Sin coincidencia no se inventa una respuesta ni se contesta otra cosa:
+    // se dice con claridad qué sí puede consultar.
+    if (!toolName) {
+      const opciones = Object.keys(TOOLS).map(function (k) {
+        return '• ' + TOOLS[k].label + ' — ' + TOOLS[k].description;
+      }).join('\n');
+      return {
+        reply: 'Esa consulta se sale de lo que puedo revisar en el sistema. Puedo ayudarte con:\n' +
+          opciones + '\n\nPor ejemplo: «¿Qué citas hay mañana?» o «¿Quién tiene saldo pendiente?».',
+        citations: [],
+        tool_calls: [],
+        mock: true,
+        hybrid: 'local'
+      };
     }
 
     const result = runTool(toolName, args);

@@ -15,7 +15,7 @@
   height: 52px;
   border-radius: 50%;
   background: rgba(var(--brand-primary-rgb), 0.1);
-  color: var(--color-blue-mid);
+  color: var(--action);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,8 +70,8 @@
 }
 
 .patient-tab.active {
-  color: var(--color-blue-dark);
-  border-bottom-color: var(--color-blue-mid);
+  color: var(--action-strong);
+  border-bottom-color: var(--action);
 }
 
 .patient-tab-panels {
@@ -185,10 +185,10 @@
   color: var(--color-gray);
 }
 .record-callout.info .record-callout-label {
-  color: var(--color-blue-mid);
+  color: var(--action);
 }
 .record-callout.danger .record-callout-label {
-  color: var(--color-red);
+  color: var(--color-red-text);
 }
 .record-callout-text {
   font-size: 0.86rem;

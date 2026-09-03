@@ -2,6 +2,11 @@
    TEMA OSCURO (OPCIÓN SECUNDARIA SOBRIA) — html.dark-theme
    ========================================================================== */
 html.dark-theme {
+  /* Le dice al navegador que el documento es oscuro: los selectores de fecha y
+     hora nativos (agenda, cobranzas, reportes), las barras de scroll y los
+     menús desplegables dejan de dibujarse en blanco sobre la interfaz oscura. */
+  color-scheme: dark;
+
   --bg-primary: #071a2b;
   --bg-secondary: #0d2a3b;
   --bg-accent: #103448;
@@ -16,13 +21,27 @@ html.dark-theme {
   --color-gray: #b8c6cd;
   --color-gray-dark: #7d9aa5;
 
-  --color-blue: #5a9dff;
-  --color-blue-mid: #cb6ce6;
-  --color-blue-dark: #e08af3;
+  /* En oscuro el morado va al revés: brilla sobre el fondo y el hover aclara.
+     Por eso el texto de encima es tinta, no blanco — blanco sobre #cb6ce6 son
+     los mismos 3.08:1 de siempre; la tinta da 5.73:1. */
+  --ink-blue: #7fb5ff;
+  --action: #cb6ce6;
+  --action-strong: #e08af3;
+  --on-action: #071a2b;
   --color-teal: #5ab7c6;
   --color-green: #22c55e;
   --color-amber: #f59e0b;
   --color-red: #f87171;
+
+  /* Variantes de TEXTO de los semánticos. En claro son versiones oscurecidas
+     para pasar AA sobre relleno claro (#157347 / #b45309 / #c81e1e); si el
+     tema oscuro no las redefine, esos mismos tonos oscuros caen sobre las
+     tarjetas oscuras y quedan entre 2.2:1 y 3.0:1 — ilegibles en badges,
+     pastillas de cita y celdas de saldo. Aquí se invierte el paso: el texto
+     es la variante CLARA del semántico. Mínimo medido: 6.28:1. */
+  --color-green-text: #4ade80;
+  --color-amber-text: #fbbf24;
+  --color-red-text: #fca5a5;
 
   --state-caries: #f87171;
   --state-restaurado: #5a9dff;

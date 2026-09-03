@@ -12,13 +12,36 @@ document.addEventListener('DOMContentLoaded', function() {
   const companyId = company ? company.id : 'default';
   const KEY = 'credental_inventario_' + companyId;
 
-  // Insumos de ejemplo (esqueleto) — contexto dental
+  // Fechas de vencimiento relativas a "hoy" (mismo patrón que
+  // js/vito/seed-demo.js): con fechas fijas el inventario de demostración se
+  // vuelve un almacén entero caducado al cabo de unos meses.
+  const localDate = function (date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+  };
+  const hoyRef = new Date();
+  const addDays = function (days) {
+    const date = new Date(hoyRef);
+    date.setDate(date.getDate() + days);
+    return localDate(date);
+  };
+
+  // Insumos de ejemplo — contexto dental hondureño
   const seed = [
-    { id: 'ins_1', nombre: 'Anestesia lidocaína 2%', categoria: 'Anestésicos', proveedor: 'Dental Supply HN', stock: 8, minimo: 15, lote: 'L-2026-02', vence: '2026-09-30' },
-    { id: 'ins_2', nombre: 'Resina compuesta A2', categoria: 'Restauración', proveedor: 'OdontoCenter', stock: 22, minimo: 10, lote: 'R-115', vence: '2027-03-15' },
-    { id: 'ins_3', nombre: 'Guantes nitrilo (caja)', categoria: 'Bioseguridad', proveedor: '', stock: 4, minimo: 12, lote: 'G-908', vence: '2028-01-01' },
-    { id: 'ins_4', nombre: 'Ácido grabador 37%', categoria: 'Restauración', proveedor: 'Dental Supply HN', stock: 18, minimo: 8, lote: 'A-441', vence: '2026-07-10' },
-    { id: 'ins_5', nombre: 'Agujas dentales cortas', categoria: 'Anestésicos', proveedor: 'OdontoCenter', stock: 30, minimo: 20, lote: 'AG-77', vence: '2027-11-20' }
+    { id: 'ins_1', nombre: 'Anestesia lidocaína 2%', categoria: 'Anestésicos', proveedor: 'Dental Supply HN', stock: 8, minimo: 15, lote: 'L-2026-02', vence: addDays(28) },
+    { id: 'ins_2', nombre: 'Resina compuesta A2', categoria: 'Restauración', proveedor: 'OdontoCenter', stock: 22, minimo: 10, lote: 'R-115', vence: addDays(200) },
+    { id: 'ins_3', nombre: 'Guantes de nitrilo (caja 100)', categoria: 'Bioseguridad', proveedor: '', stock: 4, minimo: 12, lote: 'G-908', vence: addDays(480) },
+    { id: 'ins_4', nombre: 'Ácido grabador 37%', categoria: 'Restauración', proveedor: 'Dental Supply HN', stock: 18, minimo: 8, lote: 'A-441', vence: addDays(-54) },
+    { id: 'ins_5', nombre: 'Agujas dentales cortas', categoria: 'Anestésicos', proveedor: 'OdontoCenter', stock: 30, minimo: 20, lote: 'AG-77', vence: addDays(430) },
+    { id: 'ins_6', nombre: 'Fresas de diamante (surtido)', categoria: 'Instrumental', proveedor: 'OdontoCenter', stock: 46, minimo: 20, lote: 'F-233', vence: addDays(900) },
+    { id: 'ins_7', nombre: 'Ionómero de vidrio', categoria: 'Restauración', proveedor: 'Dental Supply HN', stock: 12, minimo: 6, lote: 'IV-88', vence: addDays(150) },
+    { id: 'ins_8', nombre: 'Hilo de sutura 3-0', categoria: 'Cirugía', proveedor: 'MediHonduras', stock: 9, minimo: 5, lote: 'S-301', vence: addDays(320) },
+    { id: 'ins_9', nombre: 'Mascarillas quirúrgicas (caja 50)', categoria: 'Bioseguridad', proveedor: 'Dental Supply HN', stock: 26, minimo: 10, lote: 'MQ-55', vence: addDays(700) },
+    { id: 'ins_10', nombre: 'Eyectores de saliva (bolsa 100)', categoria: 'Bioseguridad', proveedor: 'OdontoCenter', stock: 7, minimo: 10, lote: 'ES-12', vence: addDays(600) },
+    { id: 'ins_11', nombre: 'Cemento temporal', categoria: 'Restauración', proveedor: 'OdontoCenter', stock: 15, minimo: 5, lote: 'CT-19', vence: addDays(45) },
+    { id: 'ins_12', nombre: 'Alginato para impresiones', categoria: 'Impresión', proveedor: 'MediHonduras', stock: 11, minimo: 4, lote: 'AL-27', vence: addDays(260) }
   ];
 
   function read() {
@@ -44,9 +67,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function estadoInsumo(i) {
-    if (i.stock <= i.minimo) return { cls: 'badge-canceled', txt: 'Stock bajo' };
     const dias = diasParaVencer(i.vence);
-    if (dias !== null && dias <= DIAS_VENCIMIENTO) return { cls: 'badge-pending', txt: dias < 0 ? 'Vencido' : 'Vence pronto' };
+    // Un lote vencido no se puede usar en boca: manda sobre cualquier otra alerta.
+    if (dias !== null && dias < 0) return { cls: 'badge-canceled', txt: 'Vencido' };
+    if (i.stock <= i.minimo) return { cls: 'badge-canceled', txt: 'Stock bajo' };
+    if (dias !== null && dias <= DIAS_VENCIMIENTO) return { cls: 'badge-pending', txt: 'Vence pronto' };
     if (!i.proveedor) return { cls: 'badge-confirmed', txt: 'Sin proveedor' };
     return { cls: 'badge-completed', txt: 'Disponible' };
   }
@@ -59,10 +84,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function renderAlerts() {
     const bajo = insumos.filter(i => i.stock <= i.minimo).length;
-    const venc = insumos.filter(i => { const d = diasParaVencer(i.vence); return d !== null && d <= DIAS_VENCIMIENTO; }).length;
+    // "Por vencer" y "vencido" son cosas distintas: contar un lote caducado
+    // como próximo a vencer contradice su propia insignia en la tabla.
+    const porVencer = insumos.filter(i => { const d = diasParaVencer(i.vence); return d !== null && d >= 0 && d <= DIAS_VENCIMIENTO; }).length;
+    const vencidos = insumos.filter(i => { const d = diasParaVencer(i.vence); return d !== null && d < 0; }).length;
     const sinProv = insumos.filter(i => !i.proveedor).length;
     document.getElementById('inv-stock-bajo').textContent = bajo;
-    document.getElementById('inv-vencimiento').textContent = venc;
+    document.getElementById('inv-vencimiento').textContent = porVencer;
+    const notaVencidos = document.getElementById('inv-vencidos');
+    if (notaVencidos) {
+      notaVencidos.textContent = vencidos === 0
+        ? 'Sin lotes vencidos'
+        : (vencidos === 1 ? '1 lote ya vencido' : `${vencidos} lotes ya vencidos`);
+      notaVencidos.style.color = vencidos > 0 ? 'var(--color-red-text)' : '';
+    }
     document.getElementById('inv-sin-proveedor').textContent = sinProv;
     document.getElementById('inv-total').textContent = insumos.length;
   }
@@ -79,18 +114,31 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
+    const esc = window.escapeHtml || function (v) { return v; };
     tbody.innerHTML = list.map(i => {
       const est = estadoInsumo(i);
-      const stockColor = i.stock <= i.minimo ? 'var(--color-red)' : 'var(--text-primary)';
+      const stockColor = i.stock <= i.minimo ? 'var(--color-red-text)' : 'var(--text-primary)';
+      // La fecha se resalta cuando el lote está vencido o por vencer: de lo
+      // contrario el contador de arriba señala lotes que la tabla no distingue.
+      const dias = diasParaVencer(i.vence);
+      let venceColor = 'var(--text-primary)';
+      let venceTitulo = '';
+      if (dias !== null && dias < 0) {
+        venceColor = 'var(--color-red-text)';
+        venceTitulo = 'Lote vencido';
+      } else if (dias !== null && dias <= DIAS_VENCIMIENTO) {
+        venceColor = 'var(--color-amber-text)';
+        venceTitulo = `Vence en ${dias} día${dias === 1 ? '' : 's'}`;
+      }
       return `
         <tr>
-          <td style="font-weight:600;">${i.nombre}</td>
-          <td><span class="tag">${i.categoria || '—'}</span></td>
-          <td>${i.proveedor || '<span style="color: var(--color-gray);">Sin proveedor</span>'}</td>
-          <td style="text-align:right; font-weight:700; color:${stockColor};">${i.stock}</td>
-          <td style="text-align:right; color: var(--color-gray);">${i.minimo}</td>
-          <td>${i.lote || '—'}</td>
-          <td>${fmtVence(i.vence)}</td>
+          <td style="font-weight:600;">${esc(i.nombre)}</td>
+          <td><span class="tag">${esc(i.categoria) || '—'}</span></td>
+          <td>${esc(i.proveedor) || '<span style="color: var(--color-gray);">Sin proveedor</span>'}</td>
+          <td class="num" style="font-weight:700; color:${stockColor};">${i.stock}</td>
+          <td class="num" style="color: var(--color-gray);">${i.minimo}</td>
+          <td>${esc(i.lote) || '—'}</td>
+          <td style="white-space:nowrap; color:${venceColor}; font-weight:${venceColor === 'var(--text-primary)' ? '400' : '600'};" title="${venceTitulo}">${fmtVence(i.vence)}</td>
           <td><span class="badge ${est.cls}">${est.txt}</span></td>
         </tr>
       `;

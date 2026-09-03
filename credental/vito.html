@@ -21,17 +21,18 @@
     .vito-head h1 { margin: 0; font-size: 1.4rem; }
     .vito-pill {
       font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
-      background: rgba(203, 108, 230, 0.15); color: var(--brand-purple);
+      background: rgba(203, 108, 230, 0.15); color: var(--action);
     }
     .vito-pill.off { background: var(--surface-muted); color: var(--color-gray); }
     .vito-log {
       min-height: 300px; max-height: 52vh; overflow-y: auto;
+      justify-content: flex-start;
       border: 1px solid var(--border); border-radius: 14px;
       padding: 12px; background: var(--bg-accent); margin-bottom: 12px;
       display: flex; flex-direction: column; gap: 10px;
     }
     .vito-bubble { padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.45; max-width: 92%; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .vito-bubble.user { align-self: flex-end; background: var(--color-blue-mid); color: #fff; }
+    .vito-bubble.user { align-self: flex-end; background: var(--action); color: var(--on-action); }
     .vito-bubble.bot { align-self: flex-start; background: var(--surface-muted); color: var(--text-primary); }
     .vito-cites { font-size: 11px; color: var(--color-gray); margin-top: 6px; }
     .vito-form { display: flex; gap: 8px; align-items: stretch; }
@@ -41,13 +42,14 @@
     }
     .vito-form button {
       padding: 10px 16px; border: none; border-radius: 10px;
-      background: var(--color-blue-mid); color: #fff; font-weight: 700; cursor: pointer;
+      background: var(--action); color: var(--on-action); font-weight: 700; cursor: pointer;
     }
     .vito-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
     .vito-chips button {
       border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-primary); border-radius: 999px;
       padding: 6px 10px; font-size: 12px; cursor: pointer;
     }
+    @media (pointer: coarse) { .vito-chips button { min-height: 34px; padding: 8px 12px; } }
     .vito-side {
       border: 1px solid var(--border); border-radius: 14px; padding: 14px; background: var(--bg-accent);
       font-size: 13px; color: var(--color-gray);
@@ -73,12 +75,8 @@
         <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
       <nav>
-        <ul class="nav-menu">
-          <li class="nav-item"><a href="dashboard.html"><span>Dashboard</span></a></li>
-          <li class="nav-item"><a href="agenda.html"><span>Agenda</span></a></li>
-          <li class="nav-item"><a href="pacientes.html"><span>Pacientes</span></a></li>
-          <li class="nav-item active"><a href="vito.html"><span>Vito</span></a></li>
-        </ul>
+        <!-- El menu de navegacion se genera dinamicamente en js/main.js (ver el array navItems). -->
+        <ul class="nav-menu"></ul>
       </nav>
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
@@ -87,9 +85,9 @@
           <div class="user-role" id="sidebar-user-role">Clínica</div>
         </div>
       </div>
-      <button class="logout-btn" id="sidebar-logout-btn" type="button" aria-label="Cerrar sesión">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 3v18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>Cerrar sesión</span>
+      <button class="logout-btn" id="sidebar-logout-btn" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Cerrar Sesión</span>
       </button>
     </aside>
 
@@ -109,7 +107,7 @@
               <button type="button" data-q="¿Qué citas tengo hoy?">Citas de hoy</button>
               <button type="button" data-q="¿Qué citas tengo mañana?">Citas de mañana</button>
               <button type="button" data-q="¿Qué pacientes tienen saldo pendiente?">Saldos pendientes</button>
-              <button type="button" data-q="Resume el expediente de José Antonio Ruiz">Expediente José</button>
+              <button type="button" data-q="Resume el expediente de José Antonio Ruiz">Expediente de un paciente</button>
               <button type="button" data-q="Dame un resumen de la clínica">Resumen clínica</button>
             </div>
             <div class="vito-log" id="vito-log" role="log" aria-live="polite"></div>
@@ -126,7 +124,7 @@
             <div id="data-info"></div>
             <h2 style="margin-top:14px">Capacidades</h2>
             <div id="cap-list"></div>
-            <p class="vito-note">Sin Vito la clínica sigue en Dashboard / Agenda / Pacientes. Este panel es el plan Enterprise AI.</p>
+            <p class="vito-note">Vito es opcional: la clínica funciona igual sin él desde Dashboard, Agenda y Pacientes. Solo consulta información — nunca modifica expedientes ni cobros.</p>
           </aside>
         </div>
       </div>
@@ -147,12 +145,19 @@
       if (window.CredentalDemo) {
         const r = window.CredentalDemo.ensure();
         if (r.seeded) {
-          seedMsg = 'Datos demo cargados: ' + r.company + ' · ' + r.patients + ' pacientes · ' + r.appointments + ' citas.';
+          seedMsg = 'Vito está respondiendo sobre los datos de demostración de ' + r.company +
+            ': ' + r.patients + ' pacientes y ' + r.appointments + ' citas.';
         } else if (r.reason === 'already-has-data') {
-          seedMsg = 'Usando datos existentes de la clínica (' + r.count + ' pacientes).';
+          seedMsg = 'Vito responde con los datos reales de esta instalación (' + r.count + ' pacientes en el expediente).';
         }
       }
       document.getElementById('vito-seed-note').textContent = seedMsg;
+
+      function esc(v) {
+        return String(v == null ? '' : v)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
 
       const log = document.getElementById('vito-log');
       const form = document.getElementById('vito-form');
@@ -160,20 +165,30 @@
       const pill = document.getElementById('vito-pill');
 
       const st = window.VitoCredental ? window.VitoCredental.status() : { enabled: false, ready: false };
-      pill.textContent = st.ready ? 'Activo · local-first' : 'No disponible';
+      pill.textContent = st.ready ? 'Activo' : 'No disponible';
       if (!st.ready) pill.classList.add('off');
 
       // Panel módulo
       const mod = window.VitoCredental && window.VitoCredental.module;
-      document.getElementById('mod-info').innerHTML = mod
-        ? '<strong>' + mod.name + '</strong> v' + mod.version + '<br>' + (mod.description || '')
+      document.getElementById('mod-info').textContent = mod
+        ? (mod.description || '')
         : 'Módulo no registrado';
       const ds = window.CredentalData ? window.CredentalData.status() : {};
+      const sync = ds.cloud_sync === 'explicit'
+        ? 'Copia en la nube activada.'
+        : 'Sin copia en la nube.';
       document.getElementById('data-info').textContent =
-        (ds.mode || 'n/a') + ' · ' + (ds.cloud_sync || '') + ' · db ' + (ds.db_ready ? 'ok' : 'no');
+        (ds.db_ready
+          ? 'Los datos se guardan en este equipo y Vito los lee directamente. '
+          : 'Los datos aún no están disponibles en este equipo. ') + sync;
+
+      // Se muestra el nombre en claro, no el identificador interno de la
+      // herramienta (credental.agenda.list_day y compañía): esta pantalla la
+      // ve la clínica, no quien integra el módulo.
       document.getElementById('cap-list').innerHTML = (mod && mod.capabilities || [])
         .map(function (c) {
-          return '<div class="vito-cap"><b>' + c.id + '</b><br>' + c.description + '</div>';
+          return '<div class="vito-cap"><b>' + esc(c.label || c.name) + '</b><br>' +
+                 esc(c.description || '') + '</div>';
         }).join('') || '—';
 
       function addBubble(text, who, cites) {
@@ -192,7 +207,11 @@
         log.scrollTop = log.scrollHeight;
       }
 
-      addBubble('Hola, soy Vito. Puedo consultar agenda, saldos y expedientes de esta clínica.', 'bot');
+      const saludo = 'Hola, soy Vito, el asistente de la clínica.\n' +
+        'Puedo revisar la agenda de un día, decirte qué pacientes tienen saldo pendiente, ' +
+        'resumir un expediente y darte el panorama general.\n' +
+        'Solo consulto información: no modifico expedientes ni cobros.';
+      addBubble(saludo, 'bot');
 
       function ask(q) {
         if (!window.VitoCredental) {

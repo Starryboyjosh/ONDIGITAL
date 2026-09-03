@@ -20,10 +20,8 @@
         <div class="brand-name">CRED<span class="acc">ental</span></div>
       </div>
       <nav>
-        <ul class="nav-menu">
-          <li class="nav-item"><a href="dashboard.html"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg><span>Dashboard</span></a></li>
-          <li class="nav-item active"><a href="laboratorios.html"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><line x1="7.5" y1="14" x2="16.5" y2="14"></line></svg><span>Laboratorios</span></a></li>
-        </ul>
+        <!-- El menu de navegacion se genera dinamicamente en js/main.js (ver el array navItems). -->
+        <ul class="nav-menu"></ul>
       </nav>
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
@@ -60,7 +58,7 @@
           <div class="metric-info"><span class="metric-title">Pendientes</span><span class="metric-value" id="lab-pendientes">0</span></div>
         </div>
         <div class="card metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--color-blue-mid);"><svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg></div>
+          <div class="metric-icon-wrap" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--action);"><svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg></div>
           <div class="metric-info"><span class="metric-title">En tránsito / proceso</span><span class="metric-value" id="lab-transito">0</span></div>
         </div>
         <div class="card metric-card">
@@ -87,7 +85,7 @@
           </select>
         </div>
         <div class="custom-table-container">
-          <table class="custom-table">
+          <table class="custom-table table-densa">
             <thead>
               <tr>
                 <th>Paciente</th>
@@ -95,9 +93,10 @@
                 <th>Laboratorio</th>
                 <th>Envío</th>
                 <th>Esperada</th>
-                <th style="text-align:right;">Costo</th>
-                <th>Estado</th>
-                <th>Adjuntos</th>
+                <th class="lab-col-costo">Costo</th>
+                <th class="lab-col-estado">Estado</th>
+                <th class="lab-col-estado">Adjuntos</th>
+                <th class="lab-col-accion">Seguimiento</th>
               </tr>
             </thead>
             <tbody id="lab-body"></tbody>

@@ -12,6 +12,20 @@
       return window.db ? window.db.getUsers() : [];
     },
 
+    // Búsqueda pública mínima para el branding dinámico del login: solo
+    // expone la empresa y el nombre visible, nunca el hash de contraseña
+    // ni el resto del registro de usuario.
+    lookupMarca: (username) => {
+      if (!window.db || !username) return null;
+      const user = window.db.getUser ? window.db.getUser(username) : null;
+      if (!user) return null;
+      const company = window.db.getCompany ? window.db.getCompany(user.companyId) : null;
+      return {
+        empresa: user.companyId,
+        nombreVisible: (company && company.name) || null
+      };
+    },
+
     // Función de hash SHA-256 síncrona
     hashPassword: (pwd) => {
       function rightRotate(value, amount) {
@@ -101,6 +115,25 @@
         return { success: true };
       }
       return { success: false, message: 'Usuario o contraseña incorrectos.' };
+    },
+
+    // Vuelve a leer del registro los datos visibles del usuario en sesión, sin
+    // tocar la contraseña. Se usa al editar el propio perfil: de lo contrario
+    // la barra lateral seguiría mostrando el nombre y el rol anteriores hasta
+    // el siguiente inicio de sesión.
+    refreshSession: () => {
+      const session = window.auth.getCurrentUser();
+      if (!session || !window.db || !window.db.getUser) return null;
+      const user = window.db.getUser(session.username);
+      if (!user) return session;
+      const actualizada = Object.assign({}, session, {
+        name: user.name,
+        role: user.role,
+        avatar: user.avatar,
+        companyId: user.companyId
+      });
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(actualizada));
+      return actualizada;
     },
 
     // Retorna los datos del usuario logueado actualmente

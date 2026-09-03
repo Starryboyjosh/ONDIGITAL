@@ -94,9 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.selectPatient(saved.id);
   });
 
-  // Selección por URL (?id=pat_1)
-  const paramId = new URLSearchParams(window.location.search).get('id');
-  if (paramId) window.selectPatient(paramId);
 
   // --- HELPERS ---
 
@@ -149,11 +146,11 @@ document.addEventListener('DOMContentLoaded', function() {
       tr.className = p.id === selectedPatientId ? 'active-row' : '';
       tr.innerHTML = `
         <td>
-          <div class="patient-list-name">${p.name}</div>
-          <div class="patient-list-doc">${p.rut}</div>
+          <div class="patient-list-name">${window.escapeHtml(p.name)}</div>
+          <div class="patient-list-doc">${window.escapeHtml(p.rut)}</div>
         </td>
         <td style="text-align: right;">
-          <button onclick="event.stopPropagation(); window.editPatient('${p.id}')" class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.75rem;">Editar</button>
+          <button onclick="event.stopPropagation(); window.editPatient('${window.escapeHtml(p.id)}')" class="btn btn-secondary btn-sm">Editar</button>
         </td>
       `;
       tr.addEventListener('click', () => window.selectPatient(p.id));
@@ -306,9 +303,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <span class="badge ${badgeClass}">${badgeText}</span>
         </div>
         <div class="finding-desc" style="font-size: 0.82rem; margin-top: 4px;">
-          <strong>${appt.specialty}</strong> con ${dentist.name}
+          <strong>${window.escapeHtml(appt.specialty)}</strong> con ${window.escapeHtml(dentist.name)}
         </div>
-        ${appt.notes ? `<div style="font-size: 0.75rem; color: var(--color-gray); margin-top: 4px; font-style: italic;">Obs: ${appt.notes}</div>` : ''}
+        ${appt.notes ? `<div style="font-size: 0.75rem; color: var(--color-gray); margin-top: 4px; font-style: italic;">Obs: ${window.escapeHtml(appt.notes)}</div>` : ''}
       `;
       timeline.appendChild(item);
     });
@@ -333,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (Object.keys(odo).length === 0 || teeth === 0) {
       odoEl.textContent = 'Sin registros en el odontograma. Abra el editor para iniciar el registro por pieza.';
     } else {
-      odoEl.innerHTML = `${teeth} pieza(s) con hallazgos · <strong style="color: var(--color-red);">${caries} superficie(s) con caries</strong>.`;
+      odoEl.innerHTML = `${teeth} pieza(s) con hallazgos · <strong style="color: var(--color-red-text);">${caries} superficie(s) con caries</strong>.`;
     }
 
     // Periodontograma
@@ -371,10 +368,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const [cls, txt] = statusMap[b.status] || ['badge-pending', b.status || '-'];
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><code class="tag">${b.id.toUpperCase()}</code></td>
+          <td><code class="tag">${window.folioPresupuesto(b)}</code></td>
           <td><span class="badge ${cls}">${txt}</span></td>
           <td style="text-align: right; font-weight: 600;">${window.formatMoney(total)}</td>
-          <td style="text-align: right; font-weight: 700; color: ${balance > 0 ? 'var(--color-red)' : 'var(--color-green)'};">${window.formatMoney(balance)}</td>
+          <td style="text-align: right; font-weight: 700; color: ${balance > 0 ? 'var(--color-red-text)' : 'var(--color-green-text)'};">${window.formatMoney(balance)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -396,8 +393,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const rows = allPayments.slice(0, 6).map(p => `
       <div class="finding-item">
         <div class="finding-meta">
-          <span>${p.date || '-'} · ${p.method || '-'}</span>
-          <span style="font-weight: 700; color: var(--color-green);">${window.formatMoney(p.amount)}</span>
+          <span>${window.formatDateEs(p.date)} · ${window.metodoPagoEs(p.method)}</span>
+          <span style="font-weight: 700; color: var(--color-green-text);">${window.formatMoney(p.amount)}</span>
         </div>
       </div>
     `).join('');
@@ -406,11 +403,11 @@ document.addEventListener('DOMContentLoaded', function() {
       <div style="display: flex; gap: 12px; margin-bottom: 10px;">
         <div class="record-stat" style="flex: 1;">
           <div class="record-stat-label">Total abonado</div>
-          <div class="record-stat-value" style="color: var(--color-green);">${window.formatMoney(totalPaid)}</div>
+          <div class="record-stat-value" style="color: var(--color-green-text);">${window.formatMoney(totalPaid)}</div>
         </div>
         <div class="record-stat" style="flex: 1;">
           <div class="record-stat-label">Saldo pendiente</div>
-          <div class="record-stat-value" style="color: ${totalBalance > 0 ? 'var(--color-red)' : 'var(--text-primary)'};">${window.formatMoney(totalBalance)}</div>
+          <div class="record-stat-value" style="color: ${totalBalance > 0 ? 'var(--color-red-text)' : 'var(--text-primary)'};">${window.formatMoney(totalBalance)}</div>
         </div>
       </div>
       <div class="findings-timeline">${rows}</div>
@@ -436,4 +433,17 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('modal-title-text').textContent = 'Modificar Ficha Paciente';
     patientModal.classList.add('active');
   };
+  // Selección inicial. Va al final del archivo a propósito: window.selectPatient
+  // se asigna más abajo, y llamarla antes deja la pantalla en blanco.
+  // Con ?id=pat_x se abre ese expediente; sin parámetro, el primero del
+  // directorio, para que el módulo nunca abra vacío.
+  (function seleccionInicial() {
+    const paramId = new URLSearchParams(window.location.search).get('id');
+    if (paramId && window.db.getPatient(paramId)) {
+      window.selectPatient(paramId);
+      return;
+    }
+    const lista = window.db.getPatients();
+    if (lista.length) window.selectPatient(lista[0].id);
+  })();
 });

@@ -46,12 +46,12 @@
 }
 .perio-input:focus {
   outline: none;
-  border-color: var(--color-blue-mid);
+  border-color: var(--action);
   box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.12);
 }
 .perio-btn {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   border: 1px solid var(--border-strong);
   cursor: pointer;
@@ -69,7 +69,7 @@
 }
 .nic-label {
   font-weight: 700;
-  color: var(--color-blue-mid);
+  color: var(--action);
 }
 .chart-container {
   background: var(--bg-secondary);
@@ -93,7 +93,8 @@
 }
 .perio-grid-label {
   fill: var(--color-gray-dark);
-  font-size: 8px;
+  font-size: 9px;
+  dominant-baseline: middle;
 }
 .chart-legend {
   display: flex;
@@ -106,4 +107,13 @@
   width: 30px;
   height: 3px;
   border-radius: 2px;
+}
+
+/* En pantallas tactiles los marcadores de sangrado y supuracion crecen: 24px
+   es el minimo accesible, pero con el dedo se falla mucho a ese tamano. */
+@media (pointer: coarse) {
+  .perio-btn {
+    width: 30px;
+    height: 30px;
+  }
 }
