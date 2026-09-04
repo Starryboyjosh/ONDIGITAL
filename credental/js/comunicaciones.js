@@ -52,16 +52,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // --- Datos reales del paciente para completar la plantilla ---
 
+  // Las citas se guardan con `dateTime` ISO (db.js:491, seed-demo.js), no con
+  // campos `date`/`time` separados: leerlos daba siempre cadena vacía y el
+  // filtro devolvía cero citas habiendo decenas agendadas.
   function proximaCita(patientId) {
     const hoy = window.todayISO();
     return window.db.getAppointments()
-      .filter(a => a.patientId === patientId && (a.date || '') >= hoy && a.status !== 'canceled')
-      .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))[0] || null;
+      .filter(a => a.patientId === patientId &&
+        String(a.dateTime || '').split('T')[0] >= hoy && a.status !== 'canceled')
+      .sort((a, b) => String(a.dateTime).localeCompare(String(b.dateTime)))[0] || null;
   }
 
+  // Solo los presupuestos cobrables generan saldo, con el mismo criterio único
+  // que usan Cobranzas, Presupuestos y Pacientes (`window.esCobrable`, main.js).
+  // Mirar solo `status` dejaba fuera la cancelación y la suspensión, así que
+  // {monto} seguía reclamando por WhatsApp el saldo viejo de una cobranza que
+  // la propia clínica ya había cerrado desde Cobranzas.
   function saldoPaciente(patientId) {
     return window.db.getBudgets()
-      .filter(b => b.patientId === patientId)
+      .filter(b => b.patientId === patientId && window.esCobrable(b))
       .reduce((total, b) => {
         const bruto = (b.treatments || []).reduce((acc, t) => acc + (t.price || 0) * (t.qty || 1), 0);
         const neto = bruto - bruto * ((b.discount || 0) / 100);
@@ -75,8 +84,8 @@ document.addEventListener('DOMContentLoaded', function() {
     return texto
       .replace(/\{paciente\}/g, patient.name.split(' ')[0])
       .replace(/\{clinica\}/g, nombreClinica)
-      .replace(/\{fecha\}/g, cita ? window.formatDateLargaEs(cita.date) : 'la fecha acordada')
-      .replace(/\{hora\}/g, cita ? window.formatHora(cita.time) : 'la hora acordada')
+      .replace(/\{fecha\}/g, cita ? window.formatDateLargaEs(String(cita.dateTime).split('T')[0]) : 'la fecha acordada')
+      .replace(/\{hora\}/g, cita ? window.formatHora(cita.dateTime) : 'la hora acordada')
       .replace(/\{monto\}/g, window.formatMoney(saldoPaciente(patient.id)));
   }
 

@@ -39,7 +39,11 @@
 window.MONEY_LOCALE = 'es-HN';
 window.MONEY_CURRENCY = 'HNL';
 window.formatMoney = function(value) {
-  const num = Number(value) || 0;
+  // Un dato ausente o corrupto no es un saldo en cero: `Number(value) || 0`
+  // convertía NaN y undefined en "L 0.00" y no había forma de distinguirlos
+  // de una cuenta saldada.
+  const num = Number(value);
+  if (!Number.isFinite(num)) return '—';
   return new Intl.NumberFormat(window.MONEY_LOCALE, {
     style: 'currency',
     currency: window.MONEY_CURRENCY,
@@ -60,6 +64,17 @@ window.escapeHtml = function(value) {
     .replace(/'/g, '&#39;');
 };
 
+// Texto listo para comparar en un buscador: sin acentos y en minúsculas.
+// En recepción nadie teclea la tilde, así que «maria» tiene que encontrar a
+// «María Elena Castro». NFD separa la letra de su diacrítico y el rango
+// U+0300–U+036F borra los diacríticos combinantes que quedan sueltos.
+window.normalizarBusqueda = function(value) {
+  return String(value == null ? '' : value)
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase();
+};
+
 // --- Formato de fechas y estados (es-HN) ----------------------------------
 // Toda fecha que ve el usuario pasa por aquí: nunca se imprime un ISO crudo
 // (2026-09-01) ni un estado interno en inglés ('confirmed') en pantalla.
@@ -68,7 +83,9 @@ window.formatDateEs = function(value, opciones) {
   const iso = String(value);
   // 'YYYY-MM-DD' se interpreta como UTC si se pasa tal cual a new Date().
   const d = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(iso + 'T00:00:00') : new Date(iso);
-  if (isNaN(d.getTime())) return iso;
+  // Una fecha corrupta no se imprime en crudo: '2026-13-45' en pantalla se lee
+  // como un dato válido raro, y el guion ya es la convención de "sin dato".
+  if (isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('es-HN', opciones || { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
@@ -102,13 +119,32 @@ window.ESTADOS_COBRO = {
 };
 window.estadoCobroEs = (status) => window.ESTADOS_COBRO[status] || 'Pendiente';
 
+// Único criterio de "este presupuesto genera saldo por cobrar", compartido por
+// Cobranzas, Presupuestos, Pacientes y Comunicaciones.
+// Vivía duplicado en los cuatro módulos y se desincronizó: Comunicaciones se
+// quedó mirando solo `status`, así que la plantilla de WhatsApp seguía
+// reclamando {monto} de una cobranza que la propia clínica ya había suspendido
+// o cancelado. Con una sola función los cuatro dan siempre la misma cifra.
+//  - status 'draft' / 'rejected': el paciente no ha aceptado nada.
+//  - paymentStatus 'cancelado' / 'suspendido': se decide en Cobranzas y
+//    congela el saldo (db.js `recalcBudgetPaymentStatus`).
+window.esCobrable = function(budget) {
+  return !!budget && budget.status === 'accepted'
+    && budget.paymentStatus !== 'cancelado' && budget.paymentStatus !== 'suspendido';
+};
+
 // Folio visible de un presupuesto. El id interno (bud_co_credental_demo_1)
 // es de la base de datos y nunca debe llegar a la interfaz ni al comprobante.
 window.folioPresupuesto = function(budget) {
   if (!budget) return '—';
   if (budget.folio) return budget.folio;
-  const m = /(\d+)\s*$/.exec(String(budget.id || ''));
-  return 'P-' + String(m ? m[1] : '0').padStart(4, '0');
+  // El respaldo solo sirve para los ids con sufijo correlativo de la semilla
+  // (bud_co_credental_demo_7). Los ids generados en caliente terminan en
+  // Date.now(), y ese respaldo imprimía "P-1730000000000123" en el
+  // comprobante: exactamente la marca de tiempo interna que el folio existe
+  // para no enseñar.
+  const m = /_(\d{1,4})$/.exec(String(budget.id || ''));
+  return m ? 'P-' + m[1].padStart(4, '0') : '—';
 };
 
 // Nombre en español de un método de pago. Los valores internos son en inglés.
@@ -342,95 +378,128 @@ document.addEventListener('DOMContentLoaded', function() {
   // 4.5. NAVEGACIÓN CENTRALIZADA — Todos los ítems del menú se definen aquí
   const navMenu = document.querySelector('.nav-menu');
   if (navMenu) {
-    // Definición centralizada de todos los ítems de navegación
+    // Definición centralizada de la navegación, agrupada por sección.
+    // Antes eran 17 ítems en una lista plana sin un solo encabezado: 677 px de
+    // menú en un portátil que da 376 px de alto útil. Los encabezados son
+    // estáticos a propósito —no hay acordeón— porque plegar escondería 12 de
+    // los 17 módulos y esto es una base para presentar funcionalidades.
     // Para agregar/quitar/reordenar páginas, solo modifica este array.
-    const navItems = [
+    const navGroups = [
       {
-        href: 'dashboard.html',
-        label: 'Dashboard',
-        icon: '<rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect>'
+        id: 'inicio',
+        titulo: 'Inicio',
+        items: [
+          {
+            href: 'dashboard.html',
+            label: 'Dashboard',
+            icon: '<rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect>'
+          },
+          {
+            href: 'vito.html',
+            label: 'Vito',
+            icon: '<rect x="5" y="7" width="14" height="12" rx="3"></rect><path d="M9 7V5a3 3 0 0 1 6 0v2"></path><circle cx="9.5" cy="13" r="1"></circle><circle cx="14.5" cy="13" r="1"></circle><path d="M9.5 16.5c1 .8 3.5.8 5 0"></path>'
+          }
+        ]
       },
       {
-        href: 'vito.html',
-        label: 'Vito',
-        icon: '<rect x="5" y="7" width="14" height="12" rx="3"></rect><path d="M9 7V5a3 3 0 0 1 6 0v2"></path><circle cx="9.5" cy="13" r="1"></circle><circle cx="14.5" cy="13" r="1"></circle><path d="M9.5 16.5c1 .8 3.5.8 5 0"></path>'
+        id: 'clinica',
+        titulo: 'Clínica',
+        items: [
+          {
+            href: 'agenda.html',
+            label: 'Agenda de citas',
+            icon: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>'
+          },
+          {
+            href: 'pacientes.html',
+            label: 'Pacientes',
+            icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>'
+          },
+          {
+            href: 'comunicaciones.html',
+            label: 'Comunicaciones',
+            icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>'
+          },
+          {
+            href: 'odontograma.html',
+            label: 'Odontograma',
+            icon: '<path d="M12 2C10.5 2 9 3 8 4.5 7 6 6 8.5 6 10c0 4 2 6 2 9 0 2.5 1 3 2 3s1.5-1 2-2c0.5 1 1 2 2 2s2-0.5 2-3c0-3 2-5 2-9 0-1.5-1-4-2-5.5C15 3 13.5 2 12 2z"></path>'
+          },
+          {
+            href: 'periodontograma.html',
+            label: 'Periodontograma',
+            icon: '<line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line>'
+          },
+          {
+            href: 'laboratorios.html',
+            label: 'Laboratorios',
+            icon: '<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><line x1="7.5" y1="14" x2="16.5" y2="14"></line>'
+          }
+        ]
       },
       {
-        href: 'agenda.html',
-        label: 'Agenda Citas',
-        icon: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>'
+        id: 'cobros',
+        titulo: 'Cobros',
+        items: [
+          {
+            href: 'presupuestos.html',
+            label: 'Presupuestos',
+            icon: '<line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>'
+          },
+          {
+            href: 'cobranzas.html',
+            label: 'Cobranzas',
+            icon: '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line>'
+          },
+          {
+            href: 'facturacion.html',
+            label: 'Facturación',
+            icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line>'
+          },
+          {
+            href: 'caja.html',
+            label: 'Caja',
+            icon: '<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4z"></path>'
+          }
+        ]
       },
       {
-        href: 'pacientes.html',
-        label: 'Pacientes',
-        icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>'
+        id: 'gestion',
+        titulo: 'Gestión',
+        items: [
+          {
+            href: 'procedimientos.html',
+            label: 'Procedimientos',
+            icon: '<path d="M9 2h6a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2z"></path><path d="M9 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-4"></path>'
+          },
+          {
+            href: 'inventario.html',
+            label: 'Inventario',
+            icon: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>'
+          },
+          {
+            href: 'reportes.html',
+            label: 'Reportes',
+            icon: '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>'
+          }
+        ]
       },
       {
-        href: 'comunicaciones.html',
-        label: 'Comunicaciones',
-        icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>'
-      },
-      {
-        href: 'odontograma.html',
-        label: 'Odontograma',
-        icon: '<path d="M12 2C10.5 2 9 3 8 4.5 7 6 6 8.5 6 10c0 4 2 6 2 9 0 2.5 1 3 2 3s1.5-1 2-2c0.5 1 1 2 2 2s2-0.5 2-3c0-3 2-5 2-9 0-1.5-1-4-2-5.5C15 3 13.5 2 12 2z"></path>'
-      },
-      {
-        href: 'periodontograma.html',
-        label: 'Periodontograma',
-        icon: '<line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line>'
-      },
-      {
-        href: 'laboratorios.html',
-        label: 'Laboratorios',
-        icon: '<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"></path><line x1="7.5" y1="14" x2="16.5" y2="14"></line>'
-      },
-      {
-        href: 'procedimientos.html',
-        label: 'Procedimientos',
-        icon: '<path d="M9 2h6a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v0a2 2 0 0 1 2-2z"></path><path d="M9 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-4"></path>'
-      },
-      {
-        href: 'presupuestos.html',
-        label: 'Presupuestos',
-        icon: '<line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>'
-      },
-      {
-        href: 'cobranzas.html',
-        label: 'Cobranzas',
-        icon: '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line>'
-      },
-      {
-        href: 'facturacion.html',
-        label: 'Facturación',
-        icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line>'
-      },
-      {
-        href: 'caja.html',
-        label: 'Caja',
-        icon: '<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4z"></path>'
-      },
-      {
-        href: 'reportes.html',
-        label: 'Reportes',
-        icon: '<line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line>'
-      },
-      {
-        href: 'inventario.html',
-        label: 'Inventario',
-        icon: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>'
-      },
-      {
-        href: 'configuracion.html',
-        label: 'Configuración',
-        icon: '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>',
-        adminOnly: true
-      },
-      {
-        href: 'usuarios.html',
-        label: 'Usuarios',
-        icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
-        adminOnly: true
+        id: 'ajustes',
+        titulo: 'Ajustes',
+        items: [
+          {
+            href: 'configuracion.html',
+            label: 'Configuración',
+            icon: '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>'
+          },
+          {
+            href: 'usuarios.html',
+            label: 'Usuarios',
+            icon: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline>',
+            adminOnly: true
+          }
+        ]
       }
     ];
 
@@ -439,19 +508,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Generar los ítems dinámicamente
     const isAdmin = currentUser && window.auth && window.auth.isAdmin(currentUser);
-    navItems.forEach(item => {
-      // Omitir ítems exclusivos de admin si el usuario no es admin
-      if (item.adminOnly && !isAdmin) return;
+    navGroups.forEach(grupo => {
+      // El filtro se resuelve ANTES de pintar el encabezado: el grupo "Ajustes"
+      // es entero adminOnly, así que una recepcionista veía el rótulo con nada
+      // debajo. Si no queda ningún ítem visible, el grupo no se dibuja.
+      const visibles = grupo.items.filter(item => !(item.adminOnly && !isAdmin));
+      if (visibles.length === 0) return;
 
-      const li = document.createElement('li');
-      li.className = 'nav-item';
-      li.innerHTML = `
-        <a href="${item.href}">
-          <svg viewBox="0 0 24 24">${item.icon}</svg>
-          <span>${item.label}</span>
-        </a>
-      `;
-      navMenu.appendChild(li);
+      const titulo = document.createElement('li');
+      titulo.className = 'nav-section';
+      // aria-hidden: el rótulo es una ayuda visual de agrupación; el lector de
+      // pantalla ya recorre la lista de enlaces y no gana nada leyéndolo.
+      titulo.setAttribute('aria-hidden', 'true');
+      titulo.textContent = grupo.titulo;
+      navMenu.appendChild(titulo);
+
+      visibles.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'nav-item';
+        li.innerHTML = `
+          <a href="${item.href}">
+            <svg viewBox="0 0 24 24">${item.icon}</svg>
+            <span>${item.label}</span>
+          </a>
+        `;
+        navMenu.appendChild(li);
+      });
     });
   }
 
@@ -501,44 +583,6 @@ document.addEventListener('DOMContentLoaded', function() {
         destino = abajo + margen - navScroller.clientHeight;
       }
       navScroller.scrollTop = Math.max(0, Math.min(destino, sobra));
-    });
-  }
-
-  // 6. Inyectar alternancia de modo visual Claro/Oscuro en Sidebar
-  const userProfileEl = document.querySelector('.user-profile');
-  if (userProfileEl) {
-    const SUN_ICON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>';
-    const MOON_ICON = '<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
-
-    const toggleContainer = document.createElement('div');
-    toggleContainer.className = 'theme-toggle-container';
-    toggleContainer.style.marginTop = 'auto';
-    toggleContainer.innerHTML = `
-      <span class="theme-toggle-label">Modo visual</span>
-      <button id="theme-toggle-btn" class="theme-toggle-btn" type="button">
-        <span id="theme-icon"></span><span id="theme-text"></span>
-      </button>
-    `;
-    userProfileEl.parentNode.insertBefore(toggleContainer, userProfileEl);
-    userProfileEl.style.marginTop = '0';
-
-    const themeToggleBtn = document.getElementById('theme-toggle-btn');
-    const themeIcon = document.getElementById('theme-icon');
-    const themeText = document.getElementById('theme-text');
-
-    // Refleja el tema activo: oscuro muestra luna, claro muestra sol.
-    const updateToggleButton = (isDark) => {
-      themeIcon.innerHTML = isDark ? MOON_ICON : SUN_ICON;
-      themeText.textContent = isDark ? 'Oscuro' : 'Claro';
-    };
-
-    updateToggleButton(document.documentElement.classList.contains('dark-theme'));
-
-    themeToggleBtn.addEventListener('click', function() {
-      const isDark = document.documentElement.classList.toggle('dark-theme');
-      localStorage.setItem('credental_theme', isDark ? 'dark' : 'light');
-      updateToggleButton(isDark);
-      window.applyThemeColor(isDark);
     });
   }
 
@@ -628,17 +672,27 @@ window.showToast = function(message, type = 'success') {
   const currentCompany = window.auth ? window.auth.getCurrentCompany() : null;
   const activeAccent = currentCompany ? currentCompany.accent : brandPrimary;
 
+  // El toast es el único canal de retroalimentación del producto: si un error y
+  // un guardado correcto comparten el mismo fondo, el usuario no distingue si
+  // la acción se completó. El fondo cambia con el tipo, no solo el borde de 1px.
+  // El icono va en la variante CLARA del propio fondo, no en el morado de
+  // identidad: #cb6ce6 sobre el verde del acierto son 2.74:1 y el visto se
+  // pierde. Los rojos/ámbar que estaban aquí (#ff4a5a, #ffb800) venían del
+  // diseño retirado y tampoco pertenecen a la paleta de CREDental.
   if (type === 'success') {
-    border = `1px solid ${brandPurple}80`;
-    iconColor = brandPurple;
+    bg = 'rgba(21, 87, 60, 0.96)';
+    border = '1px solid rgba(167, 243, 200, 0.45)';
+    iconColor = '#a7f3c8'; // 6.62:1 sobre el verde
     iconSvg = '<polyline points="20 6 9 17 4 12"></polyline>'; // Check
   } else if (type === 'error') {
-    border = '1px solid rgba(255, 74, 90, 0.4)';
-    iconColor = '#ff4a5a';
+    bg = 'rgba(133, 27, 20, 0.96)';
+    border = '1px solid rgba(255, 201, 196, 0.45)';
+    iconColor = '#ffc9c4'; // 6.66:1 sobre el rojo
     iconSvg = '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>'; // Equis
   } else if (type === 'warning') {
-    border = '1px solid rgba(255, 184, 0, 0.4)';
-    iconColor = '#ffb800';
+    bg = 'rgba(120, 76, 8, 0.96)';
+    border = '1px solid rgba(255, 227, 168, 0.45)';
+    iconColor = '#ffe3a8'; // 5.93:1 sobre el ámbar
     iconSvg = '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>'; // Alerta
   } else {
     border = `1px solid ${activeAccent}66`;

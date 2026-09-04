@@ -75,6 +75,9 @@
   --color-red-text: #c81e1e;
 
   /* Estados Clínicos (odontograma) */
+  /* Cara sana: el mismo relleno que pinta .tooth-face, para que la muestra
+     de la leyenda no invente un color que el diente nunca tiene. */
+  --state-sano: #eef2f7;
   --state-caries: #dc2626;
   --state-restaurado: var(--brand-primary);
   --state-ausente: #94a3b8;

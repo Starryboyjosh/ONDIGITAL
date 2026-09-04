@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Módulo de Cobranzas — CREDental</title>
+  <title>Cobranzas — CREDental</title>
+  <link rel="icon" type="image/png" href="assets/credental-icon.png">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
@@ -11,6 +12,20 @@
   <script src="js/main.js"></script>
   <script src="js/cobranzas.js"></script>
   <style>
+    /* El comprobante es un documento de fondo blanco fijo, no una tarjeta de la
+       aplicación: si sus textos heredan los tokens del tema, en oscuro salen a
+       #b8c6cd sobre papel blanco (1.75:1) y el recibo se imprime ilegible.
+       Estos tokens locales lo desacoplan del tema; se declaran en el propio
+       contenedor para que los hijos los hereden con o sin @media print. */
+    .receipt-print-container {
+      --doc-ink: #1a202c;      /* texto principal del documento */
+      --doc-muted: #4a5568;    /* secundario: 7.46:1 sobre blanco */
+      --doc-line: #e2e8f0;     /* filetes y separadores */
+      --doc-head: #edf2f7;     /* fondo de cabecera de tabla */
+      --doc-positive: #1a7f4b; /* abonado */
+      --doc-negative: #b91c1c; /* saldo deudor */
+    }
+
     /* Estilos de impresión para el recibo */
     @media print {
       .sidebar,
@@ -66,14 +81,14 @@
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
         <div class="user-info">
-          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-name" id="sidebar-user-name">Usuario clínico</div>
           <div class="user-role" id="sidebar-user-role">Clínico</div>
         </div>
       </div>
 
       <button class="logout-btn" id="sidebar-logout-btn">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Cerrar Sesión</span>
+        <span>Cerrar sesión</span>
       </button>
     </aside>
 
@@ -83,7 +98,7 @@
       <!-- Encabezado de Página -->
       <header class="page-header no-print">
         <div class="page-title-area">
-          <h1 class="page-title">Módulo de Cobranzas</h1>
+          <h1 class="page-title">Módulo de cobranzas</h1>
           <p class="page-subtitle">Seguimiento de presupuestos, abonos de pacientes, suspensiones, cancelaciones y emisión de recibos.</p>
         </div>
       </header>
@@ -94,14 +109,14 @@
         <!-- Tabla de cobranzas -->
         <div class="card no-print cob-list-card">
           <div class="card-title-area cob-list-toolbar">
-            <h2 class="card-title">Listado de Presupuestos y Cobros</h2>
+            <h2 class="card-title">Listado de presupuestos y cobros</h2>
             <div class="cob-list-filters">
               <input type="text" id="cob-search" class="form-control cob-search" placeholder="Buscar por paciente...">
               <select id="cob-filter-status" class="form-control cob-status">
                 <option value="todos" selected>Todos los estados</option>
                 <option value="pendiente">Pendiente</option>
-                <option value="parcial">Pagado Parcial</option>
-                <option value="pagado">Pagado Total</option>
+                <option value="parcial">Abonado</option>
+                <option value="pagado">Saldado</option>
                 <option value="suspendido">Suspendido</option>
                 <option value="cancelado">Cancelado</option>
               </select>
@@ -149,7 +164,7 @@
                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-teal); margin-top: 4px;" id="detail-paid-amount">L 0.00</div>
               </div>
               <div>
-                <div style="font-size: 0.75rem; color: var(--color-gray);">DEUDA</div>
+                <div style="font-size: 0.75rem; color: var(--color-gray);">Saldo pendiente</div>
                 <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-red-text); margin-top: 4px;" id="detail-pending-amount">L 0.00</div>
               </div>
             </div>
@@ -159,7 +174,7 @@
             <!-- Botones de Acción Financiera -->
             <div style="display: flex; flex-direction: column; gap: 10px;">
               <button id="btn-confirm-payment" class="btn btn-success" style="width: 100%; padding: 12px;">
-                Confirmar Pago (Abono)
+                Confirmar pago (abono)
               </button>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <button id="btn-suspend-budget" class="btn btn-secondary" style="padding: 10px; font-size: 0.85rem; border-color: rgba(217, 119, 6, 0.35); color: var(--color-amber-text);">
@@ -170,13 +185,13 @@
                 </button>
               </div>
               <button id="btn-print-receipt" class="btn btn-secondary" style="width: 100%; padding: 10px; font-size: 0.85rem;">
-                Generar Recibo de Abonos PDF
+                Generar recibo de abonos PDF
               </button>
             </div>
 
             <!-- Historial de abonos registrados -->
             <div>
-              <h3 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--color-teal); margin-bottom: 10px;">Historial de Pagos</h3>
+              <h3 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--color-teal); margin-bottom: 10px;">Historial de pagos</h3>
               <div class="findings-timeline" id="detail-payments-timeline" style="max-height: 320px; overflow-y: auto;">
                 <!-- Abonos listados dinámicamente -->
               </div>
@@ -191,37 +206,37 @@
           </div>
 
           <!-- EL COMPROBANTE/RECIBO REAL DE IMPRESIÓN (Visible en impresión o vista previa de recibo) -->
-          <div class="card receipt-print-container" style="display: none; background: #ffffff; color: #000000; font-family: 'DM Sans', sans-serif;">
+          <div class="card receipt-print-container" style="display: none; background: #ffffff; color: var(--doc-ink); font-family: 'DM Sans', sans-serif;">
             <div style="border-bottom: 2px solid var(--brand-primary); padding-bottom: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start;">
               <div>
                 <img src="assets/credental-logo-official.png" alt="CREDental" width="150" height="42" style="display: block; width: 150px; height: 42px; object-fit: contain; object-position: left center; padding: 5px 8px; border-radius: 6px; background: var(--brand-primary);">
                 <h1 id="receipt-clinic-name" style="font-size: 1.3rem; font-weight: 800; font-family: var(--font-title); color: var(--brand-teal); margin-top: 8px;">CREDental</h1>
-                <p id="receipt-clinic-contact" style="font-size: 0.72rem; color: #4a5568; margin-top: 4px; line-height: 1.4;">
+                <p id="receipt-clinic-contact" style="font-size: 0.72rem; color: var(--doc-muted); margin-top: 4px; line-height: 1.4;">
                   Cargando datos de contacto...
                 </p>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 1rem; font-weight: 700; color: #2d3748;">COMPROBANTE DE PAGO</div>
-                <div style="font-size: 0.75rem; color: var(--color-gray); margin-top: 2px;">
+                <div style="font-size: 1rem; font-weight: 700; color: var(--doc-ink);">COMPROBANTE DE PAGO</div>
+                <div style="font-size: 0.75rem; color: var(--doc-muted); margin-top: 2px;">
                   Presupuesto N°: <span id="receipt-budget-id" style="font-weight: 700;">-</span><br>
                   Fecha: <span id="receipt-date">-</span>
                 </div>
               </div>
             </div>
 
-            <div style="margin-bottom: 20px; font-size: 0.82rem; color: #2d3748; line-height: 1.5;">
-              <div><strong>Paciente:</strong> <span id="receipt-patient-name">-</span> (Documento: <span id="receipt-patient-id">-</span>)</div>
+            <div style="margin-bottom: 20px; font-size: 0.82rem; color: var(--doc-ink); line-height: 1.5;">
+              <div><strong>Paciente:</strong> <span id="receipt-patient-name">-</span> (Documento DNI/RTN: <span id="receipt-patient-id">-</span>)</div>
               <div><strong>Odontólogo:</strong> <span id="receipt-dentist-name">-</span></div>
             </div>
 
             <!-- Tabla de abonos del recibo -->
             <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.8rem; margin-bottom: 20px;">
               <thead>
-                <tr style="background: #edf2f7; color: #4a5568;">
-                  <th style="padding: 10px; border-bottom: 1px solid #cbd5e0;">Fecha Pago</th>
-                  <th style="padding: 10px; border-bottom: 1px solid #cbd5e0;">Método</th>
-                  <th style="padding: 10px; border-bottom: 1px solid #cbd5e0;">Notas / Observaciones</th>
-                  <th style="padding: 10px; border-bottom: 1px solid #cbd5e0; text-align: right;">Monto Abonado</th>
+                <tr style="background: var(--doc-head); color: var(--doc-muted);">
+                  <th style="padding: 10px; border-bottom: 1px solid var(--doc-line);">Fecha pago</th>
+                  <th style="padding: 10px; border-bottom: 1px solid var(--doc-line);">Método</th>
+                  <th style="padding: 10px; border-bottom: 1px solid var(--doc-line);">Notas / observaciones</th>
+                  <th style="padding: 10px; border-bottom: 1px solid var(--doc-line); text-align: right;">Monto abonado</th>
                 </tr>
               </thead>
               <tbody id="receipt-payments-table-body">
@@ -230,22 +245,22 @@
             </table>
 
             <!-- Desglose de totales del recibo -->
-            <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; width: 100%;">
+            <div style="border-top: 1px solid var(--doc-line); padding-top: 10px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; width: 100%;">
               <div style="width: 250px; display: flex; justify-content: space-between;">
-                <span style="color: var(--color-gray);">Total Tratamiento:</span>
+                <span style="color: var(--doc-muted);">Total del presupuesto:</span>
                 <span id="receipt-total-budget" style="font-weight: 600;">L 0.00</span>
               </div>
-              <div style="width: 250px; display: flex; justify-content: space-between; color: #38a169;">
-                <span>Total Abonado:</span>
+              <div style="width: 250px; display: flex; justify-content: space-between; color: var(--doc-positive);">
+                <span>Total abonado:</span>
                 <span id="receipt-total-paid" style="font-weight: 700;">L 0.00</span>
               </div>
-              <div style="width: 250px; display: flex; justify-content: space-between; border-top: 2px solid var(--brand-primary); padding-top: 6px; font-weight: 700; color: #e53e3e;">
-                <span>Saldo Deudor:</span>
+              <div style="width: 250px; display: flex; justify-content: space-between; border-top: 2px solid var(--brand-primary); padding-top: 6px; font-weight: 700; color: var(--doc-negative);">
+                <span>Saldo pendiente:</span>
                 <span id="receipt-total-pending">L 0.00</span>
               </div>
             </div>
 
-            <div style="margin-top: 30px; border-top: 1px dotted #cbd5e0; padding-top: 15px; font-size: 0.72rem; color: var(--color-gray); text-align: center; line-height: 1.4;">
+            <div style="margin-top: 30px; border-top: 1px dotted var(--doc-line); padding-top: 15px; font-size: 0.72rem; color: var(--doc-muted); text-align: center; line-height: 1.4;">
               Este documento es un comprobante de abonos internos emitido por la clínica dental.<br>
               Gracias por su confianza.
             </div>
@@ -262,7 +277,7 @@
   <div class="modal-overlay no-print" id="payment-modal">
     <div class="modal-container" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 class="modal-title">Registrar Abono / Pago</h3>
+        <h3 class="modal-title">Registrar abono / pago</h3>
         <button class="modal-close-btn" id="payment-modal-close">✕</button>
       </div>
       <form id="payment-form">
@@ -275,32 +290,32 @@
 
           <div class="form-group">
             <label class="form-label" for="payment-amount">Monto del pago (HNL)</label>
-            <input type="number" id="payment-amount" class="form-control" placeholder="Ej. 50000" required min="1">
+            <input type="number" id="payment-amount" class="form-control" placeholder="Ej. 3500" required min="0.01" step="0.01">
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="payment-method">Método de Pago</label>
+            <label class="form-label" for="payment-method">Método de pago</label>
             <select id="payment-method" class="form-control" required>
               <option value="Efectivo" selected>Efectivo</option>
-              <option value="Tarjeta de Débito">Tarjeta de Débito</option>
-              <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
-              <option value="Transferencia">Transferencia Bancaria</option>
+              <option value="Tarjeta de Débito">Tarjeta de débito</option>
+              <option value="Tarjeta de Crédito">Tarjeta de crédito</option>
+              <option value="Transferencia">Transferencia bancaria</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="payment-date">Fecha de Pago</label>
+            <label class="form-label" for="payment-date">Fecha de pago</label>
             <input type="date" id="payment-date" class="form-control" required>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="payment-notes">Notas / Observaciones</label>
+            <label class="form-label" for="payment-notes">Notas / observaciones</label>
             <input type="text" id="payment-notes" class="form-control" placeholder="Ej. Abono correspondiente a primera sesión o número de transferencia" autocomplete="off">
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btn-cancel-payment-modal">Cancelar</button>
-          <button type="submit" class="btn btn-success">Registrar Pago</button>
+          <button type="submit" class="btn btn-success">Registrar pago</button>
         </div>
       </form>
     </div>

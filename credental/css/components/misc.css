@@ -201,3 +201,87 @@
     white-space: normal;
   }
 }
+
+/* ==========================================================================
+   APARIENCIA (configuracion.html)
+   Las opciones de tema salieron del sidebar, donde eran un interruptor de dos
+   estados sin decir qué hacía. Aquí las dos —Claro y Oscuro— se ven a la vez y
+   cada una lleva la muestra de los colores reales que va a aplicar.
+   ========================================================================== */
+.tema-opciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.tema-opcion {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-accent);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.tema-opcion:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+.tema-opcion:has(input:checked) {
+  border-color: var(--action);
+  background: rgba(var(--brand-purple-rgb), 0.1);
+}
+.tema-opcion:focus-within {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+}
+
+.tema-opcion input {
+  margin: 3px 0 0;
+  accent-color: var(--action);
+  flex: 0 0 auto;
+}
+
+/* Muestra de color: barra de la app + tarjeta, con los hexes reales de cada
+   tema. Son literales a propósito: la muestra tiene que enseñar el color al
+   que se va a cambiar, no el del tema que ya está puesto. */
+.tema-muestra {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+  display: flex;
+}
+.tema-muestra i {
+  display: block;
+  height: 100%;
+}
+.tema-muestra i:first-child { width: 38%; }
+.tema-muestra i:last-child  { width: 62%; }
+
+.tema-muestra-claro i:first-child { background: #004aad; }
+.tema-muestra-claro i:last-child  { background: #fff6e7; }
+
+.tema-muestra-oscuro i:first-child { background: #004aad; }
+.tema-muestra-oscuro i:last-child  { background: #071a2b; }
+
+.tema-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.tema-texto strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.tema-texto small {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--color-gray);
+}

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inventario — CREDental</title>
+  <link rel="icon" type="image/png" href="assets/credental-icon.png">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
@@ -26,13 +27,13 @@
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
         <div class="user-info">
-          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-name" id="sidebar-user-name">Usuario clínico</div>
           <div class="user-role" id="sidebar-user-role">Clínico</div>
         </div>
       </div>
       <button class="logout-btn" id="sidebar-logout-btn">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Cerrar Sesión</span>
+        <span>Cerrar sesión</span>
       </button>
     </aside>
 
@@ -89,6 +90,7 @@
                 <th>Lote</th>
                 <th>Vence</th>
                 <th>Estado</th>
+                <th style="text-align:right;">Movimiento</th>
               </tr>
             </thead>
             <tbody id="inv-body"></tbody>
@@ -97,10 +99,39 @@
       </div>
 
       <p style="font-size: 0.78rem; color: var(--color-gray); margin-bottom: 40px;">
-        Las entradas, salidas y el control de lotes se gestionarán desde este módulo. Compras completas y conexión con proveedores reales no están implementadas todavía.
+        Las entradas y salidas ajustan la existencia de cada insumo y quedan registradas con fecha, hora y motivo. Las órdenes de compra completas y la conexión con proveedores reales no están implementadas todavía.
       </p>
 
     </main>
+  </div>
+
+  <!-- MODAL: MOVIMIENTO DE EXISTENCIA -->
+  <div class="modal-overlay" id="mov-modal">
+    <div class="modal-container" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="mov-modal-title">Registrar movimiento</h3>
+        <button class="modal-close-btn" id="mov-modal-close">✕</button>
+      </div>
+      <form id="mov-form">
+        <div class="modal-body">
+          <p id="mov-insumo" style="font-weight: 600; margin-bottom: 4px;">—</p>
+          <p id="mov-existencia" class="form-hint" style="margin-bottom: 16px;">—</p>
+          <div class="form-group">
+            <label class="form-label" for="mov-cantidad">Cantidad</label>
+            <input type="number" id="mov-cantidad" class="form-control" min="1" step="1" required>
+            <p class="form-hint" id="mov-ayuda"></p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="mov-motivo">Motivo</label>
+            <input type="text" id="mov-motivo" class="form-control" maxlength="80" placeholder="Ej. Uso en consulta de la mañana">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('mov-modal').classList.remove('active')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="mov-confirmar">Registrar</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- MODAL: NUEVO INSUMO -->

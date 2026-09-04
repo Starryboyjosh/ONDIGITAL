@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestión de Usuarios — CREDental</title>
+  <title>Gestión de usuarios — CREDental</title>
+  <link rel="icon" type="image/png" href="assets/credental-icon.png">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
@@ -38,14 +39,14 @@
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
         <div class="user-info">
-          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-name" id="sidebar-user-name">Usuario clínico</div>
           <div class="user-role" id="sidebar-user-role">Clínico</div>
         </div>
       </div>
 
       <button class="logout-btn" id="sidebar-logout-btn">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Cerrar Sesión</span>
+        <span>Cerrar sesión</span>
       </button>
     </aside>
 
@@ -55,7 +56,7 @@
       <!-- Encabezado de Página -->
       <header class="page-header">
         <div class="page-title-area">
-          <h1 class="page-title">Gestión de Usuarios</h1>
+          <h1 class="page-title">Gestión de usuarios</h1>
           <p class="page-subtitle">Administre el equipo clínico, roles y permisos de acceso para su sucursal.</p>
         </div>
         <div class="header-actions">
@@ -64,7 +65,7 @@
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Agregar Nuevo Usuario
+            Agregar nuevo usuario
           </button>
         </div>
       </header>
@@ -72,7 +73,7 @@
       <!-- TABLA DE USUARIOS DE LA EMPRESA -->
       <section class="card">
         <div class="card-title-area">
-          <h2 class="card-title" id="company-users-title">Miembros de la Clínica</h2>
+          <h2 class="card-title" id="company-users-title">Miembros de la clínica</h2>
           <span class="badge badge-confirmed" id="user-count-badge">0 Usuarios</span>
         </div>
 
@@ -81,9 +82,9 @@
             <thead>
               <tr>
                 <th>Avatar</th>
-                <th>Nombre Completo</th>
+                <th>Nombre completo</th>
                 <th>Usuario</th>
-                <th>Rol / Cargo</th>
+                <th>Rol / cargo</th>
                 <th style="text-align: right;">Acciones</th>
               </tr>
             </thead>
@@ -101,32 +102,32 @@
   <div class="modal-overlay" id="user-modal">
     <div class="modal-container" style="max-width: 500px;">
       <div class="modal-header">
-        <h3 class="modal-title" id="user-modal-title">Registrar Nuevo Usuario</h3>
+        <h3 class="modal-title" id="user-modal-title">Registrar nuevo usuario</h3>
         <button class="modal-close-btn" id="user-modal-close">✕</button>
       </div>
       <form id="user-form">
         <div class="modal-body">
           <div class="form-group">
-            <label class="form-label" for="user-fullname">Nombre Completo</label>
+            <label class="form-label" for="user-fullname">Nombre completo</label>
             <input type="text" id="user-fullname" class="form-control" placeholder="Ej. Dra. Camila Valenzuela" required autocomplete="off">
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="user-username">Nombre de Usuario (Login)</label>
+            <label class="form-label" for="user-username">Nombre de usuario (login)</label>
             <input type="text" id="user-username" class="form-control" placeholder="Ej. dra.valenzuela" required autocomplete="off">
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label" for="user-role">Rol / Cargo Clínico</label>
+              <label class="form-label" for="user-role">Rol / cargo clínico</label>
               <select id="user-role" class="form-control" required>
-                <option value="Dentista Principal">Dentista Principal</option>
-                <option value="Odontólogo(a) General">Odontólogo(a) General</option>
-                <option value="Cirujano Maxilofacial">Cirujano Maxilofacial</option>
+                <option value="Odontólogo(a) principal">Odontólogo(a) principal</option>
+                <option value="Odontólogo(a) general">Odontólogo(a) general</option>
+                <option value="Cirujano(a) maxilofacial">Cirujano(a) maxilofacial</option>
                 <option value="Ortodoncista">Ortodoncista</option>
                 <option value="Recepcionista">Recepcionista</option>
-                <option value="Higienista Dental">Higienista Dental</option>
-                <option value="Asistente Dental">Asistente Dental</option>
+                <option value="Higienista dental">Higienista dental</option>
+                <option value="Asistente dental">Asistente dental</option>
                 <option value="Administración">Administración</option>
               </select>
             </div>
@@ -140,7 +141,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary" id="user-submit-btn">Registrar Miembro</button>
+          <button type="submit" class="btn btn-primary" id="user-submit-btn">Registrar miembro</button>
         </div>
       </form>
     </div>
@@ -180,8 +181,8 @@
       addBtn.addEventListener('click', () => {
         editandoUsuario = null;
         userForm.reset();
-        modalTitle.textContent = 'Registrar Nuevo Usuario';
-        submitBtn.textContent = 'Registrar Miembro';
+        modalTitle.textContent = 'Registrar nuevo usuario';
+        submitBtn.textContent = 'Registrar miembro';
         usernameInput.readOnly = false;
         passwordInput.required = true;
         passwordInput.placeholder = 'Contraseña de acceso';
@@ -210,8 +211,8 @@
         passwordInput.required = false;
         passwordInput.placeholder = 'Sin cambios';
         passwordHint.style.display = '';
-        modalTitle.textContent = 'Editar Usuario';
-        submitBtn.textContent = 'Guardar Cambios';
+        modalTitle.textContent = 'Editar usuario';
+        submitBtn.textContent = 'Guardar cambios';
         userModal.classList.add('active');
       };
 
@@ -244,7 +245,9 @@
         }
 
         // Generar Avatar (Iniciales)
-        const nameParts = fullname.split(' ');
+        // split(' ') a secas: "Carlos  Umaña" (doble espacio) devolvía una parte
+        // vacía como segundo elemento y el avatar se guardaba como "CUNDEFINED".
+        const nameParts = fullname.split(/\s+/).filter(Boolean);
         let avatar = '';
         if (nameParts.length >= 2) {
           // Intentar ignorar prefijos comunes de médicos
@@ -275,18 +278,49 @@
         // Guardar en Base de Datos Local
         window.db.saveUser(newUser);
 
-        // Si el usuario es un profesional clínico, también lo registramos en la lista de dentistas
-        const rolesClinicos = ['Dentista Principal', 'Odontólogo(a) General', 'Cirujano Maxilofacial', 'Ortodoncista'];
+        // Si el usuario es un profesional clínico, también lo registramos en la
+        // lista de dentistas. El odontólogo se busca por el `dentistId` que ya
+        // trae la cuenta y, en su defecto, por nombre: usar el `username` como
+        // id creaba un segundo registro junto al odontólogo ya existente
+        // —mismo nombre, especialidad distinta— y la agenda y los reportes
+        // pasaban a mostrarlo dos veces, con sus citas colgando del primero.
+        // Los dos primeros valores en singular antiguo ('Dentista Principal',
+        // 'Odontólogo(a) General') siguen aquí porque son datos ya guardados en
+        // equipos donde la demostración corrió antes del cambio de vocabulario:
+        // sin ellos, editar una de esas cuentas la sacaría de la agenda.
+        const rolesClinicos = ['Odontólogo(a) principal', 'Odontólogo(a) general', 'Cirujano(a) maxilofacial', 'Ortodoncista',
+                               'Dentista Principal', 'Odontólogo(a) General', 'Cirujano Maxilofacial'];
+        const usuarioGuardado = window.db.getUser(username) || {};
         if (rolesClinicos.includes(role)) {
-          window.db.saveDentist({
-            id: username,
+          const existentes = window.db.getDentists();
+          const porId = usuarioGuardado.dentistId
+            ? existentes.find(d => d.id === usuarioGuardado.dentistId)
+            : null;
+          const porNombre = porId ? null : existentes.find(d =>
+            window.normalizarBusqueda(d.name) === window.normalizarBusqueda(fullname));
+          const odontologo = porId || porNombre;
+
+          const registro = {
+            id: odontologo ? odontologo.id : username,
             name: fullname,
-            specialty: role === 'Dentista Principal' ? 'Implantología y Estética' : role,
             companyId: currentUser.companyId
-          });
+          };
+          // La especialidad de un odontólogo existente es un dato clínico suyo,
+          // no se sobrescribe con el rol de su cuenta; solo se rellena si falta.
+          if (!odontologo || !odontologo.specialty) registro.specialty = role;
+          window.db.saveDentist(registro);
+          window.db.saveUser({ username: username, dentistId: registro.id });
         } else if (editandoUsuario && window.db.deleteDentist) {
-          // Dejó de ser rol clínico: no debe seguir apareciendo en la agenda.
-          window.db.deleteDentist(username);
+          // Dejó de ser rol clínico: no debe seguir apareciendo en la agenda,
+          // salvo que tenga citas colgando —borrarlo las dejaría huérfanas.
+          const vinculado = usuarioGuardado.dentistId || username;
+          const conCitas = window.db.getAppointments().some(a => a.dentistId === vinculado);
+          if (conCitas) {
+            window.showToast('El profesional conserva citas en la agenda, así que sigue disponible como odontólogo tratante.', 'warning');
+          } else {
+            window.db.deleteDentist(vinculado);
+          }
+          window.db.saveUser({ username: username, dentistId: null });
         }
 
         if (editandoUsuario && editandoUsuario === currentUser.username && window.auth.refreshSession) {
@@ -386,8 +420,15 @@
       if (confirmado) {
         window.db.deleteUser(username);
 
-        // También remover de la lista de dentistas si existía
-        if (window.db.deleteDentist) window.db.deleteDentist(username);
+        // También remover de la lista de dentistas si existía. Un odontólogo
+        // con citas agendadas no se borra al eliminar su cuenta de acceso: las
+        // citas quedarían sin profesional asignado.
+        const cuenta = window.db.getUser(username);
+        const vinculado = (cuenta && cuenta.dentistId) || username;
+        if (window.db.deleteDentist) {
+          const conCitas = window.db.getAppointments().some(a => a.dentistId === vinculado);
+          if (!conCitas) window.db.deleteDentist(vinculado);
+        }
 
         window.showToast('Usuario eliminado del sistema.', 'warning');
         renderUsersTable();

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://raw.githubusercontent.com/neutralinojs/neutralinojs/main/schemas/neutralino.config.schema.json",
+  "applicationId": "hn.ondigital.credental",
+  "version": "1.0.0",
+  "defaultMode": "window",
+  "port": 8090,
+  "documentRoot": "/resources/",
+  "url": "/index.html",
+  "enableServer": true,
+  "enableNativeAPI": false,
+  "nativeAllowList": [],
+  "tokenSecurity": "one-time",
+  "logging": {
+    "enabled": false,
+    "writeToLogFile": false
+  },
+  "modes": {
+    "window": {
+      "title": "Credental",
+      "width": 1440,
+      "height": 900,
+      "minWidth": 1024,
+      "minHeight": 640,
+      "center": true,
+      "maximize": true,
+      "resizable": true,
+      "fullScreen": false,
+      "alwaysOnTop": false,
+      "borderless": false,
+      "hidden": false,
+      "icon": "/resources/assets/credental-icon.png",
+      "enableInspector": false,
+      "exitProcessOnClose": true,
+      "newWindowPolicy": "browser"
+    }
+  },
+  "cli": {
+    "binaryName": "Credental",
+    "resourcesPath": "/resources/",
+    "binaryVersion": "6.9.0"
+  }
+}

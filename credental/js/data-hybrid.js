@@ -1,7 +1,8 @@
 /* ==========================================================================
    Capa de datos Credental — documentación operativa en código
-   Política de la demo: local-first (sessionStorage). Firebase no se carga
-   en las páginas actuales y requiere una configuración explícita futura.
+   Política de la demo: local-first (localStorage, una sola capa para el
+   expediente y para el dinero). Firebase no se carga en las páginas actuales
+   y requiere una configuración explícita futura.
    ========================================================================== */
 (function (global) {
   'use strict';
@@ -21,7 +22,7 @@
     return {
       mode: 'local-first',
       local_first: true,
-      storage: 'sessionStorage',
+      storage: 'localStorage',
       prefix: 'credental_',
       db_ready: hasDB,
       cloud_sync: firebaseReady ? 'explicit' : 'disabled',

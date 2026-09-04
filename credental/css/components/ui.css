@@ -201,6 +201,12 @@
   line-height: 1.2;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
+  /* Un valor sin espacios —el correlativo CAI 000-001-01-00000247— no tiene
+     dónde partirse y, con `min-width: 0` en el contenedor, se salía de la
+     tarjeta y arrastraba la página a scroll horizontal en móvil. `anywhere`
+     además deja que el elemento flexible se encoja hasta el ancho de tarjeta;
+     los demás valores son cortos y no llegan a partirse nunca. */
+  overflow-wrap: anywhere;
 }
 
 /* Dashboard Layout principal */

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Directorio de Pacientes — CREDental</title>
+  <title>Directorio de pacientes — CREDental</title>
+  <link rel="icon" type="image/png" href="assets/credental-icon.png">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
@@ -37,14 +38,14 @@
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
         <div class="user-info">
-          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-name" id="sidebar-user-name">Usuario clínico</div>
           <div class="user-role" id="sidebar-user-role">Clínico</div>
         </div>
       </div>
 
       <button class="logout-btn" id="sidebar-logout-btn">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Cerrar Sesión</span>
+        <span>Cerrar sesión</span>
       </button>
     </aside>
 
@@ -54,7 +55,7 @@
       <!-- Encabezado de Página -->
       <header class="page-header">
         <div class="page-title-area">
-          <h1 class="page-title">Fichas Clínicas e Historias</h1>
+          <h1 class="page-title">Fichas clínicas e historias</h1>
           <p class="page-subtitle">Examine el expediente de los pacientes, registre nuevos ingresos y acceda a su odontograma.</p>
         </div>
         <div class="header-actions">
@@ -63,7 +64,7 @@
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Ingresar Paciente
+            Ingresar paciente
           </button>
         </div>
       </header>
@@ -74,9 +75,9 @@
         <!-- Panel Izquierdo: Directorio de Pacientes -->
         <div class="card">
           <div class="card-title-area" style="flex-direction: column; align-items: stretch; gap: 12px;">
-            <h2 class="card-title">Directorio de la Clínica</h2>
+            <h2 class="card-title">Directorio de la clínica</h2>
             <!-- Barra de búsqueda predictiva -->
-            <input type="text" id="patient-search" class="form-control" placeholder="Buscar por Nombre, Documento o Teléfono..." style="padding: 8px 14px;">
+            <input type="text" id="patient-search" class="form-control" placeholder="Buscar por nombre, documento o teléfono..." style="padding: 8px 14px;">
           </div>
 
           <div class="custom-table-container">
@@ -154,7 +155,7 @@
                   <div class="record-section-title">Datos personales</div>
                   <div class="record-field-grid">
                     <div><div class="record-field-label">Nombre completo</div><div class="record-field-value" id="data-name">-</div></div>
-                    <div><div class="record-field-label">Documento (RTN / DNI)</div><div class="record-field-value" id="card-patient-rut">-</div></div>
+                    <div><div class="record-field-label">Documento DNI/RTN</div><div class="record-field-value" id="card-patient-rut">-</div></div>
                     <div><div class="record-field-label">Edad</div><div class="record-field-value" id="data-age">-</div></div>
                     <div><div class="record-field-label">Correo electrónico</div><div class="record-field-value" id="card-patient-email">-</div></div>
                     <div><div class="record-field-label">Teléfono</div><div class="record-field-value" id="card-patient-phone">-</div></div>
@@ -169,7 +170,7 @@
               <!-- HISTORIA CLÍNICA -->
               <div class="patient-panel" data-panel="historia">
                 <div class="record-section">
-                  <div class="record-section-title">Anamnesis / Motivo de consulta</div>
+                  <div class="record-section-title">Anamnesis / motivo de consulta</div>
                   <div class="record-text" id="hist-motivo">-</div>
                 </div>
                 <div class="record-section">
@@ -281,7 +282,7 @@
   <div class="modal-overlay" id="patient-modal">
     <div class="modal-container" style="max-width: 580px;">
       <div class="modal-header">
-        <h3 class="modal-title" id="modal-title-text">Registrar Nuevo Paciente</h3>
+        <h3 class="modal-title" id="modal-title-text">Registrar nuevo paciente</h3>
         <button class="modal-close-btn" id="patient-modal-close">✕</button>
       </div>
       <form id="patient-form">
@@ -289,13 +290,13 @@
           <input type="hidden" id="patient-id"> <!-- Id oculto para edición -->
 
           <div class="form-group">
-            <label class="form-label" for="patient-name">Nombre Completo</label>
+            <label class="form-label" for="patient-name">Nombre completo</label>
             <input type="text" id="patient-name" class="form-control" placeholder="Ej: Valentina Silva Contreras" required>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label" for="patient-rut">Documento (RTN / DNI)</label>
+              <label class="form-label" for="patient-rut">Documento DNI/RTN</label>
               <input type="text" id="patient-rut" class="form-control" placeholder="Ej: 0801-1995-01234" required>
             </div>
             <div class="form-group">
@@ -306,39 +307,39 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label" for="patient-email">Correo Electrónico</label>
+              <label class="form-label" for="patient-email">Correo electrónico</label>
               <input type="email" id="patient-email" class="form-control" placeholder="Ej: vale@outlook.com" required>
             </div>
             <div class="form-group">
-              <label class="form-label" for="patient-phone">Número de Teléfono</label>
+              <label class="form-label" for="patient-phone">Número de teléfono</label>
               <input type="tel" id="patient-phone" class="form-control" placeholder="Ej: +504 9876-5432" required>
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="patient-reason">Motivo de Consulta (Razón de la visita)</label>
+            <label class="form-label" for="patient-reason">Motivo de consulta (razón de la visita)</label>
             <textarea id="patient-reason" class="form-control" rows="2" placeholder="Ej: Dolor agudo en molar inferior derecho, sangrado de encías, control de brackets..." required></textarea>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="patient-allergies">Alergias o Contraindicaciones Clínicas</label>
+            <label class="form-label" for="patient-allergies">Alergias o contraindicaciones clínicas</label>
             <input type="text" id="patient-allergies" class="form-control" placeholder="Ej: Penicilina, Látex, Antiinflamatorios (o dejar en blanco)">
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="patient-history">Antecedentes Médicos (Diagnósticos, Fármacos)</label>
+            <label class="form-label" for="patient-history">Antecedentes médicos (diagnósticos, fármacos)</label>
             <textarea id="patient-history" class="form-control" rows="3" placeholder="Ej: Hipertensión en tratamiento, diabetes tipo 2 con metformina..."></textarea>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="patient-tags">Etiquetas del Paciente (Separadas por comas)</label>
+            <label class="form-label" for="patient-tags">Etiquetas del paciente (separadas por comas)</label>
             <input type="text" id="patient-tags" class="form-control" placeholder="Ej: Ortodoncia, Control Trimestral, Paciente Crítico">
           </div>
 
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="document.getElementById('patient-modal').classList.remove('active')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar Expediente</button>
+          <button type="submit" class="btn btn-primary">Guardar expediente</button>
         </div>
       </form>
     </div>

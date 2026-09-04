@@ -3,17 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Configuración de la Clínica — CREDental</title>
+  <title>Configuración — CREDental</title>
+  <link rel="icon" type="image/png" href="assets/credental-icon.png">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/vito/seed-demo.js"></script>
-  <!-- Ruta guard: redirección inmediata para no-administradores antes de renderizar la página -->
+  <!-- Ruta guard: solo exige sesión. Las opciones de apariencia viven en esta
+       página y las usan los 7 roles; lo que sigue reservado al administrador es
+       el bloque #config-admin, que se descubre más abajo. -->
   <script>
     (function() {
       const user = window.auth ? window.auth.getCurrentUser() : null;
-      if (!user || !window.auth.isAdmin(user)) {
-        window.location.href = 'dashboard.html';
+      if (!user) {
+        window.location.href = 'index.html';
       }
     })();
   </script>
@@ -39,14 +42,14 @@
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
         <div class="user-info">
-          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-name" id="sidebar-user-name">Usuario clínico</div>
           <div class="user-role" id="sidebar-user-role">Clínico</div>
         </div>
       </div>
 
       <button class="logout-btn" id="sidebar-logout-btn">
-        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></polyline><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Cerrar Sesión</span>
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Cerrar sesión</span>
       </button>
     </aside>
 
@@ -56,46 +59,79 @@
       <!-- Encabezado de Página -->
       <header class="page-header">
         <div class="page-title-area">
-          <h1 class="page-title">Configuración de la Clínica</h1>
-          <p class="page-subtitle">Personalice el nombre de su sucursal, datos de contacto y ubicación física para los presupuestos y recibos.</p>
+          <h1 class="page-title">Configuración</h1>
+          <p class="page-subtitle" id="config-subtitle">Apariencia de la aplicación en este equipo.</p>
         </div>
       </header>
 
-      <!-- PANEL DE FORMULARIO -->
+      <!-- APARIENCIA — disponible para los siete roles.
+           Antes vivía en la barra lateral como un interruptor de dos estados
+           sin etiqueta de lo que hacía; aquí las opciones se ven todas a la vez
+           y cada una muestra el color que va a aplicar. -->
+      <div class="card" id="config-apariencia" style="margin-bottom: 30px;">
+        <div class="card-title-area" style="border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px;">
+          <h2 class="card-title">Apariencia</h2>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--color-gray); line-height: 1.6; margin-bottom: 18px;">Elija cómo se ve la aplicación. La preferencia se guarda en este equipo y no cambia lo que ven los demás usuarios.</p>
+
+        <div class="tema-opciones" role="radiogroup" aria-label="Tema de la aplicación">
+          <label class="tema-opcion">
+            <input type="radio" name="tema" value="light">
+            <span class="tema-muestra tema-muestra-claro" aria-hidden="true"><i></i><i></i></span>
+            <span class="tema-texto">
+              <strong>Claro</strong>
+              <small>Fondo crema. Es el predeterminado y el que mejor se lee con luz de día.</small>
+            </span>
+          </label>
+          <label class="tema-opcion">
+            <input type="radio" name="tema" value="dark">
+            <span class="tema-muestra tema-muestra-oscuro" aria-hidden="true"><i></i><i></i></span>
+            <span class="tema-texto">
+              <strong>Oscuro</strong>
+              <small>Fondo azul profundo. Cansa menos en consultorios con poca luz.</small>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- PANEL DE ADMINISTRACIÓN — solo el administrador.
+           configuracion.js lo descubre; para el resto de roles la página se
+           queda únicamente con la tarjeta de Apariencia. -->
+      <div id="config-admin" hidden>
       <div class="dashboard-layout" style="gap: 30px;">
         
         <div class="card">
-          <div class="card-title-area" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; margin-bottom: 20px;">
-            <h2 class="card-title">Datos Generales de la Sucursal</h2>
+          <div class="card-title-area" style="border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 class="card-title">Datos generales de la sucursal</h2>
           </div>
 
           <form id="config-form">
             <div class="form-group">
-              <label class="form-label" for="config-name">Nombre de la Clínica / Sucursal</label>
+              <label class="form-label" for="config-name">Nombre de la clínica / sucursal</label>
               <input type="text" id="config-name" class="form-control" placeholder="Ej. Clínica Dental San Patricio" required autocomplete="off">
               <span style="font-size: 0.75rem; color: var(--color-gray); margin-top: 4px;">Este nombre aparecerá en el encabezado de los presupuestos y recibos de exportación.</span>
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="config-address">Dirección Física (Ubicación)</label>
+              <label class="form-label" for="config-address">Dirección física (ubicación)</label>
               <input type="text" id="config-address" class="form-control" placeholder="Ej. Barrio Río Piedras, San Pedro Sula" required autocomplete="off">
               <span style="font-size: 0.75rem; color: var(--color-gray); margin-top: 4px;">Ubicación física que aparecerá en el pie de página de los presupuestos impresos.</span>
             </div>
 
             <div class="form-row" style="margin-bottom: 20px;">
               <div class="form-group">
-                <label class="form-label" for="config-phone">Teléfono de Contacto</label>
+                <label class="form-label" for="config-phone">Teléfono de contacto</label>
                 <input type="tel" id="config-phone" class="form-control" placeholder="Ej. +504 3243-3050" required autocomplete="off">
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="config-email">Correo Electrónico de Contacto</label>
+                <label class="form-label" for="config-email">Correo electrónico de contacto</label>
                 <input type="email" id="config-email" class="form-control" placeholder="Ej. correo@suclinica.hn" required autocomplete="off">
               </div>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; margin-top: 10px;">
-              <button type="submit" class="btn btn-primary" style="padding: 12px 28px;">Guardar Configuración</button>
+            <div style="display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid var(--border); padding-top: 20px; margin-top: 10px;">
+              <button type="submit" class="btn btn-primary" style="padding: 12px 28px;">Guardar configuración</button>
             </div>
           </form>
         </div>
@@ -103,13 +139,13 @@
         <!-- Tarjeta Informativa / Vista Previa -->
         <div style="display: flex; flex-direction: column; gap: 20px;">
           <div class="card">
-            <h3 style="font-family: var(--font-title); font-size: 1rem; color: var(--color-teal); margin-bottom: 12px;">Vista Preliminar de Encabezado</h3>
+            <h3 style="font-family: var(--font-title); font-size: 1rem; color: var(--color-teal); margin-bottom: 12px;">Vista preliminar de encabezado</h3>
             <p style="font-size: 0.8rem; color: var(--color-gray); margin-bottom: 20px; line-height: 1.5;">Así es como se presentará la clínica en la parte superior de cada presupuesto en PDF:</p>
             
             <div class="cfg-preview">
               <div class="cfg-preview-head">
                 <div class="cfg-preview-id">
-                  <h1 id="preview-title" style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); font-family: var(--font-title); line-height: 1.25;">Nombre Clínica</h1>
+                  <h1 id="preview-title" style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); font-family: var(--font-title); line-height: 1.25;">Nombre clínica</h1>
                   <p id="preview-address" style="font-size: 0.75rem; color: var(--color-gray); margin-top: 6px; line-height: 1.45;">Dirección física</p>
                 </div>
                 <div class="cfg-preview-contact">
@@ -125,11 +161,18 @@
           </div>
 
           <div class="card" style="background: rgba(var(--brand-primary-rgb), 0.04); border-color: rgba(var(--brand-primary-rgb), 0.25);">
-            <h3 style="font-family: var(--font-title); font-size: 0.95rem; color: var(--color-white); margin-bottom: 8px;">Rol Administrador</h3>
+            <h3 style="font-family: var(--font-title); font-size: 0.95rem; color: var(--color-white); margin-bottom: 8px;">Rol administrador</h3>
             <p style="font-size: 0.82rem; color: var(--color-gray); line-height: 1.6;">Como usuario administrador, los cambios que guarde se aplicarán globalmente para todos los presupuestos emitidos por esta sucursal a partir de este momento.</p>
+          </div>
+
+          <div class="card">
+            <h3 style="font-family: var(--font-title); font-size: 0.95rem; color: var(--color-teal); margin-bottom: 8px;">Reiniciar demostración</h3>
+            <p style="font-size: 0.82rem; color: var(--color-gray); line-height: 1.6; margin-bottom: 16px;">Borra todo lo capturado en este equipo —expediente, agenda, presupuestos, abonos, caja, facturación, inventario, laboratorios y mensajes— y vuelve a cargar los datos de ejemplo. Sirve para repetir la presentación desde cero.</p>
+            <button type="button" id="btn-reiniciar-demo" class="btn btn-danger" style="width: 100%; padding: 12px;">Reiniciar demostración</button>
           </div>
         </div>
 
+      </div>
       </div>
 
     </main>

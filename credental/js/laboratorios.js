@@ -61,6 +61,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // expediente que ve el resto de la aplicación, así que si el usuario edita
   // o borra un paciente no queda un nombre huérfano en este módulo.
   function seedOrdenes() {
+    // `window.CredentalDemo` está definido en las 17 pantallas, así que no
+    // distingue la demostración de una clínica real: una clínica que estrena el
+    // producto abría Laboratorios con seis órdenes de pacientes que no son
+    // suyos. La guarda correcta es la empresa activa.
+    const empresa = window.auth && window.auth.getCurrentCompany ? window.auth.getCurrentCompany() : null;
+    const esDemo = !!empresa && empresa.id === 'co_credental_demo';
+    if (!esDemo) return [];
+
     const pacientes = window.CredentalDemo && window.CredentalDemo.pacientesDemo
       ? window.CredentalDemo.pacientesDemo()
       : window.db.getPatients();

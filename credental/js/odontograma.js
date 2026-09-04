@@ -205,7 +205,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const conocido = cuadrante >= 1 && cuadrante <= 4;
     const superior = cuadrante === 1 || cuadrante === 2;
     const mesialDerecha = cuadrante === 1 || cuadrante === 4;
-    if (cara === 'center') return 'Oclusal';
+    // La cara masticatoria de un incisivo o un canino es INCISAL, no oclusal:
+    // solo premolares y molares tienen cara oclusal. La posición en el
+    // cuadrante es el segundo dígito FDI (1–3 = incisivos y canino).
+    if (cara === 'center') {
+      const posicion = parseInt(String(pieza || '').charAt(1), 10);
+      return (posicion >= 1 && posicion <= 3) ? 'Incisal' : 'Oclusal';
+    }
     if (!conocido) {
       const genericos = {
         top: 'Vestibular',
@@ -256,6 +262,28 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
+    // Las cinco caras cubren el 100 % del viewBox y detienen la propagación, así
+    // que el listener del <svg> nunca recibe el clic: sin esto, "Limpiar / Sano"
+    // no puede deshacer un Ausente, Corona o Implante marcado por error, aunque
+    // la guía de la pantalla promete justo lo contrario.
+    if (activeTool === 'healthy' && odontogramData[toothNum] &&
+        odontogramData[toothNum].condition &&
+        odontogramData[toothNum].condition !== 'healthy') {
+      handleToothClick(toothNum);
+      return;
+    }
+
+    // Una pieza ausente no tiene caras que registrar. Sin esta guarda el clic
+    // se aceptaba en silencio: el diente no cambiaba en pantalla (la CSS del
+    // estado global gana), el aviso decía "estado actualizado" y el expediente
+    // acababa listando "Pieza 17 · Caries activa" junto a "Pieza 17 · Ausente".
+    if (odontogramData[toothNum] && odontogramData[toothNum].condition === 'ausente') {
+      window.showToast(
+        `La pieza ${toothNum} está registrada como ausente. Cámbiela a sana antes de marcar caras.`,
+        'warning');
+      return;
+    }
+
     // Inicializar diente en memoria si no existe
     if (!odontogramData[toothNum]) {
       odontogramData[toothNum] = { condition: 'healthy', faces: {} };
@@ -289,6 +317,15 @@ document.addEventListener('DOMContentLoaded', function() {
     renderFindingsHistory();
   }
 
+  // Texto del aviso cuando una condición de pieza completa deja caras ya
+  // registradas debajo, sin borrarlas. Devuelve '' si no hay ninguna.
+  function avisoCarasOcultas(toothNum, queLoTapa) {
+    const caras = Object.keys((odontogramData[toothNum] || {}).faces || {});
+    if (caras.length === 0) return '';
+    const listado = caras.map(c => caraEs(c, toothNum).toLowerCase()).join(', ');
+    return `Los hallazgos de la pieza ${toothNum} (${listado}) se conservan en el expediente aunque ${queLoTapa} los tape en el esquema.`;
+  }
+
   // Manejar click/acción en el Diente Entero
   function handleToothClick(toothNum) {
     if (!currentPatientId) return;
@@ -298,7 +335,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const svgEl = document.getElementById(`svg-${toothNum}`);
-    
+    let aviso = '';
+
     // Limpiar clases globales previas
     svgEl.classList.remove('ausente', 'corona', 'implante');
 
@@ -314,6 +352,11 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (activeTool === 'corona') {
       svgEl.classList.add('corona');
       odontogramData[toothNum].condition = 'corona';
+      // La corona tapa visualmente las caras marcadas pero NO las borra: sin
+      // este aviso la odontóloga creía haberlas eliminado y seguían en el
+      // expediente. Se conservan a propósito —son el motivo de la corona—,
+      // así que lo que hay que corregir es lo que la pantalla da a entender.
+      aviso = avisoCarasOcultas(toothNum, 'la corona');
     } else if (activeTool === 'implante') {
       svgEl.classList.add('implante');
       odontogramData[toothNum].condition = 'implante';
@@ -336,7 +379,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.db.saveOdontogram(currentPatientId, odontogramData);
-    window.showToast(`Pieza ${toothNum}: estado clínico actualizado`, 'success');
+    if (aviso) window.showToast(aviso, 'warning');
+    else window.showToast(`Pieza ${toothNum}: estado clínico actualizado`, 'success');
     renderFindingsHistory();
   }
 

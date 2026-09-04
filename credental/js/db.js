@@ -1,7 +1,15 @@
 /* ==========================================================================
-   DB.JS - MOTOR DE BASE DE DATOS LOCAL (SESSIONSTORAGE)
+   DB.JS - MOTOR DE BASE DE DATOS LOCAL (LOCALSTORAGE)
    Simula operaciones de consulta y guardado relacional de datos clínicos
    con soporte multi-empresa y aislamiento de datos por tenant.
+
+   Persiste en localStorage, igual que caja, facturación, inventario,
+   laboratorios y comunicaciones. Antes el expediente vivía en sessionStorage
+   y el dinero en localStorage: al segundo arranque la aplicación se
+   contradecía sola (los abonos se volvían a sembrar mientras las facturas de
+   ayer seguían listadas y el correlativo CAI seguía avanzando).
+   Para repetir la demostración desde cero está "Reiniciar demostración" en
+   Configuración.
    ========================================================================== */
 
 (function() {
@@ -28,6 +36,11 @@
     '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
 
   const DEMO_COMPANY_ID = 'co_credental_demo';
+
+  // Porcentaje que la clínica reconoce al odontólogo tratante. Vive aquí, con
+  // nombre, en vez de repetido como 0.40 dentro del cálculo: la tasa es una
+  // política del negocio y el Dashboard la rotula a partir de este mismo valor.
+  const COMISION_ODONTOLOGO = 0.40;
   const LEGACY_DEMO_COMPANY_ID = 'co_demo_credental';
   const DEMO_COMPANY = {
     id: DEMO_COMPANY_ID,
@@ -60,7 +73,7 @@
       },
       {
         username: 'testing',
-        name: 'Usuario de Pruebas',
+        name: 'Usuario de pruebas',
         role: 'Administración',
         avatar: 'TS',
         password: DEMO_ADMIN_PASSWORD_HASH,
@@ -96,7 +109,7 @@
 
   // Inicialización de la Base de Datos
   function initDB() {
-    if (!sessionStorage.getItem(DB_PREFIX + 'initialized')) {
+    if (!localStorage.getItem(DB_PREFIX + 'initialized')) {
       set('companies', []);
       set('users', []);
       set('dentists', []);
@@ -108,22 +121,22 @@
       set('payments', []);
       set('periodontograms', {});
       set('initialized', true);
-      console.log('Credental DB Multi-Empresa: Inicializada con éxito sobre sessionStorage vacía.');
+      console.log('Credental DB Multi-Empresa: Inicializada con éxito sobre localStorage vacía.');
     } else {
       // Garantizar que las tablas existan
-      if (!sessionStorage.getItem(DB_PREFIX + 'clinica_config')) {
+      if (!localStorage.getItem(DB_PREFIX + 'clinica_config')) {
         set('clinica_config', {});
       }
-      if (!sessionStorage.getItem(DB_PREFIX + 'payments')) {
+      if (!localStorage.getItem(DB_PREFIX + 'payments')) {
         set('payments', []);
       }
-      if (!sessionStorage.getItem(DB_PREFIX + 'periodontograms')) {
+      if (!localStorage.getItem(DB_PREFIX + 'periodontograms')) {
         set('periodontograms', {});
       }
-      if (!sessionStorage.getItem(DB_PREFIX + 'users')) {
+      if (!localStorage.getItem(DB_PREFIX + 'users')) {
         set('users', []);
       }
-      if (!sessionStorage.getItem(DB_PREFIX + 'companies')) {
+      if (!localStorage.getItem(DB_PREFIX + 'companies')) {
         set('companies', []);
       }
     }
@@ -135,14 +148,14 @@
     if (window.firebaseConnector) syncAllFromFirebase();
   }
 
-  // Helper para leer/escribir de sessionStorage con JSON
+  // Helper para leer/escribir de localStorage con JSON
   function get(key, defaultValue) {
-    const val = sessionStorage.getItem(DB_PREFIX + key);
+    const val = localStorage.getItem(DB_PREFIX + key);
     return val ? JSON.parse(val) : defaultValue;
   }
 
   function set(key, value) {
-    sessionStorage.setItem(DB_PREFIX + key, JSON.stringify(value));
+    localStorage.setItem(DB_PREFIX + key, JSON.stringify(value));
   }
 
   // Fecha en formato ISO (YYYY-MM-DD) usando la zona horaria del equipo.
@@ -625,6 +638,11 @@
         date: payment.date || localDateISO(),
         // Hora del registro: la usa el libro de caja para ordenar el día.
         time: payment.time || new Date().toTimeString().slice(0, 5),
+        // Correlativo del recibo, sellado aquí y para siempre. Facturación lo
+        // derivaba de la posición tras ordenar por fecha: bastaba registrar un
+        // abono con fecha anterior para que un recibo ya impreso y entregado
+        // dejara de existir con su número y todos los posteriores corrieran.
+        recibo: payment.recibo || ('REC-' + String(payments.length + 1).padStart(6, '0')),
         companyId: cid || budget.companyId || payment.companyId
       };
       payments.push(toSave);
@@ -639,7 +657,17 @@
       const budgetPayments = window.db.getPayments(budget.id);
       const totalPaid = budgetPayments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
 
-      if (totalPaid >= total) {
+      // Comparar en centavos: el total sale de una multiplicación con decimales
+      // y la suma de abonos arrastra cola binaria (16000 pagado en tres abonos
+      // da 15999.999999999998). Con `>=` sobre dobles el presupuesto se queda
+      // 'parcial' para siempre y no hay forma de cerrarlo desde la interfaz.
+      const enCentavos = v => Math.round((Number(v) || 0) * 100);
+      // Una cobranza cancelada o suspendida conserva su estado: recalcularlo
+      // aquí deshacía la cancelación sola en cuanto entraba el primer abono.
+      const congelado = budget.paymentStatus === 'cancelado' || budget.paymentStatus === 'suspendido';
+      if (congelado) {
+        // no se toca
+      } else if (enCentavos(totalPaid) >= enCentavos(total)) {
         budget.paymentStatus = 'pagado';
       } else if (totalPaid > 0) {
         budget.paymentStatus = 'parcial';
@@ -675,17 +703,24 @@
             dentistName: d.name,
             specialty: d.specialty,
             totalGenerated: 0,
+            totalCollected: 0,
             commissionAmount: 0
           };
         }
       });
       
+      // La comisión se devenga sobre el dinero que la clínica cobró, no sobre
+      // el que espera cobrar: sobre el total aceptado, un presupuesto sin un
+      // solo abono ya generaba comisión pagadera.
       activeBudgets.forEach(b => {
         if (b.status === 'accepted' && commissions[b.dentistId]) {
           const subtotal = b.treatments.reduce((acc, t) => acc + (t.price * t.qty), 0);
           const valWithDiscount = subtotal * (1 - (b.discount || 0) / 100);
+          const cobrado = window.db.getPayments(b.id)
+            .reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
           commissions[b.dentistId].totalGenerated += valWithDiscount;
-          commissions[b.dentistId].commissionAmount += valWithDiscount * 0.40; // 40% comisión
+          commissions[b.dentistId].totalCollected += cobrado;
+          commissions[b.dentistId].commissionAmount += cobrado * COMISION_ODONTOLOGO;
         }
       });
       
@@ -705,24 +740,50 @@
       
       const tasks = [];
       
+      // Lo que hay que cobrar es lo aceptado con saldo abierto. Antes solo se
+      // creaban tareas para los borradores, así que el panel mostraba dinero
+      // que nadie debe todavía y escondía la cartera realmente exigible.
+      // El borrador tiene su propia tarea, y es de seguimiento comercial: hay
+      // que cerrarlo con el paciente, no cobrarlo.
       activeBudgets.forEach(b => {
-        if (b.status === 'draft') {
-          const patient = activePatients.find(p => p.id === b.patientId);
-          if (patient) {
-            const subtotal = b.treatments.reduce((acc, t) => acc + (t.price * t.qty), 0);
-            const total = subtotal * (1 - (b.discount || 0) / 100);
+        const patient = activePatients.find(p => p.id === b.patientId);
+        if (!patient) return;
+
+        const subtotal = b.treatments.reduce((acc, t) => acc + (t.price * t.qty), 0);
+        const total = subtotal * (1 - (b.discount || 0) / 100);
+
+        if (b.status === 'accepted' &&
+            b.paymentStatus !== 'cancelado' && b.paymentStatus !== 'suspendido') {
+          const pagado = window.db.getPayments(b.id)
+            .reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
+          const saldo = Math.round((total - pagado) * 100) / 100;
+          if (saldo > 0) {
             tasks.push({
               id: 'crm_' + b.id,
               patientId: patient.id,
               patientName: patient.name,
               patientPhone: patient.phone,
               type: 'cobro',
-              title: 'Presupuesto Borrador',
-              desc: `Presupuesto de ${b.treatments.length} ítems por vencer.`,
-              amount: total,
+              title: 'Saldo por cobrar',
+              desc: pagado > 0
+                ? 'Presupuesto aceptado con abono incompleto.'
+                : 'Presupuesto aceptado sin ningún abono registrado.',
+              amount: saldo,
               targetId: b.id
             });
           }
+        } else if (b.status === 'draft') {
+          tasks.push({
+            id: 'crm_' + b.id,
+            patientId: patient.id,
+            patientName: patient.name,
+            patientPhone: patient.phone,
+            type: 'seguimiento',
+            title: 'Presupuesto sin respuesta',
+            desc: `Presupuesto de ${b.treatments.length} ítems en borrador: falta que el paciente lo acepte o lo rechace.`,
+            amount: total,
+            targetId: b.id
+          });
         }
       });
       

@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
     );
 
     if (list.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color: var(--color-gray); padding: 26px;">No hay insumos que coincidan.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color: var(--color-gray); padding: 26px;">No hay insumos que coincidan.</td></tr>';
       return;
     }
 
@@ -140,6 +140,10 @@ document.addEventListener('DOMContentLoaded', function() {
           <td>${esc(i.lote) || '—'}</td>
           <td style="white-space:nowrap; color:${venceColor}; font-weight:${venceColor === 'var(--text-primary)' ? '400' : '600'};" title="${venceTitulo}">${fmtVence(i.vence)}</td>
           <td><span class="badge ${est.cls}">${est.txt}</span></td>
+          <td class="num" style="white-space: nowrap;">
+            <button type="button" class="btn btn-secondary btn-sm" data-mov="entrada" data-id="${esc(i.id)}" title="Sumar unidades recibidas">+ Entrada</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-mov="salida" data-id="${esc(i.id)}" title="Descontar unidades consumidas"${i.stock <= 0 ? ' disabled' : ''}>− Salida</button>
+          </td>
         </tr>
       `;
     }).join('');
@@ -161,6 +165,83 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('add-insumo-btn').addEventListener('click', function() {
     document.getElementById('insumo-form').reset();
     insumoModal.classList.add('active');
+  });
+
+  // --- Entradas y salidas de existencia -----------------------------------
+  // Hasta ahora la única escritura del módulo era el alta: el stock no bajaba
+  // nunca, así que el KPI "Stock bajo" y la insignia roja eran decorativos.
+  const movModal = document.getElementById('mov-modal');
+  const movForm = document.getElementById('mov-form');
+  const movCantidad = document.getElementById('mov-cantidad');
+  const movMotivo = document.getElementById('mov-motivo');
+  let movActual = null; // { id, tipo }
+
+  window.setupModalClosers(movModal, document.getElementById('mov-modal-close'));
+
+  document.getElementById('inv-body').addEventListener('click', function(e) {
+    const btn = e.target.closest('button[data-mov]');
+    if (!btn) return;
+    const insumo = insumos.find(i => i.id === btn.dataset.id);
+    if (!insumo) return;
+    abrirMovimiento(insumo, btn.dataset.mov);
+  });
+
+  function abrirMovimiento(insumo, tipo) {
+    movActual = { id: insumo.id, tipo: tipo };
+    const esSalida = tipo === 'salida';
+    document.getElementById('mov-modal-title').textContent = esSalida ? 'Registrar salida' : 'Registrar entrada';
+    document.getElementById('mov-insumo').textContent = insumo.nombre;
+    document.getElementById('mov-existencia').textContent =
+      `Existencia actual: ${insumo.stock} · mínimo ${insumo.minimo}` + (insumo.lote ? ` · lote ${insumo.lote}` : '');
+    document.getElementById('mov-ayuda').textContent = esSalida
+      ? `No puede salir más de lo que hay: quedan ${insumo.stock} unidades.`
+      : 'Unidades recibidas que se suman a la existencia.';
+    document.getElementById('mov-confirmar').textContent = esSalida ? 'Registrar salida' : 'Registrar entrada';
+    movForm.reset();
+    movCantidad.max = esSalida ? String(insumo.stock) : '';
+    if (!esSalida) movCantidad.removeAttribute('max');
+    movModal.classList.add('active');
+    movCantidad.focus();
+  }
+
+  movForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!movActual) return;
+    const insumo = insumos.find(i => i.id === movActual.id);
+    if (!insumo) return;
+
+    const cantidad = parseInt(movCantidad.value, 10);
+    if (!cantidad || cantidad <= 0) {
+      window.showToast('Indique cuántas unidades entran o salen.', 'warning');
+      return;
+    }
+
+    if (movActual.tipo === 'salida' && cantidad > insumo.stock) {
+      window.showToast(`No hay existencia suficiente: quedan ${insumo.stock} unidades.`, 'warning');
+      return;
+    }
+
+    const antes = insumo.stock;
+    insumo.stock = movActual.tipo === 'salida' ? antes - cantidad : antes + cantidad;
+    insumo.movimientos = (insumo.movimientos || []).concat([{
+      fecha: window.todayISO(),
+      hora: new Date().toTimeString().slice(0, 5),
+      tipo: movActual.tipo,
+      cantidad: cantidad,
+      motivo: movMotivo.value.trim(),
+      resultante: insumo.stock
+    }]);
+
+    write(insumos);
+    movModal.classList.remove('active');
+    movActual = null;
+    renderAll();
+
+    const bajoMinimo = insumo.stock <= insumo.minimo;
+    window.showToast(
+      `${insumo.nombre}: ${antes} → ${insumo.stock} unidades.` +
+      (bajoMinimo ? ` Quedó en el mínimo o por debajo (${insumo.minimo}).` : ''),
+      bajoMinimo ? 'warning' : 'success');
   });
 
   document.getElementById('insumo-form').addEventListener('submit', function(e) {

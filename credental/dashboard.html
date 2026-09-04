@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Clínico — CREDental</title>
+  <title>Dashboard — CREDental</title>
+  <link rel="icon" type="image/png" href="assets/credental-icon.png">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
@@ -29,14 +30,14 @@
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
         <div class="user-info">
-          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-name" id="sidebar-user-name">Usuario clínico</div>
           <div class="user-role" id="sidebar-user-role">Clínico</div>
         </div>
       </div>
 
       <button class="logout-btn" id="sidebar-logout-btn">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Cerrar Sesión</span>
+        <span>Cerrar sesión</span>
       </button>
     </aside>
 
@@ -46,7 +47,7 @@
       <!-- Encabezado de Página -->
       <header class="page-header">
         <div class="page-title-area">
-          <h1 class="page-title" id="dashboard-greeting">Hola, Dr. Sebastián</h1>
+          <h1 class="page-title" id="dashboard-greeting">Panel de la clínica</h1>
           <p class="page-subtitle" id="dashboard-date">Cargando fecha...</p>
         </div>
         <div class="header-actions">
@@ -55,7 +56,7 @@
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Nueva Cita
+            Nueva cita
           </a>
         </div>
       </header>
@@ -67,7 +68,7 @@
             <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           </div>
           <div class="metric-info">
-            <span class="metric-title">Citas de Hoy</span>
+            <span class="metric-title">Citas de hoy</span>
             <span class="metric-value" id="stat-citas-hoy">0</span>
           </div>
         </div>
@@ -76,7 +77,7 @@
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           </div>
           <div class="metric-info">
-            <span class="metric-title">Citas sin Confirmar</span>
+            <span class="metric-title">Citas sin confirmar</span>
             <span class="metric-value" id="stat-sin-confirmar">0</span>
           </div>
         </div>
@@ -85,7 +86,7 @@
             <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
           </div>
           <div class="metric-info">
-            <span class="metric-title">Pacientes Activos</span>
+            <span class="metric-title">Pacientes activos</span>
             <span class="metric-value" id="stat-pacientes">0</span>
           </div>
         </div>
@@ -94,7 +95,7 @@
             <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
           </div>
           <div class="metric-info">
-            <span class="metric-title">Presupuestos Pendientes</span>
+            <span class="metric-title">Presupuestos pendientes</span>
             <span class="metric-value" id="stat-presupuestos">0</span>
           </div>
         </div>
@@ -103,7 +104,7 @@
             <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
           </div>
           <div class="metric-info">
-            <span class="metric-title">Pagos Pendientes</span>
+            <span class="metric-title">Pagos pendientes</span>
             <span class="metric-value" id="stat-saldo">L 0.00</span>
           </div>
         </div>
@@ -112,7 +113,7 @@
             <svg viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4z"></path></svg>
           </div>
           <div class="metric-info">
-            <span class="metric-title">Caja del Día</span>
+            <span class="metric-title">Caja del día</span>
             <span class="metric-value" id="stat-caja">L 0.00</span>
           </div>
         </div>
@@ -124,7 +125,7 @@
         <!-- Citas Programadas para Hoy -->
         <div class="card">
           <div class="card-title-area">
-            <h2 class="card-title">Agenda Clínica de Hoy</h2>
+            <h2 class="card-title">Agenda clínica de hoy</h2>
             <span class="badge badge-confirmed" id="agenda-day-badge">Hoy</span>
           </div>
           <div class="custom-table-container">
@@ -133,7 +134,7 @@
                 <tr>
                   <th>Hora</th>
                   <th>Paciente</th>
-                  <th>Dentista</th>
+                  <th>Odontólogo</th>
                   <th>Especialidad</th>
                   <th>Estado</th>
                   <th style="text-align: right;">Acciones</th>
@@ -148,13 +149,13 @@
         <div class="clinical-sidebar">
           <div class="card">
             <div class="card-title-area">
-              <h2 class="card-title">Alertas Importantes</h2>
+              <h2 class="card-title">Alertas importantes</h2>
             </div>
             <div id="dashboard-alerts" class="alert-list"></div>
           </div>
           <div class="card">
             <div class="card-title-area">
-              <h2 class="card-title">Tareas Operativas</h2>
+              <h2 class="card-title">Tareas operativas</h2>
             </div>
             <div id="dashboard-op-tasks" class="op-list"></div>
           </div>
@@ -166,7 +167,7 @@
         <div class="section-divider-icon" style="background: rgba(217, 119, 6, 0.12); color: var(--color-amber);">
           <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path><rect x="9" y="3" width="6" height="4" rx="1"></rect></svg>
         </div>
-        <span class="section-divider-text">Tareas de Seguimiento</span>
+        <span class="section-divider-text">Tareas de seguimiento</span>
         <div class="section-divider-line"></div>
       </div>
 
@@ -179,7 +180,7 @@
         <div class="section-divider-icon" style="background: rgba(var(--brand-primary-rgb), 0.1); color: var(--action);">
           <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
         </div>
-        <span class="section-divider-text">Comisiones de Odontólogos</span>
+        <span class="section-divider-text">Comisiones de odontólogos</span>
         <div class="section-divider-line"></div>
       </div>
 
@@ -190,8 +191,9 @@
               <tr>
                 <th>Odontólogo</th>
                 <th>Especialidad</th>
-                <th>Total Generado</th>
-                <th>Comisión (40%)</th>
+                <th>Total generado</th>
+                <th>Cobrado</th>
+                <th title="Se devenga sobre el dinero efectivamente cobrado, no sobre el total aceptado.">Comisión sobre lo cobrado (40%)</th>
                 <th>Progreso</th>
               </tr>
             </thead>
@@ -294,8 +296,13 @@
         return;
       }
       todayAppointments.forEach(appt => {
-        const patient = window.db.getPatient(appt.patientId) || { name: 'Desconocido' };
-        const dentist = window.db.getDentist(appt.dentistId) || { name: 'Sin Asignar' };
+        // Una cita huérfana (paciente borrado) enlazaba a pacientes.html?id=undefined,
+        // que abre una ficha vacía. Sin paciente no hay enlace: solo la etiqueta.
+        const patient = window.db.getPatient(appt.patientId);
+        const dentist = window.db.getDentist(appt.dentistId) || { name: 'Sin asignar' };
+        const patientCell = patient
+          ? `<a href="pacientes.html?id=${encodeURIComponent(patient.id)}" class="hover-link" style="font-weight: 500;">${window.escapeHtml(patient.name)}</a>`
+          : '<span style="font-weight: 500; color: var(--color-gray);">Paciente no encontrado</span>';
         const hour = appt.dateTime.split('T')[1];
         let badgeClass = 'badge-pending', badgeText = 'Pendiente';
         if (appt.status === 'confirmed') { badgeClass = 'badge-confirmed'; badgeText = 'Confirmada'; }
@@ -312,7 +319,7 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="font-weight: 700; color: var(--action);">${hour} hrs</td>
-          <td><a href="pacientes.html?id=${encodeURIComponent(patient.id)}" class="hover-link" style="font-weight: 500;">${window.escapeHtml(patient.name)}</a></td>
+          <td>${patientCell}</td>
           <td>${window.escapeHtml(dentist.name)}</td>
           <td><span class="tag">${window.escapeHtml(appt.specialty)}</span></td>
           <td><span class="badge ${badgeClass}">${badgeText}</span></td>
@@ -393,14 +400,16 @@
       }
       const iconCobro = '<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>';
       const iconRecall = '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>';
+      const iconSeguimiento = '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>';
       const iconWhats = '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"></path></svg>';
       const iconSchedule = '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>';
       tasks.forEach(task => {
-        const isCobro = task.type === 'cobro';
+        const iconoTarea = task.type === 'cobro' ? iconCobro
+          : task.type === 'seguimiento' ? iconSeguimiento : iconRecall;
         const card = document.createElement('div');
         card.className = `crm-task-card type-${task.type}`;
         card.innerHTML = `
-          <div class="crm-task-icon ${task.type}">${isCobro ? iconCobro : iconRecall}</div>
+          <div class="crm-task-icon ${task.type}">${iconoTarea}</div>
           <div class="crm-task-body">
             <div class="crm-task-title">${window.escapeHtml(task.title)}</div>
             <div class="crm-task-patient">${window.escapeHtml(task.patientName)}</div>
@@ -423,7 +432,7 @@
       tbody.innerHTML = '';
       const maxGen = Math.max(...commissions.map(c => c.totalGenerated), 1);
       if (commissions.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-gray); padding: 25px;">No hay datos de comisiones.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-gray); padding: 25px;">No hay datos de comisiones.</td></tr>';
         return;
       }
       commissions.forEach(c => {
@@ -433,6 +442,7 @@
           <td style="font-weight: 600;">${c.dentistName}</td>
           <td><span class="tag">${c.specialty}</span></td>
           <td style="font-weight: 600;">${formatMoney(c.totalGenerated)}</td>
+          <td style="font-weight: 600;">${formatMoney(c.totalCollected)}</td>
           <td style="color: var(--color-teal); font-weight: 700;">${formatMoney(c.commissionAmount)}</td>
           <td style="min-width: 120px;"><div class="commission-bar"><div class="commission-bar-fill" style="width: ${pct}%;"></div></div></td>
         `;
@@ -451,18 +461,30 @@
     };
 
     // Cambiar estado de una cita y re-renderizar
-    window.changeStatus = function(apptId, newStatus) {
+    // Cancelar pregunta antes, igual que en la Agenda: era el único botón
+    // destructivo del producto que se ejecutaba con un solo clic, y aquí llega
+    // incluso sobre citas ya confirmadas.
+    window.changeStatus = async function(apptId, newStatus) {
       const appt = window.db.getAppointment(apptId);
-      if (appt) {
-        appt.status = newStatus;
-        window.db.saveAppointment(appt);
-        let statusMsg = 'Cita confirmada';
-        let alertType = 'success';
-        if (newStatus === 'completed') { statusMsg = 'Tratamiento completado con éxito'; }
-        if (newStatus === 'canceled') { statusMsg = 'Cita cancelada'; alertType = 'warning'; }
-        window.showToast(statusMsg, alertType);
-        renderDashboard();
+      if (!appt) return;
+
+      if (newStatus === 'canceled') {
+        const paciente = window.db.getPatient(appt.patientId);
+        const ok = await window.confirmarAccion(
+          'Se cancelará la cita de ' + (paciente ? paciente.name : 'este paciente') + ' de las ' +
+          window.formatHora(appt.dateTime) + '. El cupo queda libre y el paciente no recibe aviso automático.',
+          { titulo: '¿Cancelar la cita?', textoConfirmar: 'Cancelar la cita', textoCancelar: 'Dejarla como está' });
+        if (!ok) return;
       }
+
+      appt.status = newStatus;
+      window.db.saveAppointment(appt);
+      let statusMsg = 'Cita confirmada';
+      let alertType = 'success';
+      if (newStatus === 'completed') { statusMsg = 'Tratamiento completado con éxito'; }
+      if (newStatus === 'canceled') { statusMsg = 'Cita cancelada'; alertType = 'warning'; }
+      window.showToast(statusMsg, alertType);
+      renderDashboard();
     };
   </script>
 </body>

@@ -28,10 +28,17 @@ document.addEventListener('DOMContentLoaded', function() {
   function writeCaja(c) { localStorage.setItem(CAJA_KEY, JSON.stringify(c)); }
 
   // --- Movimientos manuales (local) ---
-  function readMovs() {
-    try { return (JSON.parse(localStorage.getItem(MOV_KEY)) || []).filter(m => m.fecha === todayStr); }
-    catch (e) { return []; }
+  // `readAllMovs` devuelve el histórico completo; `readMovs` solo el día que se
+  // está operando. La escritura siempre parte del histórico: si se guardara la
+  // lista filtrada, cada movimiento nuevo borraría los días anteriores, y como
+  // esta clave vive en localStorage la pérdida sería definitiva.
+  function readAllMovs() {
+    try {
+      const lista = JSON.parse(localStorage.getItem(MOV_KEY));
+      return Array.isArray(lista) ? lista : [];
+    } catch (e) { return []; }
   }
+  function readMovs() { return readAllMovs().filter(m => m.fecha === todayStr); }
   function writeMovs(list) { localStorage.setItem(MOV_KEY, JSON.stringify(list)); }
 
   let caja = readCaja();
@@ -42,7 +49,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // abrió, y el botón de registrar movimiento inhabilitado. Se abre una sola
   // vez con un fondo inicial sintético y a partir de ahí manda lo que haga el
   // usuario (si la cierra, se queda cerrada).
-  if (!caja.abierta && localStorage.getItem(CAJA_KEY) === null && window.CredentalDemo) {
+  // `window.CredentalDemo` está definido en las 17 pantallas pase lo que pase,
+  // así que no distingue una clínica real de la demostración: una clínica que
+  // estrena el producto abría su caja con un fondo de L 500.00 que nadie
+  // depositó. La guarda correcta es la empresa activa.
+  const esDemo = companyId === 'co_credental_demo';
+
+  if (!caja.abierta && localStorage.getItem(CAJA_KEY) === null && esDemo) {
     caja = { fecha: todayStr, abierta: true, apertura: 500, arqueo: null };
     writeCaja(caja);
   }
@@ -95,7 +108,16 @@ document.addEventListener('DOMContentLoaded', function() {
       origen: 'Manual'
     }));
 
-    return fromPayments.concat(manual).sort((a, b) => (b.hora || '').localeCompare(a.hora || ''));
+    // `caja.desde` solo existe cuando el turno se reabrió después de un cierre:
+    // marca la hora desde la que cuenta el turno actual. Sin ella, reabrir
+    // declarando el efectivo contado —que ya incluye lo cobrado por la mañana—
+    // volvía a sumar los movimientos del turno anterior sobre el nuevo fondo.
+    const desde = caja.desde || null;
+    const delTurno = m => !desde || (m.hora && m.hora !== '—' && m.hora >= desde);
+
+    return fromPayments.concat(manual)
+      .filter(delTurno)
+      .sort((a, b) => (b.hora || '').localeCompare(a.hora || ''));
   }
 
   // --- Render ---
@@ -104,7 +126,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const info = document.getElementById('caja-apertura-info');
     if (caja.abierta) {
       label.innerHTML = '<span class="badge badge-completed">Abierta</span>';
-      info.textContent = `Apertura del día: ${window.formatMoney(caja.apertura)}`;
+      info.textContent = caja.desde
+        ? `Turno reabierto a las ${caja.desde} con ${window.formatMoney(caja.apertura)}`
+        : `Apertura del día: ${window.formatMoney(caja.apertura)}`;
     } else {
       label.innerHTML = '<span class="badge badge-canceled">Cerrada</span>';
       info.textContent = caja.cierre
@@ -135,7 +159,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    const efectivoEnCaja = (caja.abierta ? caja.apertura : 0) + efectivoNeto;
+    // El fondo de apertura no deja de existir porque se cierre el turno: con
+    // `caja.abierta ? apertura : 0` la métrica caía de L 1,700.00 a L 1,200.00
+    // sin que se moviera un lempira, y si la recepcionista reabría declarando
+    // lo que había contado, el mismo fondo se sumaba dos veces.
+    const efectivoEnCaja = (caja.apertura || 0) + efectivoNeto;
 
     document.getElementById('caja-ingresos').textContent = window.formatMoney(ingresos);
     document.getElementById('caja-gastos').textContent = window.formatMoney(gastos);
@@ -167,18 +195,25 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
-    const dif = caja.arqueo.contado - caja.arqueo.esperado;
+    // El resultado se calcula contra el efectivo que el sistema espera AHORA,
+    // no contra el que esperaba en el momento del conteo: la tarjeta seguía
+    // diciendo "Caja cuadrada" después de registrar un gasto, contradiciendo
+    // al "Efectivo en caja" que tenía al lado en la misma pantalla.
+    const esperadoAhora = typeof esperado === 'number' ? esperado : caja.arqueo.esperado;
+    const dif = caja.arqueo.contado - esperadoAhora;
     const cuadra = Math.abs(dif) < 0.01;
+    const desactualizado = Math.abs(esperadoAhora - caja.arqueo.esperado) >= 0.01;
     const color = cuadra ? 'var(--color-green-text)' : (dif > 0 ? 'var(--color-amber-text)' : 'var(--color-red-text)');
     const etiqueta = cuadra ? 'Caja cuadrada' : (dif > 0 ? 'Sobrante' : 'Faltante');
     cont.innerHTML = `
       <div class="record-field-grid">
-        <div><div class="record-field-label">Efectivo esperado</div><div class="record-field-value">${window.formatMoney(caja.arqueo.esperado)}</div></div>
+        <div><div class="record-field-label">Efectivo esperado</div><div class="record-field-value">${window.formatMoney(esperadoAhora)}</div></div>
         <div><div class="record-field-label">Efectivo contado</div><div class="record-field-value">${window.formatMoney(caja.arqueo.contado)}</div></div>
         <div><div class="record-field-label">Diferencia</div><div class="record-field-value" style="color: ${color};">${dif > 0 ? '+' : ''}${window.formatMoney(dif)}</div></div>
         <div><div class="record-field-label">Resultado</div><div class="record-field-value"><span class="badge ${cuadra ? 'badge-completed' : 'badge-pending'}">${etiqueta}</span></div></div>
       </div>
-      <p class="form-hint" style="margin-top: 12px;">Conteo registrado a las ${caja.arqueo.hora} por ${window.escapeHtml(caja.arqueo.usuario || 'recepción')}.</p>`;
+      <p class="form-hint" style="margin-top: 12px;">Conteo registrado a las ${caja.arqueo.hora} por ${window.escapeHtml(caja.arqueo.usuario || 'recepción')}.</p>
+      ${desactualizado ? `<p class="form-hint" style="margin-top: 6px; color: var(--color-amber-text); font-weight: 600;">Arqueo desactualizado: hubo movimientos después del conteo. En ese momento se esperaban ${window.formatMoney(caja.arqueo.esperado)}. Vuelva a contar el efectivo.</p>` : ''}`;
   }
 
   function renderMovimientos(movs) {
@@ -233,10 +268,23 @@ document.addEventListener('DOMContentLoaded', function() {
       ayuda: 'Es el fondo con el que inicia el día. Se usa como base para el arqueo.'
     });
     if (val === null) return;
-    caja = { fecha: todayStr, abierta: true, apertura: parseFloat(val) || 0, arqueo: null };
+    // Reapertura: si hoy ya hubo un cierre, el turno nuevo arranca en este
+    // instante y solo cuenta lo que pase de aquí en adelante. La primera
+    // apertura del día no lleva sello y cuenta el día entero.
+    const reapertura = !!caja.cierre;
+    caja = {
+      fecha: todayStr,
+      abierta: true,
+      apertura: parseFloat(val) || 0,
+      arqueo: null,
+      desde: reapertura ? new Date().toTimeString().slice(0, 5) : null
+    };
     writeCaja(caja);
     renderAll();
-    window.showToast('Caja abierta con ' + window.formatMoney(caja.apertura), 'success');
+    window.showToast(
+      (reapertura ? 'Turno reabierto con ' : 'Caja abierta con ') + window.formatMoney(caja.apertura) +
+      (reapertura ? ': se contabilizan los movimientos a partir de las ' + caja.desde + '.' : ''),
+      'success');
   });
 
   const btnArqueo = document.getElementById('btn-arqueo');
@@ -310,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
       concepto: document.getElementById('mov-concepto').value.trim(),
       monto: parseFloat(document.getElementById('mov-monto').value) || 0
     };
-    const list = readMovs();
+    const list = readAllMovs();
     list.push(mov);
     writeMovs(list);
     movementModal.classList.remove('active');

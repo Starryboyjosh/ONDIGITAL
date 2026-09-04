@@ -114,7 +114,7 @@
 }
 
 .tooth-face {
-  fill: #eef2f7;
+  fill: var(--state-sano);
   stroke: var(--border-strong);
   stroke-width: 1.2;
   cursor: pointer;

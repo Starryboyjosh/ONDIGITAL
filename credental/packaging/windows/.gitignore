@@ -1,0 +1,7 @@
+# Todo lo de aquí es salida de build y se regenera con ./build.sh.
+# El .exe NO se versiona: se reconstruye con un comando.
+bin/
+dist/
+resources/
+.tmp/
+node_modules/

@@ -43,6 +43,7 @@ html.dark-theme {
   --color-amber-text: #fbbf24;
   --color-red-text: #fca5a5;
 
+  --state-sano: #1a4658;
   --state-caries: #f87171;
   --state-restaurado: #5a9dff;
   --state-ausente: #64748b;
@@ -58,7 +59,7 @@ html.dark-theme {
 /* El fondo oscuro solo aplica a caras sanas; los estados clínicos conservan
    sus colores para que caries y restauraciones sigan siendo visibles. */
 html.dark-theme .tooth-face:not(.caries):not(.restaurado):not(.corona):not(.implante):not(.ausente) {
-  fill: #1a4658;
+  fill: var(--state-sano);
 }
 html.dark-theme .edu-video-thumb {
   color: var(--color-gray);

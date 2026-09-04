@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo de Procedimientos — CREDental</title>
+  <title>Catálogo de procedimientos — CREDental</title>
+  <link rel="icon" type="image/png" href="assets/credental-icon.png">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
@@ -30,14 +31,14 @@
       <div class="user-profile">
         <div class="user-avatar" id="sidebar-user-avatar">U</div>
         <div class="user-info">
-          <div class="user-name" id="sidebar-user-name">Usuario Clínico</div>
+          <div class="user-name" id="sidebar-user-name">Usuario clínico</div>
           <div class="user-role" id="sidebar-user-role">Clínico</div>
         </div>
       </div>
 
       <button class="logout-btn" id="sidebar-logout-btn">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Cerrar Sesión</span>
+        <span>Cerrar sesión</span>
       </button>
     </aside>
 
@@ -47,7 +48,7 @@
       <!-- Encabezado de Página -->
       <header class="page-header">
         <div class="page-title-area">
-          <h1 class="page-title">Catálogo de Procedimientos</h1>
+          <h1 class="page-title">Catálogo de procedimientos</h1>
           <p class="page-subtitle">Gestione el listado de tratamientos, aranceles y costos de su consulta dental.</p>
         </div>
         <div class="header-actions">
@@ -56,7 +57,7 @@
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Agregar Procedimiento
+            Agregar procedimiento
           </button>
         </div>
       </header>
@@ -64,7 +65,7 @@
       <!-- TABLA DE PROCEDIMIENTOS -->
       <section class="card">
         <div class="card-title-area">
-          <h2 class="card-title">Aranceles y Tratamientos</h2>
+          <h2 class="card-title">Catálogo de procedimientos</h2>
           <input type="text" id="proc-search" class="form-control" placeholder="Buscar procedimiento..." style="max-width: 280px; padding: 8px 14px;">
         </div>
 
@@ -73,8 +74,8 @@
             <thead>
               <tr>
                 <th style="width: 100px;">Código</th>
-                <th>Nombre del Tratamiento</th>
-                <th style="width: 150px; text-align: right;">Costo Base</th>
+                <th>Nombre del procedimiento</th>
+                <th style="width: 150px; text-align: right;">Costo base</th>
                 <th>Descripción</th>
                 <th style="width: 180px; text-align: right;">Acciones</th>
               </tr>
@@ -93,34 +94,34 @@
   <div class="modal-overlay" id="proc-modal">
     <div class="modal-container" style="max-width: 500px;">
       <div class="modal-header">
-        <h3 class="modal-title" id="modal-title-text">Agregar Procedimiento</h3>
+        <h3 class="modal-title" id="modal-title-text">Agregar procedimiento</h3>
         <button class="modal-close-btn" id="proc-modal-close">✕</button>
       </div>
       <form id="proc-form">
         <div class="modal-body">
           <div class="form-group">
-            <label class="form-label" for="proc-code">ID / Código de Procedimiento</label>
+            <label class="form-label" for="proc-code">ID / código de procedimiento</label>
             <input type="text" id="proc-code" class="form-control" placeholder="Ej. TR_09" required autocomplete="off">
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="proc-name">Nombre del Procedimiento</label>
+            <label class="form-label" for="proc-name">Nombre del procedimiento</label>
             <input type="text" id="proc-name" class="form-control" placeholder="Ej. Limpieza con Flúor" required autocomplete="off">
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="proc-price">Costo / Precio (L)</label>
+            <label class="form-label" for="proc-price">Costo / precio (L)</label>
             <input type="number" id="proc-price" class="form-control" placeholder="Ej. 1500" required min="0">
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="proc-desc">Descripción del Tratamiento</label>
+            <label class="form-label" for="proc-desc">Descripción del tratamiento</label>
             <textarea id="proc-desc" class="form-control" rows="3" placeholder="Describa brevemente el tratamiento..."></textarea>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="btn-cancel-proc">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar Tratamiento</button>
+          <button type="submit" class="btn btn-primary">Guardar procedimiento</button>
         </div>
       </form>
     </div>

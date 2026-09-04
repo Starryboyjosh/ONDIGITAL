@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
   addPatientBtn.addEventListener('click', function() {
     patientForm.reset();
     document.getElementById('patient-id').value = '';
-    document.getElementById('modal-title-text').textContent = 'Registrar Nuevo Paciente';
+    document.getElementById('modal-title-text').textContent = 'Registrar nuevo paciente';
     patientModal.classList.add('active');
   });
 
@@ -122,18 +122,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const patients = window.db.getPatients();
     patientTableBody.innerHTML = '';
 
-    const q = query.trim().toLowerCase();
+    // Sin acentos: 5 de los 8 pacientes de la demostración eran inencontrables
+    // escribiendo «maria», «jose», «oscar», «ruben» o «lucia», que es como
+    // teclea recepción.
+    const q = window.normalizarBusqueda(query).trim();
     const filtered = patients.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.rut.toLowerCase().includes(q) ||
-      p.phone.includes(q)
+      window.normalizarBusqueda(p.name).includes(q) ||
+      window.normalizarBusqueda(p.rut).includes(q) ||
+      String(p.phone || '').includes(q)
     );
 
     if (filtered.length === 0) {
+      // Buscar "zzz" en una clínica con 8 pacientes decía "No se encontraron
+      // pacientes registrados": el mensaje de lista vacía y el de búsqueda sin
+      // resultados no son el mismo mensaje.
+      const vacio = q
+        ? 'No hay pacientes que coincidan con «' + window.escapeHtml(query) + '».'
+        : 'Todavía no hay pacientes registrados. Use «Nuevo paciente» para crear el primer expediente.';
       patientTableBody.innerHTML = `
         <tr>
           <td colspan="2" style="text-align: center; color: var(--color-gray); padding: 30px;">
-            No se encontraron pacientes registrados.
+            ${vacio}
           </td>
         </tr>
       `;
@@ -235,7 +244,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const budgets = window.db.getBudgets().filter(b => b.patientId === patient.id);
     let balance = 0;
     budgets.forEach(b => {
-      if (b.status === 'accepted') balance += Math.max(budgetTotal(b) - budgetPaid(b), 0);
+      if (!window.esCobrable(b)) return;
+      balance += Math.max(budgetTotal(b) - budgetPaid(b), 0);
     });
 
     const stats = [
@@ -360,10 +370,23 @@ document.addEventListener('DOMContentLoaded', function() {
       budgets.forEach(b => {
         const total = budgetTotal(b);
         const paid = budgetPaid(b);
-        const balance = Math.max(total - paid, 0);
+        // Solo el aceptado y vivo genera saldo. Contarlo en todos hacía que la
+        // pestaña "Presupuestos y pagos" mostrara un saldo distinto del que la
+        // pestaña "Resumen" ya calculaba bien, en la ficha del mismo paciente.
+        // Criterio único: main.js (`window.esCobrable`).
+        const cobrable = window.esCobrable(b);
+        const balance = cobrable ? Math.max(total - paid, 0) : 0;
         totalPaid += paid;
         totalBalance += balance;
         window.db.getPayments(b.id).forEach(p => allPayments.push(p));
+
+        const motivo = b.status === 'rejected' ? 'Presupuesto rechazado: no genera saldo por cobrar.'
+          : b.status !== 'accepted' ? 'Presupuesto en borrador: no genera saldo por cobrar hasta que el paciente lo acepte.'
+          : b.paymentStatus === 'cancelado' ? 'Cobranza cancelada: el presupuesto ya no genera saldo por cobrar.'
+          : 'Cobranza suspendida temporalmente.';
+        const celdaSaldo = cobrable
+          ? `<td style="text-align: right; font-weight: 700; color: ${balance > 0 ? 'var(--color-red-text)' : 'var(--color-green-text)'};">${window.formatMoney(balance)}</td>`
+          : `<td style="text-align: right; color: var(--color-gray);" title="${window.escapeHtml(motivo)}">—</td>`;
 
         const [cls, txt] = statusMap[b.status] || ['badge-pending', b.status || '-'];
         const tr = document.createElement('tr');
@@ -371,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <td><code class="tag">${window.folioPresupuesto(b)}</code></td>
           <td><span class="badge ${cls}">${txt}</span></td>
           <td style="text-align: right; font-weight: 600;">${window.formatMoney(total)}</td>
-          <td style="text-align: right; font-weight: 700; color: ${balance > 0 ? 'var(--color-red-text)' : 'var(--color-green-text)'};">${window.formatMoney(balance)}</td>
+          ${celdaSaldo}
         `;
         tbody.appendChild(tr);
       });
@@ -430,7 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('patient-history').value = patient.medicalHistory === 'Sin antecedentes.' ? '' : patient.medicalHistory;
     document.getElementById('patient-tags').value = patient.tags ? patient.tags.join(', ') : '';
 
-    document.getElementById('modal-title-text').textContent = 'Modificar Ficha Paciente';
+    document.getElementById('modal-title-text').textContent = 'Modificar ficha del paciente';
     patientModal.classList.add('active');
   };
   // Selección inicial. Va al final del archivo a propósito: window.selectPatient

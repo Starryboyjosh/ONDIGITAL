@@ -23,7 +23,7 @@
 
   function readTable(name, fallback) {
     try {
-      const raw = sessionStorage.getItem('credental_' + name);
+      const raw = localStorage.getItem('credental_' + name);
       return raw ? JSON.parse(raw) : fallback;
     } catch (_) {
       return fallback;
@@ -31,7 +31,7 @@
   }
 
   function writeTable(name, value) {
-    sessionStorage.setItem('credental_' + name, JSON.stringify(value));
+    localStorage.setItem('credental_' + name, JSON.stringify(value));
   }
 
   function activeUser() {
@@ -306,7 +306,7 @@
     { den: DEN2, esp: 'Endodoncia', dur: 60, nota: 'Sesión de tratamiento de conducto.' },
     { den: DEN3, esp: 'Control ortodoncia', dur: 30, nota: 'Ajuste mensual de aparatología.' },
     { den: DEN1, esp: 'Periodoncia', dur: 40, nota: 'Control periodontal de mantenimiento.' },
-    { den: DEN1, esp: 'Revisión', dur: 30, nota: 'Revisión general y plan de tratamiento.' },
+    { den: DEN1, esp: 'Revisión', dur: 30, nota: 'Revisión general y presupuesto de tratamiento.' },
     { den: DEN1, esp: 'Odontopediatría', dur: 30, nota: 'Control preventivo infantil.' },
     { den: DEN1, esp: 'Prótesis', dur: 60, nota: 'Prueba y ajuste de prótesis.' }
   ];
@@ -410,6 +410,12 @@
   ];
 
   // --- Periodontogramas -----------------------------------------------------
+  // Convención del margen gingival (la misma que rotula periodontograma.html):
+  // MG negativo = RECESIÓN, el margen se retiró hacia apical y el LAC queda
+  // expuesto; MG positivo = hiperplasia, el margen cubre el LAC. Con
+  // NIC = PS − MG, una recesión de 2 mm sobre una bolsa de 6 mm da NIC 8 mm.
+  // La semilla usaba el signo al revés y el error caía siempre del lado
+  // peligroso: el paciente parecía más sano de lo que está.
   function perioNormal(teeth, ps) {
     const out = {};
     teeth.forEach(function (t) { out[t] = { mg: 0, ps: ps, nic: ps, ss: false, pb: false }; });
@@ -434,21 +440,21 @@
     // Periodontitis del adulto: recesiones y bolsas profundas en molares.
     const data = Object.assign(perioNormal(UPPER, 3), perioNormal(LOWER, 3));
     [17, 27, 37, 47].forEach(function (t) {
-      data[t] = { mg: 2, ps: 6, nic: 4, ss: true, pb: true };
+      data[t] = { mg: -2, ps: 6, nic: 8, ss: true, pb: true }; // recesión 2 mm
     });
     [14, 24, 34, 44].forEach(function (t) {
-      data[t] = { mg: 1, ps: 5, nic: 4, ss: true, pb: false };
+      data[t] = { mg: -1, ps: 5, nic: 6, ss: true, pb: false }; // recesión 1 mm
     });
-    [16, 15, 46].forEach(function (t) {
-      data[t] = { mg: 0, ps: 0, nic: 0, ss: false, pb: false }; // piezas ausentes
-    });
+    // Las piezas ausentes no se sondean: no llevan medición. El
+    // periodontograma las bloquea leyendo el odontograma del mismo paciente.
+    [16, 15, 46].forEach(function (t) { delete data[t]; });
     return data;
   }
 
   function perioMaria() {
     const data = Object.assign(perioNormal(UPPER, 2), perioNormal(LOWER, 2));
     [16, 36].forEach(function (t) {
-      data[t] = { mg: 1, ps: 4, nic: 3, ss: true, pb: true };
+      data[t] = { mg: -1, ps: 4, nic: 5, ss: true, pb: true }; // recesión 1 mm
     });
     return data;
   }
@@ -549,11 +555,11 @@
     // rol (una recepcionista no ve Usuarios ni Configuración).
     if (global.db.saveUser) {
       const EQUIPO = [
-        { username: 'laura.mendez', name: 'Dra. Laura Méndez', role: 'Dentista Principal', avatar: 'LM' },
-        { username: 'marco.villeda', name: 'Dr. Marco Villeda', role: 'Odontólogo(a) General', avatar: 'MV' },
+        { username: 'laura.mendez', name: 'Dra. Laura Méndez', role: 'Odontólogo(a) principal', avatar: 'LM' },
+        { username: 'marco.villeda', name: 'Dr. Marco Villeda', role: 'Odontólogo(a) general', avatar: 'MV' },
         { username: 'karla.zelaya', name: 'Dra. Karla Zelaya', role: 'Ortodoncista', avatar: 'KZ' },
         { username: 'sofia.recepcion', name: 'Sofía Elena Bonilla', role: 'Recepcionista', avatar: 'SB' },
-        { username: 'daniela.asistente', name: 'Daniela Marcela Cruz', role: 'Asistente Dental', avatar: 'DC' }
+        { username: 'daniela.asistente', name: 'Daniela Marcela Cruz', role: 'Asistente dental', avatar: 'DC' }
       ];
       const registrados = (global.db.getUsers() || []).map(function (u) { return u.username; });
       EQUIPO.forEach(function (miembro) {

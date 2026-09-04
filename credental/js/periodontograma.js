@@ -66,11 +66,25 @@ document.addEventListener('DOMContentLoaded', function() {
   patientSubtitle.textContent = `Paciente: ${patient.name} (${patient.rut}) • Edad: ${patient.age} años`;
 
   // --- Cambio de paciente: recargar página con el nuevo ID ---
-  patientSelect.addEventListener('change', function() {
+  // A diferencia del odontograma, que autoguarda en cada clic, aquí el sondaje
+  // solo se persiste al pulsar Guardar: recargar sin avisar tira un examen de
+  // 28 piezas sin dejar rastro.
+  patientSelect.addEventListener('change', async function() {
     const newId = this.value;
+    const ok = await window.confirmarAccion(
+      'Los valores de sondaje que no haya guardado se perderán al cambiar de paciente.',
+      {
+        titulo: '¿Cambiar de paciente?',
+        textoConfirmar: 'Cambiar sin guardar',
+        textoCancelar: 'Seguir aquí'
+      });
+    if (!ok) {
+      this.value = patientId;
+      return;
+    }
     sessionStorage.setItem(PATIENT_STORAGE_KEY, newId);
     // Recargar con el nuevo paciente en la URL para re-renderizar las cuadrículas
-    window.location.href = `periodontograma.html?id=${newId}`;
+    window.location.href = `periodontograma.html?id=${encodeURIComponent(newId)}`;
   });
 
   // Las dos arcadas según norma FDI
@@ -79,6 +93,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Estructura de datos periodontal
   let perioData = window.db.getPeriodontogram(patientId) || {};
+
+  // Piezas que el odontograma del mismo paciente declara ausentes. El
+  // periodontograma les abría inputs editables y guardaba sondajes de dientes
+  // extraídos.
+  const odontograma = window.db.getOdontogram(patientId) || {};
+  const piezasAusentes = new Set(
+    Object.keys(odontograma).filter(t => odontograma[t] && odontograma[t].condition === 'ausente')
+  );
 
   // Inicializar cuadrículas y rellenar con datos existentes
   initArchGrid('upper', upperTeeth);
@@ -89,21 +111,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Guardar datos
   document.getElementById('save-perio-btn').addEventListener('click', function() {
-    // Recolectar datos de los inputs
+    // Solo se guardan las piezas con medición real. Antes se recolectaban las
+    // 32 sin distinguir tocadas de no tocadas y con un valor por defecto de
+    // 1 mm: abrir el periodontograma de un paciente nuevo y pulsar Guardar
+    // dejaba 32 sondajes firmados como examen que nadie tomó.
     const updatedData = {};
-    
-    // Recolectar superior
-    upperTeeth.forEach(t => {
-      updatedData[t] = getTeethValues(t);
+    let medidas = 0;
+
+    upperTeeth.concat(lowerTeeth).forEach(t => {
+      const valores = getTeethValues(t);
+      if (valores) {
+        updatedData[t] = valores;
+        medidas++;
+      }
     });
 
-    // Recolectar inferior
-    lowerTeeth.forEach(t => {
-      updatedData[t] = getTeethValues(t);
-    });
+    if (medidas === 0) {
+      window.showToast('No hay ninguna medición registrada: escriba al menos el margen gingival o la profundidad de sondaje de una pieza.', 'warning');
+      return;
+    }
 
     window.db.savePeriodontogram(patientId, updatedData);
-    window.showToast('Periodontograma guardado con éxito.', 'success');
+    window.showToast(`Periodontograma guardado: ${medidas} ${medidas === 1 ? 'pieza medida' : 'piezas medidas'}.`, 'success');
     
     // Registrar también en el historial de visitas/citas del paciente una anotación
     const appts = window.db.getAppointments().filter(a => a.patientId === patientId);
@@ -128,36 +157,50 @@ document.addEventListener('DOMContentLoaded', function() {
     const rowPb = document.getElementById(`row-${archKey}-pb`);
 
     teethList.forEach(t => {
-      const toothValues = perioData[t] || { mg: 0, ps: 1, nic: 1, ss: false, pb: false };
+      // Sin valor por defecto: una casilla vacía dice "no medido", y un 1 mm
+      // escrito por el programa dice "sondaje normal comprobado". No son lo
+      // mismo y la diferencia acaba en un expediente clínico.
+      const toothValues = perioData[t] || { mg: '', ps: '', nic: '', ss: false, pb: false };
+      // Una pieza que el odontograma declara ausente no se sondea: no hay
+      // surco que medir. El campo se bloquea y se explica por qué.
+      const ausente = piezasAusentes.has(String(t));
 
       // 1. Número de diente
       const th = document.createElement('th');
       th.textContent = t;
+      if (ausente) {
+        th.title = 'Pieza ausente en el odontograma.';
+        th.style.opacity = '0.45';
+      }
       rowNum.appendChild(th);
+
+      const bloqueo = ausente
+        ? ' disabled title="Pieza ausente en el odontograma." aria-label="Pieza ' + t + ' ausente"'
+        : '';
 
       // 2. Input Margen Gingival (MG)
       const tdMg = document.createElement('td');
-      tdMg.innerHTML = `<input type="number" id="mg-${t}" class="perio-input" min="-5" max="10" value="${toothValues.mg}">`;
+      tdMg.innerHTML = `<input type="number" id="mg-${t}" class="perio-input" min="-10" max="5" value="${ausente ? '' : toothValues.mg}" placeholder="—"${bloqueo}>`;
       rowMg.appendChild(tdMg);
 
       // 3. Input Profundidad de Sondaje (PS)
       const tdPs = document.createElement('td');
-      tdPs.innerHTML = `<input type="number" id="ps-${t}" class="perio-input" min="0" max="15" value="${toothValues.ps}">`;
+      tdPs.innerHTML = `<input type="number" id="ps-${t}" class="perio-input" min="0" max="15" value="${ausente ? '' : toothValues.ps}" placeholder="—"${bloqueo}>`;
       rowPs.appendChild(tdPs);
 
       // 4. NIC Calculado
       const tdNic = document.createElement('td');
-      tdNic.innerHTML = `<span id="nic-${t}" class="nic-label">${toothValues.nic}</span>`;
+      tdNic.innerHTML = `<span id="nic-${t}" class="nic-label">${ausente ? '—' : toothValues.nic}</span>`;
       rowNic.appendChild(tdNic);
 
       // 5. Sangrado al Sondaje (SS)
       const tdSs = document.createElement('td');
-      tdSs.innerHTML = `<button type="button" id="ss-${t}" class="perio-btn ss-btn ${toothValues.ss ? 'active' : ''}"></button>`;
+      tdSs.innerHTML = `<button type="button" id="ss-${t}" class="perio-btn ss-btn ${toothValues.ss ? 'active' : ''}"${bloqueo}></button>`;
       rowSs.appendChild(tdSs);
 
       // 6. Placa Bacteriana (PB)
       const tdPb = document.createElement('td');
-      tdPb.innerHTML = `<button type="button" id="pb-${t}" class="perio-btn pb-btn ${toothValues.pb ? 'active' : ''}"></button>`;
+      tdPb.innerHTML = `<button type="button" id="pb-${t}" class="perio-btn pb-btn ${toothValues.pb ? 'active' : ''}"${bloqueo}></button>`;
       rowPb.appendChild(tdPb);
 
       // --- Escuchadores de eventos para cálculos y gráficos en tiempo real ---
@@ -168,9 +211,21 @@ document.addEventListener('DOMContentLoaded', function() {
       const btnPb = document.getElementById(`pb-${t}`);
 
       const recalculateNic = () => {
-        const mg = parseInt(inputMg.value) || 0;
-        const ps = parseInt(inputPs.value) || 0;
-        const nic = ps - mg; // NIC = PS - MG
+        const textoPs = String(inputPs.value).trim();
+        if (textoPs === '') {
+          // Sin sondaje no hay nivel de inserción que calcular.
+          labelNic.textContent = '—';
+          inputPs.style.borderColor = 'var(--border-glow)';
+          inputPs.style.color = 'var(--color-white)';
+          updateChart();
+          return;
+        }
+        const mg = parseInt(inputMg.value, 10) || 0;
+        const ps = parseInt(textoPs, 10) || 0;
+        // NIC = PS − MG. Con MG negativo (recesión: el margen se retiró hacia
+        // apical y el LAC queda expuesto) la resta SUMA la recesión al
+        // sondaje, que es exactamente la pérdida de inserción real.
+        const nic = ps - mg;
         labelNic.textContent = nic;
         
         // Colores de alerta para bolsas periodontales en PS
@@ -185,28 +240,40 @@ document.addEventListener('DOMContentLoaded', function() {
         updateChart();
       };
 
-      inputMg.addEventListener('input', recalculateNic);
-      inputPs.addEventListener('input', recalculateNic);
-      
-      // Toggles
-      btnSs.addEventListener('click', function() {
-        this.classList.toggle('active');
-        updateChart();
-      });
-      btnPb.addEventListener('click', function() {
-        this.classList.toggle('active');
-        updateChart();
-      });
+      if (!ausente) {
+        inputMg.addEventListener('input', recalculateNic);
+        inputPs.addEventListener('input', recalculateNic);
 
-      // Gatillar cálculo inicial
-      recalculateNic();
+        // Toggles
+        btnSs.addEventListener('click', function() {
+          this.classList.toggle('active');
+          updateChart();
+        });
+        btnPb.addEventListener('click', function() {
+          this.classList.toggle('active');
+          updateChart();
+        });
+
+        // Gatillar cálculo inicial
+        recalculateNic();
+      }
     });
   }
 
-  // Recolecta los valores del DOM para un diente
+  // Recolecta los valores del DOM para un diente. Devuelve null cuando la pieza
+  // no se midió: sin PS no hay sondaje, y sin sondaje no hay nada que firmar.
   function getTeethValues(toothNum) {
-    const mg = parseInt(document.getElementById(`mg-${toothNum}`).value) || 0;
-    const ps = parseInt(document.getElementById(`ps-${toothNum}`).value) || 0;
+    const inputMg = document.getElementById(`mg-${toothNum}`);
+    const inputPs = document.getElementById(`ps-${toothNum}`);
+    if (!inputMg || !inputPs || inputPs.disabled) return null;
+
+    const textoMg = String(inputMg.value).trim();
+    const textoPs = String(inputPs.value).trim();
+    if (textoPs === '') return null;
+
+    const ps = parseInt(textoPs, 10);
+    if (isNaN(ps)) return null;
+    const mg = textoMg === '' ? 0 : (parseInt(textoMg, 10) || 0);
     const nic = ps - mg;
     const ss = document.getElementById(`ss-${toothNum}`).classList.contains('active');
     const pb = document.getElementById(`pb-${toothNum}`).classList.contains('active');
@@ -233,9 +300,24 @@ document.addEventListener('DOMContentLoaded', function() {
       // Obtener valores en tiempo real del DOM si existen, sino usar perioData
       const elMg = document.getElementById(`mg-${t}`);
       const elPs = document.getElementById(`ps-${t}`);
-      
-      const mg = elMg ? (parseInt(elMg.value) || 0) : (perioData[t] ? perioData[t].mg : 0);
-      const ps = elPs ? (parseInt(elPs.value) || 0) : (perioData[t] ? perioData[t].ps : 1);
+
+      // Una pieza sin medir no se dibuja. Tratar la casilla vacía como 0 mm
+      // trazaba una línea plana a ras de la escala que se lee como "sondaje
+      // normal comprobado en las 32 piezas", que es justo lo contrario.
+      const textoPs = elPs ? String(elPs.value).trim() : null;
+      const guardado = perioData[t];
+      let mg, ps;
+      if (textoPs !== null) {
+        if (textoPs === '' || elPs.disabled) return;
+        ps = parseInt(textoPs, 10);
+        if (isNaN(ps)) return;
+        mg = parseInt(String(elMg.value).trim(), 10) || 0;
+      } else if (guardado && guardado.ps !== '' && guardado.ps !== undefined && guardado.ps !== null) {
+        ps = Number(guardado.ps);
+        mg = Number(guardado.mg) || 0;
+      } else {
+        return;
+      }
 
       // Mapear Y: 0mm -> Y=170, 10mm -> Y=20. Fórmula: Y = 170 - (val * 15)
       // Ajustar escala para que quede estético
@@ -251,12 +333,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // Actualizar líneas
+    // Actualizar líneas. Con menos de dos puntos medidos no hay curva que
+    // trazar: se deja el gráfico vacío en vez de inventar una recta.
     const mgPath = document.getElementById('mg-line-path');
     const psPath = document.getElementById('ps-line-path');
 
-    if (mgPath) mgPath.setAttribute('d', `M ${mgPoints.join(' L ')}`);
-    if (psPath) psPath.setAttribute('d', `M ${psPoints.join(' L ')}`);
+    if (mgPath) mgPath.setAttribute('d', mgPoints.length >= 2 ? `M ${mgPoints.join(' L ')}` : '');
+    if (psPath) psPath.setAttribute('d', psPoints.length >= 2 ? `M ${psPoints.join(' L ')}` : '');
 
     // Relleno de bolsas periodontales
     const fillPath = document.getElementById('pocket-fill-path');

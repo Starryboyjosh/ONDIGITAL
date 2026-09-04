@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     editingCode = null;
     form.reset();
     document.getElementById('proc-code').disabled = false;
-    modalTitle.textContent = 'Agregar Procedimiento';
+    modalTitle.textContent = 'Agregar procedimiento';
     modal.classList.add('active');
   });
 
@@ -87,10 +87,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     if (filtered.length === 0) {
+      const buscado = String(query || '').trim();
+      const vacio = buscado
+        ? 'No hay procedimientos que coincidan con «' + window.escapeHtml(buscado) + '».'
+        : 'Todavía no hay procedimientos en el catálogo. Use «Agregar procedimiento» para crear el primero.';
       tableBody.innerHTML = `
         <tr>
           <td colspan="5" style="text-align: center; color: var(--color-gray); padding: 30px;">
-            No se encontraron procedimientos registrados.
+            ${vacio}
           </td>
         </tr>
       `;
@@ -135,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('proc-price').value = p.price;
     document.getElementById('proc-desc').value = p.description || '';
 
-    modalTitle.textContent = 'Editar Procedimiento';
+    modalTitle.textContent = 'Editar procedimiento';
     modal.classList.add('active');
   };
 

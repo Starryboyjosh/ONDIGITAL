@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vito — CREDental</title>
+  <link rel="icon" type="image/png" href="assets/credental-icon.png">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
@@ -87,7 +88,7 @@
       </div>
       <button class="logout-btn" id="sidebar-logout-btn" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Cerrar Sesión</span>
+        <span>Cerrar sesión</span>
       </button>
     </aside>
 
@@ -107,6 +108,7 @@
               <button type="button" data-q="¿Qué citas tengo hoy?">Citas de hoy</button>
               <button type="button" data-q="¿Qué citas tengo mañana?">Citas de mañana</button>
               <button type="button" data-q="¿Qué pacientes tienen saldo pendiente?">Saldos pendientes</button>
+              <button type="button" data-q="¿Cuánto cobramos hoy?">Cobros de hoy</button>
               <button type="button" data-q="Resume el expediente de José Antonio Ruiz">Expediente de un paciente</button>
               <button type="button" data-q="Dame un resumen de la clínica">Resumen clínica</button>
             </div>
@@ -219,7 +221,17 @@
           return;
         }
         addBubble(q, 'user');
-        const res = window.VitoCredental.ask(q);
+        // Red de seguridad: este es el único llamador de ask() en todo el
+        // producto. Si una consulta lanza, sin esto el usuario ve su burbuja y
+        // ninguna respuesta, sin pista alguna de la causa.
+        let res;
+        try {
+          res = window.VitoCredental.ask(q);
+        } catch (err) {
+          addBubble('No pude consultar los datos en este momento. Vuelva a intentarlo; ' +
+            'si sigue igual, revise que los nombres de los pacientes no tengan símbolos como ( ) * o +.', 'bot');
+          return;
+        }
         addBubble(res.reply, 'bot', res.citations);
       }
 

@@ -145,6 +145,14 @@
   background: var(--color-teal);
 }
 
+/* Seguimiento comercial: un presupuesto en borrador todavía no es cobranza,
+   así que no comparte el ámbar del saldo por cobrar ni el turquesa del
+   control preventivo. `--action` es el morado de identidad ya oscurecido a
+   AA, no el decorativo. */
+.crm-task-card.type-seguimiento::before {
+  background: var(--action);
+}
+
 .crm-task-card:hover {
   border-color: var(--border-strong);
   box-shadow: var(--shadow);
@@ -177,6 +185,11 @@
 .crm-task-icon.recall {
   background: rgba(var(--brand-teal-rgb), 0.12);
   color: var(--color-teal);
+}
+
+.crm-task-icon.seguimiento {
+  background: rgba(var(--brand-purple-rgb), 0.12);
+  color: var(--action);
 }
 
 .crm-task-body {

@@ -154,7 +154,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const budget = porId[p.budgetId];
         return {
           tipo: 'Recibo de pago',
-          num: 'REC-' + String(i + 1).padStart(6, '0'),
+          // El número lo sella `db.registerPayment` en el momento del cobro.
+          // Derivarlo de la posición tras ordenar por fecha hacía que un abono
+          // registrado con fecha anterior recorriera toda la numeración y el
+          // recibo ya impreso dejara de existir con su número. El respaldo por
+          // índice cubre los abonos anteriores a este cambio.
+          num: p.recibo || ('REC-' + String(i + 1).padStart(6, '0')),
           fecha: p.date,
           cliente: budget ? nombrePaciente(budget.patientId) : '—',
           referencia: budget ? window.folioPresupuesto(budget) : '—',
@@ -278,32 +283,49 @@ document.addEventListener('DOMContentLoaded', function() {
     return partes.join('-');
   }
 
+  // Solo se documenta lo que el paciente aceptó. El selector ofrecía también
+  // los borradores y los rechazados, y emitir sobre uno de ellos consumía un
+  // folio del rango CAI para respaldar un tratamiento que nadie aprobó.
+  function presupuestosFacturables() {
+    return window.db.getBudgets().filter(b =>
+      b.status === 'accepted' && b.paymentStatus !== 'cancelado');
+  }
+
   function llenarPresupuestos() {
-    const budgets = window.db.getBudgets();
+    const budgets = presupuestosFacturables();
     emitPresupuesto.innerHTML = '';
     if (budgets.length === 0) {
-      emitPresupuesto.innerHTML = '<option value="">No hay presupuestos registrados</option>';
+      emitPresupuesto.innerHTML = '<option value="">No hay presupuestos aceptados por documentar</option>';
       return;
     }
     budgets.forEach(b => {
       const opt = document.createElement('option');
       opt.value = b.id;
-      opt.textContent = window.folioPresupuesto(b) + ' · ' + nombrePaciente(b.patientId);
+      opt.textContent = window.folioPresupuesto(b) + ' · ' + nombrePaciente(b.patientId) +
+        ' · saldo ' + window.formatMoney(saldoPresupuesto(b));
       emitPresupuesto.appendChild(opt);
     });
   }
 
   function refrescarDetalle() {
-    const budget = window.db.getBudgets().find(b => b.id === emitPresupuesto.value);
+    const budget = presupuestosFacturables().find(b => b.id === emitPresupuesto.value);
     if (!budget) {
       emitDetalle.textContent = '—';
       emitMonto.value = '';
+      emitMonto.removeAttribute('max');
       return;
     }
     const total = totalPresupuesto(budget);
     const saldo = saldoPresupuesto(budget);
+    const tope = saldo > 0 ? saldo : total;
     emitDetalle.textContent = 'Total ' + window.formatMoney(total) + ' · saldo pendiente ' + window.formatMoney(saldo);
-    emitMonto.value = (saldo > 0 ? saldo : total).toFixed(2);
+    // El campo acota el monto en el propio control, además de la validación al
+    // enviar: sin tope se podían emitir L 250,000.00 sobre un presupuesto de
+    // L 2,450.00 y el documento salía con ese importe.
+    emitMonto.max = tope.toFixed(2);
+    emitMonto.min = '0.01';
+    emitMonto.step = '0.01';
+    emitMonto.value = tope.toFixed(2);
   }
 
   emitPresupuesto.addEventListener('change', refrescarDetalle);
@@ -322,14 +344,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.getElementById('emit-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    const budget = window.db.getBudgets().find(b => b.id === emitPresupuesto.value);
+    const budget = presupuestosFacturables().find(b => b.id === emitPresupuesto.value);
     const monto = parseFloat(emitMonto.value);
     if (!budget) {
-      window.showToast('Seleccione un presupuesto.', 'warning');
+      window.showToast('Seleccione un presupuesto aceptado.', 'warning');
       return;
     }
     if (!monto || monto <= 0) {
       window.showToast('Indique el monto a documentar.', 'warning');
+      return;
+    }
+    const saldo = saldoPresupuesto(budget);
+    const tope = saldo > 0 ? saldo : totalPresupuesto(budget);
+    // Medio centavo de holgura: el tope viene de una multiplicación con
+    // decimales y un importe idéntico no debe rebotar por la cola binaria.
+    if (monto > tope + 0.005) {
+      window.showToast(`El monto no puede superar el saldo pendiente de ${window.formatMoney(tope)}.`, 'warning');
       return;
     }
 

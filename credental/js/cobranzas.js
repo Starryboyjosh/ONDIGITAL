@@ -61,9 +61,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // pero no generan saldo por cobrar ni admiten abonos: si se cobraran, el
   // total de este módulo dejaría de cuadrar con "Pagos pendientes" del
   // Dashboard y con Reportes, que solo suman los aceptados.
-  function esCobrable(budget) {
-    return (budget && budget.status || 'draft') === 'accepted';
-  }
+  // La cancelación y la suspensión se deciden en esta misma pantalla, así que
+  // tienen que pesar aquí: sin mirar `paymentStatus`, un presupuesto
+  // "cancelado permanentemente" seguía sumando saldo, seguía pintándose en
+  // rojo y su botón de abono seguía habilitado.
+  // El criterio es único y vive en main.js (`window.esCobrable`): Presupuestos,
+  // Pacientes y Comunicaciones leen exactamente el mismo, para que los cuatro
+  // módulos nunca den saldos distintos del mismo paciente.
+  const esCobrable = window.esCobrable;
 
   function badgeComercial(budget) {
     if (!budget) return '';
@@ -72,9 +77,30 @@ document.addEventListener('DOMContentLoaded', function() {
     return getStatusBadgeHtml(budget.paymentStatus);
   }
 
+  // Estado de cobro que le corresponde a un presupuesto por sus abonos. Se usa
+  // al reactivar una cobranza suspendida, para no dejarla en 'pendiente'
+  // cuando ya tenía dinero abonado.
+  function estadoDeCobro(budget) {
+    const subtotal = (budget.treatments || []).reduce((acc, t) => acc + (t.price * t.qty), 0);
+    const total = subtotal * (1 - (budget.discount || 0) / 100);
+    const pagado = window.db.getPayments(budget.id).reduce((acc, p) => acc + (parseFloat(p.amount) || 0), 0);
+    const centavos = v => Math.round((Number(v) || 0) * 100);
+    if (centavos(pagado) >= centavos(total)) return 'pagado';
+    return pagado > 0 ? 'parcial' : 'pendiente';
+  }
+
   function motivoNoCobrable(budget) {
+    if (budget.paymentStatus === 'cancelado') {
+      return 'Esta cobranza fue cancelada: el presupuesto ya no genera saldo por cobrar ni admite abonos. Para reactivarla, vuelva a emitir el plan desde Presupuestos.';
+    }
+    if (budget.paymentStatus === 'suspendido') {
+      // El control de reactivación es el propio botón "Suspender" de esta
+      // ficha, que pasa a leer "Reactivar" cuando la cobranza está suspendida.
+      // Presupuestos no tiene ningún control de reactivación: solo pinta "—".
+      return 'La cobranza está suspendida temporalmente. Use el botón "Reactivar" de esta misma ficha para volver a registrar abonos.';
+    }
     if (budget.status === 'rejected') {
-      return 'El paciente rechazó este plan de tratamiento, así que no genera saldo por cobrar. Para reactivarlo, vuelva a emitirlo desde Presupuestos.';
+      return 'El paciente rechazó este presupuesto, así que no genera saldo por cobrar. Para reactivarlo, vuelva a emitirlo desde Presupuestos.';
     }
     return 'Este presupuesto sigue en borrador. Márquelo como aceptado en Presupuestos para poder registrar abonos.';
   }
@@ -107,7 +133,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const total = subtotal * (1 - (budget.discount || 0) / 100);
     const payments = window.db.getPayments(selectedBudgetId);
     const totalPaid = payments.reduce((acc, p) => acc + parseFloat(p.amount), 0);
-    const pending = total - totalPaid;
+    // Al centavo: la resta cruda puede dejar 1.8e-12 de saldo y el modal se
+    // abriría pidiendo un abono de L 0.00 que el propio campo rechaza.
+    const pending = Math.round((total - totalPaid) * 100) / 100;
 
     if (pending <= 0) {
       window.showToast('Este presupuesto ya se encuentra totalmente pagado.', 'warning');
@@ -117,8 +145,10 @@ document.addEventListener('DOMContentLoaded', function() {
     formReset();
     paymentBudgetIdInput.value = selectedBudgetId;
     modalPendingLabel.textContent = formatCurrency(pending);
-    paymentAmountInput.max = pending;
-    paymentAmountInput.value = pending; // Por defecto sugiere liquidar la deuda
+    // Con centavos: el saldo crudo puede traer cola binaria (5832.499999...) y
+    // el control `number` la rechazaría como valor fuera de paso.
+    paymentAmountInput.max = pending.toFixed(2);
+    paymentAmountInput.value = pending.toFixed(2); // Por defecto sugiere liquidar la deuda
     paymentDateInput.value = window.todayISO();
 
     paymentModal.classList.add('active');
@@ -151,9 +181,23 @@ document.addEventListener('DOMContentLoaded', function() {
     window.selectBudget(budgetId);
   });
 
-  // SUSPENDER PRESUPUESTO
+  // SUSPENDER / REACTIVAR PRESUPUESTO
+  // La suspensión es temporal por definición: el mismo botón la deshace. Sin
+  // esta vuelta, suspender dejaba la cobranza en un callejón sin salida porque
+  // ninguna otra pantalla devuelve el presupuesto a estado cobrable.
   btnSuspendBudget.addEventListener('click', async function() {
     if (!selectedBudgetId) return;
+    const budget = window.db.getBudgets().find(b => b.id === selectedBudgetId);
+    if (!budget) return;
+
+    if (budget.paymentStatus === 'suspendido') {
+      window.db.updateBudgetPaymentStatus(selectedBudgetId, estadoDeCobro(budget));
+      window.showToast('Cobranza reactivada: el presupuesto vuelve a admitir abonos.', 'success');
+      renderTable();
+      window.selectBudget(selectedBudgetId);
+      return;
+    }
+
     const confirmado = await window.confirmarAccion('¿Está seguro de que desea suspender la cobranza de este presupuesto?', { textoConfirmar: 'Suspender' });
     if (confirmado) {
       window.db.updateBudgetPaymentStatus(selectedBudgetId, 'suspendido');
@@ -211,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (payments.length === 0) {
       receiptTableBody.innerHTML = `
         <tr>
-          <td colspan="4" style="padding: 10px; text-align: center; color: var(--color-gray);">
+          <td colspan="4" style="padding: 10px; text-align: center; color: var(--doc-muted);">
             No registra abonos cargados.
           </td>
         </tr>
@@ -220,10 +264,10 @@ document.addEventListener('DOMContentLoaded', function() {
       payments.forEach(p => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${window.formatDateEs(p.date)}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${metodoEs(p.method)}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; color: var(--color-gray);">${window.escapeHtml(p.notes)}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 700;">${formatCurrency(p.amount)}</td>
+          <td style="padding: 10px; border-bottom: 1px solid var(--doc-line);">${window.formatDateEs(p.date)}</td>
+          <td style="padding: 10px; border-bottom: 1px solid var(--doc-line);">${metodoEs(p.method)}</td>
+          <td style="padding: 10px; border-bottom: 1px solid var(--doc-line); color: var(--doc-muted);">${window.escapeHtml(p.notes)}</td>
+          <td style="padding: 10px; border-bottom: 1px solid var(--doc-line); text-align: right; font-weight: 700;">${formatCurrency(p.amount)}</td>
         `;
         receiptTableBody.appendChild(tr);
       });
@@ -243,13 +287,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const budgets = window.db.getBudgets();
     tableBody.innerHTML = '';
 
-    const query = searchInput.value.toLowerCase().trim();
+    const query = window.normalizarBusqueda(searchInput.value).trim();
     const filter = statusFilter.value;
 
     const filtered = budgets.filter(b => {
       const patient = window.db.getPatient(b.patientId);
-      const patientName = patient ? patient.name.toLowerCase() : '';
-      const matchQuery = patientName.includes(query);
+      // Sin acentos: en recepción nadie teclea la tilde. Y también por folio,
+      // que es el dato que el paciente lee en voz alta desde su comprobante.
+      const matchQuery = window.normalizarBusqueda(patient ? patient.name : '').includes(query)
+        || window.normalizarBusqueda(window.folioPresupuesto(b)).includes(query);
       const matchFilter = filter === 'todos' || b.paymentStatus === filter;
       return matchQuery && matchFilter;
     });
@@ -282,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const badge = badgeComercial(b);
       const saldoCelda = cobrable
         ? `<td class="num" style="font-weight: 700; color: ${pending > 0 ? 'var(--color-red-text)' : 'var(--color-green-text)'};">${formatCurrency(pending)}</td>`
-        : '<td class="num cob-no-cobrable" title="Sin saldo por cobrar: el presupuesto no está aceptado.">—</td>';
+        : `<td class="num cob-no-cobrable" title="${window.escapeHtml(motivoNoCobrable(b))}">—</td>`;
 
       const tr = document.createElement('tr');
       // La fila completa abre la ficha; con tabindex y Enter/Espacio también
@@ -374,12 +420,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Sin presupuesto aceptado no hay nada que cobrar: se apagan los botones y
     // se explica por qué, en lugar de dejar acciones que fallarían al pulsar.
-    [btnConfirmPayment, btnSuspendBudget, btnCancelBudget].forEach(btn => {
+    const suspendido = budget.paymentStatus === 'suspendido';
+    [btnConfirmPayment, btnCancelBudget].forEach(btn => {
       if (!btn) return;
       btn.disabled = !cobrable;
       btn.style.opacity = cobrable ? '' : '0.45';
       btn.style.cursor = cobrable ? '' : 'not-allowed';
     });
+    if (btnSuspendBudget) {
+      // Suspender sigue disponible mientras se pueda cobrar, y también cuando
+      // ya está suspendido: ahí es el botón que reactiva.
+      const activoSuspension = cobrable || suspendido;
+      btnSuspendBudget.disabled = !activoSuspension;
+      btnSuspendBudget.style.opacity = activoSuspension ? '' : '0.45';
+      btnSuspendBudget.style.cursor = activoSuspension ? '' : 'not-allowed';
+      btnSuspendBudget.textContent = suspendido ? 'Reactivar' : 'Suspender';
+      btnSuspendBudget.title = suspendido
+        ? 'Devolver el presupuesto a estado cobrable.'
+        : 'Pausar la cobranza sin cancelar el presupuesto.';
+    }
     if (detailNote) {
       detailNote.textContent = cobrable ? '' : motivoNoCobrable(budget);
       detailNote.style.display = cobrable ? 'none' : 'block';

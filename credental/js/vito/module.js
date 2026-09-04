@@ -203,6 +203,10 @@
 
         budgets.forEach(function (b) {
           if (b.status && b.status !== 'accepted' && b.status !== 'aceptado') return;
+          // Una cobranza cancelada o suspendida en Cobranzas deja de ser deuda.
+          // Si Vito la siguiera contando, diría un número distinto del que la
+          // pantalla de Cobranzas tiene delante del usuario.
+          if (b.paymentStatus === 'cancelado' || b.paymentStatus === 'suspendido') return;
           const pid = b.patientId;
           if (!pid) return;
           const bal = Math.max(budgetTotal(b) - budgetPaid(b), 0);
@@ -210,23 +214,88 @@
           byPatient[pid] = (byPatient[pid] || 0) + bal;
         });
 
-        const owed = Object.keys(byPatient).map(function (pid) {
+        // El total se suma sobre TODOS los deudores, no sobre la lista
+        // recortada: rotular como «en total» la suma de los 15 primeros
+        // escondía la deuda del resto sin que nada lo delatara en pantalla.
+        const todos = Object.keys(byPatient).map(function (pid) {
           const p = global.db.getPatient(pid);
           return { id: pid, name: patientName(p), balance: byPatient[pid] };
-        }).sort(function (a, b) { return b.balance - a.balance; }).slice(0, limit);
+        }).sort(function (a, b) { return b.balance - a.balance; });
+
+        const totalDeuda = todos.reduce(function (acc, p) { return acc + p.balance; }, 0);
+        const owed = todos.slice(0, limit);
 
         const lines = owed.map(function (p, i) {
           return (i + 1) + '. ' + p.name + ' · saldo ' + money(p.balance);
         });
-        const totalDeuda = owed.reduce(function (acc, p) { return acc + p.balance; }, 0);
-        const summary = owed.length
-          ? 'Hay ' + owed.length + (owed.length === 1 ? ' paciente con saldo pendiente' : ' pacientes con saldo pendiente') +
-            ' por ' + money(totalDeuda) + ' en total:\n' + lines.join('\n')
+        const summary = todos.length
+          ? 'Hay ' + todos.length + (todos.length === 1 ? ' paciente con saldo pendiente' : ' pacientes con saldo pendiente') +
+            ' por ' + money(totalDeuda) + ' en total' +
+            (todos.length > owed.length ? '. Los ' + owed.length + ' mayores:\n' : ':\n') + lines.join('\n')
           : 'Ningún presupuesto aceptado tiene saldo pendiente: la cobranza está al día.';
-        return resultOK(summary, { count: owed.length, patients: owed }, {
+        return resultOK(summary, { count: todos.length, total: totalDeuda, patients: owed }, {
           source: 'credental.budgets.balance',
           label: 'Cobranzas · saldos',
-          detail: owed.length + (owed.length === 1 ? ' paciente' : ' pacientes')
+          detail: todos.length + (todos.length === 1 ? ' paciente' : ' pacientes')
+        });
+      }
+    },
+
+    // Cobros del día, no «Facturación». Facturación guarda sus documentos en
+    // localStorage bajo credental_docs_*, fuera de window.db: Vito no ve folios
+    // CAI ni documentos fiscales, y la respuesta lo dice en voz alta en lugar
+    // de prometer un dato que no puede consultar. La fuente es la misma que usa
+    // Caja: abonos de Cobranzas cruzados con presupuestos para el nombre.
+    daily_income: {
+      name: 'daily_income',
+      description: 'Cobros registrados en una fecha (abonos de Cobranzas). No incluye documentos fiscales.',
+      read_only: true,
+      label: 'Cobros del día',
+      capability_id: 'credental.billing.daily_income',
+      run: function (args) {
+        const day = (args && args.date) || todayISO();
+        const budgets = (global.db && global.db.getBudgets) ? global.db.getBudgets() : [];
+        const porId = Object.create(null);
+        budgets.forEach(function (b) { porId[b.id] = b; });
+
+        const metodo = function (m) {
+          const s = String(m || '').toLowerCase();
+          if (s.indexOf('tarjeta') !== -1 || s.indexOf('card') !== -1) return 'Tarjeta';
+          if (s.indexOf('transfer') !== -1) return 'Transferencia';
+          return 'Efectivo';
+        };
+
+        const pagos = ((global.db && global.db.getPayments) ? global.db.getPayments() : [])
+          .filter(function (p) { return porId[p.budgetId] && p.date === day; });
+
+        const porMetodo = { Efectivo: 0, Tarjeta: 0, Transferencia: 0 };
+        let total = 0;
+        pagos.forEach(function (p) {
+          const monto = parseFloat(p.amount) || 0;
+          total += monto;
+          porMetodo[metodo(p.method)] += monto;
+        });
+
+        const lineas = pagos.map(function (p) {
+          const b = porId[p.budgetId];
+          return '• ' + patientName(b ? global.db.getPatient(b.patientId) : null) +
+            ' · ' + money(p.amount) + ' · ' + metodo(p.method);
+        });
+
+        const summary = pagos.length
+          ? 'Cobros del ' + fechaEs(day) + ': ' + money(total) + ' en ' + pagos.length +
+            (pagos.length === 1 ? ' abono.' : ' abonos.') + '\n' +
+            'Efectivo ' + money(porMetodo.Efectivo) + ' · Tarjeta ' + money(porMetodo.Tarjeta) +
+            ' · Transferencia ' + money(porMetodo.Transferencia) + '\n' + lineas.join('\n') +
+            '\n\nEs lo que entró a caja, no los documentos fiscales emitidos: eso se consulta en Facturación.'
+          : 'No se registraron cobros el ' + fechaEs(day) + '.';
+
+        return resultOK(summary, {
+          date: day, count: pagos.length, total: total, by_method: porMetodo
+        }, {
+          source: 'credental.payments',
+          label: 'Caja · cobros del día',
+          detail: fechaCorta(day) + ' · ' + money(total)
         });
       }
     },
@@ -374,6 +443,12 @@
     const normalizar = function (v) {
       return String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     };
+    // Los nombres se guardan tal cual los teclea la recepción: un "(" o un "*"
+    // dentro del nombre haría explotar el RegExp de abajo y, como este barrido
+    // corre antes que el atajo de saludo, Vito dejaría de responder a todo.
+    const escaparRegex = function (t) {
+      return String(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    };
     let pacienteMencionado = pacientesDelExpediente.find(function (p) {
       const nombre = normalizar(patientName(p));
       if (lower.indexOf(nombre) !== -1) return true;
@@ -387,7 +462,7 @@
     if (!pacienteMencionado) {
       const candidatos = pacientesDelExpediente.filter(function (p) {
         return normalizar(patientName(p)).split(' ').some(function (t) {
-          return t.length > 3 && new RegExp('\\b' + t + '\\b').test(lower);
+          return t.length > 3 && new RegExp('\\b' + escaparRegex(t) + '\\b').test(lower);
         });
       });
       if (candidatos.length === 1) pacienteMencionado = candidatos[0];
@@ -430,9 +505,32 @@
     let toolName = null;
     let args = {};
 
-    if (pacienteMencionado && /paciente|expediente|resum|ficha|historia|quien es|saldo de|debe/.test(lower)) {
+    // Si la pregunta nombra a un paciente, la respuesta es sobre ESE paciente.
+    // Antes se exigía además una palabra de una lista corta, y «¿qué
+    // tratamientos tiene pendientes Lucía?» caía en la rama de saldos: se
+    // preguntaba por una paciente y se exponía el saldo de las otras cinco.
+    if (pacienteMencionado && /paciente|expediente|resum|ficha|historia|quien es|saldo de|debe|tratamiento|cita/.test(lower)) {
       toolName = 'patient_summary';
       args = { query: patientName(pacienteMencionado) };
+    // El dinero va antes que la agenda. Los tokens desnudos `hoy` y `manana`
+    // de la rama de citas secuestraban «¿cuánto cobramos hoy?»; quitarlos de
+    // allí rompería «¿qué tengo hoy?», así que se resuelve por orden.
+    } else if (/\bfactur|\bingres|cobramos|cobrado|\bcobro\b|recaud|entro en caja|caja del dia/.test(lower)) {
+      const dia = fechaPedida(lower);
+      // Los cobros se consultan por día. Si la pregunta pide un mes, una
+      // semana o un año y no nombra ninguna fecha concreta, se dice el límite
+      // en vez de contestar por hoy: sustituir el periodo en silencio es
+      // responder con seguridad una pregunta que nadie hizo.
+      if (!dia && /\bmes\b|\bmeses\b|mensual|\bsemana|semanal|\bano\b|\banual|quincen|trimestr|acumulad|historic/.test(lower)) {
+        return {
+          reply: 'Puedo consultar los cobros de un día concreto, no de un periodo completo. ' +
+            'Pregúntame por ejemplo «¿cuánto cobramos hoy?» o «¿cuánto se cobró el 25 de agosto?». ' +
+            'El acumulado del mes está en Reportes.',
+          citations: [], tool_calls: [], mock: true, hybrid: 'local'
+        };
+      }
+      toolName = 'daily_income';
+      args = { date: dia || todayISO() };
     } else if (/saldo|pendiente|debe|cobranz|cobrar|mora|deuda/.test(lower)) {
       toolName = 'list_patients_balance';
     } else if (/cita|agenda|consulta de|manana|hoy|programad/.test(lower)) {

@@ -4,7 +4,7 @@
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', function() {
-  let activeTreatmentsList = []; // Buffer de tratamientos agregados al presupuesto
+  let activeTreatmentsList = []; // Buffer de procedimientos agregados al presupuesto
   let currentPatientId = null;
 
   // Referencias DOM - Formulario
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const qty = parseInt(treatmentQty.value);
 
     if (!treatCode) {
-      window.showToast('Por favor, elija un tratamiento del catálogo.', 'warning');
+      window.showToast('Elija un procedimiento del catálogo.', 'warning');
       return;
     }
 
@@ -87,6 +87,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // Único lector del campo de descuento. `presupuestos.html` no tiene ningún
+  // <form>, así que `min`/`max` del input son decorativos: el navegador nunca
+  // los valida. La vista previa y el registro guardado tienen que salir del
+  // mismo número (con decimales) o el papel que firma el paciente dice un
+  // total y Cobranzas cobra otro.
+  function descuentoActual() {
+    const raw = parseFloat(discountInput.value);
+    return Number.isFinite(raw) ? Math.min(Math.max(raw, 0), 95) : 0;
+  }
+
   // --- 4. RECALCULAR DESCUENTOS AL DIGITAR ---
   discountInput.addEventListener('input', function() {
     calculateTotals();
@@ -111,7 +121,12 @@ document.addEventListener('DOMContentLoaded', function() {
   saveBudgetBtn.addEventListener('click', function() {
     const patientId = patientSelect.value;
     const dentistId = dentistSelect.value;
-    const discount = parseInt(discountInput.value) || 0;
+    const rawDiscount = parseFloat(discountInput.value);
+    if (Number.isFinite(rawDiscount) && (rawDiscount < 0 || rawDiscount > 95)) {
+      window.showToast('El descuento debe estar entre 0% y 95%.', 'warning');
+      return;
+    }
+    const discount = descuentoActual();
     const status = statusSelect.value;
 
     if (!patientId) {
@@ -123,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     if (activeTreatmentsList.length === 0) {
-      window.showToast('Agregue al menos un tratamiento al presupuesto.', 'warning');
+      window.showToast('Agregue al menos un procedimiento al presupuesto.', 'warning');
       return;
     }
 
@@ -243,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
       invTableBody.innerHTML = `
         <tr>
           <td colspan="4" style="text-align: center; color: var(--doc-muted); padding: 25px;">
-            Ningún tratamiento clínico cargado al listado.
+            Todavía no hay procedimientos en este presupuesto.
           </td>
         </tr>
       `;
@@ -273,16 +288,16 @@ document.addEventListener('DOMContentLoaded', function() {
     calculateTotals();
   }
 
-  // Eliminar un tratamiento del buffer
+  // Eliminar un procedimiento del buffer
   window.removeRow = function(index) {
     activeTreatmentsList.splice(index, 1);
-    window.showToast('Ítem removido', 'warning');
+    window.showToast('Procedimiento quitado del presupuesto.', 'warning');
     renderInvoiceTable();
   };
 
   function calculateTotals() {
     const subtotal = activeTreatmentsList.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const discountPct = parseFloat(discountInput.value) || 0;
+    const discountPct = descuentoActual();
     const discountVal = subtotal * (discountPct / 100);
     const grandTotal = subtotal - discountVal;
 
@@ -338,14 +353,29 @@ document.addEventListener('DOMContentLoaded', function() {
       const pagado = window.db.getPayments(b.id).reduce((s, p) => s + (p.amount || 0), 0);
       const saldo = Math.max(total - pagado, 0);
       const [cls, txt] = ESTADOS[b.status] || ['badge-pending', 'Borrador'];
+      // Un borrador o un rechazado no es cartera: el paciente no ha aceptado
+      // nada. Pintarles saldo en rojo con botón "Cobrar" inventaba cuentas por
+      // cobrar que no existen y contradecía al Dashboard y a Cobranzas, que
+      // solo suman los aceptados. El criterio es uno solo y vive en main.js
+      // (`window.esCobrable`), compartido con Cobranzas y Comunicaciones.
+      const cobrable = window.esCobrable(b);
+      const motivo = b.status === 'rejected' ? 'Presupuesto rechazado: no genera saldo por cobrar.'
+        : b.status !== 'accepted' ? 'Presupuesto en borrador: no genera saldo por cobrar hasta que el paciente lo acepte.'
+        : b.paymentStatus === 'cancelado' ? 'Cobranza cancelada: el presupuesto ya no genera saldo por cobrar.'
+        : 'Cobranza suspendida temporalmente.';
+      const celdaSaldo = cobrable
+        ? '<td class="num" style="font-weight:700;color:' + (saldo > 0 ? 'var(--color-red-text)' : 'var(--color-green-text)') + '">' + window.formatMoney(saldo) + '</td>'
+        : '<td class="num" style="color:var(--color-gray)" title="' + window.escapeHtml(motivo) + '">—</td>';
+      const celdaAccion = cobrable
+        ? '<td class="num"><a class="btn btn-secondary btn-sm" href="cobranzas.html">Cobrar</a></td>'
+        : '<td class="num"><span style="color:var(--color-gray)">—</span></td>';
       return '<tr>' +
         '<td><code class="tag">' + window.folioPresupuesto(b) + '</code></td>' +
         '<td>' + window.escapeHtml(paciente ? paciente.name : 'Paciente dado de baja') + '</td>' +
         '<td>' + window.formatDateEs(b.date) + '</td>' +
         '<td><span class="badge ' + cls + '">' + txt + '</span></td>' +
         '<td class="num">' + window.formatMoney(total) + '</td>' +
-        '<td class="num" style="font-weight:700;color:' + (saldo > 0 ? 'var(--color-red-text)' : 'var(--color-green-text)') + '">' + window.formatMoney(saldo) + '</td>' +
-        '<td class="num"><a class="btn btn-secondary btn-sm" href="cobranzas.html">Cobrar</a></td>' +
+        celdaSaldo + celdaAccion +
         '</tr>';
     }).join('');
   }
