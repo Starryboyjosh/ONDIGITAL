@@ -9,7 +9,8 @@ No se ejecuta como parte del pipeline de graphify: solo cuando se invoca.
 
 Uso:
     graphify3d [RUTA] [-o SALIDA.html] [--theme pulso|abismo|tinta]
-               [--view neural|galaxia|orbital|estratos|esfera]
+               [--view neural|galaxia|orbital|estratos|esfera|
+                       nebulosa|solar|quasar|anillos]
                [--max-nodes N] [--iters N] [--title TEXTO] [--open]
 
 RUTA acepta: graph.json, un directorio graphify-out/, o un repo que contenga
@@ -253,15 +254,49 @@ def fibonacci_sphere(count: int, seed: float = 0.0):
     return pts
 
 
+def connected_components(node_count: int, edges: list) -> list:
+    """BFS por componente conexa. Devuelve un id de componente por nodo,
+    ordenado por tamano descendente (0 = la componente gigante)."""
+    adj = [[] for _ in range(node_count)]
+    for s, t, _ in edges:
+        adj[s].append(t)
+        adj[t].append(s)
+    comp = [-1] * node_count
+    order = []
+    for start in range(node_count):
+        if comp[start] != -1:
+            continue
+        cid = len(order)
+        q = deque([start])
+        comp[start] = cid
+        size = 0
+        while q:
+            cur = q.popleft()
+            size += 1
+            for nxt in adj[cur]:
+                if comp[nxt] == -1:
+                    comp[nxt] = cid
+                    q.append(nxt)
+        order.append(size)
+    # Renumera por tamano descendente para que 0 sea siempre la gigante.
+    rank = {old: new for new, old in enumerate(sorted(range(len(order)), key=lambda i: -order[i]))}
+    return [rank[c] for c in comp], [order[old] for old in sorted(range(len(order)), key=lambda i: -order[i])]
+
+
 def layout_3d(node_count: int, edges: list, comms: list, degrees: list, iters: int, seed: int = 7,
-              *, kr: float = 0.002, gravity: float = 0.80, rest: float = 1.0, seat: float = 0.15,
-              sample: int = 128, speed: float = 0.10):
+              *, kr: float = 0.0026, gravity: float = 0.22, rest: float = 1.0, seat: float = 0.0,
+              sample: int = 128, speed: float = 0.10, satellite_gravity: float = 0.02):
     """Layout 3D estilo ForceAtlas2: atraccion lineal, repulsion ponderada por grado.
 
     La repulsion exacta es O(n^2) por iteracion; aqui cada nodo se repele contra
     una muestra aleatoria que cambia en cada paso y se reescala por n/muestra.
     Frente a Fruchterman-Reingold (atraccion cuadratica) esta ley deja los grupos
     abiertos en vez de colapsarlos en nudos, que es lo que hace legible el 3D.
+
+    Las componentes conexas que no son la gigante se siembran lejos del nucleo y
+    casi sin gravedad propia: quedan flotando como satelites aislados en vez de
+    colapsar al mismo centro que el resto, que es como luce un grafo real (varios
+    componentes sueltos) en el 2D de graphify.
     """
     try:
         import numpy as np
@@ -273,14 +308,37 @@ def layout_3d(node_count: int, edges: list, comms: list, degrees: list, iters: i
     cmap = {c: i for i, c in enumerate(uniq)}
     cidx = np.array([cmap[c] for c in comms], dtype=np.int64)
 
-    # Semilla: bola uniforme mas un desplazamiento leve por comunidad, para
-    # romper la simetria de forma determinista sin sembrar una cascara hueca.
+    comp, comp_sizes = connected_components(node_count, edges)
+    comp_arr = np.array(comp, dtype=np.int64)
+    n_comp = len(comp_sizes)
+    is_satellite = comp_arr != 0
+
+    # Semilla: la componente gigante en una bola uniforme al centro. Cada
+    # componente suelta recibe su propio ancla lejana (mas lejos cuanto mas
+    # chica) para que no se confunda con el nucleo desde el primer paso.
     dirs = rng.normal(size=(node_count, 3))
     dirs /= np.linalg.norm(dirs, axis=1, keepdims=True)
     pos = dirs * (rng.random((node_count, 1)) ** (1 / 3)) * 0.9
     pos += np.array(fibonacci_sphere(len(uniq)), dtype=np.float64)[cidx] * seat
 
+    if n_comp > 1:
+        # Direcciones al azar (no Fibonacci): con Fibonacci los satelites caen
+        # en un anillo perfecto y delatan el truco. La distancia depende del
+        # tamano: la componente suelta mas grande queda cerca, como un segundo
+        # nucleo; las minusculas (a veces un solo nodo) quedan mas lejos, como
+        # motas sueltas — igual que en el 2D real de graphify.
+        anchor_dirs = rng.normal(size=(n_comp - 1, 3))
+        anchor_dirs /= np.linalg.norm(anchor_dirs, axis=1, keepdims=True)
+        second_biggest = max(1, comp_sizes[1]) if n_comp > 1 else 1
+        anchors = np.zeros((n_comp, 3), dtype=np.float64)
+        for cid in range(1, n_comp):
+            size_norm = min(1.0, comp_sizes[cid] / second_biggest)
+            far = 1.15 + 0.75 * (1.0 - size_norm) + 0.15 * rng.random()
+            anchors[cid] = anchor_dirs[cid - 1] * far
+        pos += anchors[comp_arr]
+
     mass = np.asarray(degrees, dtype=np.float64) + 1.0
+    grav = np.where(is_satellite, satellite_gravity, gravity)
     if edges:
         src = np.array([e[0] for e in edges], dtype=np.int64)
         dst = np.array([e[1] for e in edges], dtype=np.int64)
@@ -308,7 +366,10 @@ def layout_3d(node_count: int, edges: list, comms: list, degrees: list, iters: i
             np.subtract.at(disp, src, pull)
             np.add.at(disp, dst, pull)
 
-        disp -= pos * (gravity * mass[:, None])
+        # Cada satelite gravita hacia su propia ancla, no hacia el origen: si
+        # no, en cuanto se enfria el sistema termina arrastrado al nucleo.
+        center = anchors[comp_arr] if n_comp > 1 else 0.0
+        disp -= (pos - center) * (grav[:, None] * mass[:, None])
 
         radius = float(np.sqrt(np.einsum("ij,ij->i", pos, pos)).mean()) + 1e-6
         cool = (1.0 - step / iters) ** 0.9 + 0.05
@@ -316,8 +377,12 @@ def layout_3d(node_count: int, edges: list, comms: list, degrees: list, iters: i
         cap = speed * radius * cool
         pos += disp / norm[:, None] * np.minimum(norm, cap)[:, None]
 
-    pos -= pos.mean(axis=0)
-    scale = float(np.percentile(np.linalg.norm(pos, axis=1), 97)) or 1.0
+    core_mask = comp_arr == 0
+    pos -= pos[core_mask].mean(axis=0)
+    # La escala sale solo del nucleo: si se calculara sobre todo (nucleo +
+    # satelites lejanos) los satelites lo dominarian y el nucleo encogeria a
+    # un punto cada vez que hay una componente suelta grande.
+    scale = float(np.percentile(np.linalg.norm(pos[core_mask], axis=1), 97)) or 1.0
     pos /= scale
     return [[round(float(v), 4) for v in p] for p in pos]
 
@@ -423,6 +488,7 @@ def build_payload(nodes, edges, adj, degrees, dropped, meta, iters, title):
         locs.append(str(nd.get("source_location") or ""))
 
     pos = layout_3d(n, edges, comms, degrees, iters)
+    comp, _comp_sizes = connected_components(n, edges)
 
     rels, rel_ix, e_rel, e_src, e_dst, e_conf = [], {}, [], [], [], []
     for s, t, e in edges:
@@ -458,7 +524,7 @@ def build_payload(nodes, edges, adj, degrees, dropped, meta, iters, title):
         },
         "nodes": {
             "id": ids, "label": labels, "file": node_file, "loc": locs,
-            "com": comms, "deg": degrees, "dep": depth,
+            "com": comms, "deg": degrees, "dep": depth, "cmp": comp,
             "lay": node_bucket, "typ": node_type,
             "pos": [v for p in pos for v in p],
         },
@@ -497,7 +563,8 @@ def render_html(payload: dict, theme: str, view: str, chrome: list, hint: bool) 
             .replace("/*VIEWER_JS*/", js))
 
 
-VIEW_KEYS = ["neural", "galaxia", "orbital", "estratos", "esfera"]
+VIEW_KEYS = ["neural", "galaxia", "orbital", "estratos", "esfera",
+             "nebulosa", "solar", "quasar", "anillos"]
 # Regiones de interfaz que pueden arrancar visibles. Vacio = solo la red.
 CHROME_KEYS = ["topbar", "controls", "legend", "stats", "info"]
 

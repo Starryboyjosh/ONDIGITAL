@@ -21,13 +21,15 @@ ops/subscriptions.json
 .DS_Store
 Thumbs.db
 
-# ── Graphify — caché y metadatos efímeros ────────────────────────────────────
-# Los reportes/grafos oficiales de graphify-out/ sí pueden versionarse; estas
-# salidas cambian por máquina y por versión de Graphify.
-graphify-out/cache/
-graphify-out/.graphify_labels.json
-graphify-out/.graphify_labels.json.sig
-graphify-out/manifest.json
+# ── Graphify — el grafo es un artefacto GENERADO, no se versiona ─────────────
+# `graph.json` y `graph.html` son archivos de una sola línea, así que cada
+# `graphify update` reescribe ~7 MB enteros y git guarda el blob completo: el
+# historial crecía esa cifra por corrida. A eso se suman los respaldos con
+# fecha que la propia herramienta deja en graphify-out/AAAA-MM-DD/.
+# Se regenera en cualquier clon con `graphify update .` y `graphify3d .`;
+# la configuración de la vista 3D sí se versiona (graphify3d.config.js).
+# Misma convención que el grafo de Holograma.
+graphify-out/
 
 # ── Artefactos efímeros de herramientas locales ──────────────────────────────
 # Salidas de corridas puntuales: cambian en cada ejecución y por máquina.

@@ -48,13 +48,37 @@ otras, `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`
 `DEEPSEEK_API_KEY`.
 
 Si no hay llave LLM disponible, ejecutar una corrida local de código usando la API de
-Graphify o limitar el alcance a carpetas de código. La corrida actual de `graphify-out/`
-fue generada con extracción AST local:
+Graphify o limitar el alcance a carpetas de código.
 
-- 507 nodos
-- 1,197 relaciones
-- 31 comunidades
-- 54 archivos de código
+### `graphify-out/` no viene en el clon
+
+El grafo es un **artefacto generado y no se versiona** (ver `.gitignore`). `graph.json`
+y `graph.html` son archivos de una sola línea: cada `graphify update` los reescribe
+enteros y git guardaría el blob completo, ~7 MB por corrida. En un clon nuevo hay que
+generarlo antes de usarlo:
+
+```bash
+graphify update .                        # re-extrae el código, sin costo de API
+graphify label . --backend=claude-cli    # nombra las comunidades (opcional)
+graphify3d .                             # capa visual 3D -> graphify-out/graph3d.html
+```
+
+Lo que sí se versiona es la **configuración**: `.graphifyignore` (qué queda fuera del
+grafo) y `graphify3d.config.js` (vista, tema y accesos rápidos de la capa 3D).
+
+### Qué queda fuera, y por qué
+
+`.graphifyignore` excluye código de terceros. No es cosmético: con `skills/vendor/` y
+`Pagina_Web_Original/vendor/three.min.js` dentro, el grafo tenía 10.228 nodos de los
+cuales 6.194 (60%) eran bundles minificados ajenos, y los diez god nodes salían con
+nombres como `vt`, `Lt`, `en` y `Wn`. El grafo describía a GreenSock y a three.js, no
+al producto. Excluidos, quedan 4.000 nodos y los god nodes son reales: `hoja_cobro.dart`,
+`handlers.js`, `Store`, `conductores_view.dart`.
+
+### Corrida actual
+
+- 4.000 nodos · 6.614 relaciones · 244 comunidades
+- Extracción AST local, comunidades nombradas con el backend `claude-cli`
 
 Para servir la vista visual y los artefactos:
 
@@ -67,6 +91,11 @@ Abrir:
 - `http://localhost:4173/design-system/graphify/`
 - `http://localhost:4173/graphify-out/graph.html`
 - `http://localhost:4173/graphify-out/GRAPH_TREE.html`
+
+La capa 3D (`graph3d.html` y las cinco `red-3d-*.html`) es autocontenida y se abre
+directamente con `file://`, sin servidor: no carga nada de la red. Las nueve vistas
+están dentro de cualquiera de ellas con las teclas `1`-`9`; los archivos sueltos solo
+fijan cuál abre primero.
 
 ## Limitaciones Actuales
 

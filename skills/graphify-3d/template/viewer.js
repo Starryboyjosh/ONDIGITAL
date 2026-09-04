@@ -40,11 +40,22 @@
     return [Math.cos(th) * r, y, Math.sin(th) * r];
   };
   const base = Float32Array.from(N.pos);
+  // cmp[i] agrupa nodos por componente conexa; 0 es siempre la gigante. Las
+  // demas son satelites sueltos que 'neural' siembra lejos del nucleo (ver
+  // graphify3d.py) — no deben contar para el radio de referencia de las
+  // otras vistas o cualquier componente suelta grande las infla y las hace
+  // ver artificialmente encogidas/con zoom.
+  const CMP = N.cmp || N.com.map(() => 0);
+  const isCore = (i) => CMP[i] === 0;
 
   const baseMeanR = (function () {
-    let m = 0;
-    for (let i = 0; i < COUNT; i++) m += Math.hypot(base[i * 3], base[i * 3 + 1], base[i * 3 + 2]);
-    return m / COUNT || 1;
+    let m = 0, cnt = 0;
+    for (let i = 0; i < COUNT; i++) {
+      if (!isCore(i)) continue;
+      m += Math.hypot(base[i * 3], base[i * 3 + 1], base[i * 3 + 2]);
+      cnt++;
+    }
+    return (m / (cnt || COUNT)) || 1;
   })();
 
   // Todas las vistas se normalizan al mismo radio que 'neural' (p97 = 1), asi
@@ -150,12 +161,183 @@
     return normalizeView(out);
   }
 
+  /* ---------- utilidades para las vistas nuevas ---------- */
+  // Vecinos por id de nodo (no por indice de arista): BFS propio, sin
+  // depender de la profundidad multi-fuente que ya trae N.dep.
+  const nbrs = Array.from({ length: COUNT }, () => []);
+  for (let i = 0; i < ECOUNT; i++) { nbrs[E.s[i]].push(E.t[i]); nbrs[E.t[i]].push(E.s[i]); }
+
+  function bfsFrom(sources) {
+    const d = new Int32Array(COUNT).fill(-1);
+    const q = [];
+    sources.forEach((s) => { if (d[s] === -1) { d[s] = 0; q.push(s); } });
+    let head = 0;
+    while (head < q.length) {
+      const cur = q[head++];
+      for (const nx of nbrs[cur]) if (d[nx] === -1) { d[nx] = d[cur] + 1; q.push(nx); }
+    }
+    return d;
+  }
+
+  // BFS multi-fuente que ademas recuerda cual fuente llego primero a cada
+  // nodo (su "dueno"). Los nodos nunca alcanzados (componentes sueltas,
+  // fuera de la gigante) quedan con owner -1.
+  function bfsOwners(sources) {
+    const d = new Int32Array(COUNT).fill(-1);
+    const owner = new Int32Array(COUNT).fill(-1);
+    const q = [];
+    sources.forEach((s, si) => { if (d[s] === -1) { d[s] = 0; owner[s] = si; q.push(s); } });
+    let head = 0;
+    while (head < q.length) {
+      const cur = q[head++];
+      for (const nx of nbrs[cur]) if (d[nx] === -1) { d[nx] = d[cur] + 1; owner[nx] = owner[cur]; q.push(nx); }
+    }
+    return { d, owner };
+  }
+
+  // Angulo aureo: separa sectores consecutivos sin que dos comunidades
+  // cercanas en id caigan en angulos vecinos (mismo truco que la paleta).
+  const GOLDEN_ANGLE = 2.399963229728653;
+
+  // Hash determinista [0,1) por entero: mismo layout en cada carga, sin
+  // depender de Math.random. Constantes clasicas de hash de una pasada.
+  function hash01(i) {
+    const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453123;
+    return x - Math.floor(x);
+  }
+
+  // Ruido de valor barato (3 senos cruzados): sin octavas, solo para
+  // deshilachar 'nebulosa' sin meter una libreria de ruido.
+  function noise3(x, y, z) {
+    return (Math.sin(x * 3.7 + y * 1.3 - z * 2.1) +
+            Math.sin(y * 4.1 - z * 2.7 + x * 0.9) +
+            Math.sin(z * 3.3 + x * 2.5 + y * 1.7)) / 3;
+  }
+
+  function viewNebulosa() {
+    // Parte de 'neural' y la deshilacha con ruido: el nucleo (muy conectado)
+    // casi no se mueve, y las hojas sueltas se difuminan como niebla — mas
+    // turbulencia cuanto mas lejos del centro, para que el borde se vea
+    // vaporoso en vez de recortado.
+    const out = new Float32Array(COUNT * 3);
+    for (let i = 0; i < COUNT; i++) {
+      const bx = base[i * 3], by = base[i * 3 + 1], bz = base[i * 3 + 2];
+      const r = Math.hypot(bx, by, bz);
+      const amp = 0.09 + 0.40 * Math.min(1, r / 1.35);
+      const anchor = 1 / (1 + N.deg[i] * 0.06);
+      const nx = noise3(bx * 2.3, by * 2.3 + 11.1, bz * 2.3 - 7.7);
+      const ny = noise3(bx * 2.3 + 5.5, by * 2.3, bz * 2.3 + 3.3);
+      const nz = noise3(bx * 2.3 - 3.1, by * 2.3 + 9.9, bz * 2.3);
+      out[i * 3] = bx + nx * amp * anchor;
+      out[i * 3 + 1] = by + ny * amp * anchor;
+      out[i * 3 + 2] = bz + nz * amp * anchor;
+    }
+    return normalizeView(out);
+  }
+
+  function viewSolar() {
+    // Un solo sol (el nodo con mas relaciones de todos). Orbitas concentricas
+    // aplanadas en disco; cada comunidad ocupa su propio sector angular, como
+    // familias de asteroides que comparten resonancia orbital. Lo que el sol
+    // no alcanza por BFS (fuera de la componente gigante) cae en el borde,
+    // como objetos interestelares.
+    const sun = GRAPH.god[0] ?? 0;
+    const dSun = bfsFrom([sun]);
+    let maxRing = 1;
+    for (let i = 0; i < COUNT; i++) if (dSun[i] > maxRing) maxRing = dSun[i];
+    const outerRing = maxRing + 1;
+    const out = new Float32Array(COUNT * 3);
+    for (let i = 0; i < COUNT; i++) {
+      if (i === sun) { out[i * 3] = out[i * 3 + 1] = out[i * 3 + 2] = 0; continue; }
+      const ring = dSun[i] === -1 ? outerRing : dSun[i];
+      const r = 0.20 + 1.70 * Math.pow(ring / outerRing, 0.72);
+      const sector = (N.com[i] * GOLDEN_ANGLE) % (Math.PI * 2);
+      const ang = sector + (hash01(i * 3 + 1) - 0.5) * 1.05;
+      const rj = r * (1 + (hash01(i * 7 + 3) - 0.5) * 0.14);
+      const incl = (hash01(i * 11 + 5) - 0.5) * 0.34;
+      out[i * 3] = Math.cos(ang) * rj;
+      out[i * 3 + 1] = incl * rj;
+      out[i * 3 + 2] = Math.sin(ang) * rj;
+    }
+    return normalizeView(out);
+  }
+
+  function viewQuasar() {
+    // Nucleo compacto (los god nodes, casi pegados al origen) que se abre en
+    // dos chorros opuestos. Cada comunidad se va entera a un solo lado (no se
+    // reparte) para que el chorro lea como abanicos de color, no ruido.
+    const core = new Set(GRAPH.god.slice(0, Math.min(3, GRAPH.god.length)));
+    const dCore = bfsFrom([...core]);
+    let maxT = 1;
+    for (let i = 0; i < COUNT; i++) if (dCore[i] > maxT) maxT = dCore[i];
+    const outerT = maxT + 1;
+    const commSide = new Map();
+    const out = new Float32Array(COUNT * 3);
+    for (let i = 0; i < COUNT; i++) {
+      if (core.has(i)) {
+        const ang = hash01(i * 13) * Math.PI * 2, rr = 0.02 * hash01(i * 17 + 2);
+        out[i * 3] = Math.cos(ang) * rr; out[i * 3 + 1] = Math.sin(ang * 1.7) * rr; out[i * 3 + 2] = Math.sin(ang) * rr;
+        continue;
+      }
+      const c = N.com[i];
+      if (!commSide.has(c)) commSide.set(c, hash01(c * 7.13 + 1) < 0.5 ? -1 : 1);
+      const side = commSide.get(c);
+      const t = (dCore[i] === -1 ? outerT : dCore[i]) / outerT;
+      const z = side * (0.10 + 1.95 * Math.pow(t, 0.82));
+      const spread = 0.03 + 1.30 * Math.pow(t, 1.35);
+      const sector = (c * GOLDEN_ANGLE) % (Math.PI * 2);
+      const ang = sector + (hash01(i * 5 + 9) - 0.5) * 0.9;
+      out[i * 3] = Math.cos(ang) * spread;
+      out[i * 3 + 1] = Math.sin(ang) * spread;
+      out[i * 3 + 2] = z;
+    }
+    return normalizeView(out);
+  }
+
+  function viewAnillos() {
+    // Varios centros (los god nodes) bien separados en el espacio, cada uno
+    // con sus propios anillos concentricos de vecinos por BFS. Las aristas
+    // reales que cruzan de un centro a otro son las 'conexiones largas' entre
+    // formaciones — no hace falta dibujarlas aparte, ya estan en el grafo.
+    const K = Math.min(GRAPH.god.length, 12);
+    const centers = GRAPH.god.slice(0, K);
+    const { d: distO, owner } = bfsOwners(centers);
+    const anchors = [];
+    for (let k = 0; k < K; k++) {
+      const u = fib(K, k);
+      anchors.push([u[0] * 1.85, u[1] * 1.85, u[2] * 1.85]);
+    }
+    const out = new Float32Array(COUNT * 3);
+    for (let i = 0; i < COUNT; i++) {
+      if (owner[i] === -1) {
+        // Fuera de toda componente alcanzada por los centros: son las
+        // mismas componentes sueltas que 'neural' ya siembra lejos del
+        // nucleo: se reutiliza esa posicion en vez de inventar una nueva.
+        out[i * 3] = base[i * 3]; out[i * 3 + 1] = base[i * 3 + 1]; out[i * 3 + 2] = base[i * 3 + 2];
+        continue;
+      }
+      const a = anchors[owner[i]];
+      if (distO[i] === 0) { out[i * 3] = a[0]; out[i * 3 + 1] = a[1]; out[i * 3 + 2] = a[2]; continue; }
+      const ringR = 0.16 + 0.22 * distO[i];
+      const ang = hash01(i * 5 + distO[i] * 31) * Math.PI * 2;
+      const thick = (hash01(i * 9 + 2) - 0.5) * 0.05;
+      out[i * 3] = a[0] + Math.cos(ang) * ringR;
+      out[i * 3 + 1] = a[1] + thick;
+      out[i * 3 + 2] = a[2] + Math.sin(ang) * ringR;
+    }
+    return normalizeView(out);
+  }
+
   const VIEWS = [
     { key: "neural", name: "Red neuronal", desc: "Disposicion por fuerzas: la forma la dicta la conectividad real.", pos: base },
     { key: "galaxia", name: "Galaxia", desc: "Cada comunidad se separa en su propio lobulo.", pos: viewGalaxia() },
     { key: "orbital", name: "Orbital", desc: "Capas concentricas por distancia a los nodos dios.", pos: viewOrbital() },
     { key: "estratos", name: "Estratos", desc: "Planos apilados por carpeta raiz del repositorio.", pos: viewEstratos() },
     { key: "esfera", name: "Esfera", desc: "Todo en la superficie; las aristas cruzan por dentro.", pos: viewEsfera() },
+    { key: "nebulosa", name: "Nebulosa", desc: "La red se deshilacha en niebla: el nucleo aguanta, las hojas se difuminan.", pos: viewNebulosa() },
+    { key: "solar", name: "Sistema solar", desc: "Un sol central y orbitas concentricas en disco, por comunidad.", pos: viewSolar() },
+    { key: "quasar", name: "Quasar", desc: "Nucleo compacto que se despliega en dos chorros opuestos por comunidad.", pos: viewQuasar() },
+    { key: "anillos", name: "Anillos", desc: "Varios centros con sus propios anillos, unidos por conexiones largas.", pos: viewAnillos() },
   ];
 
   /* ---------- nacimiento (animacion de crecimiento) ---------- */

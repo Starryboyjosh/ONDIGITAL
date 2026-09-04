@@ -1,0 +1,22 @@
+# .graphifyignore — que NO entra al grafo de conocimiento de ONDIGITAL.
+#
+# El grafo existe para responder "como funciona ONDIGITAL". Codigo de terceros
+# que solo vive aqui porque lo vendorea una skill responde otra pregunta.
+#
+# Medido antes de escribir esto: skills/vendor/ aportaba 4.702 de los 10.228
+# nodos (46%), y sus bundles minificados copaban los diez god nodes con nombres
+# como `vt`, `Lt`, `en` y `Wn`. Credental entero son 262 nodos. El grafo
+# describia a GreenSock y a impeccable, no al producto.
+skills/vendor/
+
+# three.js minificado: 1.492 nodos en un solo archivo (27% del grafo ya podado)
+# y dueno de cinco de los seis god nodes — `vt`, `copy()`, `Lt`, `en`, `Wn`.
+# Es la libreria que dibuja el WebGL de la landing, no codigo de ONDIGITAL.
+Pagina_Web_Original/vendor/three.min.js
+
+# Configuracion del asistente de codigo: describe como se trabaja el repo, no
+# el repo. Son 33 nodos de cadenas de permisos que ensuciaban la leyenda.
+.claude/
+
+# Salida del propio grafo: incluirla lo hace hablar de si mismo.
+graphify-out/

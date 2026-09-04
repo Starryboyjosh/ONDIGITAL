@@ -7,7 +7,8 @@
 // El objeto de abajo debe ser JSON valido: se extrae y se parsea, no se evalua.
 
 export default {
-  // neural · galaxia · orbital · estratos · esfera
+  // neural · galaxia · orbital · estratos · esfera ·
+  // nebulosa · solar · quasar · anillos
   "view": "neural",
 
   // noche · abismo · pulso · tinta

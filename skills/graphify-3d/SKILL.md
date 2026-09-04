@@ -1,6 +1,6 @@
 ---
 name: graphify-3d
-description: "Use ONLY when explicitly asked for a 3D, visual, cinematic or presentation-grade view of a graphify knowledge graph (\"vista 3D\", \"algo mas visual\", \"para presentar\", \"como Obsidian\"). Renders graphify-out/graph.json as a self-contained offline WebGL2 neural-network visualization with five view modes. Never run this automatically after /graphify — it is on-request only."
+description: "Use ONLY when explicitly asked for a 3D, visual, cinematic or presentation-grade view of a graphify knowledge graph (\"vista 3D\", \"algo mas visual\", \"para presentar\", \"como Obsidian\"). Renders graphify-out/graph.json as a self-contained offline WebGL2 neural-network visualization with nine view modes (neural, galaxia, orbital, estratos, esfera, nebulosa, solar, quasar, anillos). Never run this automatically after /graphify — it is on-request only."
 ---
 
 # /graphify-3d
@@ -25,7 +25,7 @@ Solo cuando la piden. Disparadores tipicos: "una vista 3D", "algo mas visual",
 ```bash
 graphify3d .                                  # usa ./graphify-out/graph.json
 graphify3d ruta/al/repo -o red.html --open
-graphify3d . --view galaxia --theme tinta     # anula el config.js
+graphify3d . --view quasar --theme tinta      # anula el config.js
 ```
 
 Si no hay grafo, avisa y pide correr `/graphify .` primero.
@@ -44,7 +44,8 @@ debe ser JSON valido: se extrae y se parsea, **no se evalua**.
 
 ```js
 export default {
-  "view": "neural",          // neural · galaxia · orbital · estratos · esfera
+  "view": "neural",          // neural · galaxia · orbital · estratos · esfera ·
+                              // nebulosa · solar · quasar · anillos
   "theme": "noche",          // noche · abismo · pulso · tinta
   "chrome": [],              // vacio = solo la red; ver "Arranca limpio"
   "hint": true,              // aviso "? teclas" al abrir
@@ -66,7 +67,7 @@ relaciones, con su vecindario.
 |---|---|---|
 | `RUTA` | `.` | `graph.json`, una carpeta `graphify-out/`, o un repo que la contenga |
 | `-o, --output` | `<repo>/graphify-out/red-3d.html` | archivo de salida |
-| `--view` | del config | `neural`, `galaxia`, `orbital`, `estratos`, `esfera` |
+| `--view` | del config | `neural`, `galaxia`, `orbital`, `estratos`, `esfera`, `nebulosa`, `solar`, `quasar`, `anillos` |
 | `--theme` | del config | `noche` (negro azulado), `abismo` (negro), `pulso` (verdigris), `tinta` (violeta) |
 | `--config` | ver arriba | ruta a un `graphify3d.config.js` |
 | `--chrome` | vacio | regiones visibles al abrir, separadas por comas |
@@ -76,15 +77,26 @@ relaciones, con su vecindario.
 | `--title` | nombre del repo | titulo del encabezado |
 | `--open` | — | abre el resultado en el navegador |
 
-## Las cinco vistas
+## Las nueve vistas
 
-- **Red neuronal** — disposicion por fuerzas. La forma la dicta la conectividad real.
+- **Red neuronal** — disposicion por fuerzas. La forma la dicta la conectividad real:
+  nucleo denso con las componentes conexas sueltas (tests aislados, scripts sin
+  importar) flotando aparte, como satelites — igual que en el 2D de graphify.
 - **Galaxia** — cada comunidad se separa en su propio lobulo.
 - **Orbital** — capas concentricas por distancia a los nodos dios.
 - **Estratos** — planos apilados por carpeta raiz.
 - **Esfera** — todo en la superficie; las aristas cruzan por dentro.
+- **Nebulosa** — la red neuronal deshilachada con ruido: el nucleo muy conectado
+  apenas se mueve, las hojas sueltas se difuminan como niebla.
+- **Sistema solar** — un solo sol (el nodo con mas relaciones de todos) y
+  orbitas concentricas aplanadas en disco; cada comunidad ocupa su sector.
+- **Quasar** — nucleo compacto (los god nodes) que se abre en dos chorros
+  opuestos; cada comunidad se va entera a un lado, como abanicos de color.
+- **Anillos** — varios centros (los god nodes) bien separados, cada uno con
+  sus propios anillos concentricos; las aristas reales que cruzan de un
+  centro a otro leen como las "conexiones largas" entre formaciones.
 
-La vista se fija en el config; no hay selector en pantalla. Las teclas `1`-`5`
+La vista se fija en el config; no hay selector en pantalla. Las teclas `1`-`9`
 siguen cambiandola para explorar, con un morph interpolado, no un salto.
 
 ## Arranca limpio
@@ -142,8 +154,18 @@ Girar, Tabla y PNG no tienen boton a proposito. Siguen accesibles por teclado.
 - **La confianza va en el trazo, no en el color.** Relacion inferida = punteada.
 - **La mezcla aditiva evita ordenar por profundidad.** Por eso no hay z-sort ni
   depth test: el resultado es independiente del orden de dibujado.
-- **El layout se normaliza por radio medio** en las cinco vistas, para que la
-  camara encuadre igual al morfear.
+- **El layout se normaliza por radio medio** en las nueve vistas, para que la
+  camara encuadre igual al morfear. Ese radio de referencia (`baseMeanR` en
+  viewer.js, `scale` en `layout_3d`) se calcula **solo con la componente
+  gigante** (`N.cmp[i] === 0`): si se calculara con todo, una componente suelta
+  grande infla la media y el nucleo se ve encogido cada vez que hay una.
+- **Las componentes conexas sueltas (`connected_components` en graphify3d.py)
+  se siembran lejos del nucleo y casi sin gravedad propia** en `neural`. Es a
+  proposito: el 2D de graphify real tiene decenas de componentes sueltas
+  (tests huerfanos, scripts sin importar) dispersas como motas — sin esto la
+  vista 3D era una bola perfecta y no se parecia. `anillos` reutiliza esas
+  mismas posiciones para sus nodos sin dueno en vez de inventar una zona
+  aparte.
 
 ## Archivos
 
