@@ -44,3 +44,11 @@ firestore-debug.log
 database-debug.log
 ui-debug.log
 pubsub-debug.log
+
+# ── Entregables académicos y bitácoras de sesión ─────────────────────────────
+# `informe/` son 13 MB de binarios (docx, pdf, fotos de la encuesta de campo).
+# Se conservan en disco; no entran al historial de git, que no los olvida.
+informe/
+# Bitácora viva de una sesión de trabajo: se escribe durante el pase y se borra
+# al cerrarlo. Lo que merece perdurar se archiva en `docs/`.
+PLAN.md
