@@ -21,7 +21,10 @@
   --surface-soft: rgba(255, 255, 255, 0.03);
   --fg: #F2EFE4;              /* pergamino */
   --muted: rgba(214, 208, 190, 0.68);
-  --soft: rgba(200, 190, 165, 0.45);
+  /* 0.45 sobre (200,190,165) componía a 2.84:1 contra --bg: por debajo de AA
+     para las etiquetas de dato que lo usan. 0.62 sobre (214,208,190) da 5.15:1.
+     Espejado en Pagina_Web_Original/styles.css en el mismo cambio. */
+  --soft: rgba(214, 208, 190, 0.62);
   --border: rgba(216, 162, 74, 0.16);
   --border-strong: rgba(216, 162, 74, 0.32);
   --accent: #D8A24A;          /* latón */
