@@ -22,7 +22,19 @@ export async function render(page) {
   try {
     status = await api.get('/api/vito/status');
   } catch (err) {
-    status = { assistant: 'Vito', enabled: false, ready: false, message: err.message };
+    // `message` se imprime tal cual en la pantalla, así que aquí NO va el error
+    // del transporte: api.js devuelve cosas como "Error 404" y al usuario se le
+    // estaba explicando la ausencia de Vito con un código HTTP. El detalle
+    // técnico va a la consola, que es donde sirve.
+    console.error('OnStock · Vito: no se pudo leer el estado del asistente.', err);
+    status = {
+      assistant: 'Vito',
+      enabled: false,
+      ready: false,
+      message: 'Vito no está disponible en este equipo. Es una función opcional: '
+        + 'el resto de OnStock funciona igual sin él. Si debería estar activo, '
+        + 'avise al encargado del sistema.',
+    };
   }
 
   const enabled = !!(status && status.enabled && status.ready);

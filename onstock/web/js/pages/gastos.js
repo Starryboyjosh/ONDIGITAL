@@ -3,10 +3,13 @@ import { api } from '../api.js';
 import {
   $, esc, money, fmtDate, icons, toast, toastErr,
   openModal, confirmDialog, expenseCatBadge, debounce, today, firstOfMonth,
+  avisoTope, limiteParam,
 } from '../ui.js';
 
 let suppliers = [];
 let filters = { q: '', category: '', from: firstOfMonth(), to: today() };
+// verTodo: false mientras se acepta el tope de 500 filas del servidor.
+let verTodo = false;
 
 const CATS = [
   ['ventas', 'Gastos de venta'],
@@ -16,6 +19,7 @@ const CATS = [
 ];
 
 export async function render(page) {
+  verTodo = false;
   suppliers = await api.get('/api/suppliers');
 
   page.innerHTML = `
@@ -43,6 +47,7 @@ export async function render(page) {
         <div class="spacer"></div>
         <div id="total" class="muted" style="font-size:13px"></div>
       </div>
+      <div id="tope"></div>
       <div id="exp-table"></div>
     </div>`;
 
@@ -63,14 +68,23 @@ async function loadTable(page) {
   if (filters.from) p.set('from', filters.from);
   if (filters.to) p.set('to', filters.to);
 
+  const lim = limiteParam(verTodo);
+  if (lim) p.set('limit', lim);
+
   let list;
   try {
     list = await api.get('/api/expenses?' + p.toString());
   } catch (err) { toastErr(err); return; }
 
+  const recortada = avisoTope($('#tope', page), list.length, verTodo, () => {
+    verTodo = true;
+    loadTable(page);
+  });
+
   const total = list.reduce((a, e) => a + e.amount, 0);
   $('#total', page).innerHTML =
-    `${list.length} gasto${list.length === 1 ? '' : 's'} · Total: <b>${money(total)}</b>`;
+    `${list.length} gasto${list.length === 1 ? '' : 's'}${recortada ? ' (lista recortada)' : ''}`
+    + ` · Total: <b>${money(total)}</b>`;
 
   if (!list.length) {
     root.innerHTML = '<div class="empty-state"><b>Sin gastos en este período</b>Registra alquiler, planillas, energía, etc.</div>';

@@ -2,8 +2,27 @@
 
 Sistema de inventario, ventas y reportes para tiendas y microempresas en Honduras.
 Es parte de la línea **Micro-Empresa** de ONDIGITAL y funciona como mini-ERP local:
-un solo ejecutable incluye el servidor, la base de datos SQLite y la interfaz web.
+incluye el servidor, la base de datos SQLite y la interfaz web.
 No necesita internet ni instalación.
+
+> ## Cuál implementación corre
+>
+> **La que corre es la de Node: `server/`.** Es Node 24 sobre `node:sqlite` de la
+> biblioteca estándar, con **cero dependencias npm** (no hay `node_modules`, no
+> hay `npm install`). Se arranca con `make dev`.
+>
+> El código en Go (`main.go` e `internal/`) **se conserva como implementación de
+> referencia**: es la traducción original y sirve para contrastar la lógica de
+> negocio línea por línea. No se compila en el flujo normal y sus objetivos del
+> Makefile llevan el sufijo `-go`.
+>
+> Además del idioma, el cambio de fondo es que `main.go` incrustaba `web/` con
+> `go:embed`, así que cualquier retoque de CSS o de JS obligaba a recompilar el
+> binario para verlo. El servidor de Node **sirve `web/` desde disco**: se guarda
+> el archivo, se recarga el navegador y ya está.
+>
+> `legacy/` es una versión de Node anterior y sin relación con esta; sigue siendo
+> borrable.
 
 ## Funciones
 
@@ -27,6 +46,12 @@ No necesita internet ni instalación.
 
 ## Despliegue en la tienda (Windows)
 
+> Este flujo describe el ejecutable único que produce la versión Go
+> (`make build`), y sigue siendo el objetivo para la tienda. Con la
+> implementación de Node el despliegue equivalente es copiar la carpeta del
+> proyecto e instalar Node 22.5+ en la PC; el `.exe` de una sola pieza aún no
+> está resuelto para esta versión.
+
 1. Copia `dist/onstock.exe` a la PC (ej. `C:\OnStock\`).
 2. Doble clic. Se abre una ventana negra (el servidor) y el navegador con el sistema.
    - La primera vez se crea la carpeta `data\` junto al `.exe` con la base de datos.
@@ -46,24 +71,39 @@ El valor predeterminado es `127.0.0.1`, adecuado para una sola PC.
 
 ## Desarrollo (Linux)
 
-Requisitos: Go 1.22+ (sin CGO, sin Node, sin dependencias nativas).
+Requisitos: **Node 22.5+** (probado en 24). Nada más: sin npm, sin dependencias
+nativas, sin paso de compilación.
 
 ```bash
 make admin            # sistema completo (oficina) → http://localhost:8080
 make dev              # alias de make admin
 make caja             # SOLO registradora (PC cajero) → http://localhost:8081/caja.html
 # En el PC del cajero de la tienda: make caja PORT=8080
-make test             # go vet + tests + build
+make test             # pruebas del servidor (node:test)
 make seed-demo        # datos demostrativos (falla si ya hay productos)
 make seed-demo-force  # reemplaza con el set demo (Abarrotes El Progreso)
-make build            # genera dist/onstock.exe (Windows) y dist/onstock-linux
+make backup           # → backups/onstock-backup-*.db
+```
+
+Editar la interfaz no requiere reiniciar nada: `web/` se sirve desde disco.
+Editar `server/` sí requiere reiniciar el proceso.
+
+### Implementación de referencia en Go
+
+Solo si hay Go 1.22+ instalado y las dependencias del `go.mod` disponibles:
+
+```bash
+make admin-go         # equivalente de make admin, corriendo el Go
+make caja-go
+make test-go          # go vet + go test + build
+make build            # dist/onstock.exe (Windows) y dist/onstock-linux
 ```
 
 **Vito** (asistente white-label): menú → Vito, o `http://localhost:8080/#/vito`.  
 Config opcional en `.env` (ver `.env.example`). Guion de demo: `../docs/demo-fase1-vito.md`.  
 **Módulos:** `GET /api/modules` · contrato `../docs/contrato-modulo.md` · biblioteca `../docs/biblioteca-modulos.md`.
 
-Opciones del ejecutable:
+Banderas del servidor (las mismas en Node y en Go):
 
 ```
 -host 127.0.0.1    interfaz de escucha (local por defecto; usa 0.0.0.0 para red local)
@@ -86,7 +126,6 @@ Opciones del ejecutable:
 En producción Windows se puede lanzar el mismo `.exe` con o sin `-caja`. Misma carpeta `-data` si comparten red/servidor; o un servidor central admin y terminales solo-caja.
 
 ```bash
-make backup          # → backups/onstock-backup-*.db
 # Plan comercial del tenant:
 curl -s localhost:8080/api/tenant
 curl -s -X PUT localhost:8080/api/tenant -H 'Content-Type: application/json' \
@@ -96,13 +135,69 @@ curl -s -X PUT localhost:8080/api/tenant -H 'Content-Type: application/json' \
 ## Estructura
 
 ```
-main.go               servidor HTTP + frontend embebido (go:embed)
-internal/store/       SQLite (modernc.org/sqlite, puro Go): esquema y lógica de negocio
-internal/httpapi/     API REST, exportaciones Excel/PDF, códigos de barras
+server/               ← LO QUE CORRE. Node 24, cero dependencias npm.
+  index.js              arranque, banderas de línea de comandos y servidor HTTP
+  db.js                 node:sqlite + el esquema (idéntico al de Go)
+  store/                lógica de negocio: productos, ventas, compras, gastos, reportes
+  api/                  API REST, exportaciones Excel/PDF, códigos de barras, estáticos
+  vito/                 asistente: motor local y en la nube, herramientas, catálogo
+  lib/                  escritores propios de XLSX, PDF, PNG, ZIP y códigos de barras
+  pruebas.test.js       pruebas (node:test), traducidas de los *_test.go
+
+main.go               referencia en Go: servidor + frontend embebido (go:embed)
+internal/store/       referencia en Go: SQLite y lógica de negocio
+internal/httpapi/     referencia en Go: API REST, exportaciones, códigos de barras
 web/                  SPA en español (vanilla JS + CSS, sin frameworks, sin CDN)
-dist/                 ejecutables compilados
-legacy/               versión anterior (Node.js) — se puede borrar
+dist/                 ejecutables compilados de la versión Go
+legacy/               versión de Node anterior y sin relación — se puede borrar
 ```
+
+El esquema de SQLite y los contratos de la API son **los mismos** en las dos
+implementaciones: una base creada por cualquiera de ellas abre en la otra, y
+`web/js/api.js` no distingue cuál está del otro lado.
+
+### Cómo se comprueba que el port dice lo mismo
+
+`server/tools/equivalencia.mjs` levanta el binario de Go (`dist/onstock-linux`) y
+el servidor de Node contra **dos copias de la misma base**, en puertos distintos,
+y los enfrenta:
+
+```
+make equivalencia                                  # lecturas + mutaciones
+node server/tools/equivalencia.mjs --solo-lecturas # sin escribir en las copias
+```
+
+Última corrida: **76 lecturas · 63 idénticas · 13 con diferencia declarada · 0 sin
+explicar**, y las **10 tablas idénticas** tras las seis mutaciones.
+
+Primero pide los mismos 76 endpoints de lectura a los dos y compara el JSON campo
+por campo, incluido el orden de las claves. Las exportaciones no se comparan por
+bytes —dos escritores distintos nunca dan los mismos bytes— sino por lo que
+dicen: las celdas del Excel fila por fila, el texto del PDF renglón por renglón
+(agrupado por su coordenada Y) y las barras del PNG módulo por módulo. Después
+ejecuta seis mutaciones en ambos (venta, orden de compra, recepción, gasto,
+salida de inventario y anulación) y compara las diez tablas con SQL, fila por
+fila, dejando fuera solo las columnas de fecha de reloj.
+
+**Ojo con el binario de referencia.** `dist/onstock-linux` se compiló el 16 de
+agosto de 2026 y el árbol de Go cambió después (`75060f9` y `0bbf41a`). El port se
+hizo contra HEAD, así que en lo que esos commits tocaron el binario y el port
+dicen cosas distintas *a propósito* y el desactualizado es el binario: el orden
+de la lista de ventas, el reparto proporcional del top de productos y el `-0.00`
+del estado de resultados. La tabla `DECLARADAS` del script lleva cada caso con su
+commit; si se recompila el binario desde HEAD, esas entradas deben dejar de
+saltar.
+
+### La única divergencia deliberada
+
+`server/store/seedDemo.js` genera los datos de ejemplo con un generador
+pseudoaleatorio distinto. El original usa `math/rand` de Go con semilla fija, y
+ese generador arranca de una tabla de 607 constantes que vive dentro del runtime:
+no se puede reproducir desde fuera. El port usa mulberry32 con la misma semilla,
+así que sigue siendo **reproducible** (misma semilla → mismos datos, siempre) y
+la forma del set es idéntica —mismos productos, misma densidad de tickets por
+mes, mismos cinco SKU en rojo y los tres estancados— pero los tickets concretos
+difieren. Solo afecta a `-seed-demo`; una base ya sembrada no se toca.
 
 ## Notas contables (Honduras)
 

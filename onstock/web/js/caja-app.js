@@ -26,13 +26,20 @@ async function boot() {
     const brand = $('#brand-company');
     if (brand) brand.textContent = state.settings.company_name || 'Registradora';
   } catch (err) {
+    // Quien está delante de esta pantalla es la persona que cobra, no quien
+    // instaló el sistema: no se le pide que ejecute un comando ni se le enseña
+    // el error técnico. Se le dice qué pasa, qué puede hacer ella y a quién
+    // avisar. El detalle técnico queda en la consola, para quien sí lo lea.
+    console.error('OnStock · caja: no se pudo conectar con el servidor.', err);
     const page = $('#page');
     page.innerHTML = `
       <div class="card card-pad">
-        <b>No se pudo conectar con el servidor de OnStock.</b>
-        <p class="muted">${err && err.message ? err.message : err}</p>
-        <p class="muted">En el PC de la tienda debe estar corriendo <code>make caja</code> (o el ejecutable con <code>-caja</code>).</p>
-        <button class="btn btn-outline" onclick="location.reload()">Reintentar</button>
+        <b>La caja no se está comunicando con la computadora principal.</b>
+        <p class="muted">No se puede cobrar hasta que vuelva la conexión. Lo que ya
+        cobró está guardado; no se perdió nada.</p>
+        <p class="muted">Revise que la computadora donde está OnStock esté encendida
+        y conectada a la misma red. Si sigue igual, avise al encargado del sistema.</p>
+        <button class="btn btn-primary" onclick="location.reload()">Volver a intentar</button>
       </div>`;
     return;
   }

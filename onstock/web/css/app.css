@@ -69,11 +69,19 @@
   --robot-eye: #ffffff;
   --robot-pupil: #101c16;
 
+  /* Sin esto el navegador dibuja sus propios controles —el desplegable de un
+     <select>, la barra de desplazamiento, el calendario de un <input type=date>—
+     con su tema claro por defecto, y en el tema de empresa aparecían recuadros
+     blancos encima de la interfaz oscura. */
+  color-scheme: light;
+
   font-size: 15px;
 }
 
 /* ── Tema "colores de la empresa" (ONDIGITAL verdigris + latón) ────── */
 [data-theme="company"] {
+  color-scheme: dark;
+
   --bg: oklch(18% 0.016 165);
   --bg-2: oklch(23% 0.023 166);
   --surface: oklch(25% 0.022 166 / 0.82);
@@ -275,12 +283,21 @@ body.mode-cajero .sidebar .nav-bottom a[data-access="admin"] {
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 1100px) { .grid-4 { grid-template-columns: 1fr 1fr; } .grid-3 { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr; } }
+/* A dos columnas, en un teléfono de 360px cada tarjeta se queda en unos 155px y
+   una cifra como "L 148,320.75" se partía en dos renglones y se salía de la
+   tarjeta. Por debajo de 480px los KPI van en una sola columna. */
+@media (max-width: 480px) { .grid-4 { grid-template-columns: 1fr; } }
 
 /* ── KPI cards ──────────────────────────────────────────── */
 .kpi { padding: 17px 19px; display: flex; flex-direction: column; gap: 5px; }
 .kpi .kpi-label { color: var(--text-2); font-size: 12.5px; font-weight: 600; display:flex; align-items:center; gap:7px; }
-.kpi .kpi-value { font-size: 23px; font-weight: 800; letter-spacing: -.4px; }
-.kpi .kpi-foot { color: var(--text-3); font-size: 12px; }
+/* La cifra no se parte nunca: un importe cortado a la mitad no se lee como
+   importe. Si aun así no cabe, el que se desplaza es el número, no la tarjeta. */
+.kpi .kpi-value {
+  font-size: 23px; font-weight: 800; letter-spacing: -.4px;
+  white-space: nowrap; overflow-x: auto; overscroll-behavior-x: contain;
+}
+.kpi .kpi-foot { color: var(--text-3); font-size: 12px; overflow-wrap: anywhere; }
 .kpi-icon {
   width: 26px; height: 26px; border-radius: 8px; display: inline-flex;
   align-items: center; justify-content: center; flex-shrink: 0;
@@ -356,9 +373,17 @@ label.field { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px
 textarea.input { resize: vertical; min-height: 64px; }
 .input-error { border-color: var(--red) !important; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+/* Proveedor ancho + dos fechas: la cabecera de la orden de compra. Estaba
+   escrito como estilo en línea desde el JS y por eso ninguna consulta de medios
+   podía apilarlo en un teléfono. */
+.form-grid-3 { grid-template-columns: 2fr 1fr 1fr; }
 .form-grid .full { grid-column: 1 / -1; }
 .checkbox { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--text); font-weight: 500; cursor: pointer; }
 .checkbox input { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
+/* Las casillas de las tablas van sueltas, sin la etiqueta .checkbox alrededor,
+   y sin esto salían con el azul por defecto del navegador (#0060DF en Firefox):
+   el único azul de toda la interfaz, justo en la columna de selección. */
+.table input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; }
 .input-group { position: relative; }
 .input-group .btn-inset {
   position: absolute; right: 5px; top: 50%; transform: translateY(-50%);
@@ -411,6 +436,13 @@ table.table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .row-click { cursor: pointer; }
 .cell-main { font-weight: 600; }
 .cell-sub { color: var(--text-3); font-size: 12px; margin-top: 1px; }
+/* Un producto inactivo se marca con color y con su insignia, no bajando la
+   opacidad de la fila entera. Con `opacity:.55` el subtexto —que ya viene
+   atenuado— caía a 2.19:1 sobre el fondo de la tabla y dejaba de leerse; el
+   proveedor y el código de barras de un producto dado de baja son justo lo que
+   se va a consultar. Ahora el texto principal baja un escalón de color y el
+   secundario se queda como está, que sí pasa AA. */
+.table tr.row-inactive > td { color: var(--text-2); }
 .empty-state { padding: 44px 20px; text-align: center; color: var(--text-3); font-size: 13.5px; }
 .empty-state b { display: block; color: var(--text-2); font-size: 15px; margin-bottom: 4px; }
 
@@ -461,6 +493,24 @@ table.table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 [data-theme="company"] .modal { backdrop-filter: blur(20px); }
 .modal-lg { max-width: 820px; }
 .modal-xl { max-width: 1000px; }
+/* Sin esto una rejilla o una tabla dentro del modal impone su ancho mínimo al
+   modal entero —el formulario de «Nueva orden de compra» lleva las dos— y en un
+   teléfono el contenido se salía por el costado. `min-width:0` permite que los
+   hijos se encojan; el que se desplaza es la tabla dentro de su .table-wrap. */
+.modal, .modal-body { min-width: 0; }
+.modal-body > * { min-width: 0; max-width: 100%; }
+@media (max-width: 560px) {
+  .modal-overlay { padding: 3vh 10px 10px; }
+  .modal-head { padding: 15px 15px 0; }
+  /* Las columnas de los formularios se apilan; a 360px no caben. */
+  .modal-body .grid-2,
+  .modal-body .form-grid,
+  .modal-body .form-grid-3 { grid-template-columns: 1fr; }
+  /* Los campos numéricos de la orden dejan de tener ancho fijo dentro del modal:
+     con 64px y 94px clavados, cinco columnas no entraban en la pantalla. */
+  .modal .qty-input { width: 56px !important; }
+  .modal .price-input { width: 76px !important; }
+}
 .modal-head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 17px 22px 0;
@@ -756,6 +806,27 @@ hr.sep { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
   background: var(--red-soft);
 }
 .vito-text { word-break: break-word; white-space: normal; }
+/* El motor contesta en texto con marcas tipo markdown y formatReply() lo
+   convierte en <p>, <ul>, <ol>, <li>, <strong> y <code>. Ninguna de esas
+   etiquetas tenía estilo, así que las respuestas salían con la tipografía y los
+   márgenes por defecto del navegador —Times y sangrías de 40px— en medio de una
+   interfaz que usa Inter. */
+.vito-text p { margin: 0 0 8px; }
+.vito-text p:last-child { margin-bottom: 0; }
+.vito-text ul, .vito-text ol { margin: 0 0 8px; padding-left: 20px; }
+.vito-text ul:last-child, .vito-text ol:last-child { margin-bottom: 0; }
+.vito-text li { margin: 0 0 3px; }
+.vito-text li::marker { color: var(--text-3); }
+.vito-text strong { font-weight: 700; color: var(--text); }
+.vito-text code {
+  font-family: var(--font-mono);
+  font-size: .92em;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--badge-gray-bg);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
 .vito-thinking {
   display: flex;
   align-items: center;
@@ -1017,3 +1088,16 @@ hr.sep { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
   .page { max-width: none; padding: 0; }
   .card { box-shadow: none; border: none; }
 }
+
+/* Aviso de lista recortada (las listas se cortan en 500 filas). */
+.aviso-tope {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin: 0 0 10px;
+  padding: 9px 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--amber-soft);
+  color: var(--text);
+  font-size: 13px;
+}
+.aviso-tope button { margin-left: auto; }

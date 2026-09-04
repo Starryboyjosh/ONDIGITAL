@@ -18,6 +18,55 @@ export function money(v) { return `${sym()} ${nf.format(+v || 0)}`; }
 export function num(v) { return nf.format(+v || 0); }
 export function qty(v) { return nfQty.format(+v || 0); }
 
+// El servidor corta las listas en 500 filas cuando no se le pide un límite
+// (internal/store: `if limit <= 0 { limit = 500 }`). Hacía el corte en silencio:
+// la pantalla mostraba 500 ventas y, encima, unos totales sumados sobre esas 500
+// que no eran los del período. Ahora el corte se ve y se puede levantar.
+export const TOPE_LISTA = 500;
+const SIN_TOPE = 1000000;
+
+// limiteParam devuelve el valor de `limit` que toca enviar. `verTodo` es el
+// estado de la pantalla: false mientras se acepta el tope, true cuando el
+// usuario pidió la lista completa.
+export function limiteParam(verTodo) {
+  return verTodo ? String(SIN_TOPE) : '';
+}
+
+// avisoTope pinta el aviso de lista recortada y devuelve si está recortada, para
+// que la pantalla pueda decir sobre qué está sumando sus totales.
+export function avisoTope(contenedor, filas, verTodo, recargar) {
+  const recortada = !verTodo && filas >= TOPE_LISTA;
+  if (!recortada) { contenedor.innerHTML = ''; return false; }
+  contenedor.innerHTML = `
+    <div class="aviso-tope">
+      <span>Se muestran las primeras <b>${TOPE_LISTA}</b> filas. Los totales de arriba
+      son los de estas ${TOPE_LISTA}, no los del período completo.</span>
+      <button class="btn btn-sm btn-outline" type="button">Cargar todas</button>
+    </div>`;
+  contenedor.querySelector('button').addEventListener('click', recargar);
+  return true;
+}
+
+// precioNeto devuelve el precio sin ISV a partir de lo que está guardado en el
+// producto. Cuando la tienda trabaja con precios de góndola (`prices_include_isv`),
+// el `price` del producto lleva el ISV dentro y hay que sacárselo antes de
+// calcular nada: el ISV es débito fiscal, no ingreso.
+export function precioNeto(price, isvRate) {
+  const p = +price || 0;
+  if (state.settings.prices_include_isv !== '1') return p;
+  return p / (1 + (+isvRate || 0) / 100);
+}
+
+// margen calcula la utilidad de un producto sobre el precio NETO. Es la misma
+// cuenta en la tabla de Productos y en la ficha del producto: antes la ficha
+// descontaba el ISV y la tabla no, así que el mismo producto declaraba 33.82 %
+// en la lista y 23.90 % al abrirlo.
+export function margen(price, cost, isvRate) {
+  const neto = precioNeto(price, isvRate);
+  const c = +cost || 0;
+  return { neto, unidad: neto - c, pct: neto > 0 ? ((neto - c) / neto) * 100 : 0 };
+}
+
 export function esc(s) {
   return String(s ?? '')
     .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')

@@ -3,11 +3,15 @@ import { api } from '../api.js';
 import {
   $, esc, money, qty, fmtDate, icons, toast, toastErr,
   openModal, confirmDialog, statusBadge, debounce, download, firstOfMonth, today,
+  avisoTope, limiteParam,
 } from '../ui.js';
 
 let filters = { q: '', from: firstOfMonth(), to: today(), status: '' };
+// verTodo: false mientras se acepta el tope de 500 filas del servidor.
+let verTodo = false;
 
 export async function render(page) {
+  verTodo = false;
   page.innerHTML = `
     <div class="page-head">
       <div>
@@ -36,6 +40,7 @@ export async function render(page) {
         <div class="spacer"></div>
         <div id="totals" class="muted" style="font-size:13px"></div>
       </div>
+      <div id="tope"></div>
       <div id="sales-table"></div>
     </div>`;
 
@@ -59,10 +64,18 @@ async function loadTable(page) {
   if (filters.to) p.set('to', filters.to);
   if (filters.status) p.set('status', filters.status);
 
+  const lim = limiteParam(verTodo);
+  if (lim) p.set('limit', lim);
+
   let sales;
   try {
     sales = await api.get('/api/sales?' + p.toString());
   } catch (err) { toastErr(err); return; }
+
+  const recortada = avisoTope($('#tope', page), sales.length, verTodo, () => {
+    verTodo = true;
+    loadTable(page);
+  });
 
   // Se muestran las dos cifras a propósito: lo facturado (con ISV) es lo que
   // entró a la caja, y las ventas netas son las que aparecen en el Dashboard y
@@ -72,7 +85,8 @@ async function loadTable(page) {
   const totNeto = completed.reduce((a, v) => a + v.subtotal, 0);
   const totU = completed.reduce((a, v) => a + (v.subtotal - v.cost_total), 0);
   $('#totals', page).innerHTML =
-    `${completed.length} venta${completed.length === 1 ? '' : 's'} · Facturado: <b>${money(totFact)}</b>`
+    `${completed.length} venta${completed.length === 1 ? '' : 's'}${recortada ? ' (lista recortada)' : ''}`
+    + ` · Facturado: <b>${money(totFact)}</b>`
     + ` · Netas de ISV: <b>${money(totNeto)}</b>`
     + ` · Utilidad: <b class="text-green">${money(totU)}</b>`;
 
@@ -171,10 +185,23 @@ async function detailModal(id, page) {
         </table>
       </div>
       <div style="max-width:300px; margin-left:auto; margin-top:14px">
-        <div class="pos-total-row"><span>Subtotal (sin ISV)</span><span>${money(v.subtotal)}</span></div>
-        ${v.discount > 0 ? `<div class="pos-total-row"><span>Descuento</span><span>-${money(v.discount)}</span></div>` : ''}
+        ${/*
+          El `subtotal` que guarda la venta YA viene descontado, y `discount` es
+          el descuento con ISV dentro, tal como lo tecleó la cajera. Restar ese
+          importe bruto debajo de un subtotal neto que ya lo tenía restado daba
+          una columna que no cuadraba: 118.26 − 10.00 + 17.74 = 126.00, y el
+          total decía 136.00. Aquí el bloque es todo neto y suma exacto:
+          se muestra el subtotal ANTES del descuento (subtotal + discount_net),
+          se resta la parte neta del descuento, y queda subtotal + isv = total.
+        */''}
+        ${v.discount > 0 ? `
+        <div class="pos-total-row"><span>Subtotal (sin ISV)</span><span>${money(v.subtotal + v.discount_net)}</span></div>
+        <div class="pos-total-row"><span>Descuento (sin ISV)</span><span>-${money(v.discount_net)}</span></div>
+        <div class="pos-total-row"><span>Subtotal neto</span><span>${money(v.subtotal)}</span></div>`
+        : `<div class="pos-total-row"><span>Subtotal (sin ISV)</span><span>${money(v.subtotal)}</span></div>`}
         <div class="pos-total-row"><span>ISV</span><span>${money(v.isv)}</span></div>
         <div class="pos-total-row grand"><span>Total</span><span>${money(v.total)}</span></div>
+        ${v.discount > 0 ? `<div class="pos-total-row muted" style="font-size:12.5px"><span>Descuento aplicado en caja</span><span>${money(v.discount)} con ISV</span></div>` : ''}
         ${v.status === 'completada' ? `<div class="pos-total-row"><span>Utilidad bruta</span><span class="text-green">${money(v.subtotal - v.cost_total)}</span></div>` : ''}
       </div>
       ${v.notes ? `<p class="muted" style="font-size:13px">Notas: ${esc(v.notes)}</p>` : ''}`,

@@ -3,12 +3,16 @@ import { api } from '../api.js';
 import {
   $, $$, esc, money, qty, fmtDate, icons, toast, toastErr,
   openModal, confirmDialog, statusBadge, productPicker, today,
+  avisoTope, limiteParam,
 } from '../ui.js';
 
 let suppliers = [];
 let filters = { status: '', supplier_id: 0 };
+// verTodo: false mientras se acepta el tope de 500 filas del servidor.
+let verTodo = false;
 
 export async function render(page) {
+  verTodo = false;
   suppliers = await api.get('/api/suppliers');
 
   page.innerHTML = `
@@ -36,6 +40,7 @@ export async function render(page) {
           ${suppliers.map(s => `<option value="${s.id}" ${filters.supplier_id == s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}
         </select>
       </div>
+      <div id="tope"></div>
       <div id="po-table"></div>
     </div>`;
 
@@ -52,10 +57,18 @@ async function loadTable(page) {
   if (filters.status) p.set('status', filters.status);
   if (filters.supplier_id) p.set('supplier_id', filters.supplier_id);
 
+  const lim = limiteParam(verTodo);
+  if (lim) p.set('limit', lim);
+
   let orders;
   try {
     orders = await api.get('/api/purchase-orders?' + p.toString());
   } catch (err) { toastErr(err); return; }
+
+  avisoTope($('#tope', page), orders.length, verTodo, () => {
+    verTodo = true;
+    loadTable(page);
+  });
 
   if (!orders.length) {
     root.innerHTML = '<div class="empty-state"><b>Sin órdenes de compra</b>Crea una orden para reabastecer tu inventario.</div>';
@@ -83,6 +96,7 @@ async function loadTable(page) {
                 <button class="btn btn-sm btn-green" data-act="receive">${icons.truck} Recibir</button>
                 <button class="btn btn-sm btn-ghost btn-icon" data-act="edit" title="Editar">${icons.edit}</button>
                 <button class="btn btn-sm btn-ghost btn-icon" data-act="cancel" title="Cancelar">${icons.ban}</button>` : ''}
+              ${o.status === 'recibida' ? `<button class="btn btn-sm btn-outline" data-act="revert">Revertir recepción</button>` : ''}
               ${o.status === 'cancelada' ? `<button class="btn btn-sm btn-ghost btn-icon" data-act="del" title="Eliminar">${icons.trash}</button>` : ''}
             </td>
           </tr>`).join('')}
@@ -113,6 +127,17 @@ async function loadTable(page) {
         if (!ok) return;
         await api.post(`/api/purchase-orders/${id}/status`, { status: 'recibida' });
         toast('Mercancía recibida: stock y costos actualizados');
+        loadTable(page);
+      } else if (act === 'revert') {
+        const ok = await confirmDialog(
+          'Se descontará del stock lo que entró con esta orden y el costo promedio de '
+          + 'cada producto volverá al valor que tenía antes de recibirla. La orden queda '
+          + 'como «enviada» para poder corregirla. Solo funciona si ninguno de esos '
+          + 'productos se movió después de la recepción.',
+          { title: 'Revertir recepción', okText: 'Revertir', danger: true });
+        if (!ok) return;
+        await api.post(`/api/purchase-orders/${id}/revert`, {});
+        toast('Recepción revertida: stock y costos vueltos atrás');
         loadTable(page);
       } else if (act === 'cancel') {
         const ok = await confirmDialog('¿Cancelar esta orden de compra?', { title: 'Cancelar orden', okText: 'Sí, cancelar', danger: true });
@@ -187,7 +212,7 @@ function poModal(existing, page) {
     title: existing ? `Editar orden ${existing.po_number}` : 'Nueva orden de compra',
     size: 'modal-xl',
     body: `
-      <div class="form-grid" style="grid-template-columns:2fr 1fr 1fr">
+      <div class="form-grid form-grid-3">
         <label class="field">Proveedor *
           <select class="input" id="po-sup">
             <option value="">— Selecciona —</option>

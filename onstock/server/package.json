@@ -1,0 +1,15 @@
+{
+  "name": "onstock-server",
+  "version": "1.0.0",
+  "description": "Servidor de OnStock en Node 24. Cero dependencias: solo biblioteca estándar (node:sqlite, node:http, node:zlib).",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test pruebas.test.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

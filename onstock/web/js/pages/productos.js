@@ -2,7 +2,7 @@
 import { api } from '../api.js';
 import {
   $, $$, esc, money, qty, num, icons, toast, toastErr,
-  openModal, confirmDialog, debounce, download, state,
+  openModal, confirmDialog, debounce, download, state, margen,
 } from '../ui.js';
 
 let categories = [];
@@ -95,10 +95,11 @@ async function loadTable(page) {
       </tr></thead>
       <tbody>
         ${products.map(p => {
-          const margin = p.price > 0 ? ((p.price - p.cost) / p.price) * 100 : 0;
+          // Mismo cálculo que la ficha del producto: sobre el precio neto.
+          const margin = margen(p.price, p.cost, p.isv_rate).pct;
           const low = p.stock <= p.min_stock;
           return `
-          <tr data-id="${p.id}" ${p.active ? '' : 'style="opacity:.55"'}>
+          <tr data-id="${p.id}" class="${p.active ? '' : 'row-inactive'}">
             <td><input type="checkbox" class="sel-row" data-id="${p.id}" aria-label="Seleccionar ${esc(p.name)}" ${selected.has(p.id) ? 'checked' : ''}></td>
             <td>
               <div class="cell-main">${esc(p.name)}</div>
@@ -164,12 +165,16 @@ async function loadTable(page) {
     if (btn.dataset.act === 'barcode') barcodeModal(p);
     if (btn.dataset.act === 'del') {
       const ok = await confirmDialog(
-        `¿Eliminar el producto "${p.name}"? Si tiene historial de ventas o compras solo se desactivará.`,
+        `¿Eliminar el producto "${p.name}"? Si tiene historial —ventas, compras o `
+        + 'movimientos de inventario— no se borra: se marca como inactivo y su kardex '
+        + 'se conserva. Solo se borra del todo si nunca se movió.',
         { title: 'Eliminar producto', okText: 'Eliminar', danger: true });
       if (!ok) return;
       try {
-        await api.del(`/api/products/${id}`);
-        toast('Producto eliminado');
+        const r = await api.del(`/api/products/${id}`);
+        toast(r && r.resultado === 'desactivado'
+          ? 'El producto tiene historial: se marcó como inactivo y su kardex se conservó'
+          : 'Producto eliminado');
         loadTable(page);
       } catch (err) { toastErr(err); }
     }
@@ -251,16 +256,11 @@ function productModal(p, page) {
   const el = m.el;
   const updateMargin = () => {
     const cost = +$('#p-cost', el).value || 0;
-    let price = +$('#p-price', el).value || 0;
-    if (inclISV) {
-      const rate = +$('#p-isv', el).value || 0;
-      price = price / (1 + rate / 100);
-    }
+    const price = +$('#p-price', el).value || 0;
+    const rate = +$('#p-isv', el).value || 0;
     const mEl = $('#p-margin', el);
-    if (price > 0) {
-      const pct = ((price - cost) / price) * 100;
-      mEl.value = `${num(price - cost)} por unidad (${num(pct)}%)`;
-    } else mEl.value = '—';
+    const m2 = margen(price, cost, rate);
+    mEl.value = m2.neto > 0 ? `${num(m2.unidad)} por unidad (${num(m2.pct)}%)` : '—';
   };
   ['p-cost', 'p-price', 'p-isv'].forEach(id => $('#' + id, el).addEventListener('input', updateMargin));
   updateMargin();
