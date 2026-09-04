@@ -25,14 +25,16 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../data/repositories/conductor_repository.dart';
 import '../data/repositories/ruta_repository.dart';
 import '../data/semilla/semilla_san_pedro_sula.dart';
+import '../domain/models/camion.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/palette.dart';
 import 'core/theme/tokens.dart';
+import 'features/ajustes/views/ajustes_view.dart';
 import 'features/bodega/views/bodega_view.dart';
 import 'core/marca/marca_onroute.dart';
-import 'features/identidad/views/identidad_view.dart';
 import 'features/liquidacion/views/liquidacion_view.dart';
 import 'features/ruta/views/ruta_view.dart';
 import 'features/torre/torre_controller.dart';
@@ -45,15 +47,19 @@ import 'features/vito/views/vito_chat_view.dart';
 /// Las etiquetas son cortas porque la barra inferior reparte el ancho en
 /// partes iguales entre las seis: en un teléfono de 360 px cada pestaña se
 /// queda con 60 px, y una palabra más larga que eso no se acorta con puntos
-/// suspensivos —se vuelve ilegible. Por eso la pantalla de identidad de marca
-/// se anuncia como "Marca" y no como "Identidad", que a 360 px salía cortada.
+/// suspensivos —se vuelve ilegible. Por eso el destino de configuración se
+/// anuncia como "Ajustes" y no como "Configuración", que a 320 px salía
+/// cortada.
+///
+/// Son seis y siguen siendo seis: una séptima pestaña le quita ~9 px a cada
+/// una y deja "Bodega" y "Ajustes" sin espacio para su propia palabra.
 enum Destino {
   torre('Torre', Icons.map_outlined, Icons.map),
   bodega('Bodega', Icons.grid_view_outlined, Icons.grid_view),
   ruta('Ruta', Icons.route_outlined, Icons.route),
   liquidacion('Cierre', Icons.calculate_outlined, Icons.calculate),
   vito('Vito', Icons.chat_bubble_outline, Icons.chat_bubble),
-  identidad('Marca', Icons.palette_outlined, Icons.palette);
+  ajustes('Ajustes', Icons.tune_outlined, Icons.tune);
 
   const Destino(this.etiqueta, this.icono, this.iconoActivo);
 
@@ -77,32 +83,80 @@ class _AppShellState extends State<AppShell> {
   late final RutaRepository _repo = RutaRepository(rutaDelDia(variante: 1));
   late final TorreController _torre = TorreController();
 
+  /// El registro de conductores. Vive acá, junto al de la ruta, porque es la
+  /// otra mitad del mismo día de trabajo: quien maneja el camión que la torre
+  /// dibuja. Arranca con la semilla y con la misma flota que la torre simula.
+  late final ConductorRepository _conductores = ConductorRepository(
+    conductores: conductoresSemilla,
+    camiones: camionesFlota,
+  );
+
   Destino _destino = Destino.torre;
 
-  /// `null` = el tema lo decide el ancho. Un valor = alguien lo forzó desde la
-  /// pantalla de identidad y se respeta hasta que lo cambie.
+  /// `null` = el tema lo decide el ancho. Un valor = alguien lo forzó desde
+  /// Ajustes y se respeta hasta que lo cambie. Se pasa **crudo** al selector:
+  /// mandarle el `esTorre` ya resuelto es lo que hacía irrecuperable la opción
+  /// automática.
   bool? _torreForzada;
 
   @override
   void initState() {
     super.initState();
     _arrancarTorre();
+    _conductores.addListener(_sincronizarFlota);
+  }
+
+  /// Lleva al mapa lo que se decidió en el registro.
+  ///
+  /// El simulador se queda con su propia copia de cada [Camion] cuando la torre
+  /// arranca, así que asignar o dar de baja a alguien no llegaría nunca al
+  /// marcador: el registro diría una cosa y el mapa seguiría rotulando otra.
+  void _sincronizarFlota() {
+    for (final Camion c in _conductores.camiones) {
+      _torre.simulador.reasignarConductor(
+        camionId: c.id,
+        conductor: c.conductor,
+        conductorId: c.conductorId,
+      );
+    }
   }
 
   Future<void> _arrancarTorre() async {
     await _torre.preparar();
     if (!mounted) return;
+    _torre.simulador.alLlegar = _camionLlegoAParada;
     _torre.simulador.iniciar();
+  }
+
+  /// El camión del vendedor llegó a una parada en el mapa: la lista de ruta lo
+  /// refleja.
+  ///
+  /// La primera ruta de la flota (`rutasDeLaFlota()[0]`) **es** la ruta que
+  /// trabaja `RutaRepository`: mismo id, mismo camión, mismas paradas. Sin este
+  /// puente, el simulador anunciaba cada llegada al vacío —`alLlegar` no lo
+  /// escuchaba nadie— y `marcarEnSitio` no lo llamaba ninguna pantalla: la
+  /// torre mostraba a El Rojo detenido en la pulpería mientras la pantalla de
+  /// Ruta seguía diciendo que esa parada estaba "Pendiente".
+  ///
+  /// Solo se marca **en sitio**: llegar no es vender. Cerrar la parada la sigue
+  /// cerrando una persona en la hoja de cobro, que es la frontera que
+  /// `simulador_flota.dart` documenta y no se toca.
+  void _camionLlegoAParada(String camionId, String paradaId) {
+    if (camionId != _repo.ruta.camionId) return;
+    _repo.marcarEnSitio(paradaId);
   }
 
   @override
   void dispose() {
+    _torre.simulador.alLlegar = null;
+    _conductores.removeListener(_sincronizarFlota);
+    _conductores.dispose();
     _torre.dispose();
     _repo.dispose();
     super.dispose();
   }
 
-  Widget _pantalla(bool esTorre) {
+  Widget _pantalla(bool esTorre, ThemeData tema) {
     switch (_destino) {
       case Destino.torre:
         return TorreView(controlador: _torre, conTiles: widget.conTiles);
@@ -111,13 +165,23 @@ class _AppShellState extends State<AppShell> {
       case Destino.ruta:
         return RutaView(repo: _repo);
       case Destino.liquidacion:
-        return LiquidacionView(repo: _repo);
+        // Al firmar el cierre se pasa a Vito: es el momento en que sus
+        // hallazgos dejan de adelantar la ruta y pasan a auditar el día
+        // cerrado (`RutaRepository.enLiquidacion`), y leerlos recién firmado
+        // es cuando sirven de algo.
+        return LiquidacionView(
+          repo: _repo,
+          alCerrar: () => setState(() => _destino = Destino.vito),
+        );
       case Destino.vito:
         return VitoChatView(repo: _repo);
-      case Destino.identidad:
-        return IdentidadView(
+      case Destino.ajustes:
+        return AjustesView(
+          repo: _conductores,
+          tema: tema,
+          temaForzado: _torreForzada,
           esTorre: esTorre,
-          onCambiarTema: (bool v) => setState(() => _torreForzada = v),
+          onCambiarTema: (bool? v) => setState(() => _torreForzada = v),
         );
     }
   }
@@ -134,7 +198,7 @@ class _AppShellState extends State<AppShell> {
       child: Builder(
         builder: (BuildContext context) {
           final OnRouteColors c = context.colors;
-          final Widget cuerpo = _pantalla(esTorre);
+          final Widget cuerpo = _pantalla(esTorre, tema);
 
           if (compacto) {
             return Scaffold(

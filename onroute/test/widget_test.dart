@@ -3,13 +3,17 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:onroute/data/repositories/ruta_repository.dart';
+import 'package:onroute/data/semilla/semilla_san_pedro_sula.dart';
 import 'package:onroute/main.dart';
+import 'package:onroute/ui/core/marca/marca_onroute.dart';
 import 'package:onroute/ui/core/format/formatos.dart';
 import 'package:onroute/ui/core/theme/app_theme.dart';
 import 'package:onroute/ui/core/theme/tokens.dart';
 import 'package:onroute/ui/core/widgets/money.dart';
 import 'package:onroute/ui/core/widgets/route_line.dart';
 import 'package:onroute/ui/features/identidad/views/identidad_view.dart';
+import 'package:onroute/ui/features/vito/views/vito_chat_view.dart';
 
 /// Monta la pantalla de identidad por sí sola.
 ///
@@ -21,7 +25,11 @@ import 'package:onroute/ui/features/identidad/views/identidad_view.dart';
 /// `app_shell_test.dart`.
 Widget _identidad({bool esTorre = false}) => MaterialApp(
       theme: esTorre ? AppTheme.torre : AppTheme.calle,
-      home: IdentidadView(esTorre: esTorre, onCambiarTema: (_) {}),
+      home: IdentidadView(
+        temaForzado: esTorre,
+        esTorre: esTorre,
+        onCambiarTema: (_) {},
+      ),
     );
 
 void main() {
@@ -119,6 +127,36 @@ void main() {
     await tester.pump(Motion.journey + const Duration(milliseconds: 50));
 
     expect(find.bySemanticsLabel('7 de 14 paradas'), findsOneWidget);
+  });
+
+  testWidgets('el isotipo se dibuja para el fondo que tiene detrás',
+      (WidgetTester tester) async {
+    // La bandera se calculaba con `c.ink.computeLuminance() < 0.5`, e `ink` es
+    // el color del **texto**: claro justo cuando el fondo es oscuro. La prueba
+    // estaba al revés y el isotipo salía invertido en los dos temas a la vez.
+    for (final (String nombre, ThemeData tema, bool esperado)
+        in <(String, ThemeData, bool)>[
+      ('calle', AppTheme.calle, false),
+      ('torre', AppTheme.torre, true),
+    ]) {
+      final RutaRepository repo = RutaRepository(rutaDelDia(variante: 1));
+      addTearDown(repo.dispose);
+
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(size: Size(390, 844)),
+          child: MaterialApp(theme: tema, home: VitoChatView(repo: repo)),
+        ),
+      );
+      await tester.pump();
+
+      final MarcaOnRoute marca =
+          tester.widget<MarcaOnRoute>(find.byType(MarcaOnRoute));
+      expect(marca.sobreOscuro, esperado,
+          reason: 'el isotipo de Vito sale invertido en $nombre');
+
+      await tester.pumpWidget(const SizedBox());
+    }
   });
 
   group('Formatos', () {

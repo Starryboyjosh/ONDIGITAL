@@ -22,17 +22,27 @@ import '../../../core/theme/typography.dart';
 import '../../../core/widgets/money.dart';
 import '../../../core/widgets/panel.dart';
 import '../../../core/widgets/route_line.dart';
+import '../../../core/widgets/selector_tema.dart';
 import '../../../core/widgets/status_pill.dart';
 
 class IdentidadView extends StatefulWidget {
   const IdentidadView({
     super.key,
+    required this.temaForzado,
     required this.esTorre,
     required this.onCambiarTema,
   });
 
+  /// La preferencia cruda de tema, tal como está guardada: `null` mientras la
+  /// decida el ancho de la pantalla. Va cruda y no resuelta porque [SelectorTema]
+  /// necesita poder marcar «Automático» como opción vigente.
+  final bool? temaForzado;
+
+  /// El tema que la app está pintando en este momento. Es lo que el selector
+  /// muestra debajo de «Automático» para que la opción no sea una incógnita.
   final bool esTorre;
-  final ValueChanged<bool> onCambiarTema;
+
+  final ValueChanged<bool?> onCambiarTema;
 
   @override
   State<IdentidadView> createState() => _IdentidadViewState();
@@ -78,6 +88,7 @@ class _IdentidadViewState extends State<IdentidadView> {
           slivers: <Widget>[
             SliverToBoxAdapter(
               child: _Cabecera(
+                temaForzado: widget.temaForzado,
                 esTorre: widget.esTorre,
                 onCambiarTema: widget.onCambiarTema,
               ),
@@ -143,10 +154,15 @@ class _IdentidadViewState extends State<IdentidadView> {
 // ── Cabecera ─────────────────────────────────────────────────────────────
 
 class _Cabecera extends StatelessWidget {
-  const _Cabecera({required this.esTorre, required this.onCambiarTema});
+  const _Cabecera({
+    required this.temaForzado,
+    required this.esTorre,
+    required this.onCambiarTema,
+  });
 
+  final bool? temaForzado;
   final bool esTorre;
-  final ValueChanged<bool> onCambiarTema;
+  final ValueChanged<bool?> onCambiarTema;
 
   @override
   Widget build(BuildContext context) {
@@ -183,71 +199,18 @@ class _Cabecera extends StatelessWidget {
             child: Text(
               'Los dos temas no son una preferencia: son dos escenas. '
               'Calle es el vendedor bajo el sol de San Pedro Sula; Torre es quien '
-              'mira la flota moverse en una pantalla grande.',
+              'mira la flota moverse en una pantalla grande. En automático lo '
+              'decide el tamaño de la pantalla, que casi siempre acierta.',
               style: AppText.body.copyWith(color: c.ink2),
             ),
           ),
           const SizedBox(height: Space.xl),
-          _SelectorTema(esTorre: esTorre, onCambiar: onCambiarTema),
-        ],
-      ),
-    );
-  }
-}
-
-class _SelectorTema extends StatelessWidget {
-  const _SelectorTema({required this.esTorre, required this.onCambiar});
-
-  final bool esTorre;
-  final ValueChanged<bool> onCambiar;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-
-    Widget opcion(String label, IconData icono, bool torre) {
-      final bool activa = esTorre == torre;
-      return Expanded(
-        child: Material(
-          color: activa ? c.surface : Colors.transparent,
-          borderRadius: Radii.allMd,
-          child: InkWell(
-            onTap: () => onCambiar(torre),
-            borderRadius: Radii.allMd,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: Space.md),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(icono, size: 16, color: activa ? c.ink : c.ink3),
-                  const SizedBox(width: Space.sm),
-                  Text(
-                    label,
-                    style: AppText.label
-                        .copyWith(color: activa ? c.ink : c.ink3),
-                  ),
-                ],
-              ),
-            ),
+          SelectorTema(
+            forzado: temaForzado,
+            resuelto: esTorre,
+            onCambiar: onCambiarTema,
           ),
-        ),
-      );
-    }
-
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 320),
-      child: Container(
-        padding: const EdgeInsets.all(Space.xs),
-        decoration: BoxDecoration(
-          color: c.bgSunk,
-          borderRadius: Radii.allLg,
-        ),
-        child: Row(
-          children: <Widget>[
-            opcion('Calle', Icons.wb_sunny_outlined, false),
-            opcion('Torre', Icons.hub_outlined, true),
-          ],
-        ),
+        ],
       ),
     );
   }

@@ -101,7 +101,49 @@ class _LiquidacionViewState extends State<LiquidacionView> {
     }
 
     setState(() => _errorSobre = null);
-    if (_repo.listaParaCerrar) widget.alCerrar?.call();
+    _avisar('Sobre contado: ${Formatos.lempiras(valor)}');
+  }
+
+  /// Firma el cierre. Es la única acción de esta pantalla que **termina** algo,
+  /// y por eso pregunta antes: después de firmar, las tres brechas quedan como
+  /// están y el día deja de moverse.
+  Future<void> _cerrarDia() async {
+    final Liquidacion l = _repo.liquidacion;
+    final bool? sigue = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogo) => AlertDialog(
+        title: const Text('Cerrar el día'),
+        content: Text(
+          l.todoCuadra
+              ? 'Los tres libros cuadran. Al firmar, el día queda cerrado con '
+                  'estas cifras.'
+              : 'El día se cierra con las brechas como están: '
+                  '${_titularBrecha(l)}. Queda registrado así.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogo).pop(false),
+            child: const Text('Todavía no'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogo).pop(true),
+            child: const Text('Cerrar el día'),
+          ),
+        ],
+      ),
+    );
+
+    if (sigue != true || !mounted) return;
+    if (!_repo.cerrarDia()) return;
+    _avisar('Día cerrado a las ${Formatos.hora(_repo.cerradoEn!)}');
+    widget.alCerrar?.call();
+  }
+
+  void _avisar(String texto) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(texto)));
   }
 
   @override
@@ -116,6 +158,9 @@ class _LiquidacionViewState extends State<LiquidacionView> {
       efectivoEntregado: _repo.efectivoEntregado,
       onEntregarSobre: _contarSobre,
       errorSobre: _errorSobre,
+      listaParaCerrar: _repo.listaParaCerrar,
+      cerradoEn: _repo.cerradoEn,
+      onCerrarDia: _cerrarDia,
     );
 
     final Widget vito = VitoPanel(
@@ -177,6 +222,9 @@ class _Cuadre extends StatelessWidget {
     required this.efectivoEntregado,
     required this.onEntregarSobre,
     required this.errorSobre,
+    required this.listaParaCerrar,
+    required this.cerradoEn,
+    required this.onCerrarDia,
   });
 
   final Liquidacion liquidacion;
@@ -184,13 +232,20 @@ class _Cuadre extends StatelessWidget {
   final Dinero? efectivoEntregado;
   final VoidCallback onEntregarSobre;
   final String? errorSobre;
+  final bool listaParaCerrar;
+  final DateTime? cerradoEn;
+  final VoidCallback onCerrarDia;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _EstadoCierre(liquidacion: liquidacion),
+        _EstadoCierre(
+          liquidacion: liquidacion,
+          sobreContado: efectivoEntregado != null,
+          cerradoEn: cerradoEn,
+        ),
         const SizedBox(height: Space.lg),
         _Brechas(liquidacion: liquidacion),
         const SizedBox(height: Space.lg),
@@ -199,21 +254,83 @@ class _Cuadre extends StatelessWidget {
           ctrl: sobreCtrl,
           efectivoEntregado: efectivoEntregado,
           onEntregar: onEntregarSobre,
+          bloqueada: cerradoEn != null,
+        ),
+        const SizedBox(height: Space.lg),
+        _FirmaCierre(
+          liquidacion: liquidacion,
+          sobreContado: efectivoEntregado != null,
+          listaParaCerrar: listaParaCerrar,
+          cerradoEn: cerradoEn,
+          onCerrarDia: onCerrarDia,
         ),
       ],
     );
   }
 }
 
+/// El encabezado del cierre. **Tres estados, no dos.**
+///
+/// La versión anterior solo sabía decir "Todo cuadra" o "Descuadre", y
+/// `todoCuadra` exige además que la parrilla esté contada. Resultado: al abrir
+/// la pantalla, con el día entero por medir, el cierre saludaba con la pastilla
+/// roja de "Descuadre" y con «La brecha más grande es L 0.00 en el sobre de
+/// efectivo» —una alarma sobre un cero, que es la peor forma de gastar la
+/// alarma: quien la ve todos los días deja de creerle el día que dice algo.
+///
+/// Sin medir no hay descuadre ni cuadre: hay un día abierto, y lo que falta se
+/// nombra. La alarma queda reservada para una brecha de verdad.
 class _EstadoCierre extends StatelessWidget {
-  const _EstadoCierre({required this.liquidacion});
+  const _EstadoCierre({
+    required this.liquidacion,
+    required this.sobreContado,
+    required this.cerradoEn,
+  });
 
   final Liquidacion liquidacion;
+  final bool sobreContado;
+  final DateTime? cerradoEn;
 
   @override
   Widget build(BuildContext context) {
     final OnRouteColors c = context.colors;
+    final bool medido = sobreContado && liquidacion.conteoCompleto;
     final bool cuadra = liquidacion.todoCuadra;
+
+    final ({String pastilla, Tono tono, IconData icono, String detalle}) estado;
+    if (cerradoEn != null) {
+      estado = (
+        pastilla: 'Día cerrado',
+        tono: cuadra ? Tono.cobrado : Tono.alerta,
+        icono: Icons.lock_outline,
+        detalle: cuadra
+            ? 'Firmado a las ${Formatos.hora(cerradoEn!)} · los tres libros cuadraron'
+            : 'Firmado a las ${Formatos.hora(cerradoEn!)} · ${_titularBrecha(liquidacion)}',
+      );
+    } else if (!medido) {
+      estado = (
+        pastilla: 'Día abierto',
+        tono: Tono.pendiente,
+        icono: Icons.pending_outlined,
+        detalle: _queFalta(liquidacion, sobreContado: sobreContado),
+      );
+    } else if (cuadra) {
+      estado = (
+        pastilla: 'Todo cuadra',
+        tono: Tono.cobrado,
+        icono: Icons.check_circle,
+        detalle: 'Los tres libros coinciden. Se puede firmar el cierre.',
+      );
+    } else {
+      estado = (
+        pastilla: 'Descuadre',
+        tono: Tono.alerta,
+        icono: Icons.error_outline,
+        // La brecha mayor titula el cierre porque es lo primero que quien lo
+        // abre necesita saber: cuál de las tres hay que atender primero.
+        detalle: _titularBrecha(liquidacion),
+      );
+    }
 
     return Panel(
       child: Row(
@@ -228,22 +345,110 @@ class _EstadoCierre extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: Space.xs),
-                if (!cuadra)
-                  Text(
-                    // La brecha mayor titula el cierre porque es lo primero
-                    // que quien lo abre necesita saber: cuál de las tres es
-                    // la que hay que atender primero.
-                    _titularBrecha(liquidacion),
-                    style: Theme.of(context).textTheme.bodyMedium
-                        ?.copyWith(color: c.ink2),
-                  ),
+                Text(
+                  estado.detalle,
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: c.ink2),
+                ),
               ],
             ),
           ),
+          const SizedBox(width: Space.sm),
           StatusPill(
-            label: cuadra ? 'Todo cuadra' : 'Descuadre',
-            tono: cuadra ? Tono.cobrado : Tono.alerta,
-            icono: cuadra ? Icons.check_circle : Icons.error_outline,
+            label: estado.pastilla,
+            tono: estado.tono,
+            icono: estado.icono,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Qué falta medir, dicho con nombre y no como un cero.
+String _queFalta(Liquidacion l, {required bool sobreContado}) {
+  if (!sobreContado && !l.conteoCompleto) {
+    return 'Falta contar la parrilla y el sobre de efectivo.';
+  }
+  if (!l.conteoCompleto) return 'Falta contar la parrilla del camión.';
+  return 'Falta contar el sobre de efectivo.';
+}
+
+/// La firma del cierre: la única acción que termina el día.
+///
+/// Antes esta pantalla no cerraba nada —`listaParaCerrar` existía, se
+/// consultaba y no llevaba a ninguna parte—, así que el "cierre" era una vista
+/// de lectura con un campo de texto. El botón está siempre visible y dice qué
+/// le falta cuando no se puede tocar: un botón deshabilitado sin explicación
+/// deja a quien cierra adivinando.
+class _FirmaCierre extends StatelessWidget {
+  const _FirmaCierre({
+    required this.liquidacion,
+    required this.sobreContado,
+    required this.listaParaCerrar,
+    required this.cerradoEn,
+    required this.onCerrarDia,
+  });
+
+  final Liquidacion liquidacion;
+  final bool sobreContado;
+  final bool listaParaCerrar;
+  final DateTime? cerradoEn;
+  final VoidCallback onCerrarDia;
+
+  @override
+  Widget build(BuildContext context) {
+    final OnRouteColors c = context.colors;
+    final DateTime? firmado = cerradoEn;
+
+    if (firmado != null) {
+      return Panel(
+        color: c.collectedSoft,
+        borderColor: c.collected,
+        child: Row(
+          children: <Widget>[
+            Icon(Icons.lock_outline, size: 20, color: c.collected),
+            const SizedBox(width: Space.md),
+            Expanded(
+              child: Text(
+                'El día quedó cerrado a las ${Formatos.hora(firmado)}. '
+                'Las cifras ya no se mueven.',
+                style: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(color: c.collected),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Panel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Firma del cierre',
+            style: Theme.of(context).textTheme.labelMedium
+                ?.copyWith(color: c.ink3),
+          ),
+          const SizedBox(height: Space.sm),
+          Text(
+            listaParaCerrar
+                ? 'Todo lo que había que medir está medido. Al firmar, el día '
+                    'se cierra con estas cifras.'
+                : _queFalta(liquidacion, sobreContado: sobreContado),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: listaParaCerrar ? c.ink2 : c.pending),
+          ),
+          const SizedBox(height: Space.lg),
+          SizedBox(
+            width: double.infinity,
+            height: Touch.comfortable,
+            child: FilledButton.icon(
+              onPressed: listaParaCerrar ? onCerrarDia : null,
+              icon: const Icon(Icons.lock_outline, size: 18),
+              label: const Text('Cerrar el día'),
+            ),
           ),
         ],
       ),
@@ -423,12 +628,17 @@ class _HojaSobre extends StatelessWidget {
     required this.efectivoEntregado,
     required this.onEntregar,
     required this.error,
+    required this.bloqueada,
   });
 
   final TextEditingController ctrl;
   final Dinero? efectivoEntregado;
   final VoidCallback onEntregar;
   final String? error;
+
+  /// Con el día ya firmado el conteo del sobre deja de aceptar correcciones:
+  /// si se pudiera seguir tecleando, la firma no habría cerrado nada.
+  final bool bloqueada;
 
   @override
   Widget build(BuildContext context) {
@@ -446,8 +656,11 @@ class _HojaSobre extends StatelessWidget {
           const SizedBox(height: Space.sm),
           if (efectivoEntregado != null) ...<Widget>[
             Text(
-              'Ya se contó ${Formatos.lempiras(efectivoEntregado!.enLempiras)}. '
-              'Vuelve a entregar para corregir.',
+              bloqueada
+                  ? 'Se contó ${Formatos.lempiras(efectivoEntregado!.enLempiras)}. '
+                      'El día está cerrado: ya no se corrige.'
+                  : 'Ya se contó ${Formatos.lempiras(efectivoEntregado!.enLempiras)}. '
+                      'Vuelve a entregar para corregir.',
               style: Theme.of(context).textTheme.bodySmall
                   ?.copyWith(color: c.ink2),
             ),
@@ -458,6 +671,7 @@ class _HojaSobre extends StatelessWidget {
               Expanded(
                 child: TextField(
                   controller: ctrl,
+                  enabled: !bloqueada,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -473,7 +687,7 @@ class _HojaSobre extends StatelessWidget {
               ),
               const SizedBox(width: Space.md),
               FilledButton(
-                onPressed: onEntregar,
+                onPressed: bloqueada ? null : onEntregar,
                 child: const Text('Entregar'),
               ),
             ],

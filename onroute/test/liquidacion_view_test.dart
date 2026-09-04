@@ -111,6 +111,117 @@ void main() {
     expect(find.textContaining('del sobre'), findsWidgets);
   });
 
+  testWidgets('el cierre abre diciendo qué falta, no gritando descuadre',
+      (WidgetTester tester) async {
+    // Al abrir, `todoCuadra` es falso solo porque nadie contó la parrilla, y
+    // la pantalla saludaba con la pastilla de alerta «Descuadre» y con «La
+    // brecha más grande es L 0.00 en el sobre de efectivo»: una alarma sobre
+    // un cero. Quien la ve todos los días deja de creerle.
+    final RutaRepository repo = RutaRepository(rutaDelDia(variante: 1));
+    await _fijarTamano(tester, const Size(390, 2400));
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      _app(LiquidacionView(repo: repo), tam: const Size(390, 2400)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Descuadre'), findsNothing);
+    // El titular ya no puede ser «La brecha más grande es L 0.00»: sin medir
+    // no hay brecha mayor que nombrar. En la tabla de los tres libros un
+    // L 0.00 sí es legítimo —ahí es una cifra, no una alarma—.
+    expect(find.textContaining('La brecha más grande'), findsNothing);
+    expect(find.text('Día abierto'), findsOneWidget);
+    expect(
+      find.textContaining('Falta contar la parrilla y el sobre'),
+      findsWidgets,
+    );
+  });
+
+  testWidgets('el botón de cerrar el día no se puede tocar hasta que se midió',
+      (WidgetTester tester) async {
+    final RutaRepository repo = RutaRepository(rutaDelDia(variante: 1));
+    await _fijarTamano(tester, const Size(390, 2400));
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      _app(LiquidacionView(repo: repo), tam: const Size(390, 2400)),
+    );
+    await tester.pumpAndSettle();
+
+    final Finder cerrar = find.widgetWithText(FilledButton, 'Cerrar el día');
+    expect(cerrar, findsOneWidget, reason: 'el cierre tiene que poder cerrar');
+    expect(tester.widget<FilledButton>(cerrar).onPressed, isNull);
+
+    // Contada la parrilla sigue faltando el sobre, y el botón lo dice.
+    repo.aceptarConteoTeorico();
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(cerrar).onPressed, isNull);
+    expect(find.textContaining('Falta contar el sobre'), findsWidgets);
+  });
+
+  testWidgets('firmar el cierre cierra el día, lo avisa y congela el sobre',
+      (WidgetTester tester) async {
+    final RutaRepository repo = RutaRepository(rutaDelDia(variante: 1));
+    repo.aceptarConteoTeorico();
+    final Dinero esperado = repo.liquidacion.efectivoEsperado;
+
+    await _fijarTamano(tester, const Size(390, 2400));
+    addTearDown(tester.view.reset);
+
+    bool aviso = false;
+    await tester.pumpWidget(
+      _app(
+        LiquidacionView(repo: repo, alCerrar: () => aviso = true),
+        tam: const Size(390, 2400),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Efectivo del sobre'),
+      esperado.enLempiras.toStringAsFixed(2),
+    );
+    await tester.tap(find.widgetWithText(FilledButton, 'Entregar'));
+    await tester.pumpAndSettle();
+    expect(find.text('Todo cuadra'), findsOneWidget);
+
+    final Finder cerrar = find.widgetWithText(FilledButton, 'Cerrar el día');
+    await tester.ensureVisible(cerrar);
+    await tester.tap(cerrar);
+    await tester.pumpAndSettle();
+
+    // Pregunta antes: firmar es lo único de esta pantalla que termina algo.
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(repo.diaCerrado, isFalse);
+    await tester.tap(find.widgetWithText(FilledButton, 'Cerrar el día').last);
+    await tester.pumpAndSettle();
+
+    expect(repo.diaCerrado, isTrue);
+    expect(aviso, isTrue, reason: 'alCerrar tiene que llegar a alguien');
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.text('Día cerrado'), findsOneWidget);
+
+    // Con el día firmado el sobre ya no admite correcciones: si se pudiera
+    // seguir tecleando, la firma no habría cerrado nada.
+    expect(
+      tester
+          .widget<TextField>(
+            find.widgetWithText(TextField, 'Efectivo del sobre'),
+          )
+          .enabled,
+      isFalse,
+    );
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.widgetWithText(FilledButton, 'Entregar'),
+          )
+          .onPressed,
+      isNull,
+    );
+  });
+
   testWidgets('sin desbordes a 320 px', (WidgetTester tester) async {
     final RutaRepository repo = RutaRepository(rutaDelDia(variante: 0));
     await _fijarTamano(tester, const Size(320, 2400));

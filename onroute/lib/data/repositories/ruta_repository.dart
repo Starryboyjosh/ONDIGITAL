@@ -232,6 +232,30 @@ class RutaRepository extends ChangeNotifier {
   bool get listaParaCerrar =>
       _efectivoEntregado != null && _ruta.bodega.conteoCompleto;
 
+  /// Cuándo se firmó el cierre. `null` mientras el día siga abierto.
+  DateTime? _cerradoEn;
+  DateTime? get cerradoEn => _cerradoEn;
+
+  bool get diaCerrado => _cerradoEn != null;
+
+  /// Firma el cierre del día.
+  ///
+  /// Existe porque la pantalla de Cierre no cerraba nada: mostraba las tres
+  /// brechas, recibía el conteo del sobre y ahí se acababa. Un día que nadie
+  /// declara cerrado no tiene un momento en el que las cifras dejen de moverse,
+  /// y sin eso las tres brechas son una foto que se puede seguir retocando.
+  ///
+  /// Devuelve `false` —y no cambia nada— si falta medir algo ([listaParaCerrar])
+  /// o si el día ya estaba cerrado. Cerrar sin el conteo de la parrilla o sin
+  /// el sobre daría por bueno un cuadre que se apoya en supuestos, que es
+  /// exactamente lo que este producto existe para impedir.
+  bool cerrarDia({DateTime? momento}) {
+    if (!listaParaCerrar || _cerradoEn != null) return false;
+    _cerradoEn = momento ?? DateTime.now();
+    notifyListeners();
+    return true;
+  }
+
   /// El cierre empezó en cuanto alguien contó algo: el sobre, la parrilla, o
   /// bien ya no quedan paradas por visitar.
   ///

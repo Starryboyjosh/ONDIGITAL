@@ -69,7 +69,10 @@ class _BodegaViewState extends State<BodegaView> {
       onTocar: _abrirConteo,
     );
 
-    final Widget resumen = _Resumen(bodega: _bodega);
+    final Widget resumen = _Resumen(
+      bodega: _bodega,
+      onAceptarTeorico: _aceptarTeorico,
+    );
 
     return Scaffold(
       backgroundColor: context.colors.bg,
@@ -102,27 +105,85 @@ class _BodegaViewState extends State<BodegaView> {
 
   Future<void> _abrirConteo(Casilla c) async {
     setState(() => _seleccionada = c.id);
+    final Producto producto = _bodega.producto(c.sku);
     final int? contado = await showModalBottomSheet<int>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (BuildContext ctx) => _HojaConteo(
         casilla: c,
-        producto: _bodega.producto(c.sku),
+        producto: producto,
       ),
     );
     if (!mounted) return;
     setState(() => _seleccionada = null);
-    if (contado != null) {
-      _repo.contarCasilla(casillaId: c.id, contado: contado);
-    }
+    if (contado == null) return;
+
+    _repo.contarCasilla(casillaId: c.id, contado: contado);
+    _avisar(
+      'Posición ${c.fila + 1}-${c.columna + 1}: '
+      '${producto.unidad.contar(contado)}',
+    );
+  }
+
+  /// Da por bueno el teórico de toda la parrilla, de una vez.
+  ///
+  /// La parrilla tiene 24 posiciones y hasta ahora la única forma de dejar el
+  /// conteo completo —requisito para que el cierre pueda decir "todo cuadra"—
+  /// era abrir 24 hojas modales y confirmar cada una. `aceptarConteoTeorico`
+  /// existía en el repositorio desde el principio para exactamente esto y no la
+  /// llamaba ninguna pantalla.
+  ///
+  /// Va con confirmación y con el nombre puesto: **no cuenta nada**, firma que
+  /// se confía en el sistema. Presentarlo como "contar todo" sería vender un
+  /// conteo que nadie hizo, que es justo el descuadre silencioso que este
+  /// producto existe para impedir.
+  Future<void> _aceptarTeorico() async {
+    final int pendientes = _bodega.casillas
+        .where((Casilla x) => x.contado == null)
+        .length;
+
+    final bool? sigue = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogo) => AlertDialog(
+        title: const Text('Dar por bueno el teórico'),
+        content: Text(
+          'Quedan $pendientes ${pendientes == 1 ? 'posición' : 'posiciones'} '
+          'sin contar. Se van a registrar con lo que el sistema dice que '
+          'debería haber: no es un conteo, es firmar que se confía en la '
+          'parrilla. Si alguna diferencia existe, el cierre no la va a ver.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogo).pop(false),
+            child: const Text('Mejor cuento'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogo).pop(true),
+            child: const Text('Dar por bueno'),
+          ),
+        ],
+      ),
+    );
+
+    if (sigue != true || !mounted) return;
+    _repo.aceptarConteoTeorico();
+    _avisar('Parrilla dada por buena sin contar: '
+        '$pendientes ${pendientes == 1 ? 'posición' : 'posiciones'}');
+  }
+
+  void _avisar(String texto) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(texto)));
   }
 }
 
 class _Resumen extends StatelessWidget {
-  const _Resumen({required this.bodega});
+  const _Resumen({required this.bodega, required this.onAceptarTeorico});
 
   final Bodega bodega;
+  final VoidCallback onAceptarTeorico;
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +248,23 @@ class _Resumen extends StatelessWidget {
                     .bodyMedium
                     ?.copyWith(color: c.danger),
               ),
+          ] else ...<Widget>[
+            const SizedBox(height: Space.md),
+            SizedBox(
+              width: double.infinity,
+              height: Touch.comfortable,
+              child: OutlinedButton.icon(
+                onPressed: onAceptarTeorico,
+                icon: const Icon(Icons.fact_check_outlined, size: 18),
+                label: const Text('Dar por bueno el teórico'),
+              ),
+            ),
+            const SizedBox(height: Space.xs),
+            Text(
+              'Cierra el conteo sin contar. Úsalo solo si la parrilla no se va '
+              'a revisar.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: c.ink3),
+            ),
           ],
         ],
       ),
@@ -217,8 +295,8 @@ class _HojaConteoState extends State<_HojaConteo> {
     final int teorico = widget.casilla.enCamion;
     final int dif = _valor - teorico;
 
-    return Container(
-      decoration: BoxDecoration(color: c.surface, borderRadius: Radii.topSheet),
+    // Sin decoración propia: la hoja modal la pinta el tema. Ver `hoja_cobro`.
+    return Padding(
       padding: EdgeInsets.only(
         left: Space.lg,
         right: Space.lg,
@@ -249,11 +327,12 @@ class _HojaConteoState extends State<_HojaConteo> {
                   children: <Widget>[
                     Text(
                       '$_valor',
+                      // `displaySmall` ya es mono tabular en la escala de
+                      // OnRoute (`AppText.dataXl`). Antes no estaba mapeado y
+                      // caía en la escala de Material —Inter a 36 px—, de ahí
+                      // que hubiera que forzarle las cifras tabulares a mano.
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(
                             color: dif == 0 ? c.ink : c.danger,
-                            fontFeatures: const <FontFeature>[
-                              FontFeature.tabularFigures(),
-                            ],
                           ),
                     ),
                     Text(

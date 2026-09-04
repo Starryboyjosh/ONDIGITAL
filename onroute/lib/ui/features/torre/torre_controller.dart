@@ -36,6 +36,14 @@ class TorreController extends ChangeNotifier {
   bool _listo = false;
   bool get listo => _listo;
 
+  /// `true` desde que [preparar] arranca hasta que el ruteador contesta. La
+  /// torre lo usa para decir "trazando" en vez de afirmar "trazo estimado"
+  /// mientras todavía no se sabe: hasta que llega la respuesta, `trazosReales`
+  /// vale 0 y esa cifra se leía como "no hay conexión al ruteador" aunque la
+  /// petición siguiera en vuelo.
+  bool _preparando = false;
+  bool get preparando => _preparando;
+
   /// Se marca en [dispose]. `preparar` puede tardar varios segundos esperando a
   /// OSRM, y en ese rato la pantalla se puede cerrar: sin esta bandera, el
   /// `notifyListeners` de la respuesta tardía cae sobre un `ChangeNotifier` ya
@@ -52,23 +60,39 @@ class TorreController extends ChangeNotifier {
   /// armadas, y sobre la base de la primera ruta apenas la haya.
   LatLng get centro => rutas.isEmpty ? baseOperaciones : rutas.first.base;
 
+  /// Arma la flota del día: pide los tres trazos y monta los camiones.
+  ///
+  /// Las tres peticiones salen **a la vez**, no una tras otra. En serie, un día
+  /// sin red costaba tres esperas encadenadas —`OsrmService` aguanta 8 s por
+  /// llamada antes de caer al trazo recto, así que la torre podía tardar 24 s
+  /// en aparecer—; en paralelo el peor caso es una sola espera. El tiempo
+  /// límite se queda donde estaba: acortarlo abarataría la espera a costa de
+  /// tirar respuestas buenas de un servidor gratuito que a veces es lento.
+  ///
+  /// `Future.wait` **conserva el orden de la lista**, no el de llegada, y de
+  /// eso depende que `camionesFlota[i]` siga emparejado con `delDia[i]`: El
+  /// Rojo con la ruta del Centro, La Mula con la del Suroeste, El Chele con la
+  /// del Norte. Recolectar por orden de respuesta le cambiaría la ruta a cada
+  /// camión según cuál contestara primero.
   Future<void> preparar() async {
-    if (_listo || _desechado) return;
+    if (_listo || _preparando || _desechado) return;
+
+    _preparando = true;
+    notifyListeners();
 
     final List<Ruta> delDia = rutasDeLaFlota();
+    final int cuantas =
+        camionesFlota.length < delDia.length ? camionesFlota.length : delDia.length;
 
-    for (int i = 0; i < camionesFlota.length && i < delDia.length; i++) {
+    final List<TrazoRuta> trazados = await Future.wait<TrazoRuta>(<Future<TrazoRuta>>[
+      for (int i = 0; i < cuantas; i++) _osrm.trazar(_puntosDe(delDia[i])),
+    ]);
+
+    if (_desechado) return;
+
+    for (int i = 0; i < cuantas; i++) {
       final Ruta ruta = delDia[i];
-      // Base → cada parada en orden → base. El regreso importa: el camión que
-      // ya entregó todo sigue existiendo y sigue en el mapa hasta que llega.
-      final List<LatLng> paradas = <LatLng>[
-        ruta.base,
-        for (final Parada p in ruta.paradas) p.cliente.posicion,
-        ruta.base,
-      ];
-
-      final TrazoRuta trazo = await _osrm.trazar(paradas);
-      if (_desechado) return;
+      final TrazoRuta trazo = trazados[i];
       if (trazo.esReal) trazosReales++;
 
       rutas.add(ruta);
@@ -80,9 +104,18 @@ class TorreController extends ChangeNotifier {
       );
     }
 
+    _preparando = false;
     _listo = true;
     notifyListeners();
   }
+
+  /// Base → cada parada en orden → base. El regreso importa: el camión que ya
+  /// entregó todo sigue existiendo y sigue en el mapa hasta que llega.
+  static List<LatLng> _puntosDe(Ruta ruta) => <LatLng>[
+        ruta.base,
+        for (final Parada p in ruta.paradas) p.cliente.posicion,
+        ruta.base,
+      ];
 
   void seleccionar(String? camionId) {
     camionSeleccionado = camionId;

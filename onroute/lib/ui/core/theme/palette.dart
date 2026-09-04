@@ -51,6 +51,7 @@ class OnRouteColors extends ThemeExtension<OnRouteColors> {
     required this.glassStroke,
     required this.glassShadow,
     required this.mapWash,
+    required this.mapInk,
     required this.isDark,
   });
 
@@ -138,6 +139,19 @@ class OnRouteColors extends ThemeExtension<OnRouteColors> {
   /// encima sean el contenido.
   final Color mapWash;
 
+  /// Tinta que se dibuja **sobre los tiles**: hoy, el filete de las rutas.
+  ///
+  /// Es el único color de la paleta que vale lo mismo en los dos registros, y
+  /// no por descuido: los tiles de OpenStreetMap son los mismos claros vengan
+  /// del tema que vengan —el tema tiñe la app, no el mapa—, así que una tinta
+  /// que siguiera al tema quedaría casi blanca sobre una calle blanca en el
+  /// registro de calle. Contra el peor tile realista ya lavado por [mapWash]
+  /// queda en 5.60:1 en torre y 11.45:1 en calle.
+  ///
+  /// Es lo que hace visible una ruta que no está seleccionada: el latón solo,
+  /// y encima al 55 % de alfa, caía a 1.01:1 sobre una calle blanca.
+  final Color mapInk;
+
   final bool isDark;
 
   // ── Tema Calle (claro) ─────────────────────────────────────────────────
@@ -170,6 +184,7 @@ class OnRouteColors extends ThemeExtension<OnRouteColors> {
     glassStroke: Color(0x1F0F1A15),
     glassShadow: Color(0x2E0F1A15),
     mapWash: Color(0x0A0F1A15),
+    mapInk: Color(0xFF0B1410), // 11.45:1 contra el peor tile realista
     isDark: false,
   );
 
@@ -203,6 +218,7 @@ class OnRouteColors extends ThemeExtension<OnRouteColors> {
     glassStroke: Color(0x26F2EFE4),
     glassShadow: Color(0x66000000),
     mapWash: Color(0x59070E0B),
+    mapInk: Color(0xFF0B1410), //  5.60:1 contra el peor tile realista
     isDark: true,
   );
 
@@ -234,6 +250,7 @@ class OnRouteColors extends ThemeExtension<OnRouteColors> {
     Color? glassStroke,
     Color? glassShadow,
     Color? mapWash,
+    Color? mapInk,
     bool? isDark,
   }) {
     return OnRouteColors(
@@ -263,6 +280,7 @@ class OnRouteColors extends ThemeExtension<OnRouteColors> {
       glassStroke: glassStroke ?? this.glassStroke,
       glassShadow: glassShadow ?? this.glassShadow,
       mapWash: mapWash ?? this.mapWash,
+      mapInk: mapInk ?? this.mapInk,
       isDark: isDark ?? this.isDark,
     );
   }
@@ -298,6 +316,7 @@ class OnRouteColors extends ThemeExtension<OnRouteColors> {
       glassStroke: c(glassStroke, other.glassStroke),
       glassShadow: c(glassShadow, other.glassShadow),
       mapWash: c(mapWash, other.mapWash),
+      mapInk: c(mapInk, other.mapInk),
       isDark: t < 0.5 ? isDark : other.isDark,
     );
   }

@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import '../../../../domain/models/camion.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/palette.dart';
+import '../../../core/theme/tokens.dart';
 
 class MarcadorCamion extends StatelessWidget {
   const MarcadorCamion({
@@ -52,14 +53,18 @@ class MarcadorCamion extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: SizedBox(
-          width: 44,
-          height: 44,
+          // `Touch.min`, no 44: el marcador es el botón con el que la torre
+          // selecciona un camión y tiene que cumplir el piso táctil del
+          // sistema. El disco visible se queda en 26 —el mapa se satura si los
+          // marcadores crecen—, lo que sube es el área que recibe el toque.
+          width: Touch.min,
+          height: Touch.min,
           child: Stack(
             alignment: Alignment.center,
             children: <Widget>[
               if (detenido)
                 CustomPaint(
-                  size: const Size.square(44),
+                  size: const Size.square(Touch.min),
                   painter: _PulsoPainter(fase: pulso, color: tono),
                 ),
               Container(

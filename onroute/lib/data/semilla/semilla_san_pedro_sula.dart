@@ -36,6 +36,7 @@ import 'package:latlong2/latlong.dart';
 import '../../domain/models/bodega.dart';
 import '../../domain/models/camion.dart';
 import '../../domain/models/cliente.dart';
+import '../../domain/models/conductor.dart';
 import '../../domain/models/dinero.dart';
 import '../../domain/models/parada.dart';
 import '../../domain/models/producto.dart';
@@ -472,6 +473,52 @@ const List<Cliente> clientesRuta3 = <Cliente>[
 /// equivocado.
 const LatLng baseOperaciones = LatLng(15.5185, -88.0115);
 
+/// El registro de conductores con el que arranca la demo: las tres personas
+/// que ya venían manejando los tres camiones, ahora como gente y no como
+/// texto suelto dentro del camión.
+///
+/// Los DNI son inventados pero bien formados —trece dígitos, los cuatro
+/// primeros el código de municipio de San Pedro Sula (0501)— porque el
+/// formulario los valida de verdad y una semilla que no pasa su propia
+/// validación es una semilla que nadie puede editar sin corregirla primero.
+final List<Conductor> conductoresSemilla = <Conductor>[
+  const Conductor(
+    id: 'con-01',
+    nombre: 'Marvin Aguilar',
+    dni: '0501198501234',
+    telefono: '98001182',
+    licencia: TipoLicencia.pesada,
+    camionId: 'cam-01',
+  ),
+  const Conductor(
+    id: 'con-02',
+    nombre: 'Denia Zelaya',
+    dni: '0501199007765',
+    telefono: '98008840',
+    licencia: TipoLicencia.pesada,
+    camionId: 'cam-02',
+  ),
+  const Conductor(
+    id: 'con-03',
+    nombre: 'Wilmer Cruz',
+    dni: '0501199304418',
+    telefono: '98000194',
+    licencia: TipoLicencia.pesada,
+    camionId: 'cam-03',
+  ),
+  // Sin camión y con licencia liviana: es quien hace mandados en moto. Está en
+  // la semilla para que la pantalla abra mostrando los dos casos que el
+  // registro tiene que saber manejar —quien anda en ruta y quien está
+  // disponible— y para que la regla de licencia se pueda ver funcionando.
+  const Conductor(
+    id: 'con-04',
+    nombre: 'Kevin Portillo',
+    dni: '0501199811902',
+    telefono: '98000451',
+    licencia: TipoLicencia.liviana,
+  ),
+];
+
 /// Flota chica de tres camiones. El Rojo va cargado y en ruta (es el que usa
 /// [rutaDelDia]); los otros dos amanecen en base.
 ///
@@ -484,6 +531,7 @@ final List<Camion> camionesFlota = <Camion>[
     placa: 'PCX 1234',
     apodo: 'El Rojo',
     conductor: 'Marvin Aguilar',
+    conductorId: 'con-01',
     estado: EstadoCamion.enRuta,
     capacidadBultos: 480,
     rastro: Rastro(
@@ -498,6 +546,7 @@ final List<Camion> camionesFlota = <Camion>[
     placa: 'PAA 8821',
     apodo: 'La Mula',
     conductor: 'Denia Zelaya',
+    conductorId: 'con-02',
     estado: EstadoCamion.enBase,
     capacidadBultos: 240,
     rastro: Rastro(
@@ -512,6 +561,7 @@ final List<Camion> camionesFlota = <Camion>[
     placa: 'PBD 5567',
     apodo: 'El Chele',
     conductor: 'Wilmer Cruz',
+    conductorId: 'con-03',
     estado: EstadoCamion.enBase,
     capacidadBultos: 200,
     rastro: Rastro(
@@ -748,16 +798,34 @@ Parada _parada(
   }
 }
 
-/// La ruta del día: catorce paradas de [clientesRuta1], con El Rojo
-/// (`cam-01`) saliendo de la base a las 7:00 a.m. del 28 de agosto de 2026.
-/// Las horas estimadas quedan separadas 25 minutos, empezando a las 7:30 a.m.
+/// La ruta del día: catorce paradas de [clientesRuta1] en el camión de El Rojo
+/// (`cam-01`). Las horas estimadas quedan separadas 25 minutos, y la primera
+/// parada pendiente cae siempre **ahora**.
+///
+/// ## Por qué la salida se calcula y no se escribe
+///
+/// La hora de salida estaba clavada a una fecha fija mientras cada cobro se
+/// sella con [DateTime.now]. Bastaba registrar una parada para que
+/// [Ruta.atrasoMinutos] midiera la distancia entre el calendario y el reloj y
+/// el encabezado anunciara «144 h 29 min atraso» — un atraso que crecía solo,
+/// un día más por cada día que pasaba sin tocar el código. Anclando la salida
+/// al reloj real la demo abre siempre puntual, hoy y dentro de un año.
+///
+/// El minuto se trunca a propósito: si la salida arrastrara segundos y
+/// milisegundos, las horas estimadas los heredarían y ninguna parada caería
+/// nunca en un minuto redondo.
 ///
 /// `variante: 0` da la ruta recién cargada, sin ninguna parada visitada.
 /// `variante: 1` da la ruta a media mañana: las primeras seis paradas ya
 /// están cerradas y la [Bodega] de [bodegaCargada] refleja los mismos
-/// bultos ya vendidos.
+/// bultos ya vendidos. Por eso la salida retrocede seis intervalos más en esa
+/// variante: son las seis paradas que ya quedaron atrás.
 Ruta rutaDelDia({required int variante}) {
-  final DateTime horaSalida = DateTime(2026, 8, 28, 7);
+  final DateTime ahora = DateTime.now();
+  final DateTime minutoEnPunto =
+      DateTime(ahora.year, ahora.month, ahora.day, ahora.hour, ahora.minute);
+  final DateTime horaSalida = minutoEnPunto
+      .subtract(Duration(minutes: 30 + 25 * (variante == 1 ? 6 : 0)));
   final List<Parada> paradas = <Parada>[
     for (int i = 0; i < clientesRuta1.length; i++)
       _parada(
@@ -773,7 +841,7 @@ Ruta rutaDelDia({required int variante}) {
     id: 'ruta-centro-2026-08-28',
     camionId: 'cam-01',
     nombre: 'Centro',
-    fecha: DateTime(2026, 8, 28),
+    fecha: DateTime(ahora.year, ahora.month, ahora.day),
     base: baseOperaciones,
     horaSalida: horaSalida,
     paradas: paradas,
@@ -1041,7 +1109,7 @@ Ruta _rutaFlota({
     id: id,
     camionId: camionId,
     nombre: nombre,
-    fecha: DateTime(2026, 8, 28),
+    fecha: DateTime(horaSalida.year, horaSalida.month, horaSalida.day),
     base: baseOperaciones,
     horaSalida: horaSalida,
     paradas: paradas,
@@ -1055,8 +1123,18 @@ Ruta _rutaFlota({
   );
 }
 
-/// Las tres rutas del 28 de agosto de 2026, una por camión y cada una con su
-/// propia lista de clientes, su parrilla y su avance.
+/// Hoy a la hora indicada, con segundos en cero.
+///
+/// Las dos rutas de la flota salen a horas distintas de la del vendedor y
+/// tienen que ser del mismo día que ella: una torre que muestra tres camiones
+/// fechados el año pasado no es una flota, es un archivo.
+DateTime _hoyALas(int hora, int minuto) {
+  final DateTime d = DateTime.now();
+  return DateTime(d.year, d.month, d.day, hora, minuto);
+}
+
+/// Las tres rutas de hoy, una por camión y cada una con su propia lista de
+/// clientes, su parrilla y su avance.
 ///
 /// Existe aparte de [rutaDelDia] porque son dos preguntas distintas: la app del
 /// vendedor trabaja **una** ruta —la suya— y la torre mira **la flota**. Antes
@@ -1072,7 +1150,7 @@ List<Ruta> rutasDeLaFlota() => <Ruta>[
         rutaCorta: 'r2',
         camionId: 'cam-02',
         nombre: 'Suroeste',
-        horaSalida: DateTime(2026, 8, 28, 6, 40),
+        horaSalida: _hoyALas(6, 40),
         minutosEntreParadas: 28,
         clientes: clientesRuta2,
         pedidos: _pedidosRuta2,
@@ -1098,7 +1176,7 @@ List<Ruta> rutasDeLaFlota() => <Ruta>[
         rutaCorta: 'r3',
         camionId: 'cam-03',
         nombre: 'Norte',
-        horaSalida: DateTime(2026, 8, 28, 7, 20),
+        horaSalida: _hoyALas(7, 20),
         minutosEntreParadas: 32,
         clientes: clientesRuta3,
         pedidos: _pedidosRuta3,

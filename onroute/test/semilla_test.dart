@@ -14,6 +14,7 @@ import 'package:onroute/domain/logic/vito_analista.dart';
 import 'package:onroute/domain/models/bodega.dart';
 import 'package:onroute/domain/models/camion.dart';
 import 'package:onroute/domain/models/cliente.dart';
+import 'package:onroute/domain/models/conductor.dart';
 import 'package:onroute/domain/models/dinero.dart';
 import 'package:onroute/domain/models/parada.dart';
 import 'package:onroute/domain/models/ruta.dart';
@@ -218,6 +219,34 @@ void main() {
       if (t == null) continue;
       expect(t.contains('2500-') || t.contains('9800-'), isTrue, reason: t);
     }
+
+    // La misma convención vale para el registro de conductores: son personas,
+    // y un celular real acá sería un dato de alguien metido en un repositorio
+    // público.
+    for (final Conductor c in conductoresSemilla) {
+      expect(c.telefono.startsWith('9800'), isTrue,
+          reason: 'teléfono de ${c.nombre}: ${c.telefono}');
+    }
+  });
+
+  test('los DNI de la semilla llevan el código de San Pedro Sula', () {
+    for (final Conductor c in conductoresSemilla) {
+      expect(c.dni.length, 13, reason: 'DNI de ${c.nombre}: ${c.dni}');
+      expect(c.dni.startsWith('0501'), isTrue,
+          reason: 'DNI de ${c.nombre}: ${c.dni}');
+    }
+  });
+
+  test('cada camión de la flota apunta al conductor que lo maneja', () {
+    for (final Camion cam in camionesFlota) {
+      final String? id = cam.conductorId;
+      expect(id, isNotNull, reason: '${cam.apodo} no tiene conductorId');
+      final Conductor c =
+          conductoresSemilla.firstWhere((Conductor x) => x.id == id);
+      expect(c.nombre, cam.conductor,
+          reason: 'el nombre del camión y el del registro se separaron');
+      expect(c.camionId, cam.id, reason: 'la asignación no es recíproca');
+    }
   });
 
   test('los RTN llevan el código de San Pedro Sula, no el de Tegucigalpa', () {
@@ -239,6 +268,53 @@ void main() {
       expect(c.posicion.longitude, inInclusiveRange(-88.12, -87.90),
           reason: c.id);
     }
+  });
+
+  /// La demo tiene que abrir puntual el día que se enseñe, no el día que se
+  /// escribió. Con la salida clavada a una fecha fija y cada cobro sellado con
+  /// [DateTime.now], el encabezado de la ruta anunciaba «144 h 29 min atraso»
+  /// —un atraso que crecía solo, un día más por cada día sin tocar el código.
+  group('el día de la demo es hoy, no una fecha escrita a mano', () {
+    test('la ruta del vendedor está fechada hoy', () {
+      final DateTime hoy = DateTime.now();
+      for (final int variante in <int>[0, 1]) {
+        final Ruta r = rutaDelDia(variante: variante);
+        expect(r.fecha.year, hoy.year, reason: 'variante $variante');
+        expect(r.fecha.month, hoy.month, reason: 'variante $variante');
+        expect(r.fecha.day, hoy.day, reason: 'variante $variante');
+      }
+    });
+
+    test('la ruta a media mañana no abre con horas de atraso', () {
+      final Ruta r = rutaDelDia(variante: 1);
+
+      // Menos de un intervalo entre paradas. El atraso real de la semilla son
+      // unos pocos minutos; lo que esta prueba prohíbe es que vuelva a ser un
+      // número que crece con el calendario.
+      expect(r.atrasoMinutos.abs(), lessThan(25),
+          reason: 'el atraso volvió a medirse contra una fecha clavada');
+    });
+
+    test('la primera parada pendiente cae alrededor de ahora', () {
+      final Ruta r = rutaDelDia(variante: 1);
+      final Parada siguiente =
+          r.paradas.firstWhere((Parada p) => !p.cerrada);
+
+      expect(
+        siguiente.horaEstimada.difference(DateTime.now()).inMinutes.abs(),
+        lessThan(30),
+      );
+    });
+
+    test('los tres camiones de la torre andan el mismo día', () {
+      final List<Ruta> flota = rutasDeLaFlota();
+      final DateTime dia = flota.first.fecha;
+
+      for (final Ruta r in flota) {
+        expect(r.fecha, dia, reason: '${r.nombre} anda en otro día');
+        expect(r.horaSalida.day, dia.day, reason: r.nombre);
+      }
+    });
   });
 }
 

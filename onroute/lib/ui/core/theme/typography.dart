@@ -118,6 +118,19 @@ abstract final class AppText {
     height: 1.45,
   );
 
+  /// Metadato de una línea: la hora estimada de una parada, el precio unitario
+  /// debajo del producto, el rótulo de estado de un camión. Es el escalón que
+  /// faltaba: sin él, `bodySmall` caía en la escala de Material y trece
+  /// pantallas se dibujaban con la tipografía del framework —tamaño, tracking
+  /// y peso ajenos— en vez de con la de OnRoute.
+  static final TextStyle bodyXs = _face(
+    family: Fonts.body,
+    size: 12,
+    weight: FontWeight.w400,
+    height: 1.4,
+    tracking: 0.1,
+  );
+
   // ── Etiquetas (Inter) ──────────────────────────────────────────────────
   /// Texto de botón y etiquetas de campo.
   static final TextStyle label = _face(
@@ -159,6 +172,19 @@ abstract final class AppText {
     features: _tabular,
   );
 
+  /// La cifra que alguien está moviendo con las manos: el conteo de una casilla
+  /// de la parrilla, subido al camión. Va en mono tabular porque el número
+  /// cambia de golpe con cada toque y un dígito de ancho variable hace saltar
+  /// toda la fila.
+  static final TextStyle dataXl = _face(
+    family: Fonts.mono,
+    size: 32,
+    weight: FontWeight.w600,
+    height: 1.1,
+    tracking: -0.5,
+    features: _tabular,
+  );
+
   /// Cantidades, horas, códigos.
   static final TextStyle data = _face(
     family: Fonts.mono,
@@ -180,16 +206,28 @@ abstract final class AppText {
 
   /// `TextTheme` de Material derivado de la escala, para que los widgets del
   /// framework que no conocen `AppText` hereden igual la tipografía correcta.
+  ///
+  /// **Los quince papeles se llenan todos.** Un papel que se deja sin mapear no
+  /// queda vacío: `ThemeData` lo rellena con la escala de Material y ese estilo
+  /// llega a pantalla con el tamaño, el tracking y el color del framework —y
+  /// sin `fontVariations`, así que el eje `wght` de la fuente variable ni
+  /// siquiera se mueve. Es lo que pasaba con `bodySmall` (trece sitios de uso)
+  /// y con `displaySmall` (el contador de la parrilla, que salía en Inter a 36
+  /// px pese a pedir cifras tabulares).
   static TextTheme themeFor(Color ink, Color ink2) {
     return TextTheme(
       displayLarge: displayLg.copyWith(color: ink),
       displayMedium: displayMd.copyWith(color: ink),
+      displaySmall: dataXl.copyWith(color: ink),
+      headlineLarge: displayMd.copyWith(color: ink),
+      headlineMedium: titleLg.copyWith(color: ink),
       headlineSmall: titleLg.copyWith(color: ink),
       titleLarge: titleLg.copyWith(color: ink),
       titleMedium: titleMd.copyWith(color: ink),
       titleSmall: titleSm.copyWith(color: ink),
       bodyLarge: body.copyWith(color: ink),
       bodyMedium: bodySm.copyWith(color: ink2),
+      bodySmall: bodyXs.copyWith(color: ink2),
       labelLarge: label.copyWith(color: ink),
       labelMedium: label.copyWith(color: ink2),
       labelSmall: labelSm.copyWith(color: ink2),

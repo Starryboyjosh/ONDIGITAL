@@ -132,7 +132,10 @@ class _RutaViewState extends State<RutaView> {
       await showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.transparent,
+        // Sin `backgroundColor: Colors.transparent`. El tema ya pinta la hoja
+        // (`bottomSheetTheme`: superficie, esquinas de `Radii.topSheet` y asa),
+        // y volverla transparente dejaba el asa —48 px de alto táctil— flotando
+        // sobre un hueco vacío, con el contenido empezando recién debajo.
         builder: (BuildContext ctx) => HojaCobro(
           repo: _repo,
           parada: p,

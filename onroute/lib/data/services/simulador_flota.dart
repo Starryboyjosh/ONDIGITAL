@@ -129,6 +129,37 @@ class SimuladorFlota extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Cambia quién maneja un camión ya simulado, sin tocarle nada más.
+  ///
+  /// Existe porque el simulador se queda con su **propia copia** del camión al
+  /// agregarlo: sin esta puerta, asignar un conductor en el registro no
+  /// llegaría nunca al marcador del mapa —el registro diría una cosa y la torre
+  /// seguiría rotulando otra.
+  ///
+  /// Se transplantan solo los dos campos del conductor y no el [Camion]
+  /// entero, aunque el registro tenga uno completo a mano: su copia trae el
+  /// rastro y el estado de cuando arrancó el día, y pisarlos acá teletransporta
+  /// el camión de vuelta a la base a media ruta.
+  void reasignarConductor({
+    required String camionId,
+    required String conductor,
+    String? conductorId,
+  }) {
+    for (final CamionSimulado c in _camiones) {
+      if (c.camion.id != camionId) continue;
+      if (c.camion.conductor == conductor &&
+          c.camion.conductorId == conductorId) {
+        return;
+      }
+      c.camion = c.camion.conConductor(
+        conductor: conductor,
+        conductorId: conductorId,
+      );
+      notifyListeners();
+      return;
+    }
+  }
+
   void iniciar({Duration cadencia = const Duration(milliseconds: 500)}) {
     if (_timer != null) return;
     _timer = Timer.periodic(cadencia, (_) => avanzar(cadencia));
@@ -138,6 +169,28 @@ class SimuladorFlota extends ChangeNotifier {
   void pausar() {
     _timer?.cancel();
     _timer = null;
+    notifyListeners();
+  }
+
+  /// Devuelve la flota a la puerta de la bodega, con la jornada por delante.
+  ///
+  /// A 90× una jornada de ocho horas se agota en poco más de cinco minutos, y
+  /// sin esta puerta la torre quedaba con tres camiones clavados en la base sin
+  /// más salida que cerrar la app. Se reinicia **solo el recorrido**: el trazo,
+  /// la ruta y quién maneja cada camión no se tocan, porque no son parte de la
+  /// jornada sino del día que se está simulando —reasignar un conductor y que
+  /// reiniciar se lo revirtiera sería otro error, no un arreglo.
+  ///
+  /// No arranca el reloj: si estaba corriendo sigue corriendo, y si estaba en
+  /// pausa se queda en pausa con la flota lista para salir.
+  void reiniciar() {
+    if (_camiones.isEmpty) return;
+    for (final CamionSimulado c in _camiones) {
+      c.avance = 0;
+      c.proximaParada = 0;
+      c.esperaRestante = 0;
+      _publicar(c, detenido: false);
+    }
     notifyListeners();
   }
 

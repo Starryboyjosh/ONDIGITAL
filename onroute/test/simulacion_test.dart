@@ -138,6 +138,41 @@ void main() {
       s.dispose();
     });
 
+    test('reiniciar devuelve la flota a la base con la jornada por delante', () {
+      // La simulación corre a 90× y se agota en poco más de cinco minutos.
+      // Sin esta puerta la torre quedaba con los camiones clavados en la base
+      // y sin más salida que cerrar la app.
+      final SimuladorFlota s = conRoute();
+      final String conductor = s.camiones.single.camion.conductor;
+
+      s.avanzar(const Duration(hours: 12));
+      expect(s.camiones.single.termino, isTrue);
+
+      s.reiniciar();
+
+      final CamionSimulado c = s.camiones.single;
+      expect(c.avance, 0);
+      expect(c.proximaParada, 0);
+      expect(c.esperaRestante, 0);
+      expect(c.termino, isFalse);
+      expect(c.camion.estado, EstadoCamion.enRuta);
+      // Reiniciar la jornada no revierte quién maneja: eso es del día, no del
+      // recorrido.
+      expect(c.camion.conductor, conductor);
+
+      // Y vuelve a andar: no queda reiniciada pero muerta.
+      s.avanzar(const Duration(minutes: 10));
+      expect(s.camiones.single.avance, greaterThan(0));
+      s.dispose();
+    });
+
+    test('reiniciar sin flota no hace nada y no revienta', () {
+      final SimuladorFlota s = SimuladorFlota();
+      s.reiniciar();
+      expect(s.camiones, isEmpty);
+      s.dispose();
+    });
+
     test('el mismo tiempo en un tick o en muchos deja el mismo avance', () {
       final SimuladorFlota a = conRoute();
       final SimuladorFlota b = conRoute();

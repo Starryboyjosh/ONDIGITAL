@@ -103,14 +103,27 @@ class _HojaCobroState extends State<HojaCobro> {
   bool get _hayAlgoQueEntregar =>
       _cantidades.values.any((int c) => c > 0);
 
+  /// Cambia el pedido o el cobro y limpia el error de paso.
+  ///
+  /// El aviso de "ya no alcanza tal producto" habla de **un pedido concreto**:
+  /// en cuanto el vendedor baja la cantidad, deja de ser cierto. Se quedaba en
+  /// pantalla contradiciendo al botón, que ya estaba habilitado, y no había
+  /// forma de quitarlo salvo cerrar la hoja y volver a abrirla.
+  void _editar(VoidCallback cambio) {
+    setState(() {
+      cambio();
+      _errorSinExistencia = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final OnRouteColors c = context.colors;
     final Parada p = widget.parada;
     final bool soloLectura = p.cerrada;
 
+    // Sin decoración propia: la hoja modal ya la pinta el tema. Pintarla otra
+    // vez acá era lo que abría el hueco transparente bajo el asa.
     return Container(
-      decoration: BoxDecoration(color: c.surface, borderRadius: Radii.topSheet),
       constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.9),
       padding: EdgeInsets.only(
         left: Space.lg,
@@ -324,7 +337,7 @@ class _HojaCobroState extends State<HojaCobro> {
             width: double.infinity,
             height: Touch.comfortable,
             child: FilledButton(
-              onPressed: (_hayAlgoQueEntregar && _cuadra) ? _registrar : null,
+              onPressed: (_hayAlgoQueEntregar && _cuadra) ? _confirmar : null,
               child: const Text('Registrar cobro'),
             ),
           ),
@@ -378,7 +391,7 @@ class _HojaCobroState extends State<HojaCobro> {
             height: Touch.comfortable,
             child: IconButton.filledTonal(
               onPressed: cantidad > 0
-                  ? () => setState(() => _cantidades[sku] = cantidad - 1)
+                  ? () => _editar(() => _cantidades[sku] = cantidad - 1)
                   : null,
               icon: const Icon(Icons.remove),
             ),
@@ -395,7 +408,7 @@ class _HojaCobroState extends State<HojaCobro> {
             width: Touch.comfortable,
             height: Touch.comfortable,
             child: IconButton.filledTonal(
-              onPressed: () => setState(() => _cantidades[sku] = cantidad + 1),
+              onPressed: () => _editar(() => _cantidades[sku] = cantidad + 1),
               icon: const Icon(Icons.add),
             ),
           ),
@@ -416,7 +429,7 @@ class _HojaCobroState extends State<HojaCobro> {
         labelText: etiqueta,
         prefixText: 'L ',
       ),
-      onChanged: (_) => setState(() {}),
+      onChanged: (_) => _editar(() {}),
     );
   }
 
@@ -459,6 +472,44 @@ class _HojaCobroState extends State<HojaCobro> {
     );
   }
 
+  /// Pregunta antes de cobrar. Registrar una entrega **no se puede deshacer**:
+  /// baja el producto de la parrilla y cierra la parada de una vez —el
+  /// repositorio rechaza cualquier segundo intento con `paradaYaCerrada`—, así
+  /// que un toque de más con el pulgar sobre un teléfono en la calle dejaba la
+  /// parada cerrada con la cifra equivocada y sin vuelta atrás. El diálogo
+  /// repite en una línea lo que se va a registrar, que es lo único que hay que
+  /// mirar antes de confirmar.
+  Future<void> _confirmar() async {
+    final int bultos =
+        _cantidades.values.fold(0, (int a, int b) => a + (b > 0 ? b : 0));
+
+    final bool? sigue = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogo) => AlertDialog(
+        title: const Text('Registrar el cobro'),
+        content: Text(
+          'Se bajan $bultos ${bultos == 1 ? 'bulto' : 'bultos'} de la parrilla '
+          'y la parada de ${widget.parada.cliente.nombre} queda cerrada con '
+          '${Formatos.lempiras(_pagado.enLempiras)}. '
+          'Una vez registrada no se puede corregir.',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogo).pop(false),
+            child: const Text('Revisar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogo).pop(true),
+            child: const Text('Registrar'),
+          ),
+        ],
+      ),
+    );
+
+    if (sigue != true || !mounted) return;
+    _registrar();
+  }
+
   void _registrar() {
     final Map<String, int> items = <String, int>{
       for (final MapEntry<String, int> e in _cantidades.entries)
@@ -474,6 +525,13 @@ class _HojaCobroState extends State<HojaCobro> {
     );
 
     if (r.exito) {
+      // Se avisa **antes** de cerrar la hoja: el `ScaffoldMessenger` se busca
+      // desde este contexto, y después del `alTerminar` la hoja ya no está en
+      // el árbol en teléfono.
+      _avisar(
+        '${widget.parada.cliente.nombre}: cobro de '
+        '${Formatos.lempiras(_pagado.enLempiras)} registrado',
+      );
       widget.alTerminar();
       return;
     }
@@ -482,6 +540,13 @@ class _HojaCobroState extends State<HojaCobro> {
     // peor que un error: el vendedor lo vuelve a tocar creyendo que no
     // registró el toque, y termina sin saber si la parada quedó cobrada.
     setState(() => _errorSinExistencia = _explicar(r));
+  }
+
+  void _avisar(String texto) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(content: Text(texto)));
   }
 
   String _explicar(ResultadoEntrega r) {
@@ -506,13 +571,15 @@ class _HojaCobroState extends State<HojaCobro> {
   Future<void> _noSeVendio() async {
     final MotivoOmision? motivo = await showModalBottomSheet<MotivoOmision>(
       context: context,
-      backgroundColor: Colors.transparent,
       builder: (BuildContext ctx) => const _HojaMotivo(),
     );
     if (motivo == null || !mounted) return;
 
     widget.repo.omitir(paradaId: widget.parada.id, motivo: motivo);
     if (!mounted) return;
+    _avisar(
+      '${widget.parada.cliente.nombre}: no se vendió · ${motivo.etiqueta}',
+    );
     widget.alTerminar();
   }
 }
@@ -525,9 +592,7 @@ class _HojaMotivo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final OnRouteColors c = context.colors;
-    return Container(
-      decoration: BoxDecoration(color: c.surface, borderRadius: Radii.topSheet),
+    return Padding(
       padding: const EdgeInsets.only(
         left: Space.lg,
         right: Space.lg,

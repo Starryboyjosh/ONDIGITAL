@@ -69,7 +69,11 @@ void main() {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: torre ? AppTheme.torre : AppTheme.calle,
-          home: IdentidadView(esTorre: torre, onCambiarTema: (_) {}),
+          home: IdentidadView(
+            temaForzado: torre,
+            esTorre: torre,
+            onCambiarTema: (_) {},
+          ),
         ),
       ),
     );

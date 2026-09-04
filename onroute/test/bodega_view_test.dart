@@ -118,4 +118,43 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('dar por bueno el teórico cierra el conteo sin 24 hojas modales',
+      (WidgetTester tester) async {
+    // La parrilla tiene 24 posiciones y hasta ahora la única forma de dejar el
+    // conteo completo —requisito para que el cierre pueda decir "todo cuadra"—
+    // era abrir 24 hojas modales. `aceptarConteoTeorico` existía en el
+    // repositorio y no la llamaba ninguna pantalla.
+    final RutaRepository repo = RutaRepository(rutaDelDia(variante: 1));
+    expect(repo.ruta.bodega.conteoCompleto, isFalse);
+
+    tester.view.physicalSize = const Size(390, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      _app(BodegaView(repo: repo), tam: const Size(390, 2400)),
+    );
+    await tester.pumpAndSettle();
+
+    final Finder boton =
+        find.widgetWithText(OutlinedButton, 'Dar por bueno el teórico');
+    await tester.ensureVisible(boton);
+    await tester.tap(boton);
+    await tester.pumpAndSettle();
+
+    // Pregunta antes, y lo dice con su nombre: no cuenta nada.
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.textContaining('no es un conteo'), findsOneWidget);
+    expect(repo.ruta.bodega.conteoCompleto, isFalse);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Dar por bueno'));
+    await tester.pumpAndSettle();
+
+    expect(repo.ruta.bodega.conteoCompleto, isTrue);
+    expect(find.byType(SnackBar), findsOneWidget);
+    // Con el conteo cerrado el atajo desaparece: ya no hay nada que dar por
+    // bueno.
+    expect(find.widgetWithText(OutlinedButton, 'Dar por bueno el teórico'),
+        findsNothing);
+  });
 }

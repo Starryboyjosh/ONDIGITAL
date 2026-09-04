@@ -71,6 +71,20 @@ class _TorreViewState extends State<TorreView>
     if (mounted) setState(() {});
   }
 
+  /// Vuelve a poner la flota en la puerta de la bodega y lo dice. El aviso no
+  /// es cortesía: reiniciar mueve tres marcadores a la vez y sin una respuesta
+  /// escrita quien tocó el botón no sabe si pasó algo o si el mapa se trabó.
+  void _reiniciar() {
+    _c.simulador.reiniciar();
+    if (!_c.simulador.corriendo) _c.simulador.iniciar();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        const SnackBar(content: Text('La flota vuelve a salir de la base')),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     final OnRouteColors c = context.colors;
@@ -94,7 +108,7 @@ class _TorreViewState extends State<TorreView>
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.all(Space.md),
-                        child: _Resumen(controlador: _c),
+                        child: _Resumen(controlador: _c, onReiniciar: _reiniciar),
                       ),
                       const Spacer(),
                       SizedBox(
@@ -112,7 +126,7 @@ class _TorreViewState extends State<TorreView>
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            _Resumen(controlador: _c),
+                            _Resumen(controlador: _c, onReiniciar: _reiniciar),
                             const SizedBox(height: Space.md),
                             Flexible(child: _FlotaVertical(controlador: _c)),
                           ],
@@ -168,15 +182,25 @@ class _TorreViewState extends State<TorreView>
               userAgentPackageName: 'hn.ondigital.onroute',
               tileProvider: NetworkTileProvider(),
             ),
+          // Las rutas van con **funda**: un filete oscuro alrededor del trazo.
+          //
+          // Sin funda, la línea sin seleccionar era latón al 55 % de alfa sobre
+          // los tiles de OSM ya lavados por `mapWash`, y latón claro sobre gris
+          // claro da 1.01:1 —la ruta desaparecía justo donde el mapa es blanco,
+          // que es donde están las calles—. El filete en `bg` no depende del
+          // tile: pase la línea por asfalto, por parque o por agua, siempre hay
+          // un filete oscuro que la separa del fondo, y el latón queda opaco
+          // encima. La ruta seleccionada además engorda: el grosor es la
+          // jerarquía, la transparencia no puede serlo.
           PolylineLayer<Object>(
             polylines: <Polyline<Object>>[
               for (final Ruta r in _c.rutas)
                 Polyline<Object>(
                   points: _c.trazos[r.id] ?? const <LatLng>[],
-                  strokeWidth: r.camionId == _c.camionSeleccionado ? 4 : 2.5,
-                  color: r.camionId == _c.camionSeleccionado
-                      ? c.violet
-                      : c.brass.withValues(alpha: 0.55),
+                  strokeWidth: r.camionId == _c.camionSeleccionado ? 5 : 3.5,
+                  color: r.camionId == _c.camionSeleccionado ? c.violet : c.brass,
+                  borderStrokeWidth: 2,
+                  borderColor: c.mapInk,
                 ),
             ],
           ),
@@ -211,8 +235,11 @@ class _TorreViewState extends State<TorreView>
         for (final CamionSimulado s in _c.simulador.camiones)
           Marker(
             point: s.camion.rastro.posicion,
-            width: 44,
-            height: 44,
+            // 48, el piso táctil que fija `Touch.min`. Estaba en 44: el propio
+            // sistema decía 48 y el marcador —que es un botón, se toca para
+            // seleccionar el camión— se dibujaba por debajo de su propia regla.
+            width: Touch.min,
+            height: Touch.min,
             child: AnimatedBuilder(
               animation: _pulso,
               builder: (BuildContext context, _) => MarcadorCamion(
@@ -230,9 +257,10 @@ class _TorreViewState extends State<TorreView>
 }
 
 class _Resumen extends StatelessWidget {
-  const _Resumen({required this.controlador});
+  const _Resumen({required this.controlador, required this.onReiniciar});
 
   final TorreController controlador;
+  final VoidCallback onReiniciar;
 
   @override
   Widget build(BuildContext context) {
@@ -256,17 +284,75 @@ class _Resumen extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge?.copyWith(color: c.ink),
           ),
           const SizedBox(height: Space.xs),
-          Text(
-            // Se dice de qué está hecha la línea que se está viendo. Hacer
-            // pasar una recta por una ruta de calle sería mentir con el mapa.
-            controlador.trazosReales == controlador.rutas.length
-                ? 'Trazo sobre calle real'
-                : 'Trazo estimado: sin conexión al ruteador',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: controlador.trazosReales == controlador.rutas.length
-                      ? c.ink2
-                      : c.pending,
+
+          // Tres estados, no dos. Se dice de qué está hecha la línea que se
+          // está viendo —hacer pasar una recta por una ruta de calle sería
+          // mentir con el mapa—, pero **mientras el ruteador no contesta no se
+          // sabe todavía**: antes, esos segundos en blanco se rotulaban "Trazo
+          // estimado: sin conexión al ruteador", que es una afirmación falsa
+          // dicha en color de alerta sobre una petición que seguía en vuelo.
+          if (controlador.preparando)
+            Row(
+              children: <Widget>[
+                SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: c.violet,
+                  ),
                 ),
+                const SizedBox(width: Space.sm),
+                // Flexible, no ancho natural: el panel mide 320 px en
+                // escritorio y menos en teléfono, y una línea que no se pueda
+                // encoger desborda el cristal.
+                Expanded(
+                  child: Text(
+                    'Trazando rutas sobre el mapa…',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: c.ink2),
+                  ),
+                ),
+              ],
+            )
+          else
+            Text(
+              controlador.trazosReales == controlador.rutas.length
+                  ? 'Trazo sobre calle real'
+                  : 'Trazo estimado: sin conexión al ruteador',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: controlador.trazosReales == controlador.rutas.length
+                        ? c.ink2
+                        : c.pending,
+                  ),
+            ),
+
+          // Reiniciar la jornada. La simulación corre a 90× y una jornada de
+          // ocho horas se acaba en poco más de cinco minutos: sin esta acción,
+          // una demo que pasara de ahí se quedaba con tres camiones parados en
+          // la base y sin forma de volverlos a la calle que no fuera cerrar la
+          // app.
+          const SizedBox(height: Space.md),
+          SizedBox(
+            height: Touch.min,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: controlador.listo ? onReiniciar : null,
+                // En tinta y no en el violeta que el tema le da por defecto a
+                // los `TextButton`: este botón vive sobre cristal, y la regla
+                // del cristal (ver `palette.dart`) es que ahí solo van `ink` e
+                // `ink2` —el violeta sobre cristal cae a 3.04:1 contra el peor
+                // tile, que no alcanza para texto—.
+                style: TextButton.styleFrom(foregroundColor: c.ink),
+                icon: const Icon(Icons.restart_alt, size: 18),
+                label: const Text('Repetir jornada'),
+              ),
+            ),
           ),
         ],
       ),

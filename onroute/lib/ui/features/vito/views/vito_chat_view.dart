@@ -125,7 +125,11 @@ class _VitoChatViewState extends State<VitoChatView> {
               ),
               child: Row(
                 children: <Widget>[
-                  MarcaOnRoute(tamano: 32, sobreOscuro: c.ink.computeLuminance() < 0.5),
+                  // `c.isDark`, no la luminancia de la tinta: `ink` es el color del
+                  // **texto**, que es claro justo cuando el fondo es oscuro. La
+                  // prueba estaba al revés y el isotipo salía invertido en los
+                  // dos temas a la vez.
+                  MarcaOnRoute(tamano: 32, sobreOscuro: c.isDark),
                   const SizedBox(width: Space.sm),
                   Text(
                     'Vito',

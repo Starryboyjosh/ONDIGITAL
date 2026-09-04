@@ -76,6 +76,13 @@ void main() {
     await tester.tap(botonRegistrar);
     await tester.pumpAndSettle();
 
+    // Un cobro no se puede deshacer, así que la hoja pregunta antes. Hasta que
+    // no se confirma, la parada sigue abierta.
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(repo.ruta.atendidas, 0, reason: 'todavía no se confirmó');
+    await tester.tap(find.widgetWithText(FilledButton, 'Registrar'));
+    await tester.pumpAndSettle();
+
     expect(repo.ruta.atendidas, 1);
     // Dos cuentas separadas: cobradas y visitadas. Coinciden acá porque no se
     // omitió ninguna, pero el encabezado no las colapsa.
@@ -198,10 +205,104 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(boton);
     await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Registrar'));
+    await tester.pumpAndSettle();
 
     expect(repo.ruta.atendidas, 1);
     expect(find.byType(RutaView), findsOneWidget,
         reason: 'la pantalla de la ruta tiene que seguir en pie');
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('el error de existencia se borra al corregir el pedido',
+      (WidgetTester tester) async {
+    // El aviso de "ya no alcanza tal producto" habla de un pedido concreto: en
+    // cuanto el vendedor baja la cantidad deja de ser cierto. Se quedaba en
+    // pantalla contradiciendo al botón, que ya estaba habilitado, y no había
+    // forma de quitarlo salvo cerrar la hoja y volver a abrirla.
+    final RutaRepository repo = RutaRepository(rutaDelDia(variante: 0));
+    await _fijarTamano(tester, const Size(390, 2000));
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(_app(RutaView(repo: repo), tam: const Size(390, 2000)));
+    await tester.pumpAndSettle();
+
+    final Parada objetivo =
+        repo.ruta.paradas.firstWhere((Parada p) => !p.cerrada);
+    await tester.tap(find.text(objetivo.cliente.nombre));
+    await tester.pumpAndSettle();
+
+    // Se pide muchísimo más de lo que hay arriba del camión. La hoja ordena
+    // los SKU, así que el primer `+` es el del SKU menor.
+    final Bodega bodega = repo.ruta.bodega;
+    final String sku = (objetivo.pedidoEsperado.keys.toList()..sort()).first;
+    final int hay = bodega
+        .delSku(sku)
+        .fold(0, (int a, Casilla c) => a + c.enCamion);
+    final int extra = hay + 1;
+
+    for (int i = 0; i < extra; i++) {
+      final Finder mas = find.widgetWithIcon(IconButton, Icons.add).first;
+      await tester.ensureVisible(mas);
+      await tester.tap(mas);
+      await tester.pump();
+    }
+
+    // Se cuadra el cobro para poder tocar Registrar y provocar el fallo.
+    final int valor = objetivo.pedidoEsperado.entries.fold(
+          0,
+          (int a, MapEntry<String, int> e) =>
+              a + bodega.producto(e.key).precio.centavos * e.value,
+        ) +
+        bodega.producto(sku).precio.centavos * extra;
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Efectivo'),
+      (valor / 100).toStringAsFixed(2),
+    );
+    await tester.pumpAndSettle();
+
+    final Finder registrar =
+        find.widgetWithText(FilledButton, 'Registrar cobro');
+    await tester.ensureVisible(registrar);
+    await tester.tap(registrar);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Registrar'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Ya no alcanza'), findsOneWidget);
+    expect(repo.ruta.atendidas, 0);
+
+    // Se corrige el pedido: el error tiene que irse solo.
+    final Finder menos = find.widgetWithIcon(IconButton, Icons.remove).first;
+    await tester.ensureVisible(menos);
+    await tester.tap(menos);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Ya no alcanza'), findsNothing);
+  });
+
+  testWidgets('la hoja de cobro no abre con un hueco bajo el asa',
+      (WidgetTester tester) async {
+    // La hoja se pedía con `backgroundColor: Colors.transparent` y se pintaba
+    // ella misma por dentro, así que el asa —48 px de alto táctil que el tema
+    // dibuja arriba de todo— quedaba flotando sobre un vacío y el contenido
+    // empezaba recién debajo.
+    final RutaRepository repo = RutaRepository(rutaDelDia(variante: 0));
+    await _fijarTamano(tester, const Size(390, 844));
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(_app(RutaView(repo: repo), tam: const Size(390, 844)));
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.text(repo.ruta.paradas.firstWhere((Parada p) => !p.cerrada).cliente.nombre),
+    );
+    await tester.pumpAndSettle();
+
+    final BottomSheet hoja =
+        tester.widget<BottomSheet>(find.byType(BottomSheet));
+    expect(hoja.backgroundColor, isNot(Colors.transparent),
+        reason: 'la hoja tiene que pintarla el tema, no dejarse transparente');
+    expect(hoja.backgroundColor, isNotNull);
   });
 }

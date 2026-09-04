@@ -12,7 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:onroute/ui/app_shell.dart';
 import 'package:onroute/ui/features/bodega/views/bodega_view.dart';
-import 'package:onroute/ui/features/identidad/views/identidad_view.dart';
+import 'package:onroute/ui/features/ajustes/views/ajustes_view.dart';
 import 'package:onroute/ui/features/liquidacion/views/liquidacion_view.dart';
 import 'package:onroute/ui/features/ruta/views/ruta_view.dart';
 import 'package:onroute/ui/features/torre/views/torre_view.dart';
@@ -59,7 +59,7 @@ void main() {
       ('Ruta', RutaView),
       ('Cierre', LiquidacionView),
       ('Vito', VitoChatView),
-      ('Marca', IdentidadView),
+      ('Ajustes', AjustesView),
       ('Torre', TorreView),
     ]) {
       // Por el nombre dentro de la barra, no en toda la pantalla: la de
@@ -121,6 +121,42 @@ void main() {
 
     expect(find.byType(TorreView), findsOneWidget);
     expect(tester.takeException(), isNull);
+
+    await _desmontar(tester);
+  });
+
+  testWidgets('el camión que llega en el mapa marca la parada en la lista',
+      (WidgetTester tester) async {
+    // Dos piezas buenas que no se hablaban: el simulador anunciaba cada
+    // llegada por `alLlegar` y no lo escuchaba nadie, y `marcarEnSitio` del
+    // repositorio no la llamaba ninguna pantalla. La torre mostraba a El Rojo
+    // detenido en la pulpería mientras la pantalla de Ruta seguía diciendo que
+    // esa parada estaba «Pendiente».
+    await _montar(tester, const Size(390, 1600));
+
+    final TorreView torre = tester.widget<TorreView>(find.byType(TorreView));
+    // La primera ruta de la flota es la que trabaja el repositorio: mismo
+    // camión, mismas paradas.
+    expect(torre.controlador.rutas.first.camionId,
+        torre.controlador.simulador.camiones.first.camion.id);
+
+    await tester.tap(_pestana('Ruta'));
+    await tester.pump();
+    final RutaView ruta = tester.widget<RutaView>(find.byType(RutaView));
+    expect(ruta.repo.ruta.paradas.any((p) => p.estado.name == 'enSitio'),
+        isFalse);
+
+    // Se adelanta media jornada: el camión pasa las seis paradas ya cerradas
+    // —que `marcarEnSitio` deja en paz— y llega a la primera pendiente.
+    torre.controlador.simulador.avanzar(const Duration(hours: 4));
+    await tester.pump();
+
+    expect(
+      ruta.repo.ruta.paradas.any((p) => p.estado.name == 'enSitio'),
+      isTrue,
+      reason: 'la llegada del mapa nunca llegó a la lista de la ruta',
+    );
+    expect(find.text('En sitio'), findsWidgets);
 
     await _desmontar(tester);
   });

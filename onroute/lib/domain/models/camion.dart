@@ -59,6 +59,7 @@ final class Camion {
     required this.conductor,
     required this.estado,
     required this.rastro,
+    this.conductorId,
     this.capacidadBultos = 240,
   });
 
@@ -71,7 +72,20 @@ final class Camion {
   /// "el Rojo" o "el de Marvin". La torre debe hablar el mismo idioma.
   final String apodo;
 
+  /// El nombre que se pinta en pantalla. Se guarda acá, y no se resuelve por
+  /// el repositorio de conductores, porque la torre tiene que poder nombrar a
+  /// quien va manejando aunque nadie haya abierto Ajustes todavía: un camión
+  /// sin nombre de conductor en el mapa es un camión sin tripulación.
   final String conductor;
+
+  /// Quién va manejando, por identidad y no por texto. `null` mientras el
+  /// camión no tenga a nadie asignado en el registro de conductores.
+  ///
+  /// Convive con [conductor] a propósito: el id es la llave con la que
+  /// `ConductorRepository` hace la asignación, y el nombre es lo único que sale
+  /// a pantalla. Nunca se imprime el id — en el patio nadie dice "con-01".
+  final String? conductorId;
+
   final EstadoCamion estado;
   final Rastro rastro;
   final int capacidadBultos;
@@ -81,6 +95,7 @@ final class Camion {
         placa: placa,
         apodo: apodo,
         conductor: conductor,
+        conductorId: conductorId,
         estado: estado,
         rastro: nuevo,
         capacidadBultos: capacidadBultos,
@@ -91,7 +106,23 @@ final class Camion {
         placa: placa,
         apodo: apodo,
         conductor: conductor,
+        conductorId: conductorId,
         estado: nuevo,
+        rastro: rastro,
+        capacidadBultos: capacidadBultos,
+      );
+
+  /// El mismo camión con otra tripulación. Los dos campos se mueven juntos —
+  /// nombre e id— porque separarlos deja la torre diciendo un nombre y el
+  /// registro apuntando a otra persona.
+  Camion conConductor({required String conductor, String? conductorId}) =>
+      Camion(
+        id: id,
+        placa: placa,
+        apodo: apodo,
+        conductor: conductor,
+        conductorId: conductorId,
+        estado: estado,
         rastro: rastro,
         capacidadBultos: capacidadBultos,
       );

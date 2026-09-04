@@ -308,4 +308,28 @@ void main() {
     expect(_segunParadas(repo.ruta), _segunParrilla(repo.ruta));
     expect(repo.liquidacion.brechaVenta, Dinero.cero);
   });
+
+  test('cerrar el día exige haber medido, y solo se firma una vez', () {
+    final RutaRepository repo = RutaRepository(rutaDelDia(variante: 1));
+
+    // Sin sobre ni conteo no se cierra: firmar un cuadre que se apoya en
+    // supuestos es justo lo que este producto existe para impedir.
+    expect(repo.cerrarDia(), isFalse);
+    expect(repo.diaCerrado, isFalse);
+
+    repo.aceptarConteoTeorico();
+    expect(repo.cerrarDia(), isFalse, reason: 'falta el sobre');
+
+    repo.entregarEfectivo(repo.liquidacion.efectivoEsperado);
+    expect(repo.listaParaCerrar, isTrue);
+
+    final DateTime momento = DateTime(2026, 8, 28, 17, 40);
+    expect(repo.cerrarDia(momento: momento), isTrue);
+    expect(repo.diaCerrado, isTrue);
+    expect(repo.cerradoEn, momento);
+
+    // Un segundo cierre no vuelve a mover la hora: el día ya se firmó.
+    expect(repo.cerrarDia(), isFalse);
+    expect(repo.cerradoEn, momento);
+  });
 }
