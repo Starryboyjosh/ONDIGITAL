@@ -81,6 +81,19 @@
                 <span class="brand-word"><span class="brand-on">ON</span><span class="brand-digital">DIGITAL</span></span>
             </a>
 
+            <!-- Navegación en línea para pantallas anchas. Sin ella el encabezado
+                 de un monitor de 2022 px eran 1.600 px vacíos con un botón de
+                 hamburguesa a la derecha; el menú desplegable sigue siendo el
+                 único camino por debajo de 1180 px. -->
+            <nav class="nav-links" aria-label="Secciones del sitio">
+                <a href="#servicios">Servicios</a>
+                <a href="#tecnologia">Tecnología</a>
+                <a href="#vito">Vito</a>
+                <a href="#equipo">Equipo</a>
+                <a href="#precios">Planes</a>
+                <a href="#contacto">Contacto</a>
+            </nav>
+
             <div class="nav-actions">
                 <a class="btn btn-primary btn-cta" href="#contacto">Cotizar proyecto</a>
                 <div class="nav-menu">
@@ -225,7 +238,7 @@
                 </div>
                 <div class="hero-copy">
                     <h1>TODO LO VITAL ES <span class="hero-emphasis" data-text="DIGITAL">DIGITAL</span>.</h1>
-                    <p class="hero-sub">Software a medida que reduce fricción y acelera resultados.</p>
+                    <p class="hero-sub">Construimos el sistema que tu negocio necesita —agenda, inventario, cobros, reportes— y lo mantenemos contigo mes a mes. Desde San Pedro Sula.</p>
                     <div class="hero-actions">
                         <a class="btn btn-primary btn-cta" href="#contacto">Hablemos</a>
                         <a class="btn btn-secondary" href="#servicios">Ver capacidades</a>
@@ -245,14 +258,14 @@
                 <div class="services-ui shell">
                     <header class="services-section-copy">
                         <div class="section-label">Servicios</div>
-                        <h2 id="services-title">Capacidades que se mueven con tu negocio.</h2>
-                        <p>Una ruta visual por lo que diseñamos, conectamos y automatizamos.</p>
+                        <h2 id="services-title">Lo que construimos, y dónde ya funciona.</h2>
+                        <p>Cada tarjeta termina con el producto de ONDIGITAL donde eso mismo ya está hecho.</p>
                     </header>
 
                     <div class="services-detail" id="services-detail">
                         <span class="services-kicker" id="services-kicker">Producto digital</span>
                         <h3 id="services-name">Webs y plataformas</h3>
-                        <p id="services-description">Portales, e-commerce y SaaS con arquitectura clara, carga rápida y SEO que rinde.</p>
+                        <p id="services-description">Portales, tiendas en línea y sistemas web que abren rápido y se entienden sin manual.</p>
                         <div class="services-tags" id="services-tags" aria-label="Tecnologías">
                             <span>Next.js</span><span>React</span><span>SEO</span>
                         </div>
@@ -264,19 +277,19 @@
                 </div>
 
                 <ol class="services-reader-list">
-                    <li><strong>Webs y plataformas.</strong> Portales, e-commerce y SaaS con arquitectura clara, carga rápida y SEO.</li>
-                    <li><strong>Apps móviles.</strong> Aplicaciones iOS y Android con flujos simples y una base lista para crecer.</li>
-                    <li><strong>Automatización.</strong> APIs, reportes y procesos que reducen trabajo manual.</li>
-                    <li><strong>Sistemas a medida.</strong> Paneles internos e integraciones adaptadas a cada operación.</li>
-                    <li><strong>IA aplicada · Vito.</strong> Asistentes y clasificación sobre inventario, citas, ventas y otros módulos.</li>
+                    <li><strong>Webs y plataformas.</strong> Portales, tiendas en línea y sistemas web que abren rápido y se entienden sin manual. Se ve en Credental.</li>
+                    <li><strong>Apps móviles.</strong> Escribimos una vez en Flutter y la misma app corre en el teléfono del vendedor, en la tablet y en la computadora de la oficina. Se ve en OnRoute.</li>
+                    <li><strong>Automatización.</strong> Conectamos lo que hoy se copia a mano: compras, inventario, reportes y avisos que salen solos. Se ve en OnStock.</li>
+                    <li><strong>Sistemas a medida.</strong> Cuando ningún programa del mercado calza, armamos el panel y las integraciones alrededor de tu forma de trabajar. Se ve en la biblioteca de módulos.</li>
+                    <li><strong>IA aplicada · Vito.</strong> Vito responde en español sobre tu inventario, tus ventas y tu agenda, y deja lista la acción para que tú la apruebes. Ya corre en OnStock y en Credental.</li>
                 </ol>
 
                 <div class="services-static-fallback" id="services-static-fallback">
-                    <article><h3>Webs y plataformas</h3><p>Portales, e-commerce y SaaS con arquitectura clara, carga rápida y SEO.</p></article>
-                    <article><h3>Apps móviles</h3><p>Aplicaciones iOS y Android con flujos simples y una base lista para crecer.</p></article>
-                    <article><h3>Automatización</h3><p>APIs, reportes y procesos que reducen trabajo manual.</p></article>
-                    <article><h3>Sistemas a medida</h3><p>Paneles internos e integraciones adaptadas a cada operación.</p></article>
-                    <article><h3>IA aplicada · Vito</h3><p>Asistentes y clasificación sobre inventario, citas, ventas y otros módulos.</p></article>
+                    <article><h3>Webs y plataformas</h3><p>Portales, tiendas en línea y sistemas web que abren rápido y se entienden sin manual.</p><span class="services-proof">Se ve en Credental</span></article>
+                    <article><h3>Apps móviles</h3><p>Escribimos una vez en Flutter y la misma app corre en el teléfono del vendedor, en la tablet y en la computadora de la oficina.</p><span class="services-proof">Se ve en OnRoute</span></article>
+                    <article><h3>Automatización</h3><p>Conectamos lo que hoy se copia a mano: compras, inventario, reportes y avisos que salen solos.</p><span class="services-proof">Se ve en OnStock</span></article>
+                    <article><h3>Sistemas a medida</h3><p>Cuando ningún programa del mercado calza, armamos el panel y las integraciones alrededor de tu forma de trabajar.</p><span class="services-proof">Se ve en la biblioteca de módulos</span></article>
+                    <article><h3>IA aplicada · Vito</h3><p>Vito responde en español sobre tu inventario, tus ventas y tu agenda, y deja lista la acción para que tú la apruebes.</p><span class="services-proof">Vito en OnStock y Credental</span></article>
                 </div>
             </div>
         </section>
@@ -288,34 +301,57 @@
                 <div class="shell tech-stage">
                     <header class="tech-journey-head">
                         <div class="section-label">Tecnología</div>
-                        <h2 id="tech-title">Vito recorre cada capa del sistema.</h2>
-                        <p>Desplázate para ver cómo interfaz, lógica, datos e infraestructura se conectan en una sola experiencia.</p>
+                        <h2 id="tech-title">Cuatro capas, un solo sistema.</h2>
+                        <p>Interfaz, lógica, datos e infraestructura: así se arma cada proyecto que entregamos. Las cuatro capas pasan solas; toca un punto para ir a la que quieras.</p>
                     </header>
 
-                    <div class="tech-slider-window" id="tech-slider-window">
+                    <div class="tech-slider-window" id="tech-slider-window" tabindex="0"
+                         role="group" aria-roledescription="carrusel" aria-label="Capas del sistema">
                         <div class="tech-slider-track" id="tech-slider-track">
                             <article class="tech-phase is-active" data-tech-phase="0" style="--phase:#61DAFB">
-                                <div class="tech-phase-copy"><span class="tech-phase-index">Fase 01</span><h3>Interfaz</h3><p>La experiencia que el usuario ve, entiende y disfruta.</p><div class="tech-stack"><span>React</span><span>Next.js</span><span>TypeScript</span><span>Tailwind</span><span>Flutter</span></div></div>
+                                <div class="tech-phase-copy"><span class="tech-phase-index">Fase 01</span><h3>Interfaz</h3><p>Lo que tu gente toca todos los días: pantallas que se leen de un vistazo en teléfono, tablet y computadora.</p><div class="tech-stack"><span>React</span><span>Next.js</span><span>TypeScript</span><span>Tailwind</span><span>Flutter</span></div></div>
                                 <div class="tech-phase-visual visual-interface" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b></div>
                             </article>
                             <article class="tech-phase" data-tech-phase="1" style="--phase:#68A063">
-                                <div class="tech-phase-copy"><span class="tech-phase-index">Fase 02</span><h3>Lógica</h3><p>Reglas, APIs y automatizaciones que hacen funcionar el negocio.</p><div class="tech-stack"><span>Node.js</span><span>Python</span><span>Go</span><span>REST</span><span>Webhooks</span></div></div>
+                                <div class="tech-phase-copy"><span class="tech-phase-index">Fase 02</span><h3>Lógica</h3><p>Las reglas de tu negocio escritas en código: quién puede hacer qué, cómo se calcula cada total y qué pasa después de cada paso.</p><div class="tech-stack"><span>Node.js</span><span>Python</span><span>Go</span><span>REST</span><span>Webhooks</span></div></div>
                                 <div class="tech-phase-visual visual-logic" aria-hidden="true"><span>API</span><i></i><span>Rules</span><i></i><span>Jobs</span></div>
                             </article>
                             <article class="tech-phase" data-tech-phase="2" style="--phase:#4479A1">
-                                <div class="tech-phase-copy"><span class="tech-phase-index">Fase 03</span><h3>Datos</h3><p>Información organizada, rápida y disponible para decisiones reales.</p><div class="tech-stack"><span>PostgreSQL</span><span>MySQL</span><span>MongoDB</span><span>Redis</span><span>SQLite</span></div></div>
+                                <div class="tech-phase-copy"><span class="tech-phase-index">Fase 03</span><h3>Datos</h3><p>Dónde vive la información y cómo se consulta: un modelo hecho para los reportes que tú pides, no para el ejemplo de un tutorial.</p><div class="tech-stack"><span>PostgreSQL</span><span>MySQL</span><span>MongoDB</span><span>Redis</span><span>SQLite</span></div></div>
                                 <div class="tech-phase-visual visual-data" aria-hidden="true"><i></i><i></i><i></i><span></span><span></span><span></span></div>
                             </article>
                             <article class="tech-phase" data-tech-phase="3" style="--phase:#FF9900">
-                                <div class="tech-phase-copy"><span class="tech-phase-index">Fase 04</span><h3>Infraestructura</h3><p>Despliegue, seguridad, backups y monitoreo para operar sin sorpresas.</p><div class="tech-stack"><span>AWS</span><span>Firebase</span><span>Docker</span><span>GitHub Actions</span></div></div>
+                                <div class="tech-phase-copy"><span class="tech-phase-index">Fase 04</span><h3>Infraestructura</h3><p>Dónde corre el sistema, cómo se publica una versión nueva y cómo se recupera la información cuando algo falla.</p><div class="tech-stack"><span>AWS</span><span>Firebase</span><span>Docker</span><span>GitHub Actions</span></div></div>
                                 <div class="tech-phase-visual visual-infra" aria-hidden="true"><i></i><i></i><i></i><strong>DEPLOY</strong></div>
                             </article>
                         </div>
                     </div>
 
                     <div class="tech-path" aria-hidden="true"><span id="tech-path-fill"></span></div>
-                    <div class="tech-progress-dots" id="tech-progress-dots" aria-hidden="true"><i class="is-active"></i><i></i><i></i><i></i></div>
-                    <div class="journey-vito-home" id="journey-vito-home"><div class="journey-vito" id="journey-vito" aria-hidden="true">
+                    <div class="tech-progress-dots" id="tech-progress-dots" role="group" aria-label="Fases de la tecnología">
+                        <button type="button" data-tech-go="0" aria-current="true"><span class="sr-only">Fase 01 · Interfaz</span></button>
+                        <button type="button" data-tech-go="1" aria-current="false" tabindex="-1"><span class="sr-only">Fase 02 · Lógica</span></button>
+                        <button type="button" data-tech-go="2" aria-current="false" tabindex="-1"><span class="sr-only">Fase 03 · Datos</span></button>
+                        <button type="button" data-tech-go="3" aria-current="false" tabindex="-1"><span class="sr-only">Fase 04 · Infraestructura</span></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vito · dock y conversación IA -->
+        <section id="vito" class="section-block vito-section vito-ai-section">
+            <div class="shell">
+                <header class="section-head reveal vito-ai-head">
+                    <h2>Vito lee tus datos y prepara el siguiente paso.</h2>
+                    <p class="section-sub">Vito consulta tu información, señala lo que no cuadra y deja la acción lista. Ejecutarla la decides tú.</p>
+                </header>
+
+                <div class="vito-ai-layout reveal">
+                    <aside class="vito-dock-column">
+                        <div class="vito-dock-slot" id="vito-dock-slot" aria-label="Dock de Vito">
+                            <div class="vito-dock-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+                            <div class="vito-dock-base"><span></span><span></span><span></span></div>
+                            <div class="journey-vito" id="journey-vito" aria-hidden="true">
                                 <div class="journey-vito-glow"></div>
                                 <svg viewBox="0 0 300 290" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <defs>
@@ -337,29 +373,11 @@
                                     <circle class="journey-eye" cx="207" cy="154" r="13" fill="none" stroke="#9B8CFF" stroke-width="4"/><circle class="journey-pupil" cx="207" cy="154" r="4.5" fill="#9B8CFF"/>
                                     <path d="M140 178 Q180 200 220 178" stroke="#9B8CFF" stroke-width="5" fill="none" stroke-linecap="round"/>
                                 </svg>
-                            </div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Vito · dock y conversación IA -->
-        <section id="vito" class="section-block vito-section vito-ai-section">
-            <div class="shell">
-                <header class="section-head reveal vito-ai-head">
-                    <div class="section-label">Vito</div>
-                    <h2>Del análisis a la acción, dentro de tu negocio.</h2>
-                    <p class="section-sub">Vito consulta tus datos, detecta problemas y ejecuta el siguiente paso con tu aprobación.</p>
-                </header>
-
-                <div class="vito-ai-layout reveal">
-                    <aside class="vito-dock-column">
-                        <div class="vito-dock-slot" id="vito-dock-slot" aria-label="Dock de Vito">
-                            <div class="vito-dock-rings" aria-hidden="true"><i></i><i></i><i></i></div>
-                            <div class="vito-dock-base"><span></span><span></span><span></span></div>
+                            </div>
                         </div>
                         <div class="vito-dock-copy">
                             <span class="status-dot"></span>
-                            <strong>Vito está conectado</strong>
+                            <strong>Así se ve Vito conectado</strong>
                             <p>Ventas · gastos · inventario · proveedores</p>
                         </div>
                     </aside>
@@ -368,7 +386,7 @@
                         <div class="ai-chat-chrome">
                             <div class="vito-mock-dots"><i></i><i></i><i></i></div>
                             <span>Vito · Analista operativo</span>
-                            <em><i></i> Base de datos sincronizada</em>
+                            <em><i></i> Demostración con datos de ejemplo</em>
                         </div>
                         <div class="ai-chat-body">
                             <div class="ai-message ai-message-user" data-chat-step="1">
@@ -394,7 +412,7 @@
                                 <div class="ai-message-brand"><span class="mini-vito-face">✓</span><strong>Vito</strong><em>Acción completada</em></div>
                                 <p>Orden <strong>OC-0248</strong> preparada con cantidades ajustadas a la demanda y compra consolidada.</p>
                                 <div class="order-lines"><span><b>Café 500 g</b><em>30 unidades</em></span><span><b>Tóner negro</b><em>18 unidades</em></span><span><b>Ahorro estimado</b><em>L 2,150</em></span></div>
-                                <button type="button" tabindex="-1">Revisar y aprobar orden</button>
+                                <span class="ai-order-cta" aria-hidden="true">Revisar y aprobar orden</span>
                             </div>
                         </div>
                     </div>
@@ -407,16 +425,15 @@
         <section id="equipo" class="section-block">
             <div class="shell">
                 <div class="section-head reveal">
-                    <div class="section-label">Equipo</div>
-                    <h2>Quién construye contigo.</h2>
+                    <h2>Las cinco personas que lo construyen.</h2>
                 </div>
-                <div class="team-grid reveal" role="region" aria-label="Equipo ONDIGITAL">
+                <div class="team-grid" role="region" aria-label="Equipo ONDIGITAL">
                     <article class="team-card team-card--lead" tabindex="0">
                         <div class="team-photo"><img src="equipo/cueva.webp" alt="Mario Cueva" loading="lazy" width="600" height="725"></div>
                         <div class="team-id">
                             <span class="team-role">Dirección técnica · Fundador</span>
                             <h3 class="team-name">Mario Cueva</h3>
-                            <p class="team-bio">Arquitectura, robótica y visión de producto.</p>
+                            <p class="team-bio">Decide cómo se arma cada sistema y sostiene la conversación con el cliente de principio a fin.</p>
                         </div>
                     </article>
                     <article class="team-card" tabindex="0">
@@ -424,7 +441,7 @@
                         <div class="team-id">
                             <span class="team-role">Full stack · Principal</span>
                             <h3 class="team-name">Joshua Isaula</h3>
-                            <p class="team-bio">Interfaces, APIs y plataformas operativas.</p>
+                            <p class="team-bio">Escribe la pantalla y el servidor del mismo producto, y los mantiene funcionando juntos.</p>
                         </div>
                     </article>
                     <article class="team-card" tabindex="0">
@@ -432,7 +449,7 @@
                         <div class="team-id">
                             <span class="team-role">Mobile e IA</span>
                             <h3 class="team-name">Danniel Escoto</h3>
-                            <p class="team-bio">Apps móviles y modelos de lenguaje aplicados.</p>
+                            <p class="team-bio">Lleva los productos al teléfono y conecta a Vito con los datos reales del negocio.</p>
                         </div>
                     </article>
                     <article class="team-card" tabindex="0">
@@ -440,7 +457,7 @@
                         <div class="team-id">
                             <span class="team-role">Diseño UX</span>
                             <h3 class="team-name">Victor Mendez</h3>
-                            <p class="team-bio">Flujos, prototipos y sistemas visuales claros.</p>
+                            <p class="team-bio">Dibuja el recorrido antes de programarlo y prueba cada pantalla hasta que se entienda sola.</p>
                         </div>
                     </article>
                     <article class="team-card" tabindex="0">
@@ -448,7 +465,7 @@
                         <div class="team-id">
                             <span class="team-role">Backend y datos</span>
                             <h3 class="team-name">Jorge Portillo</h3>
-                            <p class="team-bio">Bases relacionales, infraestructura y soporte.</p>
+                            <p class="team-bio">Modela la base de datos, publica las versiones y responde cuando algo se cae.</p>
                         </div>
                     </article>
                 </div>
@@ -459,65 +476,63 @@
         <section id="precios" class="section-block precios">
             <div class="shell">
                 <div class="section-head reveal">
-                    <div class="section-label">Planes</div>
-                    <h2>Precios claros. Relación continua.</h2>
+                    <h2>Tres niveles de acompañamiento.</h2>
                 </div>
-                <p class="precio-note reveal">Todos los planes tienen un <strong>mínimo de 3 meses</strong>. Los precios están en USD; la factura se emite en HNL al tipo de cambio del día.</p>
                 <div class="precios-grid" role="region" aria-label="Planes disponibles">
-                    <article class="precio-card reveal reveal-stagger" style="--rs-delay:0ms" data-plan="starter">
+                    <article class="precio-card" data-plan="starter">
                         <div class="precio-badge">Starter</div>
                         <div class="precio-price"><span class="precio-currency">$</span><span class="precio-amount" data-count-to="19">19</span><span class="precio-period">USD/mes</span></div>
                         <ul class="precio-features">
-                            <li>Sistema personalizado</li>
-                            <li>Soporte y correcciones</li>
-                            <li>Actualizaciones mensuales</li>
-                            <li>Mejoras menores</li>
-                            <li>Capacitación básica</li>
-                            <li class="muted">Sin hosting administrado</li>
+                            <li>Sistema construido para tu operación</li>
+                            <li>Soporte y corrección de fallas</li>
+                            <li>Revisiones de mejora acordadas contigo</li>
+                            <li>Ajustes y cambios menores incluidos</li>
+                            <li>Capacitación a tu equipo al arrancar</li>
+                            <li class="muted">El hosting corre por tu cuenta</li>
                         </ul>
                         <a class="btn btn-secondary precio-btn" href="#contacto" data-plan="starter">Elegir Starter</a>
                     </article>
 
-                    <article class="precio-card precio-card--featured reveal reveal-stagger" style="--rs-delay:80ms" data-plan="business">
+                    <article class="precio-card precio-card--featured" data-plan="business">
                         <div class="precio-ribbon">Recomendado</div>
                         <div class="precio-badge precio-badge--popular">Business</div>
                         <div class="precio-price"><span class="precio-currency">$</span><span class="precio-amount" data-count-to="49">49</span><span class="precio-period">USD/mes</span></div>
                         <ul class="precio-features">
-                            <li>Todo Starter</li>
-                            <li class="has-tip" data-tip="Hosting, backups, SSL, monitoreo y servidor gestionado.">Infraestructura administrada</li>
-                            <li class="has-tip" data-tip="CRM, inventario, POS, RRHH, reportes, APIs y más — listos para adaptar.">Biblioteca de módulos</li>
-                            <li>Alta disponibilidad</li>
-                            <li>Optimización continua</li>
-                            <li>Escalabilidad incluida</li>
+                            <li>Todo lo de Starter</li>
+                            <li class="has-tip" data-tip="Servidor, dominio, certificado y monitoreo quedan a nuestro cargo.">Nosotros administramos el servidor</li>
+                            <li class="has-tip" data-tip="CRM, inventario, punto de venta, planilla, reportes y APIs, listos para adaptar.">Módulos ya construidos que se adaptan</li>
+                            <li>Respaldos de tu información</li>
+                            <li>Te avisamos si el sistema se cae</li>
+                            <li>El sistema crece cuando crece el negocio</li>
                         </ul>
                         <a class="btn btn-primary btn-cta precio-btn" href="#contacto" data-plan="business">Elegir Business</a>
                     </article>
 
-                    <article class="precio-card precio-card--ai reveal reveal-stagger" style="--rs-delay:160ms" data-plan="enterprise">
+                    <article class="precio-card precio-card--ai" data-plan="enterprise">
                         <div class="precio-badge precio-badge--ai">Enterprise IA</div>
                         <div class="precio-price"><span class="precio-currency">$</span><span class="precio-amount" data-count-to="99">99</span><span class="precio-period">USD/mes</span></div>
                         <ul class="precio-features">
-                            <li>Todo Business</li>
-                            <li class="has-tip" data-tip="Consultas en español sobre inventario, ventas, citas y más.">Vito integrado</li>
-                            <li>Automatización con IA</li>
-                            <li>Alertas y predicciones</li>
-                            <li class="has-tip" data-tip="API en la nube o modelo en tu servidor. Solo ves a Vito.">IA en la nube o local</li>
-                            <li>Datos bajo tu control</li>
+                            <li>Todo lo de Business</li>
+                            <li class="has-tip" data-tip="Preguntas en español sobre inventario, ventas, citas y lo que tenga tu sistema.">Vito trabajando sobre tus datos</li>
+                            <li>Vito prepara la acción y tú la apruebas</li>
+                            <li>Avisos cuando algo se sale de lo normal</li>
+                            <li class="has-tip" data-tip="El motor corre en la nube o dentro de tu propio servidor. Tú solo ves a Vito.">El motor corre donde tú decidas</li>
+                            <li>Tu información se queda donde tú digas</li>
                         </ul>
                         <a class="btn btn-primary precio-btn" href="#contacto" data-plan="enterprise">Elegir Enterprise</a>
                     </article>
                 </div>
+                <p class="precio-note">Todos los planes tienen un <strong>mínimo de 3 meses</strong>. Los precios están en USD; la factura se emite en HNL al tipo de cambio del día.</p>
             </div>
         </section>
 
         <!-- Contacto -->
         <section id="contacto" class="section-block contact">
             <div class="shell">
-                <div class="contact-box reveal">
+                <div class="contact-box">
                     <div class="contact-copy">
-                        <div class="section-label">Contacto</div>
-                        <h2>Cuéntanos qué hay que construir.</h2>
-                        <p>Elige un plan, revisa sus ventajas y cuéntanos tu idea. Definimos alcance y te damos una ruta realista.</p>
+                        <h2>Escríbenos y te decimos qué se puede hacer.</h2>
+                        <p>Elige un plan, cuéntanos qué necesitas resolver y te devolvemos el alcance, lo que cuesta y en qué orden lo haríamos.</p>
 
                         <div class="contact-links">
                             <a class="btn btn-secondary" href="mailto:ondigital.hn@proton.me">ondigital.hn@proton.me</a>
@@ -540,7 +555,7 @@
                                 <li>Escalabilidad incluida</li>
                             </ul>
                             <p class="plan-promise" id="plan-promise">
-                                En poco tiempo nuestro equipo te contactará para llevar a cabo tu idea.
+                                Leemos todos los mensajes. Te contestamos al correo que dejes aquí con una primera propuesta de alcance.
                             </p>
                         </div>
 
@@ -592,7 +607,7 @@
                         <div class="form-success" id="form-success" hidden>
                             <div class="form-success-icon" aria-hidden="true">✓</div>
                             <strong>¡Listo!</strong>
-                            <p id="form-success-text">En poco tiempo nuestro equipo te contactará para llevar a cabo tu idea.</p>
+                            <p id="form-success-text">Leemos todos los mensajes. Te contestamos al correo que dejes aquí con una primera propuesta de alcance.</p>
                         </div>
                     </form>
                 </div>
@@ -604,8 +619,8 @@
     <footer>
         <div class="shell footer-inner">
             <strong>ONDIGITAL</strong>
-            <span>Todo lo Vital es Digital · Honduras</span>
-            <span>Web · Apps · Datos · IA</span>
+            <span>Micro-empresa hondureña. Trabajamos desde San Pedro Sula, Cortés.</span>
+            <span>Escríbenos a <a href="mailto:ondigital.hn@proton.me">ondigital.hn@proton.me</a> o al <a href="tel:+50487775824">+504 8777-5824</a>.</span>
         </div>
     </footer>
 

@@ -29,7 +29,7 @@
             id: "apps",
             marca: "#8477E6",
             titulo: "Apps móviles",
-            texto: "Flujos simples en iOS y Android, listos para el siguiente paso.",
+            texto: "Flujos simples en iOS y Android, con avisos push y uso sin señal.",
             tags: ["iOS", "Android", "Notificaciones"],
             visual: "apps",
             mirada: { x: 0.85, y: 0.5 }
@@ -56,6 +56,7 @@
             id: "ia",
             marca: "#9B8CFF",
             titulo: "IA aplicada · Vito",
+            etiqueta: "IA aplicada con Vito",
             texto: "Un asistente que trabaja sobre los datos reales del negocio.",
             tags: ["Vito", "Datos reales", "En español"],
             visual: "ia",
@@ -110,7 +111,7 @@
                 <rect x="38" y="98" width="46" height="6" rx="3" fill="rgba(245, 241, 254,.15)"/>
                 <rect x="38" y="110" width="58" height="6" rx="3" fill="rgba(245, 241, 254,.15)"/>
                 <rect x="38" y="130" width="66" height="22" rx="11" fill="rgba(155, 140, 255,.18)" stroke="rgba(155, 140, 255,.55)"/>
-                <text x="71" y="144.5" fill="#B39DFF" font-size="9" letter-spacing=".1em" text-anchor="middle">ENVIAR</text>
+                <text x="71" y="144.5" fill="#CBBCFF" font-size="9" letter-spacing=".1em" text-anchor="middle">ENVIAR</text>
             </g>
             <g>
                 <rect x="156" y="34" width="148" height="52" rx="13" fill="rgba(13, 52, 33,.9)" stroke="rgba(167, 143, 222,.24)"/>
@@ -154,40 +155,40 @@
             </g>
             <g>
                 <rect class="viz-late" x="230" y="60" width="64" height="60" rx="17" fill="none" stroke="#E0B368" stroke-width="1.4" opacity=".5"/>
-                <rect x="236" y="66" width="52" height="48" rx="13" fill="rgba(61,214,140,.18)" stroke="#E0B368" stroke-width="2"/>
+                <rect x="236" y="66" width="52" height="48" rx="13" fill="rgba(155,140,255,.18)" stroke="#E0B368" stroke-width="2"/>
                 <path d="M250 90l8 9 17-19" stroke="#E0B368" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
             </g>
         `),
 
         sistemas: marco(`
-            <rect width="320" height="34" fill="rgba(0,196,154,.12)"/>
+            <rect width="320" height="34" fill="rgba(155,140,255,.12)"/>
             <path d="M0 34h320" stroke="rgba(167, 143, 222,.22)"/>
             <text x="16" y="21" fill="#B8A6E8" font-size="10" letter-spacing=".14em">INVENTARIO</text>
-            <text x="304" y="21" fill="rgba(245, 241, 254,.44)" font-size="10" letter-spacing=".08em" text-anchor="end">HNL</text>
+            <text x="304" y="21" fill="rgba(245, 241, 254,.72)" font-size="10" letter-spacing=".08em" text-anchor="end">HNL</text>
             <g stroke="rgba(167, 143, 222,.1)">
                 <path d="M8 76h304"/><path d="M8 108h304"/><path d="M8 140h304"/>
             </g>
             <g font-size="11">
-                <rect x="8" y="48" width="304" height="28" rx="7" fill="rgba(0,196,154,.14)" stroke="rgba(0,196,154,.34)"/>
+                <rect x="8" y="48" width="304" height="28" rx="7" fill="rgba(155,140,255,.14)" stroke="rgba(155,140,255,.34)"/>
                 <circle cx="22" cy="62" r="3.5" fill="#B98A3E"/>
                 <text x="34" y="66" fill="rgba(245, 241, 254,.92)">Resina compuesta</text>
-                <text x="196" y="66" fill="rgba(183, 170, 214,.6)" text-anchor="end">48 u</text>
+                <text x="196" y="66" fill="rgba(214, 205, 240,.86)" text-anchor="end">48 u</text>
                 <text x="300" y="66" fill="#9B8CFF" text-anchor="end">L 12,400</text>
 
                 <circle cx="22" cy="93" r="3.5" fill="rgba(108, 53, 237,.75)"/>
-                <text x="34" y="97" fill="rgba(245, 241, 254,.6)">Guantes nitrilo</text>
-                <text x="196" y="97" fill="rgba(183, 170, 214,.6)" text-anchor="end">120 u</text>
-                <text x="300" y="97" fill="rgba(245, 241, 254,.58)" text-anchor="end">L 3,180</text>
+                <text x="34" y="97" fill="rgba(245, 241, 254,.86)">Guantes nitrilo</text>
+                <text x="196" y="97" fill="rgba(214, 205, 240,.86)" text-anchor="end">120 u</text>
+                <text x="300" y="97" fill="rgba(245, 241, 254,.86)" text-anchor="end">L 3,180</text>
 
-                <circle cx="22" cy="124" r="3.5" fill="rgba(61,214,140,.7)"/>
-                <text x="34" y="128" fill="rgba(245, 241, 254,.6)">Anestesia local</text>
-                <text x="196" y="128" fill="rgba(183, 170, 214,.6)" text-anchor="end">36 u</text>
-                <text x="300" y="128" fill="rgba(245, 241, 254,.58)" text-anchor="end">L 7,950</text>
+                <circle cx="22" cy="124" r="3.5" fill="rgba(155,140,255,.7)"/>
+                <text x="34" y="128" fill="rgba(245, 241, 254,.86)">Anestesia local</text>
+                <text x="196" y="128" fill="rgba(214, 205, 240,.86)" text-anchor="end">36 u</text>
+                <text x="300" y="128" fill="rgba(245, 241, 254,.86)" text-anchor="end">L 7,950</text>
 
-                <circle cx="22" cy="155" r="3.5" fill="rgba(255,170,90,.7)"/>
-                <text x="34" y="159" fill="rgba(245, 241, 254,.6)">Fresas diamante</text>
-                <text x="196" y="159" fill="rgba(183, 170, 214,.6)" text-anchor="end">9 u</text>
-                <text x="300" y="159" fill="rgba(255,170,90,.85)" text-anchor="end">L 1,620</text>
+                <circle cx="22" cy="155" r="3.5" fill="rgba(224,168,61,.7)"/>
+                <text x="34" y="159" fill="rgba(245, 241, 254,.86)">Fresas diamante</text>
+                <text x="196" y="159" fill="rgba(214, 205, 240,.86)" text-anchor="end">9 u</text>
+                <text x="300" y="159" fill="rgba(224,168,61,.85)" text-anchor="end">L 1,620</text>
             </g>
         `),
 
@@ -240,7 +241,7 @@
                 titulo.textContent = capacidad.titulo;
                 texto.textContent = capacidad.texto;
                 tags.innerHTML = capacidad.tags.map((tag) => `<li>${tag}</li>`).join("");
-                boton.setAttribute("aria-label", `Ver ${capacidad.titulo}`);
+                boton.setAttribute("aria-label", `Ver ${capacidad.etiqueta || capacidad.titulo}`);
 
                 return {
                     capacidad,
@@ -255,8 +256,30 @@
 
         let indice = 0;
         let siguienteCambio = 0;
+        let pausaManual = false;
+        let pausaPuntero = false;
+
+        const estado = $("#pie-estado");
+        const detener = () => {
+            clearTimeout(siguienteCambio);
+            siguienteCambio = 0;
+        };
+
+        const pintarEstado = () => {
+            if (!estado) return;
+            if (reducido) {
+                estado.textContent = "";
+                estado.classList.remove("pausado");
+                return;
+            }
+            const enPausa = pausaManual || pausaPuntero;
+            estado.textContent = enPausa ? "En pausa · espacio para seguir" : "Espacio · pausar";
+            estado.classList.toggle("pausado", enPausa);
+        };
 
         const orientar = (capacidad) => {
+            /* Con movimiento reducido Vito no voltea: el giro seria un corte seco. */
+            if (reducido) return;
             const miradaX = capacidad.mirada.x * 5.2;
             const miradaY = capacidad.mirada.y * 3.2;
             robot.style.setProperty("--vito-tilt-x", `${(5 - capacidad.mirada.y * 2.4).toFixed(2)}deg`);
@@ -289,8 +312,10 @@
             orientar(actual.capacidad);
         };
 
+        /* Nada se reprograma con movimiento reducido ni en pausa: la tarjeta 0 se queda. */
         const programarSiguiente = () => {
-            clearTimeout(siguienteCambio);
+            detener();
+            if (reducido || pausaManual || pausaPuntero) return;
             siguienteCambio = window.setTimeout(() => {
                 ocultarActual();
                 siguienteCambio = window.setTimeout(() => {
@@ -301,20 +326,49 @@
         };
 
         nodos.forEach((nodo, posicion) => {
-            const activar = () => {
+            const abrir = () => {
                 if (posicion !== indice || !nodo.shell.classList.contains("activo")) mostrar(posicion);
+            };
+
+            const activar = () => {
+                abrir();
                 programarSiguiente();
             };
 
             nodo.boton.addEventListener("click", activar);
             nodo.boton.addEventListener("focus", activar);
-            nodo.boton.addEventListener("pointerenter", () => {
+
+            /* El puntero encima detiene la cadena; al salir vuelve a correr. */
+            nodo.shell.addEventListener("pointerenter", () => {
                 if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-                activar();
+                abrir();
+                pausaPuntero = true;
+                detener();
+                pintarEstado();
+            });
+
+            nodo.shell.addEventListener("pointerleave", () => {
+                if (!pausaPuntero) return;
+                pausaPuntero = false;
+                pintarEstado();
+                programarSiguiente();
             });
         });
 
+        /* WCAG 2.2.2: contenido que se mueve solo necesita una forma de pararlo. */
+        window.addEventListener("keydown", (evento) => {
+            if (evento.code !== "Space" && evento.key !== " ") return;
+            const foco = evento.target;
+            if (foco instanceof Element && foco.closest("button, a, input, textarea, select")) return;
+            evento.preventDefault();
+            pausaManual = !pausaManual;
+            pintarEstado();
+            if (pausaManual) detener();
+            else programarSiguiente();
+        });
+
         mostrar(0);
+        pintarEstado();
         programarSiguiente();
     })();
 
@@ -352,8 +406,32 @@
             }
         };
         window.addEventListener("keydown", (evento) => {
+            if (!evento.shiftKey) return;
             if (evento.key === "f" || evento.key === "F") alternar();
         });
-        window.addEventListener("dblclick", alternar);
+        window.addEventListener("dblclick", (evento) => {
+            const destino = evento.target;
+            if (destino instanceof Element && destino.closest(".nodo, .nodo-tarjeta")) return;
+            alternar();
+        });
+    })();
+
+    /* La pantalla del aula no debe dormirse a media defensa. */
+    (() => {
+        let bloqueo = null;
+        const pedir = () => {
+            navigator.wakeLock
+                ?.request("screen")
+                .then((concedido) => {
+                    bloqueo = concedido;
+                    bloqueo.addEventListener?.("release", () => { bloqueo = null; });
+                })
+                .catch(() => {});
+        };
+
+        pedir();
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible" && (!bloqueo || bloqueo.released)) pedir();
+        });
     })();
 })();

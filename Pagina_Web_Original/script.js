@@ -67,8 +67,20 @@
         if (menuWrap?.contains(t) || menuScrim?.contains(t)) return;
         setMenu(false);
     });
+    // A partir de 1180px la navegación en línea reemplaza a la hamburguesa y
+    // styles.css la oculta: si el desplegable seguía abierto al ensanchar la
+    // ventana, el velo se quedaba encima de la página sin forma de cerrarlo.
+    const anchoConNavEnLinea = window.matchMedia("(min-width: 1180px)");
+    anchoConNavEnLinea.addEventListener("change", (e) => {
+        if (e.matches && menu?.classList.contains("is-open")) setMenu(false);
+    });
 
     /* ─── Reveal ─── */
+    // La clase se marca antes de observar nada: styles.css solo esconde
+    // `.reveal` bajo `.js-reveal`, de modo que sin JavaScript (o si este
+    // archivo falla) el contenido nace visible en lugar de quedar en
+    // opacity: 0 esperando un observador que nunca se instala.
+    document.documentElement.classList.add("js-reveal");
     const revealObs = new IntersectionObserver((entries) => {
         entries.forEach((e) => {
             if (!e.isIntersecting) return;
@@ -190,13 +202,13 @@
             { text: "Flutter", tone: "blue" },
             { text: "SQLite", tone: "mint" },
             { text: "deploy ✓", tone: "mint" },
-            { text: "LATAM", tone: "blue" },
+            { text: "San Pedro Sula", tone: "blue" },
             { text: "O(1)", tone: "mint" },
             { text: "HTTPS", tone: "blue" },
             { text: "cache hit", tone: "mint" },
             { text: "Go 1.22", tone: "blue" },
             { text: "IA · Vito", tone: "mint" },
-            { text: "+12% ventas", tone: "blue" },
+            { text: "RTN / DNI", tone: "blue" },
             { text: "webhook", tone: "mint" },
             { text: "SSR", tone: "blue" },
             { text: "HNL ready", tone: "mint" },
@@ -367,46 +379,50 @@
             {
                 kicker: "Producto digital",
                 title: "Webs y plataformas",
-                description: "Portales, e-commerce y SaaS con arquitectura clara, carga rápida y SEO que rinde.",
+                description: "Portales, tiendas en línea y sistemas web que abren rápido y se entienden sin manual.",
                 tags: ["Next.js", "React", "SEO"],
                 accent: "#D8A24A",
-                metric: "Carga < 1 s"
+                prueba: "Se ve en Credental"
             },
             {
                 kicker: "Experiencia móvil",
                 title: "Apps móviles",
-                description: "Aplicaciones iOS y Android con flujos simples y una base técnica lista para crecer.",
+                description: "Escribimos una vez en Flutter y la misma app corre en el teléfono del vendedor, en la tablet y en la computadora de la oficina.",
                 tags: ["Flutter", "iOS", "Android"],
                 accent: "#9B8CFF",
-                metric: "Una sola base"
+                prueba: "Se ve en OnRoute"
             },
             {
                 kicker: "Operaciones",
                 title: "Automatización",
-                description: "APIs, reportes y procesos conectados que quitan trabajo manual y reducen errores.",
+                description: "Conectamos lo que hoy se copia a mano: compras, inventario, reportes y avisos que salen solos.",
                 tags: ["APIs", "Webhooks", "RPA"],
                 accent: "#9B8CFF",
-                metric: "Menos tareas repetidas"
+                prueba: "Se ve en OnStock"
             },
             {
                 kicker: "Arquitectura",
                 title: "Sistemas a medida",
-                description: "Paneles internos e integraciones diseñadas alrededor de la operación, no al revés.",
+                description: "Cuando ningún programa del mercado calza, armamos el panel y las integraciones alrededor de tu forma de trabajar.",
                 tags: ["UX", "Cloud", "Integraciones"],
                 accent: "#D8A24A",
-                metric: "Hecho para tu flujo"
+                prueba: "Biblioteca de módulos"
             },
             {
                 kicker: "Inteligencia aplicada",
                 title: "IA aplicada · Vito",
-                description: "Asistentes y clasificación sobre inventario, citas, ventas y otros módulos del negocio.",
+                description: "Vito responde en español sobre tu inventario, tus ventas y tu agenda, y deja lista la acción para que tú la apruebes.",
                 tags: ["Vito", "LLMs", "Python"],
-                accent: "#C77DFF",
-                metric: "Nube o servidor local"
+                accent: "#9B8CFF",
+                prueba: "Vito en OnStock y Credental"
             }
         ];
 
-        section.style.minHeight = `${(services.length + 1.3) * 100}vh`;
+        // El recorrido se publica como variable CSS, no como `style.minHeight`:
+        // un estilo en línea gana a cualquier media query y dejaba muerta la
+        // regla móvil de styles.css. De 630vh a 315vh: la animación se lee
+        // igual y deja de ser media docena de pantallas de scroll cautivo.
+        section.style.setProperty("--services-travel", `${services.length * 55 + 40}vh`);
 
         const nameEl = $("#services-name");
         const kickerEl = $("#services-kicker");
@@ -571,7 +587,7 @@
             ctx.textAlign = "right";
             ctx.fillStyle = service.accent;
             ctx.font = "800 19px ui-monospace, monospace";
-            ctx.fillText(service.metric, 950, 535);
+            ctx.fillText(service.prueba, 950, 535);
 
             const texture = new THREE.CanvasTexture(texCanvas);
             texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
@@ -592,7 +608,9 @@
             return new THREE.Points(
                 geometry,
                 new THREE.PointsMaterial({
-                    color: 0x4a8fff,
+                    // Violeta de marca. El azul #4A8FFF era el único color frío
+                    // de la página y separaba el lienzo del resto de la sección.
+                    color: 0x9b8cff,
                     size: .045,
                     transparent: true,
                     opacity: .48,
@@ -603,7 +621,7 @@
 
         const buildScene = () => {
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x02050c, .032);
+            scene.fog = new THREE.FogExp2(0x0a130e, .032);
 
             camera = new THREE.PerspectiveCamera(43, 1, .1, 100);
             camera.position.set(0, 0, window.innerWidth < 640 ? 16.8 : 15.2);
@@ -617,7 +635,10 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.7));
             renderer.setClearColor(0x000000, 0);
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.25;
+            // 1.0, no 1.25: la exposición alta reventaba los brillos de las
+            // tarjetas y esa sección brillaba de un modo que no existe en
+            // ninguna otra parte de la página.
+            renderer.toneMappingExposure = 1;
 
             scene.add(new THREE.AmbientLight(0xffffff, .6));
             const key = new THREE.DirectionalLight(0xffffff, 2.4);
@@ -641,8 +662,11 @@
                     side: THREE.DoubleSide,
                     transparent: true,
                     opacity: 1,
-                    metalness: .72,
-                    roughness: .16
+                    // Metal casi pulido (.72 / .16) convertía cada tarjeta en un
+                    // espejo: los rótulos se perdían bajo el reflejo de la luz
+                    // de latón. Superficie satinada, texto legible.
+                    metalness: .34,
+                    roughness: .42
                 });
                 const mesh = new THREE.Mesh(geometry, material);
                 mesh.userData.index = index;
@@ -855,92 +879,121 @@
     if (document.readyState === "complete") setTimeout(bootServices, 0);
     else window.addEventListener("load", () => setTimeout(bootServices, 0), { once: true });
 
-    /* ─── Tecnología: slider horizontal y transición de Vito al dock ─── */
+    /* ─── Tecnología: carrusel de fases con auto-avance pausable ───
+       Antes esta sección secuestraba el scroll: 555vh de recorrido pegajoso
+       justo después del de Servicios, o sea dos animaciones de scroll
+       seguidas. En teléfono se siente como quedarse atrapado. Ahora la
+       sección mide lo que mide su contenido y las cuatro fases pasan solas.
+
+       El auto-avance se detiene en tres casos: el puntero encima, el foco de
+       teclado dentro, o la sección fuera de la franja central de la pantalla.
+       Con `prefers-reduced-motion` no hay avance automático: styles.css apila
+       las cuatro fases y aquí se marcan todas como activas. */
     const initTechJourney = () => {
         const section = $("#tecnologia");
-        const sticky = $("#tech-sticky");
-        const track = $("#tech-slider-track");
         const windowEl = $("#tech-slider-window");
-        const phases = $$('[data-tech-phase]', section || document);
-        const dots = $$("#tech-progress-dots i");
+        const dotsHost = $("#tech-progress-dots");
         const pathFill = $("#tech-path-fill");
-        const home = $("#journey-vito-home");
-        const vito = $("#journey-vito");
-        const dock = $("#vito-dock-slot");
-        const vitoSection = $("#vito");
-        if (!section || !sticky || !track || !windowEl || !home || !vito || !dock || !vitoSection || !phases.length) return;
+        const phases = $$("[data-tech-phase]", section || document);
+        if (!section || !windowEl || !phases.length) return;
 
-        section.style.minHeight = `${(phases.length + 1.55) * 100}vh`;
-        let activeIndex = -1;
-        let state = "home";
-        let ticking = false;
+        if (prefersReduced) {
+            phases.forEach((phase) => phase.classList.add("is-active"));
+            if (pathFill) pathFill.style.transform = "scaleX(1)";
+            return;
+        }
 
-        const clamp01 = (value) => Math.max(0, Math.min(1, value));
-        const setState = (next) => {
-            if (state === next) return;
-            state = next;
-            vito.classList.remove("is-travelling", "is-following", "is-docked");
-            if (next === "home") {
-                home.appendChild(vito);
-                vito.classList.add("is-travelling");
-            } else if (next === "follow") {
-                document.body.appendChild(vito);
-                vito.classList.add("is-following");
-            } else {
-                dock.appendChild(vito);
-                vito.classList.add("is-docked");
-            }
+        const dots = dotsHost ? $$("button", dotsHost) : [];
+        const AUTO_MS = 5200;
+        let index = 0;
+        let timer = 0;
+        let settleTimer = 0;
+        let hovering = false;
+        let focused = false;
+        let visible = false;
+
+        const paint = () => {
+            phases.forEach((phase, i) => phase.classList.toggle("is-active", i === index));
+            dots.forEach((dot, i) => {
+                dot.setAttribute("aria-current", i === index ? "true" : "false");
+                dot.tabIndex = i === index ? 0 : -1;
+            });
+            if (pathFill) pathFill.style.transform = `scaleX(${(index + 1) / phases.length})`;
         };
 
-        const update = () => {
-            ticking = false;
-            const rect = section.getBoundingClientRect();
-            const travel = Math.max(1, rect.height - window.innerHeight);
-            const progress = clamp01(-rect.top / travel);
-            const sliderProgress = clamp01(progress / .79);
-            const maxShift = Math.max(0, track.scrollWidth - windowEl.clientWidth);
-            track.style.transform = `translate3d(${-maxShift * sliderProgress}px,0,0)`;
-            if (pathFill) pathFill.style.transform = `scaleX(${sliderProgress})`;
-
-            const floatIndex = sliderProgress * (phases.length - 1);
-            const nextIndex = Math.max(0, Math.min(phases.length - 1, Math.round(floatIndex)));
-            if (nextIndex !== activeIndex) {
-                activeIndex = nextIndex;
-                phases.forEach((phase, index) => phase.classList.toggle("is-active", index === activeIndex));
-                dots.forEach((dot, index) => dot.classList.toggle("is-active", index === activeIndex));
-            }
-
-            const vitoSectionRect = vitoSection.getBoundingClientRect();
-            if (vitoSectionRect.top <= window.innerHeight * .72 && vitoSectionRect.bottom > 0) {
-                setState("dock");
-            } else if (progress >= .82 || rect.bottom <= window.innerHeight * 1.12) {
-                setState("follow");
-            } else {
-                setState("home");
-            }
-
-            if (state === "home") {
-                const x = 7 + sliderProgress * 70;
-                const y = 32 + Math.sin(sliderProgress * Math.PI * 3) * 4;
-                vito.style.setProperty("--journey-x", `${x}vw`);
-                vito.style.setProperty("--journey-y", `${y}vh`);
-                vito.style.setProperty("--journey-tilt", `${Math.sin(sliderProgress * Math.PI * 4) * 7}deg`);
-            }
+        const goTo = (next, smooth = true) => {
+            index = (next + phases.length) % phases.length;
+            windowEl.scrollTo({ left: phases[index].offsetLeft, behavior: smooth ? "smooth" : "auto" });
+            paint();
         };
 
-        const requestUpdate = () => {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(update);
+        const sync = () => {
+            const shouldRun = visible && !hovering && !focused;
+            if (shouldRun && !timer) timer = window.setInterval(() => goTo(index + 1), AUTO_MS);
+            else if (!shouldRun && timer) { clearInterval(timer); timer = 0; }
         };
 
-        vito.classList.add("is-travelling");
-        window.addEventListener("scroll", requestUpdate, { passive: true });
-        window.addEventListener("resize", requestUpdate, { passive: true });
-        requestUpdate();
+        dots.forEach((dot, i) => dot.addEventListener("click", () => goTo(i)));
+
+        // Foco móvil entre los puntos: las flechas cambian de fase y arrastran
+        // el foco con ellas, como en cualquier grupo de pestañas.
+        dotsHost?.addEventListener("keydown", (event) => {
+            const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+            if (!step) return;
+            event.preventDefault();
+            goTo(index + step);
+            dots[index]?.focus();
+        });
+
+        section.addEventListener("pointerenter", () => { hovering = true; sync(); });
+        section.addEventListener("pointerleave", () => { hovering = false; sync(); });
+        section.addEventListener("focusin", () => { focused = true; sync(); });
+        section.addEventListener("focusout", () => { focused = false; sync(); });
+
+        // El gesto lateral manda: al asentarse el carril se recalcula qué fase
+        // quedó centrada, venga el desplazamiento del dedo o del auto-avance.
+        windowEl.addEventListener("scroll", () => {
+            clearTimeout(settleTimer);
+            settleTimer = window.setTimeout(() => {
+                const center = windowEl.scrollLeft + windowEl.clientWidth / 2;
+                let nearest = index;
+                let best = Infinity;
+                phases.forEach((phase, i) => {
+                    const distance = Math.abs(phase.offsetLeft + phase.offsetWidth / 2 - center);
+                    if (distance < best) { best = distance; nearest = i; }
+                });
+                if (nearest !== index) { index = nearest; paint(); }
+            }, 140);
+        }, { passive: true });
+
+        // Franja central: la sección cuenta como "a la vista" cuando ocupa el
+        // 70 % medio de la ventana, no en cuanto asoma un píxel por el borde.
+        new IntersectionObserver(([entry]) => {
+            visible = entry.isIntersecting;
+            sync();
+        }, { rootMargin: "-15% 0px -15% 0px" }).observe(section);
+
+        window.addEventListener("resize", () => goTo(index, false), { passive: true });
+        paint();
     };
 
     initTechJourney();
+
+    /* ─── Vito baja a su dock ───
+       Antes viajaba pegado al scroll de Tecnología y luego se quedaba `fixed`
+       en una esquina el resto de la página, encima del contenido de secciones
+       que no eran la suya. Ahora vive en el dock y solo aparece cuando su
+       sección entra en pantalla. */
+    const initVitoDock = () => {
+        const vito = $("#journey-vito");
+        const vitoSection = $("#vito");
+        if (!vito || !vitoSection) return;
+        new IntersectionObserver(([entry]) => {
+            vito.classList.toggle("is-docked", entry.isIntersecting);
+        }, { threshold: .2 }).observe(vitoSection);
+    };
+
+    initVitoDock();
 
     /* ─── Vito: conversación de análisis y orden de compra ─── */
     const initVitoChat = () => {
@@ -1145,11 +1198,11 @@
             name: "Starter",
             price: "$19 USD/mes",
             features: [
-                "Sistema personalizado",
-                "Soporte y correcciones",
-                "Actualizaciones mensuales",
-                "Mejoras menores",
-                "Capacitación básica"
+                "Sistema construido para tu operación",
+                "Soporte y corrección de fallas",
+                "Revisiones de mejora acordadas contigo",
+                "Ajustes y cambios menores incluidos",
+                "Capacitación a tu equipo al arrancar"
             ]
         },
         business: {
@@ -1157,12 +1210,12 @@
             name: "Business",
             price: "$49 USD/mes",
             features: [
-                "Todo Starter",
-                "Infraestructura administrada",
-                "Biblioteca de módulos",
-                "Alta disponibilidad",
-                "Optimización continua",
-                "Escalabilidad incluida"
+                "Todo lo de Starter",
+                "Nosotros administramos el servidor",
+                "Módulos ya construidos que se adaptan",
+                "Respaldos de tu información",
+                "Te avisamos si el sistema se cae",
+                "El sistema crece cuando crece el negocio"
             ]
         },
         enterprise: {
@@ -1170,16 +1223,16 @@
             name: "Enterprise IA",
             price: "$99 USD/mes",
             features: [
-                "Todo Business",
-                "Vito integrado",
-                "Automatización con IA",
-                "Alertas y predicciones",
-                "IA en la nube o local",
-                "Datos bajo tu control"
+                "Todo lo de Business",
+                "Vito trabajando sobre tus datos",
+                "Vito prepara la acción y tú la apruebas",
+                "Avisos cuando algo se sale de lo normal",
+                "El motor corre donde tú decidas",
+                "Tu información se queda donde tú digas"
             ]
         }
     };
-    const PLAN_PROMISE = "En poco tiempo nuestro equipo te contactará para llevar a cabo tu idea.";
+    const PLAN_PROMISE = "Leemos todos los mensajes. Te contestamos al correo que dejes aquí con una primera propuesta de alcance.";
 
     const form = $("#lead-form");
     const note = $("#form-note");
@@ -1299,7 +1352,7 @@
 
             if (note) note.textContent = "";
             if (successText) {
-                successText.textContent = `Plan ${plan.name} (${plan.price}). Recibimos tu mensaje, pronto te contactamos. Si prefieres, también puedes escribirnos a ondigital.hn@proton.me o al +504 8777-5824.`;
+                successText.textContent = `Plan ${plan.name} (${plan.price}). Tu mensaje llegó. Te contestamos al correo que dejaste; si quieres adelantarlo, escríbenos a ondigital.hn@proton.me o al +504 8777-5824.`;
             }
             if (success) success.hidden = false;
             form.reset();

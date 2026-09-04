@@ -1,18 +1,20 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
 /* ONDIGITAL - Pantalla final: pieza de exhibicion, Vito es el punto de atencion. */
 
 :root {
-    --bg: #0A130E;
-    --bg-raised: #101C16;
+    --bg: #0B1410;
+    --bg-raised: #12201A;
     --fg: #F2EFE4;
-    --muted: rgba(218, 209, 240, 0.78);
-    --soft: rgba(183, 170, 214, 0.74);
-    --border: rgba(137, 116, 186, 0.24);
+    /* Nombres propios: --muted/--soft/--border ya existen en styles.css con otro
+       valor (pergamino/laton). Aqui son violeta, asi que llevan su propio nombre. */
+    --muted-violeta: rgba(218, 209, 240, 0.78);
+    --soft-violeta: rgba(183, 170, 214, 0.74);
+    --border-violeta: rgba(137, 116, 186, 0.24);
     --border-strong: rgba(167, 143, 222, 0.46);
     --laton: #D8A24A;
     --violeta-soft: #8477E6;
     --violeta: #9B8CFF;
     --laton-claro: #E0B368;
+    --laton-oscuro: #B98A3E;
     --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
     --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
@@ -91,7 +93,7 @@ body.sin-cursor { cursor: none; }
 .marca-nombre {
     color: var(--fg);
     font-family: var(--font-display);
-    font-size: clamp(15px, 1.7svh, 21px);
+    font-size: clamp(18px, 2svh, 26px);
     font-weight: 800;
     letter-spacing: 0.16em;
     line-height: 1;
@@ -129,7 +131,7 @@ body.sin-cursor { cursor: none; }
     color: #F2EFE4;
     font-style: normal;
     text-shadow: none;
-    animation: heroNeonGlow 2.6s ease-in-out infinite;
+    animation: heroNeonGlow 8s ease-in-out infinite;
 }
 
 .lema em::after {
@@ -146,7 +148,7 @@ body.sin-cursor { cursor: none; }
     mask-size: 220% 100%;
     -webkit-mask-position: 100% 0;
     mask-position: 100% 0;
-    animation: heroNeonSweep 2.6s linear infinite, heroNeonHue 2.6s linear infinite;
+    animation: heroNeonSweep 8s linear infinite, heroNeonHue 8s linear infinite;
     will-change: mask-position;
 }
 
@@ -159,7 +161,6 @@ body.sin-cursor { cursor: none; }
 @keyframes heroNeonHue {
     0% { color: var(--violeta); text-shadow: 0 0 0.08em rgba(155, 140, 255, 0.95), 0 0 0.34em rgba(155, 140, 255, 0.6); }
     12% { color: #9B8CFF; text-shadow: 0 0 0.1em rgba(155, 140, 255, 1), 0 0 0.4em rgba(155, 140, 255, 0.55); }
-    17% { color: #ffffff; text-shadow: 0 0 0.14em rgba(255, 255, 255, 1), 0 0 0.5em rgba(215, 200, 251, 0.7); }
     23% { color: #C9AF7A; text-shadow: 0 0 0.1em rgba(108, 53, 237, 1), 0 0 0.42em rgba(108, 53, 237, 0.6); }
     31%, 100% { color: var(--laton); text-shadow: 0 0 0.08em rgba(108, 53, 237, 0.95), 0 0 0.34em rgba(108, 53, 237, 0.5); }
 }
@@ -324,24 +325,12 @@ body.sin-cursor { cursor: none; }
     width: 100%;
     height: auto;
     overflow: visible;
-    transform-style: preserve-3d;
 }
 
 .robot-body-cast { transform: translate(4px, 6px); }
 .robot-body-side { transform-origin: right center; }
-.robot-handle { transform-origin: 180px 76px; animation: asaBalanceo 4.6s ease-in-out infinite; }
-.robot-body-spec { transform-origin: center; animation: brilloBarrido 5.8s ease-in-out infinite; }
-
-@keyframes asaBalanceo {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-1.5px); }
-}
-
-@keyframes brilloBarrido {
-    0%, 100% { opacity: 0.08; }
-    45% { opacity: 0.15; }
-    55% { opacity: 0.1; }
-}
+.robot-handle { transform-origin: 180px 76px; }
+.robot-body-spec { transform-origin: center; }
 
 .robot-eye-group,
 .robot-eye,
@@ -396,12 +385,12 @@ body.sin-cursor { cursor: none; }
     gap: clamp(8px, 0.9svh, 12px);
     min-height: 44px;
     padding: clamp(10px, 1.2svh, 15px) clamp(14px, 1.4vw, 22px);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-violeta);
     border-radius: 12px;
     background: rgba(7, 26, 16, 0.86);
     color: var(--fg);
     font-family: var(--font-mono);
-    font-size: clamp(11px, 1.25svh, 15px);
+    font-size: clamp(16px, 2.1svh, 26px);
     font-weight: 600;
     letter-spacing: 0.06em;
     line-height: 1;
@@ -438,7 +427,7 @@ body.sin-cursor { cursor: none; }
 .nodo:active { transform: scale(0.97); }
 
 @keyframes nodoRespira {
-    0%, 100% { opacity: 0.72; }
+    0%, 100% { opacity: 0.88; }
     50% { opacity: 1; }
 }
 
@@ -457,7 +446,7 @@ body.sin-cursor { cursor: none; }
     padding: clamp(13px, 1.7svh, 21px);
     padding-bottom: clamp(17px, 2.2svh, 27px);
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--marca, var(--violeta)) 24%, var(--border));
+    border: 1px solid color-mix(in srgb, var(--marca, var(--violeta)) 24%, var(--border-violeta));
     border-radius: 18px;
     background:
         radial-gradient(ellipse 120% 70% at 50% 0%, color-mix(in srgb, var(--marca, var(--violeta)) 14%, transparent), transparent 74%),
@@ -511,7 +500,7 @@ body.sin-cursor { cursor: none; }
     aspect-ratio: 16 / 9;
     overflow: hidden;
     border-radius: 10px;
-    background: linear-gradient(165deg, #0F1B15, #0A130E);
+    background: linear-gradient(165deg, #12201A, #0B1410);
     box-shadow: inset 0 0 0 1px rgba(167, 143, 222, 0.16);
 }
 
@@ -523,7 +512,7 @@ body.sin-cursor { cursor: none; }
     margin: 0;
     color: var(--fg);
     font-family: var(--font-display);
-    font-size: clamp(1.05rem, 2.2svh, 1.7rem);
+    font-size: clamp(1.4rem, 3svh, 2.4rem);
     font-weight: 800;
     letter-spacing: -0.015em;
     line-height: 1.08;
@@ -532,8 +521,8 @@ body.sin-cursor { cursor: none; }
 
 .tarjeta-texto {
     margin: clamp(6px, 0.9svh, 11px) 0 0;
-    color: var(--muted);
-    font-size: clamp(0.82rem, 1.55svh, 1.08rem);
+    color: var(--muted-violeta);
+    font-size: clamp(1.05rem, 2.15svh, 1.6rem);
     line-height: 1.42;
     text-wrap: pretty;
 }
@@ -549,12 +538,12 @@ body.sin-cursor { cursor: none; }
 
 .tarjeta-tags li {
     padding: clamp(4px, 0.6svh, 7px) clamp(8px, 0.8vw, 12px);
-    border: 1px solid color-mix(in srgb, var(--marca, var(--violeta)) 26%, var(--border));
+    border: 1px solid color-mix(in srgb, var(--marca, var(--violeta)) 26%, var(--border-violeta));
     border-radius: 999px;
     background: color-mix(in srgb, var(--marca, var(--violeta)) 9%, transparent);
     color: #F0ECE0;
     font-family: var(--font-mono);
-    font-size: clamp(9px, 1.05svh, 12px);
+    font-size: clamp(13px, 1.5svh, 18px);
     letter-spacing: 0.05em;
     line-height: 1;
     white-space: nowrap;
@@ -562,16 +551,25 @@ body.sin-cursor { cursor: none; }
 
 /* Graficos de la tarjeta: SVG para que aguanten un monitor grande. */
 .viz-linea { stroke-dasharray: 460; stroke-dashoffset: 460; animation: vizTrazo 1.5s var(--ease-out) forwards; }
-.viz-sube { transform-box: fill-box; transform-origin: bottom center; animation: vizSube 700ms var(--ease-out) backwards; }
 .viz-late { animation: vizLate 2.4s ease-in-out infinite; }
 .viz-corre { animation: vizCorre 3.2s linear infinite; }
 .viz-escribe { animation: vizEscribe 1.4s ease-in-out infinite; }
 
 @keyframes vizTrazo { to { stroke-dashoffset: 0; } }
-@keyframes vizSube { from { transform: scaleY(0); opacity: 0; } }
 @keyframes vizLate { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 @keyframes vizCorre { from { stroke-dashoffset: 220; } to { stroke-dashoffset: 0; } }
 @keyframes vizEscribe { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-1.5px); } }
+
+/* Debajo de 2200px (todo proyector: 1920x1080, 1280x800) la ilustracion no cabe
+   junto a un cuerpo de 23px: la tarjeta pasa a una sola columna de texto. */
+@media (max-width: 2199px) {
+    .nodo-tarjeta { grid-template-columns: minmax(0, 1fr); }
+    .tarjeta-visual { display: none; }
+}
+
+/* Sin JavaScript la ilustracion nace vacia: no debe dejar un hueco ni robar columna. */
+.nodo-tarjeta:has(.tarjeta-visual:empty) { grid-template-columns: minmax(0, 1fr); }
+.tarjeta-visual:empty { display: none; }
 
 /* Pie: firma discreta, sin competir con la escena. */
 .pie {
@@ -587,8 +585,20 @@ body.sin-cursor { cursor: none; }
     pointer-events: none;
 }
 
+/* Aviso de la tecla de pausa: WCAG 2.2.2 pide que el control se pueda encontrar. */
+.pie-ayuda {
+    color: var(--soft-violeta);
+    font-family: var(--font-mono);
+    font-size: clamp(10px, 1.05svh, 13px);
+    letter-spacing: 0.14em;
+    opacity: 0.68;
+    text-transform: uppercase;
+}
+
+.pie-ayuda.pausado { color: var(--laton-claro); opacity: 1; }
+
 .pie-nota {
-    color: var(--soft);
+    color: var(--soft-violeta);
     font-family: var(--font-mono);
     font-size: clamp(10px, 1.05svh, 13px);
     letter-spacing: 0.14em;
@@ -606,8 +616,8 @@ body.sin-cursor { cursor: none; }
     .nodo-shell[data-capacidad="ia"],
     .nodo-shell[data-capacidad="webs"] { --y: 28%; }
     .nodo-shell[data-capacidad="sistemas"],
-    .nodo-shell[data-capacidad="apps"] { --y: 70%; }
-    .nodo-shell[data-capacidad="auto"] { --y: 96%; }
+    .nodo-shell[data-capacidad="apps"] { --y: 74%; }
+    .nodo-shell[data-capacidad="auto"] { --y: 90%; }
 }
 
 /* Monitores muy grandes (2K/4K en pared): sube el techo de toda la escala. */
@@ -618,12 +628,14 @@ body.sin-cursor { cursor: none; }
     }
 
     .lema { font-size: clamp(3.4rem, 7svh, 6rem); }
-    .marca-nombre { font-size: clamp(21px, 1.7svh, 30px); }
+    /* Estos valores solo tienen sentido si siguen siendo un techo por encima de la
+       base de proyector; si no, el monitor de pared encogeria el texto. */
+    .marca-nombre { font-size: clamp(24px, 2.2svh, 36px); }
     .pie-nota { font-size: clamp(13px, 1.05svh, 17px); }
-    .nodo { font-size: clamp(15px, 1.25svh, 20px); }
-    .tarjeta-titulo { font-size: clamp(1.7rem, 2.4svh, 2.6rem); }
-    .tarjeta-texto { font-size: clamp(1.08rem, 1.6svh, 1.5rem); }
-    .tarjeta-tags li { font-size: clamp(12px, 1.05svh, 16px); }
+    .nodo { font-size: clamp(18px, 2.2svh, 30px); }
+    .tarjeta-titulo { font-size: clamp(1.7rem, 3.1svh, 3rem); }
+    .tarjeta-texto { font-size: clamp(1.15rem, 2.2svh, 1.9rem); }
+    .tarjeta-tags li { font-size: clamp(14px, 1.6svh, 20px); }
 }
 
 /* Portrait y pantallas angostas: la orbita se convierte en lista, con scroll. */
@@ -716,7 +728,6 @@ body.sin-cursor { cursor: none; }
     .robot-body-spec,
     .nodo,
     .viz-linea,
-    .viz-sube,
     .viz-late,
     .viz-corre,
     .viz-escribe {
@@ -726,7 +737,6 @@ body.sin-cursor { cursor: none; }
     .lema em::after { opacity: 1; -webkit-mask-position: 0 0; mask-position: 0 0; }
     .nodo { opacity: 1; }
     .viz-linea { stroke-dashoffset: 0; }
-    .viz-sube { transform: none; opacity: 1; }
     .viz-late, .viz-escribe { opacity: 1; }
     .viz-corre { stroke-dashoffset: 0; }
     .nodo-tarjeta,
